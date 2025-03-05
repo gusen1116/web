@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}로그인{% endblock %}
+
+{% block content %}
+<div class="blog-container">
+    <h2>로그인</h2>
+    
+    <form action="{{ url_for('auth.login') }}" method="post" class="auth-form">
+        <div class="form-group">
+            <label for="email">이메일</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">비밀번호</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        
+        <div class="form-group">
+            <button type="submit" class="btn">로그인</button>
+        </div>
+        
+        <div class="oauth-buttons">
+            <a href="{{ url_for('auth.google_login') }}" class="google-login-btn">
+                <i class="fab fa-google"></i> Google로 로그인
+            </a>
+        </div>
+        
+        <div class="form-footer">
+            <p>계정이 없으신가요? <a href="{{ url_for('auth.register') }}">회원가입</a></p>
+        </div>
+    </form>
+</div>
+{% endblock %}

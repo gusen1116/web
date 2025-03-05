@@ -1,9 +1,9 @@
 # app/services/auth_service.py
 from flask import url_for, session, redirect, request
-from flask_oauthlib.client import OAuth
+from authlib.integrations.flask_client import OAuth
 from app import app, db
 from app.models.user import User
-
+from flask_login import login_user, logout_user, login_required, current_user
 oauth = OAuth(app)
 
 google = oauth.remote_app(

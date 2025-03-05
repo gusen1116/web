@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}블로그{% endblock %}
+
+{% block content %}
+<div class="blog-container">
+    <h1>블로그</h1>
+    
+    <div class="blog-preview">
+        <h3><a href="{{ url_for('blog.post', post_id=1) }}">첫 번째 블로그 포스트 제목</a></h3>
+        <div class="meta-info">
+            <span class="date">2025-03-01</span>
+            <span class="category">과학</span>
+        </div>
+        <p>이것은 블로그 포스트의 미리보기 텍스트입니다. 실제 내용의 일부가 여기에 표시됩니다.</p>
+        <div class="tags-container">
+            <span class="tag">물리학</span>
+            <span class="tag">시뮬레이션</span>
+        </div>
+    </div>
+    
+    <div class="blog-preview">
+        <h3><a href="{{ url_for('blog.post', post_id=2) }}">두 번째 블로그 포스트 제목</a></h3>
+        <div class="meta-info">
+            <span class="date">2025-02-28</span>
+            <span class="category">개발</span>
+        </div>
+        <p>이것은 두 번째 블로그 포스트의 미리보기 텍스트입니다. 실제 내용의 일부가 여기에 표시됩니다.</p>
+        <div class="tags-container">
+            <span class="tag">프로그래밍</span>
+            <span class="tag">파이썬</span>
+        </div>
+    </div>
+    
+    <div class="write-btn-container">
+        <a href="#" class="write-post-btn">글쓰기</a>
+    </div>
+</div>
+{% endblock %}
