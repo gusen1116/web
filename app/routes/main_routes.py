@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template
+from app.models.post import Post  # Post 모델 import 추가
 
 main_bp = Blueprint('main', __name__)
 

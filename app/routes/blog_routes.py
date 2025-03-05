@@ -6,7 +6,6 @@ from app.models.post import Post
 from app.models.category import Category
 from app.models.tag import Tag
 from app.models.post_tag import PostTag
-from app.models.post import Post
 from werkzeug.utils import secure_filename
 import os
 import json
