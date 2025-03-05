@@ -1,52 +1,50 @@
 # app/services/auth_service.py
-from flask import url_for, session, redirect, request
+from flask import url_for, session, redirect, request, current_app
 from authlib.integrations.flask_client import OAuth
-from app import app, db
-from app.models.user import User
-from flask_login import login_user, logout_user, login_required, current_user
-oauth = OAuth(app)
+from flask_login import login_user
+from app import db
 
-google = oauth.remote_app(
-    'google',
-    consumer_key=app.config.get('GOOGLE_CLIENT_ID'),
-    consumer_secret=app.config.get('GOOGLE_CLIENT_SECRET'),
-    request_token_params={
-        'scope': 'email profile'
-    },
-    base_url='https://www.googleapis.com/oauth2/v1/',
-    request_token_url=None,
-    access_token_method='POST',
-    access_token_url='https://accounts.google.com/o/oauth2/token',
-    authorize_url='https://accounts.google.com/o/oauth2/auth',
-)
+# OAuth 객체를 전역으로 생성
+oauth = OAuth()
 
-@google.tokengetter
-def get_google_oauth_token():
-    return session.get('google_token')
+def init_oauth(app):
+    """앱 객체가 있을 때 OAuth 초기화"""
+    oauth.init_app(app)
+    
+    # 구글 OAuth 앱 설정
+    oauth.register(
+        name='google',
+        client_id=app.config.get('GOOGLE_CLIENT_ID'),
+        client_secret=app.config.get('GOOGLE_CLIENT_SECRET'),
+        access_token_url='https://accounts.google.com/o/oauth2/token',
+        access_token_params=None,
+        authorize_url='https://accounts.google.com/o/oauth2/auth',
+        authorize_params=None,
+        api_base_url='https://www.googleapis.com/oauth2/v1/',
+        client_kwargs={'scope': 'email profile'},
+    )
 
 def google_login():
-    return google.authorize(callback=url_for('auth.google_callback', _external=True))
+    """구글 로그인 처리"""
+    redirect_uri = url_for('auth.google_callback', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
 
 def google_callback():
-    resp = google.authorized_response()
-    if resp is None:
-        return 'Access denied: reason=%s error=%s' % (
-            request.args['error_reason'],
-            request.args['error_description']
-        )
-    
-    session['google_token'] = (resp['access_token'], '')
-    user_info = google.get('userinfo')
+    """구글 OAuth 콜백 처리"""
+    token = oauth.google.authorize_access_token()
+    resp = oauth.google.get('userinfo')
+    user_info = resp.json()
     
     # 이미 등록된 사용자인지 확인
-    user = User.query.filter_by(google_id=user_info.data['id']).first()
+    from app.models.user import User
+    user = User.query.filter_by(google_id=user_info['id']).first()
     
     # 등록되지 않은 사용자면 새로 생성
     if not user:
         user = User(
-            username=user_info.data['name'],
-            email=user_info.data['email'],
-            google_id=user_info.data['id']
+            username=user_info['name'],
+            email=user_info['email'],
+            google_id=user_info['id']
         )
         db.session.add(user)
         db.session.commit()

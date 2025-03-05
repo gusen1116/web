@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}{% if post %}글 수정{% else %}새 글 작성{% endif %}{% endblock %}
+
+{% block head %}
+<!-- EditorJS 코어 -->
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+<!-- 도구 플러그인 -->
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/image@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/code@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
+{% endblock %}
+
+{% block content %}
+<div class="editor-container">
+    <div class="editor-header">
+        <h2>{% if post %}글 수정{% else %}새 글 작성{% endif %}</h2>
+    </div>
+    
+    <div class="editor-form">
+        <div class="form-group">
+            <label for="post-title">제목</label>
+            <input type="text" id="post-title" value="{% if post %}{{ post.title }}{% endif %}" placeholder="제목을 입력하세요">
+        </div>
+        
+        <div class="form-group">
+            <label for="post-category">카테고리</label>
+            <select id="post-category">
+                <option value="">카테고리 선택</option>
+                <option value="science" {% if post and post.category_id == 1 %}selected{% endif %}>과학</option>
+                <option value="programming" {% if post and post.category_id == 2 %}selected{% endif %}>프로그래밍</option>
+                <option value="physics" {% if post and post.category_id == 3 %}selected{% endif %}>물리학</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="post-tags">태그 (쉼표로 구분)</label>
+            <input type="text" id="post-tags" value="{% if post %}{{ post.tags|join(',') }}{% endif %}" placeholder="태그1, 태그2, 태그3">
+        </div>
+        
+        <div class="form-group">
+            <label>내용</label>
+            <div id="editorjs"></div>
+        </div>
+        
+        <div class="editor-actions">
+            <button id="save-post" class="btn primary-btn">저장</button>
+            <a href="{{ url_for('blog.index') }}" class="btn secondary-btn">취소</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 에디터 초기화
+        const editor = new EditorJS({
+            holder: 'editorjs',
+            tools: {
+                header: {
+                    class: Header,
+                    inlineToolbar: ['link']
+                },
+                list: {
+                    class: List,
+                    inlineToolbar: true
+                },
+                image: {
+                    class: SimpleImage,
+                    inlineToolbar: true,
+                    config: {
+                        endpoints: {
+                            byFile: '{{ url_for("blog.upload_file") }}',
+                        }
+                    }
+                },
+                code: Code,
+                quote: Quote,
+                table: Table
+            },
+            data: {% if post %}{{ post.content|safe }}{% else %}{}{% endif %}
+        });
+        
+        // 저장 버튼 이벤트
+        document.getElementById('save-post').addEventListener('click', function() {
+            editor.save().then((outputData) => {
+                savePost(outputData);
+            }).catch((error) => {
+                console.error('저장 중 오류 발생:', error);
+                alert('저장 중 오류가 발생했습니다.');
+            });
+        });
+        
+        // 포스트 저장 함수
+        function savePost(data) {
+            const title = document.getElementById('post-title').value;
+            const category = document.getElementById('post-category').value;
+            const tags = document.getElementById('post-tags').value.split(',').map(tag => tag.trim());
+            
+            // 유효성 검사
+            if (!title) {
+                alert('제목을 입력해주세요.');
+                return;
+            }
+            
+            const postData = {
+                title: title,
+                content: data,
+                category: category,
+                tags: tags
+            };
+            
+            const url = {% if post %}'{{ url_for("blog.update", post_id=post.id) }}'{% else %}'{{ url_for("blog.create") }}'{% endif %};
+            const method = {% if post %}'PUT'{% else %}'POST'{% endif %};
+            
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify(postData)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    const postUrl = {% if post %}'{{ url_for("blog.post", post_id=post.id) }}'{% else %}`/blog/post/${result.id}`{% endif %};
+                    window.location.href = postUrl;
+                } else {
+                    alert(result.message || '저장에 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('오류:', error);
+                alert('서버 통신 중 오류가 발생했습니다.');
+            });
+        }
+    });
+</script>
+{% endblock %}

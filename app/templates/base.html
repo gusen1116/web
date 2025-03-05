@@ -15,7 +15,7 @@
             <nav class="left-nav">
                 <ul>
                     <li><a href="{{ url_for('blog.index') }}">블로그</a></li>
-                    <li><a href="{{ url_for('project.index') }}">프로젝트</a></li>
+                    <li><a href="{{ url_for('main.index') }}">프로젝트</a></li>
                     <li><a href="{{ url_for('simulation.index') }}">시뮬레이션</a></li>
                     <li><a href="{{ url_for('main.about') }}">소개</a></li>
                 </ul>
@@ -29,7 +29,7 @@
                 <button class="theme-toggle" id="themeToggle">
                     <i class="fas fa-moon"></i>
                 </button>
-                <form action="{{ url_for('blog.search') }}" method="get">
+                <form action="{{ url_for('blog.index') }}" method="get">
                     <input type="text" name="q" placeholder="검색...">
                     <button type="submit"><i class="fas fa-search"></i></button>
                 </form>
