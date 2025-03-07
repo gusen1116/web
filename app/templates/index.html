@@ -93,7 +93,7 @@
     <div class="tag-cloud">
       {% for tag, count in popular_tags %}
         <a href="{{ url_for('blog.index') }}?tag={{ tag.id }}" 
-           class="tag"
+          class="tag"
            style="font-size: {{ 80 + count * 10 }}%;">
           {{ tag.name }}
         </a>

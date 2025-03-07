@@ -1,8 +1,8 @@
 // EditorCore.js
-import AutoSave from '/AutoSave.js';
-import ContentManager from './ContentManager.js';
-import ToolbarManager from './ToolbarManager.js';
-import MediaHandler from './MediaHandler.js';
+import AutoSave from '/autosave.js';
+import ContentManager from '/contentmagager.js';
+import ToolbarManager from '/toolbarmanager.js';
+import MediaHandler from '/mediahandler.js';
 
 class EditorCore {
     constructor() {

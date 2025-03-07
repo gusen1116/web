@@ -1,6 +1,6 @@
 // ToolbarManager.js
 import Utils from './Utils.js';
-import MediaHandler from './MediaHandler.js';
+import MediaHandler from '/mediahandler.js';
 
 class ToolbarManager {
     constructor(editor) {
