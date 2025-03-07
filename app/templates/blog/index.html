@@ -4,36 +4,142 @@
 
 {% block content %}
 <div class="blog-container">
-    <h1>블로그</h1>
+    <h1 class="fade-in">블로그</h1>
     
-    <div class="blog-preview">
-        <h3><a href="{{ url_for('blog.post', post_id=1) }}">첫 번째 블로그 포스트 제목</a></h3>
-        <div class="meta-info">
-            <span class="date">2025-03-01</span>
-            <span class="category">과학</span>
+    {% if posts %}
+        {% for post in posts %}
+            <div class="blog-preview fade-in fade-in-{{ loop.index }}">
+                <h3><a href="{{ url_for('blog.post', post_id=post.id) }}">{{ post.title }}</a></h3>
+                
+                <div class="meta-info">
+                    <span class="date">{{ post.created_at.strftime('%Y-%m-%d') }}</span>
+                    {% if post.category %}
+                        <span class="category">{{ post.category.name }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="post-preview">
+                    <div class="preview-content">
+                        <div class="preview-text has-fade">
+                            {{ post.get_preview(300) }}
+                        </div>
+                        
+                        <a href="{{ url_for('blog.post', post_id=post.id) }}" class="read-more">더 읽기 →</a>
+                        
+                        {% if post.tags %}
+                            <div class="tags-container">
+                                {% for tag in post.tags %}
+                                    <span class="tag">{{ tag.name }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            {% if not loop.last %}
+                <hr class="separator">
+            {% endif %}
+        {% endfor %}
+        
+        {# 페이지네이션 구현 #}
+        {% if pagination %}
+            <div class="pagination">
+                {% if pagination.has_prev %}
+                    <a href="{{ url_for('blog.index', page=pagination.prev_num) }}" class="pagination-link">&laquo; 이전</a>
+                {% endif %}
+                
+                {% for page in pagination.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
+                    {% if page %}
+                        {% if page == pagination.page %}
+                            <span class="pagination-link current">{{ page }}</span>
+                        {% else %}
+                            <a href="{{ url_for('blog.index', page=page) }}" class="pagination-link">{{ page }}</a>
+                        {% endif %}
+                    {% else %}
+                        <span class="pagination-ellipsis">...</span>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if pagination.has_next %}
+                    <a href="{{ url_for('blog.index', page=pagination.next_num) }}" class="pagination-link">다음 &raquo;</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="empty-state fade-in">
+            <i class="fas fa-feather-alt empty-icon"></i>
+            <p>아직 게시글이 없습니다.</p>
+            
+            {% if current_user.is_authenticated %}
+                <p>첫 번째 글을 작성해보세요!</p>
+                <a href="{{ url_for('blog.new') }}" class="write-post-btn">글쓰기</a>
+            {% else %}
+                <p>새로운 글이 곧 업데이트 될 예정입니다.</p>
+            {% endif %}
         </div>
-        <p>이것은 블로그 포스트의 미리보기 텍스트입니다. 실제 내용의 일부가 여기에 표시됩니다.</p>
-        <div class="tags-container">
-            <span class="tag">물리학</span>
-            <span class="tag">시뮬레이션</span>
-        </div>
-    </div>
-    
-    <div class="blog-preview">
-        <h3><a href="{{ url_for('blog.post', post_id=2) }}">두 번째 블로그 포스트 제목</a></h3>
-        <div class="meta-info">
-            <span class="date">2025-02-28</span>
-            <span class="category">개발</span>
-        </div>
-        <p>이것은 두 번째 블로그 포스트의 미리보기 텍스트입니다. 실제 내용의 일부가 여기에 표시됩니다.</p>
-        <div class="tags-container">
-            <span class="tag">프로그래밍</span>
-            <span class="tag">파이썬</span>
-        </div>
-    </div>
+    {% endif %}
     
     <div class="write-btn-container">
-        <a href="#" class="write-post-btn">글쓰기</a>
+        <a href="{{ url_for('blog.new') }}" class="write-post-btn">글쓰기</a>
+    </div>
+    
+    <div class="blog-sidebar">
+        {% if categories %}
+        <div class="sidebar-widget">
+            <h3>카테고리</h3>
+            <ul class="category-list">
+                {% for category in categories %}
+                    <li>
+                        <a href="{{ url_for('blog.index', category=category.id) }}">
+                            {{ category.name }} 
+                            <span class="count">({{ category.posts|length }})</span>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        {% if tags %}
+        <div class="sidebar-widget">
+            <h3>태그</h3>
+            <div class="tag-cloud">
+                {% for tag in tags %}
+                    <a href="{{ url_for('blog.index', tag=tag.id) }}" class="tag">{{ tag.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if recent_posts %}
+        <div class="sidebar-widget">
+            <h3>최근 게시물</h3>
+            <ul class="recent-posts">
+                {% for post in recent_posts %}
+                    <li>
+                        <a href="{{ url_for('blog.post', post_id=post.id) }}">{{ post.title }}</a>
+                        <span class="post-date">{{ post.created_at.strftime('%Y-%m-%d') }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 애니메이션 효과를 위한 스크립트
+    document.addEventListener('DOMContentLoaded', function() {
+        // 페이지 로드 시 요소들을 순차적으로 표시
+        const fadeElements = document.querySelectorAll('.fade-in');
+        fadeElements.forEach((el, index) => {
+            setTimeout(() => {
+                el.classList.add('visible');
+            }, 100 * index);
+        });
+    });
+</script>
 {% endblock %}

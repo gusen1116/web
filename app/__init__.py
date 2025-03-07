@@ -4,11 +4,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_socketio import SocketIO
 from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect  # 추가
 
 db = SQLAlchemy()
 login_manager = LoginManager()
 socketio = SocketIO()
 migrate = Migrate()
+csrf = CSRFProtect()  # 추가
 
 def create_app(config_object=None):
     app = Flask(__name__)
@@ -17,6 +19,8 @@ def create_app(config_object=None):
     app.config['SECRET_KEY'] = 'your-secret-key'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///blog.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
+    
     
     # 커스텀 설정 적용 (있다면)
     if config_object:
@@ -27,6 +31,7 @@ def create_app(config_object=None):
     login_manager.init_app(app)
     socketio.init_app(app)
     migrate.init_app(app, db)
+    csrf.init_app(app)  # 추가
     
     # 블루프린트 등록
     from app.routes import main_routes, auth_routes, blog_routes, simulation
@@ -43,4 +48,8 @@ def create_app(config_object=None):
         from app.models.user import User
         return User.query.get(int(user_id))
     
+    @app.template_filter('markdown')
+    def markdown_filter(text):
+        import markdown2
+        return markdown2.markdown(text, extras=["fenced-code-blocks", "tables", "break-on-newline"])
     return app

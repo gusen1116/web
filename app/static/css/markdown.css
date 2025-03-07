@@ -1,0 +1,136 @@
+/* 마크다운 콘텐츠 스타일 */
+.markdown-content {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--text-primary);
+}
+
+/* 헤딩 스타일 */
+.markdown-content h1, 
+.markdown-content h2, 
+.markdown-content h3, 
+.markdown-content h4, 
+.markdown-content h5, 
+.markdown-content h6 {
+    margin: 1.5em 0 0.75em;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.markdown-content h1 {
+    font-size: 2.2rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.3em;
+}
+
+.markdown-content h2 {
+    font-size: 1.8rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.3em;
+}
+
+.markdown-content h3 {
+    font-size: 1.5rem;
+}
+
+.markdown-content h4 {
+    font-size: 1.25rem;
+}
+
+/* 단락 스타일 */
+.markdown-content p {
+    margin: 0 0 1em;
+}
+
+/* 링크 스타일 */
+.markdown-content a {
+    color: var(--accent-primary);
+    text-decoration: none;
+}
+
+.markdown-content a:hover {
+    text-decoration: underline;
+}
+
+/* 이미지 스타일 */
+.markdown-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1.5em auto;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+/* 코드 블록 */
+.markdown-content pre {
+    background-color: var(--bg-tertiary);
+    padding: 1em;
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    margin: 1em 0;
+}
+
+.markdown-content code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background-color: var(--bg-tertiary);
+    padding: 0.2em 0.4em;
+    border-radius: var(--radius-sm);
+}
+
+.markdown-content pre code {
+    padding: 0;
+    background-color: transparent;
+}
+
+/* 인용구 */
+.markdown-content blockquote {
+    margin: 1em 0;
+    padding: 0 1em;
+    color: var(--text-secondary);
+    border-left: 4px solid var(--border-color);
+}
+
+/* 목록 */
+.markdown-content ul, 
+.markdown-content ol {
+    margin: 1em 0;
+    padding-left: 2em;
+}
+
+.markdown-content li {
+    margin-bottom: 0.5em;
+}
+
+/* 표 */
+.markdown-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+}
+
+.markdown-content th {
+    background-color: var(--bg-tertiary);
+    padding: 0.5em;
+    text-align: left;
+    font-weight: 600;
+    border: 1px solid var(--border-color);
+}
+
+.markdown-content td {
+    padding: 0.5em;
+    border: 1px solid var(--border-color);
+}
+
+.markdown-content tr:nth-child(even) {
+    background-color: var(--bg-secondary);
+}
+
+/* 수평선 */
+.markdown-content hr {
+    height: 1px;
+    background-color: var(--border-color);
+    border: none;
+    margin: 2em 0;
+}

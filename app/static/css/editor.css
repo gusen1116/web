@@ -1,0 +1,109 @@
+/* 에디터 컨테이너 */
+.editor-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.editor-title {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: var(--text-primary);
+}
+
+/* 폼 요소 스타일 */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 16px;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px rgba(3, 102, 214, 0.2);
+}
+
+/* 에디터 영역 커스텀 스타일 */
+.CodeMirror {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    height: 400px !important;
+}
+
+.CodeMirror-focused {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px rgba(3, 102, 214, 0.1);
+}
+
+/* 다크 모드 호환성 */
+body.dark-theme .CodeMirror {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+body.dark-theme .CodeMirror-cursor {
+    border-left-color: var(--text-primary);
+}
+
+body.dark-theme .editor-toolbar a {
+    color: var(--text-primary) !important;
+}
+
+body.dark-theme .editor-toolbar a:hover,
+body.dark-theme .editor-toolbar a.active {
+    background: var(--bg-tertiary);
+}
+
+/* 버튼 스타일 */
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: var(--accent-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-secondary);
+}
+
+.btn-secondary {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background-color: var(--border-color);
+}
+
+.editor-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}

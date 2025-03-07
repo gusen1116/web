@@ -3,103 +3,168 @@
 {% block title %}{% if post %}글 수정{% else %}새 글 작성{% endif %}{% endblock %}
 
 {% block head %}
-<!-- EditorJS 코어 -->
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
-<!-- 도구 플러그인 -->
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/image@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/code@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/table@latest"></script>
+<!-- 에디터 스타일시트 -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/editor.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="editor-container">
-    <div class="editor-header">
-        <h2>{% if post %}글 수정{% else %}새 글 작성{% endif %}</h2>
-    </div>
+<div class="blog-container editor-container">
+    <h1 class="editor-title">{% if post %}글 수정{% else %}새 글 작성{% endif %}</h1>
     
     <div class="editor-form">
         <div class="form-group">
             <label for="post-title">제목</label>
-            <input type="text" id="post-title" value="{% if post %}{{ post.title }}{% endif %}" placeholder="제목을 입력하세요">
+            <input type="text" id="post-title" class="form-control" value="{% if post %}{{ post.title }}{% endif %}" placeholder="제목을 입력하세요">
         </div>
         
         <div class="form-group">
             <label for="post-category">카테고리</label>
-            <select id="post-category">
+            <select id="post-category" class="form-control">
                 <option value="">카테고리 선택</option>
-                <option value="science" {% if post and post.category_id == 1 %}selected{% endif %}>과학</option>
-                <option value="programming" {% if post and post.category_id == 2 %}selected{% endif %}>프로그래밍</option>
-                <option value="physics" {% if post and post.category_id == 3 %}selected{% endif %}>물리학</option>
+                <option value="science" {% if post and post.category and post.category.name == 'science' %}selected{% endif %}>과학</option>
+                <option value="programming" {% if post and post.category and post.category.name == 'programming' %}selected{% endif %}>프로그래밍</option>
+                <option value="physics" {% if post and post.category and post.category.name == 'physics' %}selected{% endif %}>물리학</option>
             </select>
         </div>
         
         <div class="form-group">
             <label for="post-tags">태그 (쉼표로 구분)</label>
-            <input type="text" id="post-tags" value="{% if post %}{{ post.tags|join(',') }}{% endif %}" placeholder="태그1, 태그2, 태그3">
+            <input type="text" id="post-tags" class="form-control" 
+                   value="{% if post %}{% for tag in post.tags %}{{ tag.name }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}" 
+                   placeholder="태그1, 태그2, 태그3">
         </div>
         
         <div class="form-group">
             <label>내용</label>
-            <div id="editorjs"></div>
+            <textarea id="editor">{% if post %}{{ post.content|safe }}{% endif %}</textarea>
         </div>
         
         <div class="editor-actions">
-            <button id="save-post" class="btn primary-btn">저장</button>
-            <a href="{{ url_for('blog.index') }}" class="btn secondary-btn">취소</a>
+            <button id="save-post" class="btn btn-primary">저장</button>
+            <a href="{{ url_for('blog.index') }}" class="btn btn-secondary">취소</a>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
+<!-- TinyMCE 스크립트 - API 키 사용 -->
+<script src="https://cdn.tiny.cloud/1/YOUR_API_KEY_HERE/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // 에디터 초기화
-        const editor = new EditorJS({
-            holder: 'editorjs',
-            tools: {
-                header: {
-                    class: Header,
-                    inlineToolbar: ['link']
-                },
-                list: {
-                    class: List,
-                    inlineToolbar: true
-                },
-                image: {
-                    class: SimpleImage,
-                    inlineToolbar: true,
-                    config: {
-                        endpoints: {
-                            byFile: '{{ url_for("blog.upload_file") }}',
-                        }
-                    }
-                },
-                code: Code,
-                quote: Quote,
-                table: Table
-            },
-            data: {% if post %}{{ post.content|safe }}{% else %}{}{% endif %}
+        tinymce.init({
+            selector: '#editor',
+            // TinyMCE 고급 기능 활성화
+            plugins: [
+                'advlist', 'autolink', 'link', 'image', 'lists', 'charmap', 'preview', 'anchor', 'pagebreak',
+                'searchreplace', 'wordcount', 'visualblocks', 'visualchars', 'code', 'fullscreen', 'insertdatetime',
+                'media', 'table', 'emoticons', 'template', 'help', 'codesample', 'autosave', 'quickbars',
+                'mentions', 'imagetools', 'powerpaste', 'save', 'hr', 'directionality', 'print'
+            ],
+            // 툴바 구성
+            toolbar: 'undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | ' +
+                     'bullist numlist outdent indent | link image media | table codesample | ' +
+                     'forecolor backcolor emoticons | fullscreen | code help',
+            toolbar_mode: 'sliding',
+            // 메뉴바 활성화
+            menubar: 'file edit view insert format tools table help',
+            // 스타일 포맷 옵션
+            style_formats: [
+                { title: '제목', items: [
+                    { title: '제목 1', format: 'h1' },
+                    { title: '제목 2', format: 'h2' },
+                    { title: '제목 3', format: 'h3' },
+                    { title: '제목 4', format: 'h4' },
+                    { title: '제목 5', format: 'h5' },
+                    { title: '제목 6', format: 'h6' }
+                ]},
+                { title: '인라인', items: [
+                    { title: '굵게', format: 'bold' },
+                    { title: '기울임', format: 'italic' },
+                    { title: '밑줄', format: 'underline' },
+                    { title: '취소선', format: 'strikethrough' },
+                    { title: '코드', format: 'code' }
+                ]},
+                { title: '블록', items: [
+                    { title: '단락', format: 'p' },
+                    { title: '인용구', format: 'blockquote' },
+                    { title: '코드 블록', format: 'pre' }
+                ]}
+            ],
+            // 이미지 업로드 설정
+            images_upload_url: '{{ url_for("blog.upload_file") }}',
+            automatic_uploads: true,
+            images_reuse_filename: true,
+            // 에디터 크기 설정
+            height: 500,
+            // 테마 설정 (옵션: 'oxide' 또는 'oxide-dark')
+            skin: 'oxide',
+            // 콘텐츠 스타일 설정
+            content_style: `
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.6; }
+                h1, h2, h3, h4, h5, h6 { font-weight: 600; line-height: 1.3; margin-top: 1.5em; margin-bottom: 0.5em; }
+                p { margin-bottom: 1em; }
+                img { max-width: 100%; height: auto; }
+                pre { background-color: #f6f8fa; border-radius: 4px; padding: 16px; overflow: auto; }
+                table { border-collapse: collapse; width: 100%; }
+                table td, table th { border: 1px solid #ddd; padding: 8px; }
+                blockquote { border-left: 4px solid #ddd; margin: 0; padding-left: 16px; color: #666; }
+            `,
+            // 언어 설정 (한국어)
+            language: 'ko_KR',
+            // 파일 선택 시 이미지 필터
+            file_picker_types: 'image',
+            // 자동 저장 기능
+            autosave_interval: '30s',
+            // 코드 샘플 언어 목록
+            codesample_languages: [
+                { text: 'HTML/XML', value: 'markup' },
+                { text: 'JavaScript', value: 'javascript' },
+                { text: 'CSS', value: 'css' },
+                { text: 'PHP', value: 'php' },
+                { text: 'Python', value: 'python' },
+                { text: 'Java', value: 'java' },
+                { text: 'C', value: 'c' },
+                { text: 'C#', value: 'csharp' },
+                { text: 'C++', value: 'cpp' },
+                { text: 'Ruby', value: 'ruby' },
+                { text: 'SQL', value: 'sql' }
+            ],
+            // 링크 설정
+            link_default_target: '_blank',
+            // 이미지 관련 설정
+            image_caption: true,
+            image_advtab: true,
+            image_title: true,
+            image_dimensions: false,
+            // 빠른 삽입 도구 설정
+            quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote',
+            quickbars_insert_toolbar: 'quickimage quicktable',
+            // 컨텍스트 메뉴 활성화
+            contextmenu: 'link image table',
+            // 붙여넣기 설정 (고급 기능으로 서식 유지)
+            paste_data_images: true,
+            paste_enable_default_filters: true,
+            // 에디터 로드 완료 후 콜백
+            setup: function(editor) {
+                // 에디터 로드 완료 이벤트
+                editor.on('init', function() {
+                    console.log('TinyMCE 에디터가 초기화되었습니다.');
+                });
+            }
         });
-        
+
         // 저장 버튼 이벤트
         document.getElementById('save-post').addEventListener('click', function() {
-            editor.save().then((outputData) => {
-                savePost(outputData);
-            }).catch((error) => {
-                console.error('저장 중 오류 발생:', error);
-                alert('저장 중 오류가 발생했습니다.');
-            });
+            const content = tinymce.get('editor').getContent();
+            savePost(content);
         });
         
         // 포스트 저장 함수
-        function savePost(data) {
+        function savePost(content) {
             const title = document.getElementById('post-title').value;
             const category = document.getElementById('post-category').value;
-            const tags = document.getElementById('post-tags').value.split(',').map(tag => tag.trim());
+            const tags = document.getElementById('post-tags').value.split(',').map(tag => tag.trim()).filter(tag => tag);
             
             // 유효성 검사
             if (!title) {
@@ -109,28 +174,31 @@
             
             const postData = {
                 title: title,
-                content: data,
+                content: content,
                 category: category,
                 tags: tags
             };
             
+            // 새 글 작성인지 수정인지 확인
             const url = {% if post %}'{{ url_for("blog.update", post_id=post.id) }}'{% else %}'{{ url_for("blog.create") }}'{% endif %};
             const method = {% if post %}'PUT'{% else %}'POST'{% endif %};
             
+            // 서버에 저장 요청
             fetch(url, {
                 method: method,
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token() }}'
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(postData)
             })
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
+                    // 성공 시 상세 페이지로 이동
                     const postUrl = {% if post %}'{{ url_for("blog.post", post_id=post.id) }}'{% else %}`/blog/post/${result.id}`{% endif %};
                     window.location.href = postUrl;
                 } else {
+                    // 실패 시 오류 메시지 표시
                     alert(result.message || '저장에 실패했습니다.');
                 }
             })

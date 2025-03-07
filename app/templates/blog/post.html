@@ -1,44 +1,59 @@
 {% extends "base.html" %}
 
-{% block title %}첫 번째 블로그 포스트 제목{% endblock %}
+{% block title %}{{ post.title }}{% endblock %}
 
 {% block content %}
 <div class="blog-detail-container">
-    <h2>첫 번째 블로그 포스트 제목</h2>
+    <h2>{{ post.title }}</h2>
     
     <div class="post-meta">
-        <span class="date">2025-03-01</span>
-        <span class="category">과학</span>
-        <div class="tags-container">
-            <span class="tag">물리학</span>
-            <span class="tag">시뮬레이션</span>
-        </div>
+        <span class="date">{{ post.created_at.strftime('%Y-%m-%d') }}</span>
+        {% if post.category %}
+            <span class="category">{{ post.category.name }}</span>
+        {% endif %}
+        {% if post.tags %}
+            <div class="tags-container">
+                {% for tag in post.tags %}
+                    <span class="tag">{{ tag.name }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
     
-    <figure>
-        <img src="{{ url_for('static', filename='img/placeholder.jpg') }}" alt="포스트 이미지">
-        <figcaption>이미지 설명</figcaption>
-    </figure>
-    
-    <div class="full-content">
-        <p>이것은 블로그 포스트의 전체 내용입니다. 이 예제에서는 간단한 텍스트만 표시하지만, 실제로는 여기에 더 복잡한 내용이 들어갈 수 있습니다.</p>
-        
-        <h3>소제목</h3>
-        <p>블로그 내용의 두 번째 단락입니다. 여기에는 더 많은 텍스트가 포함됩니다. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-        
-        <p>세 번째 단락입니다. 여기에는 코드 블록이 포함될 수 있습니다:</p>
-        
-        <pre><code>def hello_world():
-    print("Hello, World!")
-
-hello_world()</code></pre>
-        
-        <p>추가 내용이 여기에 계속됩니다...</p>
+    <div class="full-content markdown-content">
+        {{ post.content|markdown|safe }}
     </div>
     
     <div class="post-actions">
-        <a href="#" class="edit-btn">수정</a>
-        <button class="delete-btn">삭제</button>
+        <a href="{{ url_for('blog.edit', post_id=post.id) }}" class="edit-btn">수정</a>
+        <button class="delete-btn" onclick="deletePost({{ post.id }})">삭제</button>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function deletePost(postId) {
+        if (confirm('정말로 이 글을 삭제하시겠습니까?')) {
+            fetch(`/blog/posts/${postId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = "{{ url_for('blog.index') }}";
+                } else {
+                    alert(data.message || '삭제에 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('오류:', error);
+                alert('서버 통신 중 오류가 발생했습니다.');
+            });
+        }
+    }
+</script>
 {% endblock %}
