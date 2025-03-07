@@ -21,8 +21,81 @@
     </div>
     
     <div class="post-content">
-        {{ post.content | safe }}
+        <script>
+            // 포스트 콘텐츠를 JSON으로 파싱
+            try {
+                const content = {{ post.content|tojson }};
+                const contentObj = JSON.parse(content);
+                
+                // 각 블록 유형에 맞게 HTML 생성
+                let html = '';
+                if (contentObj && contentObj.blocks) {
+                    contentObj.blocks.forEach(block => {
+                        switch(block.type) {
+                            case 'paragraph':
+                                html += `<p>${block.content}</p>`;
+                                break;
+                            case 'header':
+                                const level = Math.min(Math.max(block.level, 1), 6);
+                                html += `<h${level}>${block.content}</h${level}>`;
+                                break;
+                            case 'quote':
+                                html += `<blockquote>${block.content}</blockquote>`;
+                                break;
+                            case 'code':
+                                html += `<pre><code>${block.content}</code></pre>`;
+                                break;
+                            case 'list':
+                                const listTag = block.style === 'ordered' ? 'ol' : 'ul';
+                                html += `<${listTag}>`;
+                                block.items.forEach(item => {
+                                    html += `<li>${item}</li>`;
+                                });
+                                html += `</${listTag}>`;
+                                break;
+                            case 'image':
+                                html += `<figure>`;
+                                html += `<img src="${block.url}" alt="${block.alt || ''}" class="post-image">`;
+                                if (block.caption) {
+                                    html += `<figcaption>${block.caption}</figcaption>`;
+                                }
+                                html += `</figure>`;
+                                break;
+                            case 'delimiter':
+                                html += '<hr>';
+                                break;
+                            default:
+                                // 알 수 없는 블록 타입은 단순 텍스트로 처리
+                                if (block.content) {
+                                    html += `<div>${block.content}</div>`;
+                                }
+                        }
+                    });
+                    
+                    // 생성된 HTML 삽입
+                    document.currentScript.insertAdjacentHTML('afterend', html);
+                } else if (typeof content === 'string') {
+                    // contentObj가 없으면 원본 텍스트를 표시
+                    document.currentScript.insertAdjacentHTML('afterend', content);
+                }
+            } catch (e) {
+                // 오류 발생 시 원본 콘텐츠를 안전하게 표시
+                console.error('콘텐츠 파싱 오류:', e);
+                const content = {{ post.content|tojson }};
+                if (typeof content === 'string') {
+                    // HTML 태그를 이스케이프하여 텍스트로 표시
+                    document.currentScript.insertAdjacentHTML('afterend', 
+                    `<div>${content.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`);
+                }
+            }
+        </script>
+        
+        <!-- 스크립트 실패시 대체 콘텐츠 -->
+        <noscript>
+            {{ post.content|safe }}
+        </noscript>
     </div>
+    
     <div class="post-actions">
         <a href="{{ url_for('blog.edit', post_id=post.id) }}" class="edit-btn">수정</a>
         <button class="delete-btn" onclick="deletePost({{ post.id }})">삭제</button>
@@ -37,7 +110,8 @@
             fetch(`/blog/posts/${postId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 }
             })
             .then(response => response.json())

@@ -1,5 +1,5 @@
 # app/routes/blog_routes.py
-from flask import Blueprint, render_template, request, jsonify, url_for, redirect, abort, flash, current_app
+from flask import Blueprint, render_template, request, jsonify, send_from_directory, url_for, redirect, abort, flash, current_app
 from flask_login import login_required, current_user
 from app import db
 from app.models.post import Post
@@ -11,18 +11,105 @@ import os
 import json
 import time
 from datetime import datetime
+import uuid
+from PIL import Image
 
 # 블루프린트 정의 - 파일 상단에 위치
 blog_bp = Blueprint('blog', __name__, url_prefix='/blog')
 
 # 파일 업로드 설정
-UPLOAD_FOLDER = 'app/static/uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+UPLOAD_FOLDER = 'instance/uploads'
+ALLOWED_EXTENSIONS = {
+    'image': {'png', 'jpg', 'jpeg', 'gif', 'webp'},
+    'document': {'pdf', 'doc', 'docx', 'txt', 'rtf', 'md'},
+    'archive': {'zip', 'rar', '7z', 'tar', 'gz'},
+    'audio': {'mp3', 'wav', 'ogg', 'flac'},
+    'video': {'mp4', 'webm', 'avi', 'mov', 'mkv'}
+}
 
 def allowed_file(filename):
     """파일 확장자 확인"""
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+    for file_type, extensions in ALLOWED_EXTENSIONS.items():
+        if ext in extensions:
+            return True, file_type
+    return False, None
+
+def get_file_type_icon(file_type):
+    """파일 타입에 따른 아이콘 클래스 반환"""
+    icons = {
+        'image': 'fa-file-image',
+        'document': 'fa-file-alt',
+        'archive': 'fa-file-archive',
+        'audio': 'fa-file-audio',
+        'video': 'fa-file-video'
+    }
+    return icons.get(file_type, 'fa-file')
+
+def optimize_image(file_path, max_width=1200, quality=85):
+    """이미지 최적화 함수"""
+    try:
+        img = Image.open(file_path)
+        
+        # EXIF 정보에 따라 이미지 회전
+        try:
+            exif = img._getexif()
+            if exif:
+                orientation_key = 274  # EXIF 태그 번호 (Orientation)
+                if orientation_key in exif:
+                    orientation = exif[orientation_key]
+                    
+                    # 방향에 따라 이미지 회전
+                    if orientation == 3:
+                        img = img.rotate(180, expand=True)
+                    elif orientation == 6:
+                        img = img.rotate(270, expand=True)
+                    elif orientation == 8:
+                        img = img.rotate(90, expand=True)
+        except:
+            pass
+        
+        # 이미지 크기 조정
+        width, height = img.size
+        if width > max_width:
+            ratio = max_width / width
+            new_height = int(height * ratio)
+            img = img.resize((max_width, new_height), Image.LANCZOS)
+        
+        # 이미지 저장 (원본 파일 교체)
+        img.save(file_path, optimize=True, quality=quality)
+        
+        # 썸네일 생성 (원본 파일명_thumbnail.확장자)
+        thumbnail_path = file_path.rsplit('.', 1)[0] + '_thumbnail.' + file_path.rsplit('.', 1)[1]
+        thumbnail = img.copy()
+        thumbnail.thumbnail((300, 300), Image.LANCZOS)
+        thumbnail.save(thumbnail_path, optimize=True, quality=quality)
+        
+        return True
+    except Exception as e:
+        print(f"이미지 최적화 오류: {str(e)}")
+        return False
+
+def check_file_duplicate(file):
+    """파일 중복 확인 (해시 기반)"""
+    import hashlib
+    
+    # 파일 해시 계산
+    md5_hash = hashlib.md5()
+    for chunk in iter(lambda: file.read(4096), b""):
+        md5_hash.update(chunk)
+    file_hash = md5_hash.hexdigest()
+    
+    # 파일 포인터 위치 리셋
+    file.seek(0)
+    
+    # 해시 값으로 중복 파일 검색
+    try:
+        from app.models.file import File
+        existing_file = File.query.filter_by(file_hash=file_hash).first()
+        return existing_file
+    except:
+        return None
 
 # 블로그 목록
 @blog_bp.route('/')
@@ -109,7 +196,7 @@ def create():
         
         new_post = Post(
             title=data['title'],
-            content=data['content'],  # 마크다운 텍스트를 직접 저장
+            content=data['content'],  # JSON 형식의 콘텐츠 저장
             user_id=user_id
         )
         
@@ -173,7 +260,7 @@ def update(post_id):
         data = request.json
         
         post.title = data['title']
-        post.content = data['content']  # 마크다운 텍스트 저장
+        post.content = data['content']
         post.updated_at = datetime.utcnow()
         
         # 카테고리 처리 (필요시)
@@ -240,33 +327,108 @@ def delete(post_id):
 def upload_file():
     """에디터에서 이미지 업로드 API"""
     if 'file' not in request.files:
-        return jsonify({'success': False, 'message': '파일이 없습니다.'}), 400
+        return jsonify({'success': 0, 'message': '파일이 없습니다.'}), 400
     
     file = request.files['file']
     if file.filename == '':
-        return jsonify({'success': False, 'message': '선택된 파일이 없습니다.'}), 400
+        return jsonify({'success': 0, 'message': '선택된 파일이 없습니다.'}), 400
     
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        # 중복 방지를 위해 타임스탬프 추가
-        filename = f"{int(time.time())}_{filename}"
-        
-        # 디렉토리가 없으면 생성
-        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-        
-        file_path = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(file_path)
-        
-        # URL 경로 반환
-        url = url_for('static', filename=f'uploads/{filename}')
+    is_allowed, file_type = allowed_file(file.filename)
+    if not is_allowed:
+        return jsonify({'success': 0, 'message': '허용되지 않는 파일 형식입니다.'}), 400
+    
+    # 중복 파일 확인
+    existing_file = check_file_duplicate(file)
+    if existing_file:
         return jsonify({
-            'success': 1,  # 성공 상태 (SimpleMDE와 호환)
+            'success': 1,
             'file': {
-                'url': url
+                'url': existing_file.file_url,
+                'name': existing_file.filename,
+                'type': existing_file.file_type,
+                'size': existing_file.file_size,
+                'isImage': existing_file.is_image
             }
         })
     
-    return jsonify({'success': False, 'message': '허용되지 않는 파일 형식입니다.'}), 400
+    # 파일 저장 준비
+    filename = secure_filename(file.filename)
+    unique_id = str(uuid.uuid4()).split('-')[0]
+    new_filename = f"{int(time.time())}_{unique_id}_{filename}"
+    
+    # 디렉토리가 없으면 생성
+    type_folder = os.path.join(UPLOAD_FOLDER, file_type)
+    os.makedirs(type_folder, exist_ok=True)
+    
+    file_path = os.path.join(type_folder, new_filename)
+    file.save(file_path)
+    
+    # 이미지인 경우 최적화
+    is_image = file_type == 'image'
+    if is_image:
+        optimize_image(file_path)
+    
+    # 파일 URL 생성
+    file_url = url_for('blog.serve_file', file_type=file_type, filename=new_filename)
+    
+    # 파일 크기 계산
+    file_size = os.path.getsize(file_path)
+    
+    try:
+        # 파일 정보 데이터베이스에 저장
+        from app.models.file import File
+        
+        # 파일 해시 다시 계산
+        import hashlib
+        with open(file_path, 'rb') as f:
+            md5_hash = hashlib.md5()
+            for chunk in iter(lambda: f.read(4096), b""):
+                md5_hash.update(chunk)
+            file_hash = md5_hash.hexdigest()
+        
+        # 데이터베이스에 파일 정보 저장
+        new_file = File(
+            filename=filename,
+            stored_filename=new_filename,
+            file_path=file_path,
+            file_url=file_url,
+            file_type=file_type,
+            file_size=file_size,
+            file_hash=file_hash,
+            is_image=is_image,
+            uploader_id=current_user.id if current_user.is_authenticated else None
+        )
+        
+        db.session.add(new_file)
+        db.session.commit()
+    except Exception as e:
+        print(f"파일 정보 저장 오류: {str(e)}")
+    
+    # 응답 반환
+    response_data = {
+        'success': 1,
+        'file': {
+            'url': file_url,
+            'name': filename,
+            'type': file_type,
+            'size': file_size,
+            'isImage': is_image
+        }
+    }
+    
+    # 이미지인 경우 썸네일 URL 추가
+    if is_image:
+        thumbnail_filename = new_filename.rsplit('.', 1)[0] + '_thumbnail.' + new_filename.rsplit('.', 1)[1]
+        thumbnail_url = url_for('blog.serve_file', file_type=file_type, filename=thumbnail_filename)
+        response_data['file']['thumbnailUrl'] = thumbnail_url
+    
+    return jsonify(response_data)
+
+# 파일 제공 라우트 추가
+@blog_bp.route('/uploads/<string:file_type>/<string:filename>')
+def serve_file(file_type, filename):
+    """업로드된 파일 제공"""
+    return send_from_directory(os.path.join(UPLOAD_FOLDER, file_type), filename)
 
 # 카테고리별 게시물 보기
 @blog_bp.route('/category/<int:category_id>')

@@ -4,11 +4,11 @@
 
 {% block head %}
 <!-- 에디터 스타일시트 -->
-<link rel="stylesheet" href="{{ url_for('static', filename='css/editor.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/custom-editor.css') }}">
 {% endblock %}
 
 {% block content %}
-<div class="blog-container editor-container">
+<div id="editor-container" class="blog-container editor-container" {% if post %}data-post-id="{{ post.id }}"{% endif %}>
     <h1 class="editor-title">{% if post %}글 수정{% else %}새 글 작성{% endif %}</h1>
     
     <div class="editor-form">
@@ -30,15 +30,61 @@
         <div class="form-group">
             <label for="post-tags">태그 (쉼표로 구분)</label>
             <input type="text" id="post-tags" class="form-control" 
-                   value="{% if post %}{% for tag in post.tags %}{{ tag.name }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}" 
-                   placeholder="태그1, 태그2, 태그3">
+                value="{% if post %}{% for tag in post.tags %}{{ tag.name }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}" 
+                placeholder="태그1, 태그2, 태그3">
         </div>
         
         <div class="form-group">
             <label>내용</label>
-            <textarea id="editor">{% if post %}{{ post.content|safe }}{% endif %}</textarea>
+            
+            <!-- 에디터 툴바 -->
+            <div class="editor-toolbar">
+                <div class="toolbar-group">
+                    <button class="toolbar-button" data-command="bold" title="굵게"><i class="fas fa-bold"></i></button>
+                    <button class="toolbar-button" data-command="italic" title="기울임"><i class="fas fa-italic"></i></button>
+                    <button class="toolbar-button" data-command="underline" title="밑줄"><i class="fas fa-underline"></i></button>
+                    <button class="toolbar-button" data-command="strikeThrough" title="취소선"><i class="fas fa-strikethrough"></i></button>
+                </div>
+                
+                <div class="toolbar-separator"></div>
+                
+                <div class="toolbar-group">
+                    <button class="toolbar-button" data-command="formatBlock" data-value="h1" title="제목 1"><i class="fas fa-heading"></i>1</button>
+                    <button class="toolbar-button" data-command="formatBlock" data-value="h2" title="제목 2"><i class="fas fa-heading"></i>2</button>
+                    <button class="toolbar-button" data-command="formatBlock" data-value="h3" title="제목 3"><i class="fas fa-heading"></i>3</button>
+                </div>
+                
+                <div class="toolbar-separator"></div>
+                
+                <div class="toolbar-group">
+                    <button class="toolbar-button" data-command="insertOrderedList" title="번호 매기기 목록"><i class="fas fa-list-ol"></i></button>
+                    <button class="toolbar-button" data-command="insertUnorderedList" title="글머리 기호 목록"><i class="fas fa-list-ul"></i></button>
+                </div>
+                
+                <div class="toolbar-separator"></div>
+                
+                <div class="toolbar-group">
+                    <button class="toolbar-button" data-command="formatBlock" data-value="blockquote" title="인용구"><i class="fas fa-quote-right"></i></button>
+                    <button class="toolbar-button" data-command="formatBlock" data-value="pre" title="코드 블록"><i class="fas fa-code"></i></button>
+                    <button class="toolbar-button" data-command="insertHorizontalRule" title="구분선"><i class="fas fa-minus"></i></button>
+                </div>
+                
+                <div class="toolbar-separator"></div>
+                
+                <div class="toolbar-group">
+                    <button class="toolbar-button" data-command="createLink" title="링크 삽입"><i class="fas fa-link"></i></button>
+                    <button class="toolbar-button" data-command="insertImage" title="이미지 삽입"><i class="fas fa-image"></i></button>
+                </div>
+            </div>
+            
+            <!-- 에디터 콘텐츠 영역 -->
+            <div id="content-area" class="content-area"></div>
+            
+            <!-- 기존 콘텐츠를 저장하기 위한 숨겨진 요소 -->
+            {% if post %}
+            <div id="existing-content" style="display: none;">{{ post.content|safe }}</div>
+            {% endif %}
         </div>
-        
         <div class="editor-actions">
             <button id="save-post" class="btn btn-primary">저장</button>
             <a href="{{ url_for('blog.index') }}" class="btn btn-secondary">취소</a>
@@ -48,528 +94,6 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- TinyMCE 스크립트 - API 키 사용 -->
-<script src="https://cdn.tiny.cloud/1/실제_API_키/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        tinymce.init({
-            selector: '#editor',
-            // TinyMCE 고급 기능 활성화
-            plugins: [
-                'advlist', 'autolink', 'link', 'image', 'lists', 'charmap', 'preview', 'anchor', 'pagebreak',
-                'searchreplace', 'wordcount', 'visualblocks', 'visualchars', 'code', 'fullscreen', 'insertdatetime',
-                'media', 'table', 'emoticons', 'template', 'help', 'codesample', 'autosave', 'quickbars'
-            ],
-            // 툴바 구성
-            toolbar: 'undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | ' +
-                     'bullist numlist outdent indent | link image media | table codesample | ' +
-                     'forecolor backcolor emoticons | fullscreen | code help',
-            toolbar_mode: 'sliding',
-            // 메뉴바 활성화
-            menubar: 'file edit view insert format tools table help',
-            
-            // 파일 업로드 관련 설정
-            images_upload_url: '{{ url_for("blog.upload_file") }}',
-            automatic_uploads: true,
-            images_reuse_filename: false,
-            
-            // 파일 업로드 핸들러
-            images_upload_handler: function (blobInfo, progress) {
-                return new Promise((resolve, reject) => {
-                    const xhr = new XMLHttpRequest();
-                    xhr.open('POST', '{{ url_for("blog.upload_file") }}');
-                    
-                    // CSRF 토큰 추가
-                    const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                    
-                    // 업로드 진행 상태 처리
-                    xhr.upload.onprogress = function(e) {
-                        progress(e.loaded / e.total * 100);
-                    };
-                    
-                    xhr.onload = function() {
-                        if (xhr.status === 403) {
-                            reject({ message: '접근이 거부되었습니다. 로그인이 필요할 수 있습니다.', remove: true });
-                            return;
-                        }
-                        
-                        if (xhr.status < 200 || xhr.status >= 300) {
-                            reject({ message: '업로드 중 오류가 발생했습니다 (상태코드: ' + xhr.status + ')', remove: true });
-                            return;
-                        }
-                        
-                        try {
-                            const json = JSON.parse(xhr.responseText);
-                            
-                            if (!json || typeof json.file.url != 'string') {
-                                reject({ message: '서버 응답 형식이 올바르지 않습니다.', remove: true });
-                                return;
-                            }
-                            
-                            resolve(json.file.url);
-                        } catch (e) {
-                            reject({ message: '서버 응답을 처리하는 중 오류가 발생했습니다: ' + e.message, remove: true });
-                        }
-                    };
-                    
-                    xhr.onerror = function () {
-                        reject({ message: '네트워크 오류가 발생했습니다.', remove: true });
-                    };
-                    
-                    const formData = new FormData();
-                    formData.append('file', blobInfo.blob(), blobInfo.filename());
-                    
-                    xhr.send(formData);
-                });
-            },
-            
-            // 이미지 관련 설정
-            file_picker_types: 'image',
-            image_advtab: true,
-            image_caption: true,
-            image_dimensions: true,
-            
-            // 이미지 클래스 옵션
-            image_class_list: [
-                { title: '반응형 (기본)', value: 'img-fluid' },
-                { title: '작게', value: 'img-small' },
-                { title: '중간', value: 'img-medium' },
-                { title: '크게', value: 'img-large' }
-            ],
-            
-            // 스킨 및 콘텐츠 CSS 기본 설정
-            skin: 'oxide',
-            content_css: 'default',
-            
-            // 에디터 내용 스타일 설정
-            content_style: `
-                :root {
-                    --bg-primary: ${getComputedStyle(document.documentElement).getPropertyValue('--bg-primary')};
-                    --bg-secondary: ${getComputedStyle(document.documentElement).getPropertyValue('--bg-secondary')};
-                    --bg-tertiary: ${getComputedStyle(document.documentElement).getPropertyValue('--bg-tertiary')};
-                    --text-primary: ${getComputedStyle(document.documentElement).getPropertyValue('--text-primary')};
-                    --text-secondary: ${getComputedStyle(document.documentElement).getPropertyValue('--text-secondary')};
-                    --border-color: ${getComputedStyle(document.documentElement).getPropertyValue('--border-color')};
-                    --accent-primary: ${getComputedStyle(document.documentElement).getPropertyValue('--accent-primary')};
-                    --accent-secondary: ${getComputedStyle(document.documentElement).getPropertyValue('--accent-secondary')};
-                    --font-sans: ${getComputedStyle(document.documentElement).getPropertyValue('--font-sans')};
-                    --radius-sm: ${getComputedStyle(document.documentElement).getPropertyValue('--radius-sm')};
-                    --radius-md: ${getComputedStyle(document.documentElement).getPropertyValue('--radius-md')};
-                }
-                
-                body { 
-                    font-family: var(--font-sans); 
-                    color: var(--text-primary);
-                    background-color: var(--bg-primary);
-                    line-height: 1.6;
-                    padding: 1rem;
-                }
-                
-                h1, h2, h3, h4, h5, h6 { 
-                    margin-top: 1.5em; 
-                    margin-bottom: 0.5em; 
-                    color: var(--text-primary);
-                    font-weight: 600;
-                    line-height: 1.3;
-                }
-                
-                h1 { font-size: 2.2rem; }
-                h2 { font-size: 1.8rem; }
-                h3 { font-size: 1.5rem; }
-                h4 { font-size: 1.25rem; }
-                h5 { font-size: 1.1rem; }
-                h6 { font-size: 1rem; }
-                
-                p { margin-bottom: 1em; }
-                
-                a { color: var(--accent-primary); }
-                a:hover { color: var(--accent-secondary); text-decoration: underline; }
-                
-                code { 
-                    background-color: var(--bg-tertiary);
-                    border-radius: var(--radius-sm);
-                    padding: 0.2em 0.4em;
-                    font-size: 0.85em;
-                    font-family: var(--font-mono, monospace);
-                }
-                
-                pre {
-                    background-color: var(--bg-tertiary);
-                    border-radius: var(--radius-md);
-                    padding: 1em;
-                    margin: 1em 0;
-                    overflow-x: auto;
-                }
-                
-                pre code {
-                    background-color: transparent;
-                    padding: 0;
-                    font-size: 0.9em;
-                }
-                
-                blockquote {
-                    border-left: 4px solid var(--border-color);
-                    padding: 0.5em 0 0.5em 1em;
-                    color: var(--text-secondary);
-                    margin: 1em 0;
-                    background-color: var(--bg-secondary);
-                    border-radius: 0 var(--radius-md) var(--radius-md) 0;
-                }
-                
-                ul, ol {
-                    margin: 1em 0;
-                    padding-left: 2em;
-                }
-                
-                li {
-                    margin-bottom: 0.5em;
-                }
-                
-                table {
-                    border-collapse: collapse;
-                    width: 100%;
-                    margin: 1em 0;
-                }
-                
-                table td, table th {
-                    border: 1px solid var(--border-color);
-                    padding: 0.5em;
-                }
-                
-                table th {
-                    background-color: var(--bg-tertiary);
-                    font-weight: 600;
-                    text-align: left;
-                }
-                
-                table tr:nth-child(even) {
-                    background-color: var(--bg-secondary);
-                }
-                
-                hr {
-                    height: 1px;
-                    background-color: var(--border-color);
-                    border: none;
-                    margin: 2em 0;
-                }
-                
-                img {
-                    max-width: 100%;
-                    height: auto;
-                    border-radius: var(--radius-md);
-                    display: block;
-                    margin: 1em auto;
-                }
-                
-                /* 에디터 내 텍스트 선택 색상 */
-                ::selection {
-                    background-color: var(--accent-secondary);
-                    color: white;
-                }
-                
-                /* 이미지 클래스 스타일 */
-                .img-small { 
-                    max-width: 25%; 
-                    margin: 1em auto;
-                    display: block;
-                }
-                
-                .img-medium { 
-                    max-width: 50%; 
-                    margin: 1em auto;
-                    display: block;
-                }
-                
-                .img-large { 
-                    max-width: 100%; 
-                    margin: 1em auto;
-                    display: block;
-                }
-                
-                .img-fluid { 
-                    max-width: 100%; 
-                    height: auto; 
-                    margin: 1em auto;
-                    display: block;
-                }
-                
-                /* 알림 박스 스타일 */
-                .notice-box {
-                    background-color: var(--bg-secondary);
-                    border-left: 4px solid var(--accent-primary);
-                    padding: 15px;
-                    margin: 20px 0;
-                    border-radius: var(--radius-md);
-                }
-                
-                /* 텍스트 정렬 클래스 */
-                .text-center {
-                    text-align: center;
-                }
-                
-                .text-right {
-                    text-align: right;
-                }
-                
-                .text-left {
-                    text-align: left;
-                }
-                
-                /* 인용 출처 스타일 */
-                .source {
-                    text-align: right;
-                    color: var(--text-secondary);
-                    font-style: italic;
-                    margin-top: -0.5em;
-                    font-size: 0.9em;
-                }
-                
-                /* 다양한 알림 박스 변형 */
-                .info-box {
-                    background-color: rgba(3, 102, 214, 0.1);
-                    border-left: 4px solid var(--accent-primary);
-                    padding: 15px;
-                    margin: 20px 0;
-                    border-radius: var(--radius-md);
-                }
-                
-                .warning-box {
-                    background-color: rgba(246, 106, 10, 0.1);
-                    border-left: 4px solid #f66a0a;
-                    padding: 15px;
-                    margin: 20px 0;
-                    border-radius: var(--radius-md);
-                }
-                
-                .error-box {
-                    background-color: rgba(215, 58, 73, 0.1);
-                    border-left: 4px solid var(--danger-color, #d73a49);
-                    padding: 15px;
-                    margin: 20px 0;
-                    border-radius: var(--radius-md);
-                }
-                
-                .success-box {
-                    background-color: rgba(40, 167, 69, 0.1);
-                    border-left: 4px solid var(--success-color, #28a745);
-                    padding: 15px;
-                    margin: 20px 0;
-                    border-radius: var(--radius-md);
-                }
-                
-                /* 다크 모드 내부 스타일 - 에디터 내에서 추가될 스타일 */
-                body.dark-theme { 
-                    background-color: #0d1117; 
-                    color: #c9d1d9; 
-                }
-                
-                body.dark-theme p, 
-                body.dark-theme h1, 
-                body.dark-theme h2, 
-                body.dark-theme h3, 
-                body.dark-theme h4, 
-                body.dark-theme h5, 
-                body.dark-theme h6, 
-                body.dark-theme li { 
-                    color: #c9d1d9; 
-                }
-                
-                body.dark-theme blockquote { 
-                    border-left: 4px solid #30363d; 
-                    color: #8b949e; 
-                    background-color: #161b22; 
-                }
-                
-                body.dark-theme code { 
-                    background-color: #161b22; 
-                    color: #e6edf3; 
-                }
-                
-                body.dark-theme pre {
-                    background-color: #161b22;
-                }
-                
-                body.dark-theme table td, 
-                body.dark-theme table th {
-                    border-color: #30363d;
-                }
-                
-                body.dark-theme table th {
-                    background-color: #21262d;
-                }
-                
-                body.dark-theme table tr:nth-child(even) {
-                    background-color: #161b22;
-                }
-                
-                body.dark-theme a {
-                    color: #58a6ff;
-                }
-                
-                body.dark-theme a:hover {
-                    color: #79c0ff;
-                }
-                
-                body.dark-theme hr {
-                    border-color: #30363d;
-                    background-color: #30363d;
-                }
-                
-                body.dark-theme .notice-box,
-                body.dark-theme .info-box,
-                body.dark-theme .warning-box,
-                body.dark-theme .error-box,
-                body.dark-theme .success-box {
-                    background-color: #21262d;
-                }
-                
-                body.dark-theme ::selection {
-                    background-color: #1f6feb;
-                    color: #c9d1d9;
-                }
-            `,
-            
-            // 자동 저장 설정
-            autosave_interval: '30s',
-            autosave_prefix: 'tinymce-autosave-{path}{query}-{id}-',
-            
-            // 언어 설정 (한국어)
-            language: 'ko_KR',
-            
-            // 에디터 설정 및 초기화
-            setup: function(editor) {
-                // 다크 모드 처리 함수
-                function updateEditorTheme() {
-                    const isDarkMode = document.body.classList.contains('dark-theme');
-                    
-                    // 에디터 iframe body에 클래스 추가/제거
-                    if (editor.getBody()) {
-                        if (isDarkMode) {
-                            editor.dom.addClass(editor.getBody(), 'dark-theme');
-                        } else {
-                            editor.dom.removeClass(editor.getBody(), 'dark-theme');
-                        }
-                    }
-                    
-                    // 에디터 UI 테마 변경 시도
-                    try {
-                        if (isDarkMode) {
-                            editor.options.set('skin', 'oxide-dark');
-                            editor.options.set('content_css', 'dark');
-                        } else {
-                            editor.options.set('skin', 'oxide');
-                            editor.options.set('content_css', 'default');
-                        }
-                    } catch (e) {
-                        console.log('테마 변경 중 오류:', e);
-                    }
-                }
-                
-                // 에디터 초기화 완료 시
-                editor.on('init', function() {
-                    console.log('TinyMCE 에디터가 초기화되었습니다.');
-                    
-                    // 초기 테마 설정
-                    setTimeout(updateEditorTheme, 100);
-                    
-                    // 테마 변경 이벤트 리스너 등록
-                    const themeToggle = document.getElementById('themeToggle');
-                    if (themeToggle) {
-                        themeToggle.addEventListener('click', function() {
-                            // DOM 업데이트 후 약간의 지연시간을 두고 테마 적용
-                            setTimeout(updateEditorTheme, 200);
-                        });
-                    }
-                    
-                    // 윈도우 storage 이벤트로 다른 탭에서의 테마 변경 감지
-                    window.addEventListener('storage', function(e) {
-                        if (e.key === 'theme') {
-                            setTimeout(updateEditorTheme, 200);
-                        }
-                    });
-                });
-                
-                // 에디터 모드 변경 이벤트
-                editor.on('visualblocks', updateEditorTheme);
-                editor.on('visualchars', updateEditorTheme);
-            },
-            
-            // 코드 샘플 언어 목록
-            codesample_languages: [
-                { text: 'HTML/XML', value: 'markup' },
-                { text: 'JavaScript', value: 'javascript' },
-                { text: 'CSS', value: 'css' },
-                { text: 'PHP', value: 'php' },
-                { text: 'Python', value: 'python' },
-                { text: 'Java', value: 'java' },
-                { text: 'C', value: 'c' },
-                { text: 'C#', value: 'csharp' },
-                { text: 'C++', value: 'cpp' }
-            ],
-            
-            // 링크 설정
-            link_default_target: '_blank',
-            
-            // 빠른 삽입 도구 설정
-            quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote',
-            quickbars_insert_toolbar: 'image table'
-        });
-
-        // 저장 버튼 이벤트
-        document.getElementById('save-post').addEventListener('click', function() {
-            const content = tinymce.get('editor').getContent();
-            savePost(content);
-        });
-        
-        // 포스트 저장 함수
-        function savePost(content) {
-            const title = document.getElementById('post-title').value;
-            const category = document.getElementById('post-category').value;
-            const tags = document.getElementById('post-tags').value.split(',').map(tag => tag.trim()).filter(tag => tag);
-            
-            // 유효성 검사
-            if (!title) {
-                alert('제목을 입력해주세요.');
-                return;
-            }
-            
-            const postData = {
-                title: title,
-                content: content,
-                category: category,
-                tags: tags
-            };
-            
-            // 새 글 작성인지 수정인지 확인
-            const url = {% if post %}'{{ url_for("blog.update", post_id=post.id) }}'{% else %}'{{ url_for("blog.create") }}'{% endif %};
-            const method = {% if post %}'PUT'{% else %}'POST'{% endif %};
-            
-            // 서버에 저장 요청
-            fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify(postData)
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    // 성공 시 상세 페이지로 이동
-                    const postUrl = {% if post %}'{{ url_for("blog.post", post_id=post.id) }}'{% else %}`/blog/post/${result.id}`{% endif %};
-                    window.location.href = postUrl;
-                } else {
-                    // 실패 시 오류 메시지 표시
-                    alert(result.message || '저장에 실패했습니다.');
-                }
-            })
-            .catch(error => {
-                console.error('오류:', error);
-                alert('서버 통신 중 오류가 발생했습니다.');
-            });
-        }
-    });
-</script>
+<!-- 커스텀 에디터 스크립트 -->
+<script src="{{ url_for('static', filename='js/custom-editor.js') }}"></script>
 {% endblock %}
