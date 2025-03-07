@@ -1,5 +1,5 @@
 // EditorCore.js
-import AutoSave from './AutoSave.js/index.js';
+import AutoSave from '/AutoSave.js';
 import ContentManager from './ContentManager.js';
 import ToolbarManager from './ToolbarManager.js';
 import MediaHandler from './MediaHandler.js';

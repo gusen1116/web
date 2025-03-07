@@ -150,8 +150,8 @@ class ContentManager {
                 // 미디어 임베드 처리
                 if (node.classList.contains('media-embed')) {
                     const embedType = node.classList.contains('youtube-embed') ? 'youtube' :
-                                   node.classList.contains('twitch-embed') ? 'twitch' :
-                                   node.classList.contains('twitter-embed') ? 'twitter' : 'unknown';
+                        node.classList.contains('twitch-embed') ? 'twitch' :
+                        node.classList.contains('twitter-embed') ? 'twitter' : 'unknown';
                 
                     let embedData = {};
                     
