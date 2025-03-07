@@ -12,6 +12,7 @@ import json
 import time
 from datetime import datetime
 
+# 블루프린트 정의 - 파일 상단에 위치
 blog_bp = Blueprint('blog', __name__, url_prefix='/blog')
 
 # 파일 업로드 설정

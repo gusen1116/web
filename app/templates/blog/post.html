@@ -20,10 +20,9 @@
         {% endif %}
     </div>
     
-    <div class="full-content markdown-content">
-        {{ post.content|markdown|safe }}
+    <div class="post-content">
+        {{ post.content | safe }}
     </div>
-    
     <div class="post-actions">
         <a href="{{ url_for('blog.edit', post_id=post.id) }}" class="edit-btn">수정</a>
         <button class="delete-btn" onclick="deletePost({{ post.id }})">삭제</button>

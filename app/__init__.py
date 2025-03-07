@@ -48,8 +48,4 @@ def create_app(config_object=None):
         from app.models.user import User
         return User.query.get(int(user_id))
     
-    @app.template_filter('markdown')
-    def markdown_filter(text):
-        import markdown2
-        return markdown2.markdown(text, extras=["fenced-code-blocks", "tables", "break-on-newline"])
     return app

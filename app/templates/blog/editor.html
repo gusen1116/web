@@ -49,7 +49,7 @@
 
 {% block scripts %}
 <!-- TinyMCE 스크립트 - API 키 사용 -->
-<script src="https://cdn.tiny.cloud/1/YOUR_API_KEY_HERE/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.tiny.cloud/1/실제_API_키/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         tinymce.init({
@@ -58,8 +58,7 @@
             plugins: [
                 'advlist', 'autolink', 'link', 'image', 'lists', 'charmap', 'preview', 'anchor', 'pagebreak',
                 'searchreplace', 'wordcount', 'visualblocks', 'visualchars', 'code', 'fullscreen', 'insertdatetime',
-                'media', 'table', 'emoticons', 'template', 'help', 'codesample', 'autosave', 'quickbars',
-                'mentions', 'imagetools', 'powerpaste', 'save', 'hr', 'directionality', 'print'
+                'media', 'table', 'emoticons', 'template', 'help', 'codesample', 'autosave', 'quickbars'
             ],
             // 툴바 구성
             toolbar: 'undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | ' +
@@ -68,54 +67,434 @@
             toolbar_mode: 'sliding',
             // 메뉴바 활성화
             menubar: 'file edit view insert format tools table help',
-            // 스타일 포맷 옵션
-            style_formats: [
-                { title: '제목', items: [
-                    { title: '제목 1', format: 'h1' },
-                    { title: '제목 2', format: 'h2' },
-                    { title: '제목 3', format: 'h3' },
-                    { title: '제목 4', format: 'h4' },
-                    { title: '제목 5', format: 'h5' },
-                    { title: '제목 6', format: 'h6' }
-                ]},
-                { title: '인라인', items: [
-                    { title: '굵게', format: 'bold' },
-                    { title: '기울임', format: 'italic' },
-                    { title: '밑줄', format: 'underline' },
-                    { title: '취소선', format: 'strikethrough' },
-                    { title: '코드', format: 'code' }
-                ]},
-                { title: '블록', items: [
-                    { title: '단락', format: 'p' },
-                    { title: '인용구', format: 'blockquote' },
-                    { title: '코드 블록', format: 'pre' }
-                ]}
-            ],
-            // 이미지 업로드 설정
+            
+            // 파일 업로드 관련 설정
             images_upload_url: '{{ url_for("blog.upload_file") }}',
             automatic_uploads: true,
-            images_reuse_filename: true,
-            // 에디터 크기 설정
-            height: 500,
-            // 테마 설정 (옵션: 'oxide' 또는 'oxide-dark')
+            images_reuse_filename: false,
+            
+            // 파일 업로드 핸들러
+            images_upload_handler: function (blobInfo, progress) {
+                return new Promise((resolve, reject) => {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', '{{ url_for("blog.upload_file") }}');
+                    
+                    // CSRF 토큰 추가
+                    const csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    
+                    // 업로드 진행 상태 처리
+                    xhr.upload.onprogress = function(e) {
+                        progress(e.loaded / e.total * 100);
+                    };
+                    
+                    xhr.onload = function() {
+                        if (xhr.status === 403) {
+                            reject({ message: '접근이 거부되었습니다. 로그인이 필요할 수 있습니다.', remove: true });
+                            return;
+                        }
+                        
+                        if (xhr.status < 200 || xhr.status >= 300) {
+                            reject({ message: '업로드 중 오류가 발생했습니다 (상태코드: ' + xhr.status + ')', remove: true });
+                            return;
+                        }
+                        
+                        try {
+                            const json = JSON.parse(xhr.responseText);
+                            
+                            if (!json || typeof json.file.url != 'string') {
+                                reject({ message: '서버 응답 형식이 올바르지 않습니다.', remove: true });
+                                return;
+                            }
+                            
+                            resolve(json.file.url);
+                        } catch (e) {
+                            reject({ message: '서버 응답을 처리하는 중 오류가 발생했습니다: ' + e.message, remove: true });
+                        }
+                    };
+                    
+                    xhr.onerror = function () {
+                        reject({ message: '네트워크 오류가 발생했습니다.', remove: true });
+                    };
+                    
+                    const formData = new FormData();
+                    formData.append('file', blobInfo.blob(), blobInfo.filename());
+                    
+                    xhr.send(formData);
+                });
+            },
+            
+            // 이미지 관련 설정
+            file_picker_types: 'image',
+            image_advtab: true,
+            image_caption: true,
+            image_dimensions: true,
+            
+            // 이미지 클래스 옵션
+            image_class_list: [
+                { title: '반응형 (기본)', value: 'img-fluid' },
+                { title: '작게', value: 'img-small' },
+                { title: '중간', value: 'img-medium' },
+                { title: '크게', value: 'img-large' }
+            ],
+            
+            // 스킨 및 콘텐츠 CSS 기본 설정
             skin: 'oxide',
-            // 콘텐츠 스타일 설정
+            content_css: 'default',
+            
+            // 에디터 내용 스타일 설정
             content_style: `
-                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.6; }
-                h1, h2, h3, h4, h5, h6 { font-weight: 600; line-height: 1.3; margin-top: 1.5em; margin-bottom: 0.5em; }
+                :root {
+                    --bg-primary: ${getComputedStyle(document.documentElement).getPropertyValue('--bg-primary')};
+                    --bg-secondary: ${getComputedStyle(document.documentElement).getPropertyValue('--bg-secondary')};
+                    --bg-tertiary: ${getComputedStyle(document.documentElement).getPropertyValue('--bg-tertiary')};
+                    --text-primary: ${getComputedStyle(document.documentElement).getPropertyValue('--text-primary')};
+                    --text-secondary: ${getComputedStyle(document.documentElement).getPropertyValue('--text-secondary')};
+                    --border-color: ${getComputedStyle(document.documentElement).getPropertyValue('--border-color')};
+                    --accent-primary: ${getComputedStyle(document.documentElement).getPropertyValue('--accent-primary')};
+                    --accent-secondary: ${getComputedStyle(document.documentElement).getPropertyValue('--accent-secondary')};
+                    --font-sans: ${getComputedStyle(document.documentElement).getPropertyValue('--font-sans')};
+                    --radius-sm: ${getComputedStyle(document.documentElement).getPropertyValue('--radius-sm')};
+                    --radius-md: ${getComputedStyle(document.documentElement).getPropertyValue('--radius-md')};
+                }
+                
+                body { 
+                    font-family: var(--font-sans); 
+                    color: var(--text-primary);
+                    background-color: var(--bg-primary);
+                    line-height: 1.6;
+                    padding: 1rem;
+                }
+                
+                h1, h2, h3, h4, h5, h6 { 
+                    margin-top: 1.5em; 
+                    margin-bottom: 0.5em; 
+                    color: var(--text-primary);
+                    font-weight: 600;
+                    line-height: 1.3;
+                }
+                
+                h1 { font-size: 2.2rem; }
+                h2 { font-size: 1.8rem; }
+                h3 { font-size: 1.5rem; }
+                h4 { font-size: 1.25rem; }
+                h5 { font-size: 1.1rem; }
+                h6 { font-size: 1rem; }
+                
                 p { margin-bottom: 1em; }
-                img { max-width: 100%; height: auto; }
-                pre { background-color: #f6f8fa; border-radius: 4px; padding: 16px; overflow: auto; }
-                table { border-collapse: collapse; width: 100%; }
-                table td, table th { border: 1px solid #ddd; padding: 8px; }
-                blockquote { border-left: 4px solid #ddd; margin: 0; padding-left: 16px; color: #666; }
+                
+                a { color: var(--accent-primary); }
+                a:hover { color: var(--accent-secondary); text-decoration: underline; }
+                
+                code { 
+                    background-color: var(--bg-tertiary);
+                    border-radius: var(--radius-sm);
+                    padding: 0.2em 0.4em;
+                    font-size: 0.85em;
+                    font-family: var(--font-mono, monospace);
+                }
+                
+                pre {
+                    background-color: var(--bg-tertiary);
+                    border-radius: var(--radius-md);
+                    padding: 1em;
+                    margin: 1em 0;
+                    overflow-x: auto;
+                }
+                
+                pre code {
+                    background-color: transparent;
+                    padding: 0;
+                    font-size: 0.9em;
+                }
+                
+                blockquote {
+                    border-left: 4px solid var(--border-color);
+                    padding: 0.5em 0 0.5em 1em;
+                    color: var(--text-secondary);
+                    margin: 1em 0;
+                    background-color: var(--bg-secondary);
+                    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+                }
+                
+                ul, ol {
+                    margin: 1em 0;
+                    padding-left: 2em;
+                }
+                
+                li {
+                    margin-bottom: 0.5em;
+                }
+                
+                table {
+                    border-collapse: collapse;
+                    width: 100%;
+                    margin: 1em 0;
+                }
+                
+                table td, table th {
+                    border: 1px solid var(--border-color);
+                    padding: 0.5em;
+                }
+                
+                table th {
+                    background-color: var(--bg-tertiary);
+                    font-weight: 600;
+                    text-align: left;
+                }
+                
+                table tr:nth-child(even) {
+                    background-color: var(--bg-secondary);
+                }
+                
+                hr {
+                    height: 1px;
+                    background-color: var(--border-color);
+                    border: none;
+                    margin: 2em 0;
+                }
+                
+                img {
+                    max-width: 100%;
+                    height: auto;
+                    border-radius: var(--radius-md);
+                    display: block;
+                    margin: 1em auto;
+                }
+                
+                /* 에디터 내 텍스트 선택 색상 */
+                ::selection {
+                    background-color: var(--accent-secondary);
+                    color: white;
+                }
+                
+                /* 이미지 클래스 스타일 */
+                .img-small { 
+                    max-width: 25%; 
+                    margin: 1em auto;
+                    display: block;
+                }
+                
+                .img-medium { 
+                    max-width: 50%; 
+                    margin: 1em auto;
+                    display: block;
+                }
+                
+                .img-large { 
+                    max-width: 100%; 
+                    margin: 1em auto;
+                    display: block;
+                }
+                
+                .img-fluid { 
+                    max-width: 100%; 
+                    height: auto; 
+                    margin: 1em auto;
+                    display: block;
+                }
+                
+                /* 알림 박스 스타일 */
+                .notice-box {
+                    background-color: var(--bg-secondary);
+                    border-left: 4px solid var(--accent-primary);
+                    padding: 15px;
+                    margin: 20px 0;
+                    border-radius: var(--radius-md);
+                }
+                
+                /* 텍스트 정렬 클래스 */
+                .text-center {
+                    text-align: center;
+                }
+                
+                .text-right {
+                    text-align: right;
+                }
+                
+                .text-left {
+                    text-align: left;
+                }
+                
+                /* 인용 출처 스타일 */
+                .source {
+                    text-align: right;
+                    color: var(--text-secondary);
+                    font-style: italic;
+                    margin-top: -0.5em;
+                    font-size: 0.9em;
+                }
+                
+                /* 다양한 알림 박스 변형 */
+                .info-box {
+                    background-color: rgba(3, 102, 214, 0.1);
+                    border-left: 4px solid var(--accent-primary);
+                    padding: 15px;
+                    margin: 20px 0;
+                    border-radius: var(--radius-md);
+                }
+                
+                .warning-box {
+                    background-color: rgba(246, 106, 10, 0.1);
+                    border-left: 4px solid #f66a0a;
+                    padding: 15px;
+                    margin: 20px 0;
+                    border-radius: var(--radius-md);
+                }
+                
+                .error-box {
+                    background-color: rgba(215, 58, 73, 0.1);
+                    border-left: 4px solid var(--danger-color, #d73a49);
+                    padding: 15px;
+                    margin: 20px 0;
+                    border-radius: var(--radius-md);
+                }
+                
+                .success-box {
+                    background-color: rgba(40, 167, 69, 0.1);
+                    border-left: 4px solid var(--success-color, #28a745);
+                    padding: 15px;
+                    margin: 20px 0;
+                    border-radius: var(--radius-md);
+                }
+                
+                /* 다크 모드 내부 스타일 - 에디터 내에서 추가될 스타일 */
+                body.dark-theme { 
+                    background-color: #0d1117; 
+                    color: #c9d1d9; 
+                }
+                
+                body.dark-theme p, 
+                body.dark-theme h1, 
+                body.dark-theme h2, 
+                body.dark-theme h3, 
+                body.dark-theme h4, 
+                body.dark-theme h5, 
+                body.dark-theme h6, 
+                body.dark-theme li { 
+                    color: #c9d1d9; 
+                }
+                
+                body.dark-theme blockquote { 
+                    border-left: 4px solid #30363d; 
+                    color: #8b949e; 
+                    background-color: #161b22; 
+                }
+                
+                body.dark-theme code { 
+                    background-color: #161b22; 
+                    color: #e6edf3; 
+                }
+                
+                body.dark-theme pre {
+                    background-color: #161b22;
+                }
+                
+                body.dark-theme table td, 
+                body.dark-theme table th {
+                    border-color: #30363d;
+                }
+                
+                body.dark-theme table th {
+                    background-color: #21262d;
+                }
+                
+                body.dark-theme table tr:nth-child(even) {
+                    background-color: #161b22;
+                }
+                
+                body.dark-theme a {
+                    color: #58a6ff;
+                }
+                
+                body.dark-theme a:hover {
+                    color: #79c0ff;
+                }
+                
+                body.dark-theme hr {
+                    border-color: #30363d;
+                    background-color: #30363d;
+                }
+                
+                body.dark-theme .notice-box,
+                body.dark-theme .info-box,
+                body.dark-theme .warning-box,
+                body.dark-theme .error-box,
+                body.dark-theme .success-box {
+                    background-color: #21262d;
+                }
+                
+                body.dark-theme ::selection {
+                    background-color: #1f6feb;
+                    color: #c9d1d9;
+                }
             `,
+            
+            // 자동 저장 설정
+            autosave_interval: '30s',
+            autosave_prefix: 'tinymce-autosave-{path}{query}-{id}-',
+            
             // 언어 설정 (한국어)
             language: 'ko_KR',
-            // 파일 선택 시 이미지 필터
-            file_picker_types: 'image',
-            // 자동 저장 기능
-            autosave_interval: '30s',
+            
+            // 에디터 설정 및 초기화
+            setup: function(editor) {
+                // 다크 모드 처리 함수
+                function updateEditorTheme() {
+                    const isDarkMode = document.body.classList.contains('dark-theme');
+                    
+                    // 에디터 iframe body에 클래스 추가/제거
+                    if (editor.getBody()) {
+                        if (isDarkMode) {
+                            editor.dom.addClass(editor.getBody(), 'dark-theme');
+                        } else {
+                            editor.dom.removeClass(editor.getBody(), 'dark-theme');
+                        }
+                    }
+                    
+                    // 에디터 UI 테마 변경 시도
+                    try {
+                        if (isDarkMode) {
+                            editor.options.set('skin', 'oxide-dark');
+                            editor.options.set('content_css', 'dark');
+                        } else {
+                            editor.options.set('skin', 'oxide');
+                            editor.options.set('content_css', 'default');
+                        }
+                    } catch (e) {
+                        console.log('테마 변경 중 오류:', e);
+                    }
+                }
+                
+                // 에디터 초기화 완료 시
+                editor.on('init', function() {
+                    console.log('TinyMCE 에디터가 초기화되었습니다.');
+                    
+                    // 초기 테마 설정
+                    setTimeout(updateEditorTheme, 100);
+                    
+                    // 테마 변경 이벤트 리스너 등록
+                    const themeToggle = document.getElementById('themeToggle');
+                    if (themeToggle) {
+                        themeToggle.addEventListener('click', function() {
+                            // DOM 업데이트 후 약간의 지연시간을 두고 테마 적용
+                            setTimeout(updateEditorTheme, 200);
+                        });
+                    }
+                    
+                    // 윈도우 storage 이벤트로 다른 탭에서의 테마 변경 감지
+                    window.addEventListener('storage', function(e) {
+                        if (e.key === 'theme') {
+                            setTimeout(updateEditorTheme, 200);
+                        }
+                    });
+                });
+                
+                // 에디터 모드 변경 이벤트
+                editor.on('visualblocks', updateEditorTheme);
+                editor.on('visualchars', updateEditorTheme);
+            },
+            
             // 코드 샘플 언어 목록
             codesample_languages: [
                 { text: 'HTML/XML', value: 'markup' },
@@ -126,32 +505,15 @@
                 { text: 'Java', value: 'java' },
                 { text: 'C', value: 'c' },
                 { text: 'C#', value: 'csharp' },
-                { text: 'C++', value: 'cpp' },
-                { text: 'Ruby', value: 'ruby' },
-                { text: 'SQL', value: 'sql' }
+                { text: 'C++', value: 'cpp' }
             ],
+            
             // 링크 설정
             link_default_target: '_blank',
-            // 이미지 관련 설정
-            image_caption: true,
-            image_advtab: true,
-            image_title: true,
-            image_dimensions: false,
+            
             // 빠른 삽입 도구 설정
             quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote',
-            quickbars_insert_toolbar: 'quickimage quicktable',
-            // 컨텍스트 메뉴 활성화
-            contextmenu: 'link image table',
-            // 붙여넣기 설정 (고급 기능으로 서식 유지)
-            paste_data_images: true,
-            paste_enable_default_filters: true,
-            // 에디터 로드 완료 후 콜백
-            setup: function(editor) {
-                // 에디터 로드 완료 이벤트
-                editor.on('init', function() {
-                    console.log('TinyMCE 에디터가 초기화되었습니다.');
-                });
-            }
+            quickbars_insert_toolbar: 'image table'
         });
 
         // 저장 버튼 이벤트
@@ -187,7 +549,8 @@
             fetch(url, {
                 method: method,
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
                 body: JSON.stringify(postData)
             })
