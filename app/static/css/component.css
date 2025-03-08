@@ -39,11 +39,14 @@
   transition: transform var(--transition-normal), box-shadow var(--transition-normal);
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
+  border-left: 3px solid transparent;
+  transition: border-left-color 0.3s, transform 0.3s, box-shadow 0.3s;
 }
 
 .blog-preview:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-md);
+  border-left-color: var(--accent-primary);
 }
 
 .blog-preview h3 {
@@ -102,7 +105,7 @@
   color: var(--text-secondary);
   padding: 3px 8px;
   border-radius: 12px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
   display: inline-block;
   margin-right: 4px;
@@ -176,6 +179,11 @@ body.dark-theme .preview-text.has-fade::after {
   color: var(--accent-secondary);
   transform: translateX(4px);
   text-decoration: none;
+}
+
+.read-post {
+  border-left-color: var(--success-color);
+  opacity: 0.85;
 }
 
 /* 수정/삭제 버튼 스타일 */
@@ -287,4 +295,34 @@ body.dark-theme .preview-text.has-fade::after {
     padding: 4px 8px;
     font-size: 0.9rem;
   }
+}
+
+/* component.css에 추가 */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-text {
+  height: 1em;
+  margin-bottom: 0.5em;
+  width: 100%;
+}
+
+.skeleton-title {
+  height: 1.8em;
+  margin-bottom: 1em;
+  width: 70%;
+}
+
+.skeleton-image {
+  height: 160px;
+  width: 100%;
 }

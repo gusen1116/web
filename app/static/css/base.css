@@ -6,6 +6,20 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Medium.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+
+}
 :root {
   /* 색상 팔레트 */
   --bg-primary: #ffffff;
@@ -22,20 +36,20 @@
   
   /* 타이포그래피 */
   --font-mono: 'D2Coding', 'Consolas', 'Monaco', 'Courier New', monospace;
-  --font-sans: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   
   /* 기본 글자 크기 */
-  --base-font-size: 17px;
-  --small-font-size: 0.9rem;
-  --large-font-size: 1.2rem;
+  --base-font-size: 16px;
+  --small-font-size: 0.875rem;
+  --large-font-size: 1.125rem;
   
   /* 간격 */
-  --spacing-xs: 3px;
-  --spacing-sm: 5px;
-  --spacing-md: 8px;
-  --spacing-lg: 12px;
-  --spacing-xl: 16px;
-  --spacing-xxl: 24px;
+  --spacing-xs: 2px;
+  --spacing-sm: 4px;
+  --spacing-md: 6px;
+  --spacing-lg: 10px;
+  --spacing-xl: 14px;
+  --spacing-xxl: 20px;
   
   /* 반경 */
   --radius-sm: 4px;
@@ -48,12 +62,12 @@
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
   
   /* 콘텐츠 너비 설정 */
-  --content-width-desktop: 80%;
+  --content-width-desktop: 70%;
   --content-width-tablet: 85%;
   --content-width-mobile: 95%;
   --content-font-size: 17px;
-  --min-content-width: min(65vw, 530px);
-  --max-content-width: 1300px;
+  --min-content-width: min(65vw, 500px);
+  --max-content-width: 1100px;
   
   /* 전환 효과 */
   --transition-fast: 0.1s ease;
@@ -138,10 +152,10 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
 }
 
-h1 { font-size: 2.3rem; }
-h2 { font-size: 1.8rem; }
-h3 { font-size: 1.5rem; }
-h4 { font-size: 1.2rem; }
+h1 { font-size: 2.0rem; }
+h2 { font-size: 1.6rem; }
+h3 { font-size: 1.35rem; }
+h4 { font-size: 1.1rem; }
 h5 { font-size: 1.1rem; }
 h6 { font-size: 1rem; }
 
