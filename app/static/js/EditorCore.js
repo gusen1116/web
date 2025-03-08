@@ -1,6 +1,6 @@
 // EditorCore.js
-import AutoSave from './autosave.js';
-import ContentManager from './contentmanager.js';
+import AutoSave from '.AutoSave.js';
+import ContentManager from '.ContentManager.js';
 import ToolbarManager from './ToolbarManager.js';
 import MediaHandler from './MediaHandler.js';
 
@@ -53,14 +53,15 @@ class EditorCore {
         this.setupDragAndDrop();
     }
     
-    setupDragAndDrop() {
-        if (!this.contentArea) return;
-        
-        const throttledDragOver = this.mediaHandler.throttle((e) => {
-            e.preventDefault();
-            this.contentArea.classList.add('dragover');
-        }, 100);
-        
+   // EditorCore.js의 setupDragAndDrop 메서드
+setupDragAndDrop() {
+    if (!this.contentArea) return;
+    
+    const throttledDragOver = Utils.throttle((e) => {
+        e.preventDefault();
+        this.contentArea.classList.add('dragover');
+    }, 100);
+    
         this.contentArea.addEventListener('dragover', throttledDragOver);
         
         this.contentArea.addEventListener('dragleave', () => {

@@ -1,5 +1,5 @@
 // ContentManager.js
-import Utils from '/utils.js';
+import Utils from './Utils.js';
 
 class ContentManager {
     constructor(contentArea) {

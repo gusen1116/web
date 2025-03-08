@@ -113,7 +113,18 @@ class MediaHandler {
             alert('이미지 업로드 중 오류가 발생했습니다.');
         });
     }
-    
+    // MediaHandler.js에 추가
+    throttle(func, delay) {
+    let lastCall = 0;
+    return function(...args) {
+        const now = new Date().getTime();
+        if (now - lastCall < delay) {
+            return;
+        }
+        lastCall = now;
+        return func(...args);
+    }
+}
     // 미디어 업로드 관련 기타 메서드 추가 가능
 }
 

@@ -13,6 +13,19 @@ document.addEventListener('DOMContentLoaded', function() {
     let lastSavedContent = '';
     const AUTO_SAVE_DELAY = 15000; // 15초마다 자동 저장 (30초에서 15초로 줄임)
     
+    const Utils = {
+        throttle(func, delay) {
+            let lastCall = 0;
+            return function(...args) {
+                const now = new Date().getTime();
+                if (now - lastCall < delay) {
+                    return;
+                }
+                lastCall = now;
+                return func(...args);
+            }
+        }
+    };
     // CSV 파싱 함수 정의 (누락되었던 부분 추가)
     function parseCSV(csvText) {
         const lines = csvText.split('\n');
