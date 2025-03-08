@@ -8,10 +8,64 @@ document.addEventListener('DOMContentLoaded', function() {
     const toolbarButtons = document.querySelectorAll('.toolbar-button');
     const editorContainer = document.getElementById('editor-container');
     
+    // 제목 입력 유도 UI 요소 생성
+    const titleFeedback = document.createElement('div');
+    titleFeedback.className = 'input-feedback';
+    titleFeedback.style.color = '#d73a49';
+    titleFeedback.style.fontSize = '0.9em';
+    titleFeedback.style.marginTop = '5px';
+    titleFeedback.style.display = 'none';
+    if (titleInput && titleInput.parentNode) {
+        titleInput.parentNode.appendChild(titleFeedback);
+    }
+    
     // 자동 저장 관련 변수 및 기능
     let autoSaveInterval;
     let lastSavedContent = '';
-    const AUTO_SAVE_DELAY = 150000; // 15초마다 자동 저장 (30초에서 15초로 줄임)
+    const AUTO_SAVE_DELAY = 15000; // 15초마다 자동 저장
+    
+    // 미디어 임베드 패턴 및 처리 함수
+    const MEDIA_PATTERNS = [
+        // YouTube
+        {
+            regex: /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/i,
+            handler: (match) => {
+                const videoId = match[1];
+                return `<div class="media-embed youtube-embed">
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" 
+                    frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; 
+                    gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <div class="embed-caption">YouTube 동영상</div>
+                </div>`;
+            }
+        },
+        // Twitch
+        {
+            regex: /(?:https?:\/\/)?(?:www\.)?(?:twitch\.tv\/videos\/)(\d+)/i,
+            handler: (match) => {
+                const videoId = match[1];
+                return `<div class="media-embed twitch-embed">
+                    <iframe src="https://player.twitch.tv/?video=${videoId}&parent=${window.location.hostname}" 
+                    frameborder="0" allowfullscreen="true" scrolling="no" height="315" width="560"></iframe>
+                    <div class="embed-caption">Twitch 동영상</div>
+                </div>`;
+            }
+        },
+        // Twitter
+        {
+            regex: /(?:https?:\/\/)?(?:www\.)?twitter\.com\/(?:\w+)\/status\/(\d+)/i,
+            handler: (match) => {
+                const tweetId = match[1];
+                return `<div class="media-embed twitter-embed" data-tweet-id="${tweetId}">
+                    <blockquote class="twitter-tweet" data-dnt="true">
+                        <a href="https://twitter.com/x/status/${tweetId}"></a>
+                    </blockquote>
+                    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+                    <div class="embed-caption">Twitter 포스트</div>
+                </div>`;
+            }
+        }
+    ];
     
     const Utils = {
         throttle(func, delay) {
@@ -26,7 +80,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     };
-    // CSV 파싱 함수 정의 (누락되었던 부분 추가)
+    
+    // CSV 파싱 함수
     function parseCSV(csvText) {
         const lines = csvText.split('\n');
         const headers = lines[0].split(',').map(h => h.trim());
@@ -61,53 +116,54 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
+    
     // 툴바 선택 박스 이벤트 처리
-const toolbarSelects = document.querySelectorAll('.toolbar-select');
-if (toolbarSelects && toolbarSelects.length > 0) {
-    toolbarSelects.forEach(select => {
-        const command = select.dataset.command;
-        if (!command) return;
-        
-        select.addEventListener('change', function() {
-            const value = this.value;
-            if (!value) return;
+    const toolbarSelects = document.querySelectorAll('.toolbar-select');
+    if (toolbarSelects && toolbarSelects.length > 0) {
+        toolbarSelects.forEach(select => {
+            const command = select.dataset.command;
+            if (!command) return;
             
-            switch(command) {
-                case 'fontSize':
-                    document.execCommand(command, false, value);
-                    break;
-                default:
-                    document.execCommand(command, false, value);
-                    break;
-            }
-            
-            // 선택 후 기본값으로 복원
-            this.selectedIndex = 0;
-            
-            // 포커스 되돌리기
-            contentArea.focus();
+            select.addEventListener('change', function() {
+                const value = this.value;
+                if (!value) return;
+                
+                switch(command) {
+                    case 'fontSize':
+                        document.execCommand(command, false, value);
+                        break;
+                    default:
+                        document.execCommand(command, false, value);
+                        break;
+                }
+                
+                // 선택 후 기본값으로 복원
+                this.selectedIndex = 0;
+                
+                // 포커스 되돌리기
+                contentArea.focus();
+            });
         });
-    });
-}
+    }
 
-// 이미지 선택 이벤트
-if (contentArea) {
-    contentArea.addEventListener('click', function(e) {
-        // 이미 선택된 이미지 클래스 제거
-        const allImages = this.querySelectorAll('img');
-        allImages.forEach(img => img.classList.remove('selected'));
-        
-        // 클릭한 요소가 이미지인 경우
-        if (e.target.tagName === 'IMG') {
-            e.target.classList.add('selected');
+    // 이미지 선택 이벤트
+    if (contentArea) {
+        contentArea.addEventListener('click', function(e) {
+            // 이미 선택된 이미지 클래스 제거
+            const allImages = this.querySelectorAll('img');
+            allImages.forEach(img => img.classList.remove('selected'));
             
-            // 이미지에 크기 조절 속성 추가
-            if (!e.target.getAttribute('contenteditable')) {
-                e.target.setAttribute('contenteditable', 'true');
+            // 클릭한 요소가 이미지인 경우
+            if (e.target.tagName === 'IMG') {
+                e.target.classList.add('selected');
+                
+                // 이미지에 크기 조절 속성 추가
+                if (!e.target.getAttribute('contenteditable')) {
+                    e.target.setAttribute('contenteditable', 'true');
+                }
             }
-        }
-    });
-}
+        });
+    }
     
     // 로컬 스토리지에 콘텐츠 저장
     function saveContentToLocalStorage(title, content) {
@@ -245,17 +301,17 @@ if (contentArea) {
             console.error('자동 저장 상태 표시 요소 추가 오류:', e);
         }
         
-        // 페이지 언로드 시 경고
+        // 페이지 언로드 시 경고 - 개선된 방식
         window.addEventListener('beforeunload', (e) => {
             const currentContent = JSON.stringify(getContentObject());
-            if (currentContent !== lastSavedContent && currentContent.trim() !== '') {
-                // 최신 방식
-                e.preventDefault();
-                
-                // 브라우저 호환성을 위한 fallback
+            const isContentChanged = currentContent !== lastSavedContent && currentContent.trim() !== '{"blocks":[],"time":0,"version":"1.0.0"}';
+            
+            if (isContentChanged) {
+                // 표준 방식으로 경고 메시지 설정
                 const message = '저장되지 않은 변경사항이 있습니다. 정말 나가시겠습니까?';
-                e.returnValue = message;
-                return message;
+                e.preventDefault(); // 표준
+                e.returnValue = message; // IE/Edge 지원
+                return message; // 오래된 브라우저 지원
             }
         });
     }
@@ -336,6 +392,19 @@ if (contentArea) {
                 // 이미지 삽입
                 const imgHtml = `<img src="${data.file.url}" alt="업로드된 이미지" class="editor-image">`;
                 document.execCommand('insertHTML', false, imgHtml);
+                
+                // 방금 삽입된 이미지에 이벤트 리스너 추가
+                setTimeout(() => {
+                    const lastImage = contentArea.querySelector('img:last-child');
+                    if (lastImage) {
+                        // 이미 선택된 이미지 클래스 제거
+                        const allImages = contentArea.querySelectorAll('img');
+                        allImages.forEach(img => img.classList.remove('selected'));
+                        
+                        // 새 이미지 선택 표시
+                        lastImage.classList.add('selected');
+                    }
+                }, 100);
             } else {
                 alert('이미지 업로드 실패: ' + (data.message || '알 수 없는 오류'));
             }
@@ -343,11 +412,11 @@ if (contentArea) {
         .catch(error => {
             progressIndicator.remove();
             console.error('업로드 오류:', error);
-            alert('이미지 업로드 중 오류가 발생했습니다.');
+            alert('이미지 업로드 중 오류가 발생했습니다: ' + error.message);
         });
     }
     
-    // 링크 삽입 처리
+    // 링크 삽입 처리 - 임베드 기능 추가
     function handleLinkInsertion() {
         const selection = window.getSelection();
         if (!selection) return;
@@ -358,22 +427,60 @@ if (contentArea) {
         const url = prompt('링크 URL을 입력하세요:', 'https://');
         
         if (url && url !== 'https://') {
-            if (selectedText) {
-                // 선택한 텍스트에 링크 적용
-                document.execCommand('createLink', false, url);
-                
-                // 새 창에서 열리도록 타겟 속성 추가
-                const links = contentArea.querySelectorAll('a[href="' + url + '"]');
-                links.forEach(link => {
-                    link.target = '_blank';
-                    link.rel = 'noopener noreferrer';
-                });
-            } else {
-                // 선택한 텍스트가 없으면 새 링크 텍스트 입력 받기
-                const linkText = prompt('링크 텍스트를 입력하세요:', '');
-                if (linkText) {
-                    const linkHtml = `<a href="${url}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
-                    document.execCommand('insertHTML', false, linkHtml);
+            // 먼저 미디어 임베드로 처리 시도
+            let isMedia = false;
+            
+            for (const pattern of MEDIA_PATTERNS) {
+                if (pattern.regex.test(url)) {
+                    const match = url.match(pattern.regex);
+                    if (match) {
+                        // 선택 영역 삭제
+                        if (selection.rangeCount > 0) {
+                            const range = selection.getRangeAt(0);
+                            range.deleteContents();
+                            
+                            // 임베드 HTML 삽입
+                            const embedHtml = pattern.handler(match);
+                            const fragment = document.createDocumentFragment();
+                            const div = document.createElement('div');
+                            div.innerHTML = embedHtml;
+                            
+                            while (div.firstChild) {
+                                fragment.appendChild(div.firstChild);
+                            }
+                            
+                            range.insertNode(fragment);
+                            range.collapse(false);
+                        } else {
+                            // 선택 영역이 없는 경우 현재 커서 위치에 삽입
+                            document.execCommand('insertHTML', false, pattern.handler(match));
+                        }
+                        
+                        isMedia = true;
+                        break;
+                    }
+                }
+            }
+            
+            // 미디어가 아닌 경우 일반 링크로 처리
+            if (!isMedia) {
+                if (selectedText) {
+                    // 선택한 텍스트에 링크 적용
+                    document.execCommand('createLink', false, url);
+                    
+                    // 새 창에서 열리도록 타겟 속성 추가
+                    const links = contentArea.querySelectorAll('a[href="' + url + '"]');
+                    links.forEach(link => {
+                        link.target = '_blank';
+                        link.rel = 'noopener noreferrer';
+                    });
+                } else {
+                    // 선택한 텍스트가 없으면 새 링크 텍스트 입력 받기
+                    const linkText = prompt('링크 텍스트를 입력하세요:', '');
+                    if (linkText) {
+                        const linkHtml = `<a href="${url}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
+                        document.execCommand('insertHTML', false, linkHtml);
+                    }
                 }
             }
         }
@@ -429,7 +536,7 @@ if (contentArea) {
     }
     
     // 이모지 삽입 처리 (스로틀링 적용)
-    const throttledInsertEmoji = throttle(insertEmoji, 300);
+    const throttledInsertEmoji = Utils.throttle(insertEmoji, 300);
     function insertEmoji() {
         const commonEmojis = [
             '😀', '😁', '😂', '🤣', '😃', '😄', '😅', '😆', '😉', '😊', 
@@ -479,19 +586,6 @@ if (contentArea) {
         });
     }
     
-    // 스로틀링 함수 구현
-    function throttle(func, delay) {
-        let lastCall = 0;
-        return function(...args) {
-            const now = new Date().getTime();
-            if (now - lastCall < delay) {
-                return;
-            }
-            lastCall = now;
-            return func(...args);
-        }
-    }
-    
     // 코드 블록 삽입
     function insertCodeBlock() {
         const language = prompt('프로그래밍 언어를 입력하세요 (예: javascript, python):', 'javascript');
@@ -515,48 +609,15 @@ if (contentArea) {
         }
     }
     
-    // 미디어 임베드 패턴 및 처리 함수
-    const MEDIA_PATTERNS = [
-        // YouTube
-        {
-            regex: /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/i,
-            handler: (match) => {
-                const videoId = match[1];
-                return `<div class="media-embed youtube-embed">
-                    <iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" 
-                    frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; 
-                    gyroscope; picture-in-picture" allowfullscreen></iframe>
-                    <div class="embed-caption">YouTube 동영상</div>
-                </div>`;
-            }
-        },
-        // Twitch
-        {
-            regex: /(?:https?:\/\/)?(?:www\.)?(?:twitch\.tv\/videos\/)(\d+)/i,
-            handler: (match) => {
-                const videoId = match[1];
-                return `<div class="media-embed twitch-embed">
-                    <iframe src="https://player.twitch.tv/?video=${videoId}&parent=${window.location.hostname}" 
-                    frameborder="0" allowfullscreen="true" scrolling="no" height="315" width="560"></iframe>
-                    <div class="embed-caption">Twitch 동영상</div>
-                </div>`;
-            }
-        },
-        // Twitter
-        {
-            regex: /(?:https?:\/\/)?(?:www\.)?twitter\.com\/(?:\w+)\/status\/(\d+)/i,
-            handler: (match) => {
-                const tweetId = match[1];
-                return `<div class="media-embed twitter-embed" data-tweet-id="${tweetId}">
-                    <blockquote class="twitter-tweet" data-dnt="true">
-                        <a href="https://twitter.com/x/status/${tweetId}"></a>
-                    </blockquote>
-                    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-                    <div class="embed-caption">Twitter 포스트</div>
-                </div>`;
+    // URL 붙여넣기 시 자동 임베드 처리
+    function processUrl(url) {
+        for (const pattern of MEDIA_PATTERNS) {
+            if (pattern.regex.test(url)) {
+                return pattern.handler(url.match(pattern.regex));
             }
         }
-    ];
+        return null;
+    }
     
     // 콘텐츠 영역에 붙여넣기 이벤트 확장
     if (contentArea) {
@@ -569,36 +630,29 @@ if (contentArea) {
             
             // 미디어 URL인지 확인 및 처리
             if (clipboardText && clipboardText.trim()) {
-                let isMediaUrl = false;
-                
-                for (const pattern of MEDIA_PATTERNS) {
-                    if (pattern.regex.test(clipboardText)) {
-                        // 선택 영역 삭제
-                        const selection = window.getSelection();
-                        if (selection && selection.rangeCount > 0) {
-                            const range = selection.getRangeAt(0);
-                            range.deleteContents();
-                            
-                            // 임베드 HTML 삽입
-                            const embedHtml = pattern.handler(clipboardText.match(pattern.regex));
-                            const fragment = document.createDocumentFragment();
-                            const div = document.createElement('div');
-                            div.innerHTML = embedHtml;
-                            
-                            while (div.firstChild) {
-                                fragment.appendChild(div.firstChild);
-                            }
-                            
-                            range.insertNode(fragment);
-                            range.collapse(false);
+                const embedHtml = processUrl(clipboardText);
+                if (embedHtml) {
+                    // 선택 영역 삭제
+                    const selection = window.getSelection();
+                    if (selection && selection.rangeCount > 0) {
+                        const range = selection.getRangeAt(0);
+                        range.deleteContents();
+                        
+                        // 임베드 HTML 삽입
+                        const fragment = document.createDocumentFragment();
+                        const div = document.createElement('div');
+                        div.innerHTML = embedHtml;
+                        
+                        while (div.firstChild) {
+                            fragment.appendChild(div.firstChild);
                         }
                         
-                        isMediaUrl = true;
-                        break;
+                        range.insertNode(fragment);
+                        range.collapse(false);
+                    } else {
+                        document.execCommand('insertHTML', false, embedHtml);
                     }
-                }
-                
-                if (isMediaUrl) {
+                    
                     return; // 미디어 URL이 처리되었으므로 기본 붙여넣기 처리 중단
                 }
             }
@@ -631,11 +685,12 @@ if (contentArea) {
             attributes.forEach(attr => {
                 // on* 이벤트 속성 제거
                 if (attr.name.startsWith('on') || 
-                    attr.name === 'style' || 
                     attr.name === 'id' || 
                     attr.name === 'class') {
                     el.removeAttribute(attr.name);
                 }
+                
+                // style 속성은 유지 (에디터 기능 향상을 위해)
             });
         });
         
@@ -644,7 +699,7 @@ if (contentArea) {
     
     // 콘텐츠 영역 특수 키 이벤트 처리
     if (contentArea) {
-        const throttledKeyHandler = throttle(handleKeyDown, 100);
+        const throttledKeyHandler = Utils.throttle(handleKeyDown, 100);
         contentArea.addEventListener('keydown', throttledKeyHandler);
     }
     
@@ -712,12 +767,10 @@ if (contentArea) {
     
     // 드래그 앤 드롭으로 이미지 업로드
     if (contentArea) {
-        const throttledDragOver = Utils.throttle((e) => {
+        contentArea.addEventListener('dragover', function(e) {
             e.preventDefault();
-            this.contentArea.classList.add('dragover');
-        }, 100);
-        
-        contentArea.addEventListener('dragover', throttledDragOver);
+            this.classList.add('dragover');
+        });
         
         contentArea.addEventListener('dragleave', function() {
             this.classList.remove('dragover');
@@ -741,6 +794,38 @@ if (contentArea) {
         saveButton.addEventListener('click', savePost);
     }
     
+    // 제목 입력 검증
+    if (titleInput) {
+        titleInput.addEventListener('blur', function() {
+            validateTitle();
+        });
+        
+        titleInput.addEventListener('input', function() {
+            // 입력 시 경고 메시지 제거
+            if (this.value.trim()) {
+                this.classList.remove('invalid-input');
+                titleFeedback.style.display = 'none';
+            }
+        });
+    }
+    
+    // 제목 유효성 검사
+    function validateTitle() {
+        if (titleInput && titleFeedback) {
+            if (!titleInput.value.trim()) {
+                titleInput.classList.add('invalid-input');
+                titleFeedback.textContent = '제목을 입력해주세요.';
+                titleFeedback.style.display = 'block';
+                return false;
+            } else {
+                titleInput.classList.remove('invalid-input');
+                titleFeedback.style.display = 'none';
+                return true;
+            }
+        }
+        return true;
+    }
+    
     // 포스트 저장 함수
     function savePost() {
         if (!titleInput || !contentArea) {
@@ -748,15 +833,15 @@ if (contentArea) {
             return;
         }
         
-        // 기본 유효성 검사
-        if (!titleInput.value.trim()) {
-            alert('제목을 입력해주세요.');
+        // 제목 유효성 검사
+        if (!validateTitle()) {
             titleInput.focus();
             return;
         }
         
+        // 내용 유효성 검사
         if (!contentArea.textContent.trim()) {
-            alert('내용을 입력해주세요.');
+            contentArea.classList.add('invalid-input');
             contentArea.focus();
             return;
         }
@@ -823,7 +908,7 @@ if (contentArea) {
         .catch(error => {
             saveIndicator.remove();
             console.error('저장 오류:', error);
-            alert('저장 중 오류가 발생했습니다.');
+            alert('저장 중 오류가 발생했습니다: ' + error.message);
         });
     }
     
@@ -930,7 +1015,9 @@ if (contentArea) {
                     type: 'image',
                     url: node.src,
                     alt: node.alt || '',
-                    caption: node.getAttribute('data-caption') || ''
+                    caption: node.getAttribute('data-caption') || '',
+                    width: node.style.width || '',
+                    height: node.style.height || ''
                 });
                 break;
                 
@@ -1066,6 +1153,12 @@ if (contentArea) {
                     
                 case 'image':
                     html += `<img src="${block.url}" alt="${block.alt || ''}" class="editor-image"`;
+                    if (block.width) {
+                        html += ` style="width:${block.width}"`;
+                    }
+                    if (block.height) {
+                        html += ` style="height:${block.height}"`;
+                    }
                     if (block.caption) {
                         html += ` data-caption="${block.caption}"`;
                     }
@@ -1187,7 +1280,36 @@ if (contentArea) {
             .replace(/'/g, '&#039;');
     }
     
-    // 툴바 버튼 이벤트 바인딩(누락된 부분)
+    // 이미지 크기 조절 처리
+    function resizeSelectedImage() {
+        const selectedImage = contentArea.querySelector('img.selected');
+        if (!selectedImage) {
+            alert('먼저 이미지를 선택해주세요.');
+            return;
+        }
+        
+        // 현재 크기 가져오기
+        const currentWidth = selectedImage.width;
+        const currentHeight = selectedImage.height;
+        
+        // 새 크기 입력 받기
+        const newWidth = prompt('너비를 입력하세요 (픽셀):', currentWidth);
+        if (newWidth === null) return; // 취소된 경우
+        
+        // 비율 계산
+        const ratio = currentHeight / currentWidth;
+        const calculatedHeight = Math.round(parseInt(newWidth) * ratio);
+        
+        // 높이 입력 받기 (계산된 값을 기본값으로)
+        const newHeight = prompt('높이를 입력하세요 (픽셀):', calculatedHeight);
+        if (newHeight === null) return; // 취소된 경우
+        
+        // 이미지 크기 변경
+        selectedImage.style.width = newWidth + 'px';
+        selectedImage.style.height = newHeight + 'px';
+    }
+    
+    // 툴바 버튼 이벤트 바인딩
     if (toolbarButtons && toolbarButtons.length > 0) {
         toolbarButtons.forEach(button => {
             const command = button.dataset.command;
@@ -1217,6 +1339,9 @@ if (contentArea) {
                         break;
                     case 'insertCodeBlock':
                         insertCodeBlock();
+                        break;
+                    case 'resizeImage':
+                        resizeSelectedImage();
                         break;
                     default:
                         // 기본 명령 실행

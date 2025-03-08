@@ -18,6 +18,7 @@
 /* 폼 요소 */
 .form-group {
     margin-bottom: 20px;
+    position: relative; /* 피드백 요소 위치 지정을 위해 추가 */
 }
 
 .form-group label {
@@ -42,6 +43,22 @@
     outline: none;
     border-color: var(--accent-primary);
     box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
+}
+
+/* 입력 오류 강조 스타일 */
+.invalid-input {
+    border-color: var(--danger-color) !important;
+    background-color: rgba(215, 58, 73, 0.05) !important;
+    box-shadow: 0 0 0 3px rgba(215, 58, 73, 0.1) !important;
+}
+
+/* 입력 피드백 메시지 스타일 */
+.input-feedback {
+    color: var(--danger-color);
+    font-size: 0.85rem;
+    margin-top: 5px;
+    animation: fadeIn 0.3s ease-out;
+    display: none;
 }
 
 /* 툴바 스타일링 */
@@ -135,12 +152,13 @@
     font-size: 16px;
     line-height: 1.6;
     outline: none;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
     overflow-y: auto;
 }
 
 .content-area:focus {
     border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1) inset;
 }
 
 /* Placeholder 스타일 */
@@ -156,6 +174,13 @@
     background-color: var(--bg-secondary);
     border-color: var(--accent-primary);
     box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1) inset;
+    animation: pulseBorder 1.5s infinite;
+}
+
+@keyframes pulseBorder {
+    0% { border-color: var(--accent-primary); }
+    50% { border-color: var(--accent-secondary); }
+    100% { border-color: var(--accent-primary); }
 }
 
 /* 자동 저장 상태 표시 */
@@ -170,6 +195,13 @@
 .auto-save-status.saved {
     color: var(--success-color);
     font-weight: 500;
+    animation: pulse 1s;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
 }
 
 /* 에디터 콘텐츠 스타일링 */
@@ -206,14 +238,29 @@
     border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
 
+/* 글머리 기호 문제 해결을 위한 스타일 수정 */
 .content-area ul, 
 .content-area ol {
     margin: 1em 0;
     padding-left: 2em;
+    box-sizing: border-box;
+    max-width: 100%; /* 글머리 기호가 너비를 초과하지 않도록 제한 */
 }
 
 .content-area li {
     margin-bottom: 0.5em;
+    position: relative;
+    list-style-position: outside; /* 글머리 기호를 요소 외부에 배치 */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* 중첩된 목록 스타일 조정 */
+.content-area ul ul,
+.content-area ol ol,
+.content-area ul ol,
+.content-area ol ul {
+    margin: 0.5em 0;
 }
 
 .content-area pre {
@@ -248,6 +295,7 @@
     color: var(--accent-secondary);
 }
 
+/* 이미지 스타일 개선 */
 .content-area img {
     max-width: 100%;
     height: auto;
@@ -256,11 +304,20 @@
     margin: 1em auto;
     box-shadow: var(--shadow-sm);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    resize: both; /* 이미지 크기 조절 가능하게 함 */
+    overflow: auto; /* 크기 조절 핸들 표시를 위해 필요 */
 }
 
 .content-area img:hover {
-    transform: scale(1.01);
-    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    opacity: 0.95;
+}
+
+/* 선택된 이미지에 크기 조절 핸들 */
+.content-area img.selected {
+    border: 2px dashed var(--accent-primary);
+    padding: 2px;
+    box-sizing: border-box;
 }
 
 .content-area hr {
@@ -270,13 +327,19 @@
     background-color: var(--border-color);
 }
 
-/* 미디어 임베드 스타일 */
+/* 미디어 임베드 스타일 개선 */
 .media-embed {
     margin: 1.5em 0;
     border-radius: var(--radius-md);
     overflow: hidden;
     box-shadow: var(--shadow-md);
     background-color: var(--bg-secondary);
+    max-width: 100%;
+    transition: box-shadow 0.3s ease;
+}
+
+.media-embed:hover {
+    box-shadow: var(--shadow-lg);
 }
 
 .embed-caption {
@@ -299,6 +362,7 @@
     left: 0;
     width: 100%;
     height: 100%;
+    border: none;
 }
 
 .twitter-embed {
@@ -329,7 +393,7 @@
     background-color: var(--bg-secondary);
 }
 
-/* 파일 첨부 스타일 */
+/* 파일 첨부 스타일 개선 */
 .file-preview {
     display: flex;
     align-items: center;
@@ -574,33 +638,9 @@
     box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.1);
 }
 
-/* 이미지 크기 조절 핸들 */
-.content-area img {
-    max-width: 100%;
-    height: auto;
-    resize: both; /* 이미지 크기 조절 가능하게 함 */
-    overflow: auto; /* 크기 조절 핸들 표시를 위해 필요 */
-}
-
-/* 포커스된 이미지에 테두리 표시 */
-.content-area img:focus {
-    outline: 2px solid var(--accent-primary);
-}
-
-/* 선택된 이미지에 크기 조절 핸들 */
-.content-area img.selected {
-    border: 2px dashed var(--accent-primary);
-}
-
-/* 색상 관련 스타일 - 수정됨 */
+/* 색상 관련 스타일 */
 .content-area span[style*="color"] {
     display: inline;
-}
-
-/* 이미지 크기 조절 지원 */
-.content-area img {
-    max-width: 100%;
-    height: auto;
 }
 
 /* 중복 박스 문제 해결 */
