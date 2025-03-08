@@ -106,7 +106,7 @@ header.hide {
 
 /* 메인 콘텐츠 */
 main.container {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 70px auto 0; /* 헤더 높이만큼 상단 여백 */
   padding: var(--spacing-xl);
   flex: 1 0 auto; /* 푸터 위치 조정용 */
@@ -121,7 +121,7 @@ main.container {
 .blog-container {
   width: 100%;
   max-width: 720px; /* 기존보다 40% 줄임 */
-  min-width: 480px;
+  min-width: 520px;
   margin: 0 auto;
   padding: var(--spacing-xl);
   background: var(--bg-primary);
