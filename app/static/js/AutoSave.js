@@ -1,17 +1,24 @@
-// AutoSave.js
-
+// autosave.js
 class AutoSave {
-    constructor(editor) {
-        this.editor = editor;
+    constructor(params) {
+        // 필요한 요소만 직접 참조 (순환 참조 방지)
+        this.contentManager = params.contentManager;
+        this.contentArea = params.contentArea;
+        this.titleInput = params.titleInput;
+        this.categorySelect = params.categorySelect;
+        this.tagsInput = params.tagsInput;
+        this.editorContainer = params.editorContainer;
+        
+        // 내부 상태 설정
         this.lastSavedContent = '';
         this.AUTO_SAVE_DELAY = 15000; // 15초
         this.autoSaveInterval = null;
     }
     
     init() {
-        // editorContainer가 존재하는지 확인
-        if (!this.editor.editorContainer) {
-            console.error('Editor container not found!');
+        // 필수 요소 확인
+        if (!this.editorContainer || !this.contentArea || !this.contentManager) {
+            console.error('자동 저장에 필요한 요소가 없습니다.');
             return;
         }
         
@@ -30,10 +37,10 @@ class AutoSave {
     
     startAutoSaveInterval() {
         this.autoSaveInterval = setInterval(() => {
-            if (!this.editor.contentArea || !this.editor.titleInput) return;
+            if (!this.contentArea || !this.titleInput || !this.contentManager) return;
             
-            const currentContent = JSON.stringify(this.editor.contentManager.getContentObject());
-            const postTitle = this.editor.titleInput.value;
+            const currentContent = JSON.stringify(this.contentManager.getContentObject());
+            const postTitle = this.titleInput.value;
             
             // 내용이 있고 마지막 저장 내용과 다른 경우에만 저장
             if (currentContent && currentContent !== this.lastSavedContent && postTitle) {
@@ -52,22 +59,22 @@ class AutoSave {
 
         try {
             // 안전한 방식으로 상태 요소 추가
-            this.editor.editorContainer.appendChild(autoSaveStatus);
+            this.editorContainer.appendChild(autoSaveStatus);
             
             // 에디터 액션이 있다면 그 위치로 이동
             try {
-                const editorActions = this.editor.editorContainer.querySelector('.editor-actions');
-                if (editorActions && editorActions.parentNode === this.editor.editorContainer) {
-                    this.editor.editorContainer.insertBefore(autoSaveStatus, editorActions);
+                const editorActions = this.editorContainer.querySelector('.editor-actions');
+                if (editorActions && editorActions.parentNode === this.editorContainer) {
+                    this.editorContainer.insertBefore(autoSaveStatus, editorActions);
                 } else {
                     // editorActions가 없거나 다른 부모를 가질 경우 그냥 끝에 추가
-                    this.editor.editorContainer.appendChild(autoSaveStatus);
+                    this.editorContainer.appendChild(autoSaveStatus);
                 }
             } catch (e) {
                 console.error('자동 저장 상태 표시 요소 추가 오류:', e);
                 // 오류가 발생해도 기능을 계속하기 위해 그냥 끝에 추가
                 try {
-                    this.editor.editorContainer.appendChild(autoSaveStatus);
+                    this.editorContainer.appendChild(autoSaveStatus);
                 } catch (e2) {
                     console.error('대체 방법도 실패:', e2);
                 }
@@ -79,7 +86,9 @@ class AutoSave {
     
     setupBeforeUnloadWarning() {
         window.addEventListener('beforeunload', (e) => {
-            const currentContent = JSON.stringify(this.editor.contentManager.getContentObject());
+            if (!this.contentManager) return;
+            
+            const currentContent = JSON.stringify(this.contentManager.getContentObject());
             if (currentContent !== this.lastSavedContent && currentContent.trim() !== '') {
                 e.preventDefault();
                 const message = '저장되지 않은 변경사항이 있습니다. 정말 나가시겠습니까?';
@@ -90,9 +99,9 @@ class AutoSave {
     }
     
     loadAutoSavedContent() {
-        if (!this.editor.editorContainer) return;
+        if (!this.editorContainer) return;
         
-        const postId = this.editor.editorContainer.dataset.postId;
+        const postId = this.editorContainer.dataset.postId;
         const storageKey = postId ? `autosave_post_${postId}` : 'autosave_new_post';
         const savedData = localStorage.getItem(storageKey);
         
@@ -110,19 +119,21 @@ class AutoSave {
                     );
                     
                     if (confirmRestore) {
-                        if (this.editor.titleInput) this.editor.titleInput.value = parsedData.title || '';
-                        if (this.editor.categorySelect) this.editor.categorySelect.value = parsedData.category || '';
-                        if (this.editor.tagsInput) this.editor.tagsInput.value = parsedData.tags || '';
+                        if (this.titleInput) this.titleInput.value = parsedData.title || '';
+                        if (this.categorySelect) this.categorySelect.value = parsedData.category || '';
+                        if (this.tagsInput) this.tagsInput.value = parsedData.tags || '';
                         
                         // 에디터 콘텐츠 복원
                         try {
                             const contentObj = JSON.parse(parsedData.content);
-                            this.editor.contentManager.renderContent(contentObj);
+                            this.contentManager.renderContent(contentObj);
                             this.lastSavedContent = parsedData.content;
                         } catch (e) {
                             console.error('저장된 콘텐츠 파싱 오류:', e);
-                            this.editor.contentArea.innerHTML = parsedData.content;
-                            this.lastSavedContent = parsedData.content;
+                            if (this.contentArea) {
+                                this.contentArea.innerHTML = parsedData.content;
+                                this.lastSavedContent = parsedData.content;
+                            }
                         }
                         
                         this.updateLastSavedTime();
@@ -142,21 +153,25 @@ class AutoSave {
     }
     
     saveContentToLocalStorage(title, content) {
-        if (!this.editor.editorContainer) return;
+        if (!this.editorContainer) return;
         
-        const postId = this.editor.editorContainer.dataset.postId;
+        const postId = this.editorContainer.dataset.postId;
         const storageKey = postId ? `autosave_post_${postId}` : 'autosave_new_post';
         
         const dataToSave = {
             title: title,
             content: content,
             timestamp: new Date().toISOString(),
-            category: this.editor.categorySelect?.value || '',
-            tags: this.editor.tagsInput?.value || ''
+            category: this.categorySelect?.value || '',
+            tags: this.tagsInput?.value || ''
         };
         
-        localStorage.setItem(storageKey, JSON.stringify(dataToSave));
-        this.lastSavedContent = content;
+        try {
+            localStorage.setItem(storageKey, JSON.stringify(dataToSave));
+            this.lastSavedContent = content;
+        } catch (e) {
+            console.error('로컬 스토리지 저장 오류:', e);
+        }
     }
     
     updateLastSavedTime() {

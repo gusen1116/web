@@ -1,26 +1,43 @@
-// 상단의 정적 import는 제거하고 dynamic import만 사용하거나
-// 아래와 같이 정적 import를 유지하는 방식으로 수정합니다.
-
-import EditorCore from './editor-core.js'; 
+// main.js
+// 정적 임포트 유지
+import EditorCore from '/static/js/editor-core.js';
 
 // 전역 설정
-window.DEBUG_MODE = false; // 디버깅 모드 활성화 여부
+window.DEBUG_MODE = true; // 디버깅 활성화
 
 document.addEventListener('DOMContentLoaded', function() {
-    // 이 부분은 디버깅을 위해 추가
-    console.log('DOM이 준비되었습니다.');
+    console.log('DOM이 준비되었습니다. 에디터 초기화를 시작합니다.');
     
-    // 에디터 컨테이너가 있는지 확인
+    // 에디터 컨테이너 확인
     const editorContainer = document.getElementById('editor-container');
-    console.log('에디터 컨테이너:', editorContainer);
+    console.log('에디터 컨테이너 상태:', editorContainer ? '찾음' : '찾을 수 없음');
     
     if (editorContainer) {
         try {
-            // 이미 import된 EditorCore 사용
+            // 모듈 의존성 로딩 확인
+            console.log('EditorCore 모듈 로딩 상태:', typeof EditorCore);
+            
+            // 에디터 초기화 시도
             window.editor = new EditorCore();
             console.log('에디터 초기화 완료:', window.editor);
+            
         } catch (error) {
             console.error('에디터 초기화 실패:', error);
+            
+            // 폴백: 기본 contenteditable 기능만 활성화
+            try {
+                const contentArea = document.getElementById('content-area');
+                if (contentArea) {
+                    contentArea.contentEditable = 'true';
+                    contentArea.spellcheck = true;
+                    contentArea.dataset.placeholder = '내용을 입력하세요...';
+                    console.log('폴백: 기본 편집 기능만 활성화했습니다.');
+                }
+            } catch (fallbackError) {
+                console.error('폴백 초기화도 실패:', fallbackError);
+            }
         }
+    } else {
+        console.log('현재 페이지에 에디터 컨테이너가 없습니다.');
     }
 });

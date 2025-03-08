@@ -1,9 +1,8 @@
-// MediaHandler.js
-import Utils from "./utils.js";
-
+// media-handler.js
 class MediaHandler {
-    constructor(editor) {
-        this.editor = editor;
+    constructor(contentArea) {
+        // EditorCore 참조 대신 필요한 DOM 요소만 전달받음
+        this.contentArea = contentArea;
         this.MEDIA_PATTERNS = [
             // YouTube
             {
@@ -106,10 +105,12 @@ class MediaHandler {
                 
                 // 방금 삽입된 이미지에 이벤트 리스너 추가
                 setTimeout(() => {
-                    const lastImage = this.editor.contentArea.querySelector('img:last-child');
+                    if (!this.contentArea) return;
+                    
+                    const lastImage = this.contentArea.querySelector('img:last-child');
                     if (lastImage) {
                         // 이미 선택된 이미지 클래스 제거
-                        const allImages = this.editor.contentArea.querySelectorAll('img');
+                        const allImages = this.contentArea.querySelectorAll('img');
                         allImages.forEach(img => img.classList.remove('selected'));
                         
                         // 새 이미지 선택 표시
@@ -117,9 +118,6 @@ class MediaHandler {
                         
                         // 크기 조절 가능하도록 속성 추가
                         lastImage.setAttribute('contenteditable', 'true');
-                        
-                        // 크기 조절 안내 메시지
-                        alert('이미지가 삽입되었습니다. 크기를 조절하려면 이미지를 선택한 후 "이미지 크기 조절" 버튼을 클릭하세요.');
                     }
                 }, 100);
             } else {
@@ -131,6 +129,131 @@ class MediaHandler {
             console.error('업로드 오류:', error);
             alert('이미지 업로드 중 오류가 발생했습니다.');
         });
+    }
+    
+    handleMediaEmbed(url) {
+        if (!url || !this.contentArea) return false;
+        
+        for (const pattern of this.MEDIA_PATTERNS) {
+            if (pattern.regex.test(url)) {
+                const match = url.match(pattern.regex);
+                if (match) {
+                    const embedHtml = pattern.handler(match);
+                    document.execCommand('insertHTML', false, embedHtml);
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    handleLinkInsertion() {
+        const selection = window.getSelection();
+        if (!selection || !this.contentArea) return;
+        
+        const selectedText = selection.toString();
+        
+        // 링크 URL 입력 받기
+        const url = prompt('링크 URL을 입력하세요:', 'https://');
+        
+        if (url && url !== 'https://') {
+            // 먼저 미디어 임베드인지 확인
+            if (this.handleMediaEmbed(url)) {
+                return; // 미디어로 처리됨
+            }
+            
+            if (selectedText) {
+                // 선택한 텍스트에 링크 적용
+                document.execCommand('createLink', false, url);
+                
+                // 새 창에서 열리도록 타겟 속성 추가
+                const links = this.contentArea.querySelectorAll('a[href="' + url + '"]');
+                links.forEach(link => {
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                });
+            } else {
+                // 선택한 텍스트가 없으면 새 링크 텍스트 입력 받기
+                const linkText = prompt('링크 텍스트를 입력하세요:', '');
+                if (linkText) {
+                    const linkHtml = `<a href="${url}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
+                    document.execCommand('insertHTML', false, linkHtml);
+                }
+            }
+        }
+    }
+    
+    insertTable(rows, cols) {
+        if (!this.contentArea) return;
+        
+        if (!rows || !cols) {
+            rows = prompt('행 수를 입력하세요:', '3');
+            cols = prompt('열 수를 입력하세요:', '3');
+        }
+        
+        if (rows && cols) {
+            const numRows = parseInt(rows);
+            const numCols = parseInt(cols);
+            
+            if (numRows > 0 && numCols > 0) {
+                let tableHTML = '<table class="editor-table"><tbody>';
+                
+                // 헤더 행 생성
+                tableHTML += '<tr>';
+                for (let j = 0; j < numCols; j++) {
+                    tableHTML += `<th>헤더 ${j+1}</th>`;
+                }
+                tableHTML += '</tr>';
+                
+                // 데이터 행 생성
+                for (let i = 0; i < numRows - 1; i++) {
+                    tableHTML += '<tr>';
+                    for (let j = 0; j < numCols; j++) {
+                        tableHTML += `<td>셀 ${i+1}-${j+1}</td>`;
+                    }
+                    tableHTML += '</tr>';
+                }
+                
+                tableHTML += '</tbody></table>';
+                
+                document.execCommand('insertHTML', false, tableHTML);
+            }
+        }
+    }
+    
+    resizeSelectedImage() {
+        if (!this.contentArea) return;
+        
+        const selectedImage = this.contentArea.querySelector('img.selected');
+        if (!selectedImage) {
+            alert('먼저 이미지를 선택해주세요.');
+            return;
+        }
+        
+        // 현재 크기 가져오기
+        const currentWidth = selectedImage.width;
+        const currentHeight = selectedImage.height;
+        
+        // 새 크기 입력 받기
+        const newWidth = prompt('너비를 입력하세요 (픽셀):', currentWidth);
+        if (newWidth === null) return; // 취소된 경우
+        
+        // 비율 계산
+        const ratio = currentHeight / currentWidth;
+        const calculatedHeight = Math.round(parseInt(newWidth) * ratio);
+        
+        // 높이 입력 받기 (계산된 값을 기본값으로)
+        const newHeight = prompt('높이를 입력하세요 (픽셀):', calculatedHeight);
+        if (newHeight === null) return; // 취소된 경우
+        
+        // 이미지 크기 변경
+        selectedImage.style.width = newWidth + 'px';
+        selectedImage.style.height = newHeight + 'px';
+        
+        // 속성 업데이트를 위한 추가 작업 (선택 사항)
+        selectedImage.setAttribute('width', newWidth);
+        selectedImage.setAttribute('height', newHeight);
     }
 }
 

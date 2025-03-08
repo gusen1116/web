@@ -5,7 +5,7 @@
 {% block head %}
 <!-- 에디터 스타일시트 -->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/custom-editor.css') }}">
-{% endblock %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/editor.css') }}">{% endblock %}
 
 {% block content %}
 <div id="editor-container" class="blog-container editor-container" {% if post %}data-post-id="{{ post.id }}"{% endif %}>
@@ -121,5 +121,5 @@
 
 {% block scripts %}
 <!-- 커스텀 에디터 스크립트 -->
-<script type="module" src="{{ url_for('static', filename='js/editor-core.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}

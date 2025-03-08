@@ -182,3 +182,101 @@
     border-radius: var(--radius-md);
     background-color: var(--bg-secondary);
   }
+
+  /* 기본 CSS 변수 정의 */
+:root {
+  --content-width-desktop: 60%;
+  --content-width-tablet: 80%;
+  --content-width-mobile: 95%;
+  --content-font-size: 16px;
+  --min-content-width: min(60vw, 500px);
+  --max-content-width: 1200px;
+}
+
+/* 콘텐츠 컨테이너 기본 스타일 */
+.content-container {
+  width: 100%;
+  max-width: var(--max-content-width);
+  min-width: var(--min-content-width);
+  margin: 0 auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+/* 블로그 콘텐츠 스타일 */
+.blog-content {
+  width: var(--content-width-desktop);
+  font-size: var(--content-font-size);
+  margin: 0 auto;
+  line-height: 1.6;
+  min-width: var(--min-content-width);
+}
+
+/* 블로그 포스트 제목 스타일 */
+.post-title {
+  font-size: calc(var(--content-font-size) * 1.5);
+  margin-bottom: 0.5em;
+  word-break: keep-all;
+}
+
+/* 블로그 포스트 날짜 스타일 */
+.post-date {
+  color: #666;
+  margin-bottom: 1.5em;
+  font-size: calc(var(--content-font-size) * 0.9);
+}
+
+/* 블로그 본문 영역 */
+.post-body {
+  font-size: var(--content-font-size);
+  line-height: 1.8;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* 텍스트 크기 조절 컨트롤 스타일 */
+.text-size-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1em;
+}
+
+.text-size-control {
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  padding: 5px 10px;
+  margin-left: 5px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.text-size-control.active {
+  background: #0366d6;
+  color: white;
+  border-color: #0366d6;
+}
+
+/* 태블릿 화면에 대한 반응형 조정 */
+@media (max-width: 1024px) {
+  .blog-content {
+      width: var(--content-width-tablet);
+  }
+}
+
+/* 모바일 화면에 대한 반응형 조정 */
+@media (max-width: 768px) {
+  .blog-content {
+      width: var(--content-width-mobile);
+      min-width: 90vw;
+  }
+  
+  .content-container {
+      min-width: 90vw;
+      padding: 0 10px;
+  }
+  
+  .text-size-controls {
+      justify-content: center;
+  }
+}

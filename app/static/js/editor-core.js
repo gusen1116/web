@@ -1,13 +1,13 @@
-// EditorCore.js - 수정 버전
-import AutoSave from './autosave.js';
+// editor-core.js
 import ContentManager from './content-manager.js';
 import ToolbarManager from './toolbar-manager.js';
+import AutoSave from './autosave.js';
 import MediaHandler from './media-handler.js';
 import Utils from './utils.js';
 
 class EditorCore {
     constructor() {
-        // 핵심 요소 참조
+        // DOM 요소 참조
         this.contentArea = document.getElementById('content-area');
         this.titleInput = document.getElementById('post-title');
         this.categorySelect = document.getElementById('post-category');
@@ -15,18 +15,26 @@ class EditorCore {
         this.saveButton = document.getElementById('save-post');
         this.editorContainer = document.getElementById('editor-container');
         
-        // 모듈 초기화
-        this.contentManager = new ContentManager(this.contentArea);
-        this.autoSave = new AutoSave(this);
-        this.toolbar = new ToolbarManager(this);
-        this.mediaHandler = new MediaHandler(this);
+        // 필수 요소 검증
+        if (!this.contentArea || !this.editorContainer) {
+            console.error('필수 에디터 요소를 찾을 수 없습니다.');
+            return;
+        }
         
+        // 모듈 초기화 - 전달 시 순환 참조 방지
+        this.contentManager = new ContentManager(this.contentArea);
+        this.toolbar = new ToolbarManager(this.contentArea);
+        this.mediaHandler = new MediaHandler(this.contentArea);
+        
+        // AutoSave는 별도 메서드에서 초기화
+        this.autoSave = null;
+        
+        // 기본 초기화 수행
         this.init();
     }
     
     init() {
         if (!this.contentArea) {
-            console.error('편집기 콘텐츠 영역을 찾을 수 없습니다.');
             return;
         }
         
@@ -40,18 +48,41 @@ class EditorCore {
         this.contentArea.focus();
         
         // 기존 콘텐츠 로드
-        this.contentManager.loadExistingContent();
+        if (this.contentManager) {
+            this.contentManager.loadExistingContent();
+        }
         
-        // 자동 저장 초기화
+        // 이벤트 리스너 설정
+        this.setupEventListeners();
+        
+        // AutoSave 초기화 (마지막 단계)
+        this.initAutoSave();
+    }
+    
+    initAutoSave() {
+        // AutoSave 매개변수 구성 (순환 참조 없이)
+        const autoSaveParams = {
+            contentManager: this.contentManager,
+            editorContainer: this.editorContainer,
+            titleInput: this.titleInput,
+            categorySelect: this.categorySelect,
+            tagsInput: this.tagsInput,
+            contentArea: this.contentArea
+        };
+        
+        // AutoSave 인스턴스 생성 (순환 참조 없음)
+        this.autoSave = new AutoSave(autoSaveParams);
         this.autoSave.init();
+    }
+    
+    setupEventListeners() {
+        // 드래그 앤 드롭 이벤트 설정
+        this.setupDragAndDrop();
         
         // 저장 버튼 이벤트
         if (this.saveButton) {
             this.saveButton.addEventListener('click', this.savePost.bind(this));
         }
-        
-        // 드래그 앤 드롭 설정
-        this.setupDragAndDrop();
     }
     
     setupDragAndDrop() {
@@ -59,29 +90,23 @@ class EditorCore {
         
         const throttledDragOver = Utils.throttle((e) => {
             e.preventDefault();
-            if (this.contentArea) {
-                this.contentArea.classList.add('dragover');
-            }
+            this.contentArea.classList.add('dragover');
         }, 100);
         
         this.contentArea.addEventListener('dragover', throttledDragOver);
         
         this.contentArea.addEventListener('dragleave', () => {
-            if (this.contentArea) {
-                this.contentArea.classList.remove('dragover');
-            }
+            this.contentArea.classList.remove('dragover');
         });
         
         this.contentArea.addEventListener('drop', (e) => {
             e.preventDefault();
-            if (this.contentArea) {
-                this.contentArea.classList.remove('dragover');
-                
-                if (e.dataTransfer.files.length > 0) {
-                    const file = e.dataTransfer.files[0];
-                    if (file.type.startsWith('image/')) {
-                        this.mediaHandler.uploadImage(file);
-                    }
+            this.contentArea.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length > 0) {
+                const file = e.dataTransfer.files[0];
+                if (file.type.startsWith('image/') && this.mediaHandler) {
+                    this.mediaHandler.uploadImage(file);
                 }
             }
         });
