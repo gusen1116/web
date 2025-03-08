@@ -48,6 +48,30 @@
                 
                 <div class="toolbar-separator"></div>
                 
+                <!-- 글자 색상 변경 -->
+                <div class="toolbar-group">
+                    <button class="toolbar-button" data-command="foreColor" title="글자 색상"><i class="fas fa-palette"></i></button>
+                    <button class="toolbar-button" data-command="hiliteColor" title="배경 색상"><i class="fas fa-fill-drip"></i></button>
+                </div>
+                
+                <div class="toolbar-separator"></div>
+                
+                <!-- 글자 크기 변경 -->
+                <div class="toolbar-group">
+                    <select class="toolbar-select" data-command="fontSize" title="글자 크기">
+                        <option value="">글자 크기</option>
+                        <option value="1">아주 작게</option>
+                        <option value="2">작게</option>
+                        <option value="3">보통</option>
+                        <option value="4">크게</option>
+                        <option value="5">더 크게</option>
+                        <option value="6">매우 크게</option>
+                        <option value="7">최대 크게</option>
+                    </select>
+                </div>
+                
+                <div class="toolbar-separator"></div>
+                
                 <div class="toolbar-group">
                     <button class="toolbar-button" data-command="formatBlock" data-value="h1" title="제목 1"><i class="fas fa-heading"></i>1</button>
                     <button class="toolbar-button" data-command="formatBlock" data-value="h2" title="제목 2"><i class="fas fa-heading"></i>2</button>
@@ -74,11 +98,13 @@
                 <div class="toolbar-group">
                     <button class="toolbar-button" data-command="createLink" title="링크 삽입"><i class="fas fa-link"></i></button>
                     <button class="toolbar-button" data-command="insertImage" title="이미지 삽입"><i class="fas fa-image"></i></button>
+                    <!-- 이미지 크기 조절 추가 -->
+                    <button class="toolbar-button" data-command="resizeImage" title="이미지 크기 조절"><i class="fas fa-expand"></i></button>
                 </div>
             </div>
             
-            <!-- 에디터 콘텐츠 영역 -->
-            <div id="content-area" class="content-area"></div>
+            <!-- 콘텐츠 영역 추가 (이 부분이 누락되어 있었음) -->
+            <div id="content-area" class="content-area" contenteditable="true" data-placeholder="내용을 입력하세요..."></div>
             
             <!-- 기존 콘텐츠를 저장하기 위한 숨겨진 요소 -->
             {% if post %}
@@ -95,5 +121,5 @@
 
 {% block scripts %}
 <!-- 커스텀 에디터 스크립트 -->
-<script type="module" src="{{ url_for('static', filename='js/editorcore.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/editor-core.js') }}"></script>
 {% endblock %}

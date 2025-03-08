@@ -1,5 +1,5 @@
 // MediaHandler.js
-import Utils from "./Utils.js";
+import Utils from "./utils.js";
 
 class MediaHandler {
     constructor(editor) {
@@ -100,9 +100,28 @@ class MediaHandler {
             progressIndicator.remove();
             
             if (data.success === 1) {
-                // 이미지 삽입
-                const imgHtml = `<img src="${data.file.url}" alt="업로드된 이미지" class="editor-image">`;
+                // 이미지 삽입 (크기 속성 추가)
+                const imgHtml = `<img src="${data.file.url}" alt="업로드된 이미지" class="editor-image" style="max-width: 100%;" contenteditable="true">`;
                 document.execCommand('insertHTML', false, imgHtml);
+                
+                // 방금 삽입된 이미지에 이벤트 리스너 추가
+                setTimeout(() => {
+                    const lastImage = this.editor.contentArea.querySelector('img:last-child');
+                    if (lastImage) {
+                        // 이미 선택된 이미지 클래스 제거
+                        const allImages = this.editor.contentArea.querySelectorAll('img');
+                        allImages.forEach(img => img.classList.remove('selected'));
+                        
+                        // 새 이미지 선택 표시
+                        lastImage.classList.add('selected');
+                        
+                        // 크기 조절 가능하도록 속성 추가
+                        lastImage.setAttribute('contenteditable', 'true');
+                        
+                        // 크기 조절 안내 메시지
+                        alert('이미지가 삽입되었습니다. 크기를 조절하려면 이미지를 선택한 후 "이미지 크기 조절" 버튼을 클릭하세요.');
+                    }
+                }, 100);
             } else {
                 alert('이미지 업로드 실패: ' + (data.message || '알 수 없는 오류'));
             }
@@ -113,19 +132,6 @@ class MediaHandler {
             alert('이미지 업로드 중 오류가 발생했습니다.');
         });
     }
-    // MediaHandler.js에 추가
-    throttle(func, delay) {
-    let lastCall = 0;
-    return function(...args) {
-        const now = new Date().getTime();
-        if (now - lastCall < delay) {
-            return;
-        }
-        lastCall = now;
-        return func(...args);
-    }
-}
-    // 미디어 업로드 관련 기타 메서드 추가 가능
 }
 
 export default MediaHandler;

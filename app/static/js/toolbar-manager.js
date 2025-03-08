@@ -1,7 +1,6 @@
-
 // ToolbarManager.js - 수정 버전
-import Utils from '/utils.js';
-import MediaHandler from './MediaHandler.js';
+import Utils from './utils.js';
+import MediaHandler from './media-handler.js';
 
 class ToolbarManager {
     constructor(editor) {
@@ -65,7 +64,7 @@ class ToolbarManager {
                 break;
             default:
                 // 기본 명령 실행
-                document.execCommand(command, false, null);
+                document.execCommand(command, false, value);
                 break;
         }
         
@@ -195,18 +194,36 @@ class ToolbarManager {
         }
     }
     
+    // 수정: 시각적 색상 선택기 사용
     applyColorStyle() {
-        const color = prompt('색상 코드를 입력하세요 (예: #FF0000 또는 red):', '');
-        if (color) {
-            document.execCommand('foreColor', false, color);
-        }
+        // 색상 선택기 요소 생성
+        const colorPicker = document.createElement('input');
+        colorPicker.type = 'color';
+        colorPicker.value = '#000000'; // 기본 검정색
+        
+        // 숨겨진 클릭 이벤트 트리거
+        colorPicker.click();
+        
+        // 색상 선택 시 적용
+        colorPicker.addEventListener('change', function() {
+            document.execCommand('foreColor', false, this.value);
+        });
     }
     
+    // 수정: 시각적 배경색 선택기 사용
     applyBackgroundColor() {
-        const color = prompt('배경색 코드를 입력하세요 (예: #FFFF00 또는 yellow):', '');
-        if (color) {
-            document.execCommand('hiliteColor', false, color);
-        }
+        // 색상 선택기 요소 생성
+        const colorPicker = document.createElement('input');
+        colorPicker.type = 'color';
+        colorPicker.value = '#FFFF00'; // 기본 노란색
+        
+        // 숨겨진 클릭 이벤트 트리거
+        colorPicker.click();
+        
+        // 색상 선택 시 적용
+        colorPicker.addEventListener('change', function() {
+            document.execCommand('hiliteColor', false, this.value);
+        });
     }
     
     insertTable() {

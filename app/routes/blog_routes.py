@@ -426,7 +426,7 @@ def upload_file():
     
     return jsonify(response_data)
 
-# 파일 제공 라우트 추가
+# 파일 제공 라우트 (수정됨)
 @blog_bp.route('/uploads/<string:file_type>/<string:filename>')
 def serve_file(file_type, filename):
     """업로드된 파일 제공"""
@@ -434,30 +434,29 @@ def serve_file(file_type, filename):
     basedir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
     UPLOAD_FOLDER = os.path.join(basedir, 'instance', 'uploads')
     
-    # 디버깅 출력
-    print(f"업로드 폴더 절대 경로: {UPLOAD_FOLDER}")
-    
-    full_path = os.path.join(UPLOAD_FOLDER, file_type, filename)
-    print(f"요청된 파일 절대 경로: {full_path}")
-    print(f"파일 존재 여부: {os.path.exists(full_path)}")
-    
-    
-    UPLOAD_FOLDER = 'instance/uploads'
-    full_path = os.path.join(UPLOAD_FOLDER, file_type, filename)
+    # 디렉토리가 존재하는지 확인하고 없으면 생성
+    directory_path = os.path.join(UPLOAD_FOLDER, file_type)
+    os.makedirs(directory_path, exist_ok=True)
     
     # 디버깅 출력
+    full_path = os.path.join(directory_path, filename)
     print(f"요청된 파일 경로: {full_path}")
     print(f"파일 존재 여부: {os.path.exists(full_path)}")
     
+    # 파일이 존재하지 않으면 디렉토리 내용 로깅 후 404 에러
     if not os.path.exists(full_path):
         # 디렉토리 내용 출력
-        dir_path = os.path.join(UPLOAD_FOLDER, file_type)
-        if os.path.exists(dir_path):
-            print(f"디렉토리 내용: {os.listdir(dir_path)}")
+        if os.path.exists(directory_path):
+            print(f"디렉토리 내용: {os.listdir(directory_path)}")
         else:
-            print(f"디렉토리가 존재하지 않음: {dir_path}")
+            print(f"디렉토리가 존재하지 않음: {directory_path}")
+        
+        # 404 에러 반환
+        return f"파일을 찾을 수 없습니다: {file_type}/{filename}", 404
     
-    return send_from_directory(os.path.join(UPLOAD_FOLDER, file_type), filename)
+    # 파일 전송
+    return send_from_directory(directory_path, filename)
+
 # 카테고리별 게시물 보기
 @blog_bp.route('/category/<int:category_id>')
 def category(category_id):

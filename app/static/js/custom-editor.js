@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 자동 저장 관련 변수 및 기능
     let autoSaveInterval;
     let lastSavedContent = '';
-    const AUTO_SAVE_DELAY = 15000; // 15초마다 자동 저장 (30초에서 15초로 줄임)
+    const AUTO_SAVE_DELAY = 150000; // 15초마다 자동 저장 (30초에서 15초로 줄임)
     
     const Utils = {
         throttle(func, delay) {
@@ -61,6 +61,53 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
+    // 툴바 선택 박스 이벤트 처리
+const toolbarSelects = document.querySelectorAll('.toolbar-select');
+if (toolbarSelects && toolbarSelects.length > 0) {
+    toolbarSelects.forEach(select => {
+        const command = select.dataset.command;
+        if (!command) return;
+        
+        select.addEventListener('change', function() {
+            const value = this.value;
+            if (!value) return;
+            
+            switch(command) {
+                case 'fontSize':
+                    document.execCommand(command, false, value);
+                    break;
+                default:
+                    document.execCommand(command, false, value);
+                    break;
+            }
+            
+            // 선택 후 기본값으로 복원
+            this.selectedIndex = 0;
+            
+            // 포커스 되돌리기
+            contentArea.focus();
+        });
+    });
+}
+
+// 이미지 선택 이벤트
+if (contentArea) {
+    contentArea.addEventListener('click', function(e) {
+        // 이미 선택된 이미지 클래스 제거
+        const allImages = this.querySelectorAll('img');
+        allImages.forEach(img => img.classList.remove('selected'));
+        
+        // 클릭한 요소가 이미지인 경우
+        if (e.target.tagName === 'IMG') {
+            e.target.classList.add('selected');
+            
+            // 이미지에 크기 조절 속성 추가
+            if (!e.target.getAttribute('contenteditable')) {
+                e.target.setAttribute('contenteditable', 'true');
+            }
+        }
+    });
+}
     
     // 로컬 스토리지에 콘텐츠 저장
     function saveContentToLocalStorage(title, content) {

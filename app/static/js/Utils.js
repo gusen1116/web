@@ -1,4 +1,4 @@
-// Utils.js
+// Utils.js - 수정 버전
 class Utils {
     /**
      * HTML 특수 문자를 이스케이프합니다.
@@ -41,26 +41,23 @@ class Utils {
     }
     
     /**
-     * HTML을 정제하여 위험한 요소를 제거합니다.
+     * HTML을 정제하되 스타일 속성은 유지합니다.
      */
     static sanitizeHTML(html) {
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = html;
         
         // 스크립트 및 위험한 태그 제거
-        const scripts = tempDiv.querySelectorAll('script, iframe, object, embed, style');
+        const scripts = tempDiv.querySelectorAll('script, iframe, object, embed');
         scripts.forEach(node => node.remove());
         
-        // 위험한 속성 제거
+        // 위험한 속성만 제거하고 스타일은 유지
         const allElements = tempDiv.querySelectorAll('*');
         allElements.forEach(el => {
             const attributes = Array.from(el.attributes);
             attributes.forEach(attr => {
-                // on* 이벤트 속성 제거
-                if (attr.name.startsWith('on') || 
-                    attr.name === 'style' || 
-                    attr.name === 'id' || 
-                    attr.name === 'class') {
+                // on* 이벤트 속성만 제거 (스타일 및 클래스 유지)
+                if (attr.name.startsWith('on')) {
                     el.removeAttribute(attr.name);
                 }
             });

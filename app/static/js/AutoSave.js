@@ -1,5 +1,4 @@
 // AutoSave.js
-import Utils from '/utils.js';
 
 class AutoSave {
     constructor(editor) {
@@ -56,24 +55,23 @@ class AutoSave {
             this.editor.editorContainer.appendChild(autoSaveStatus);
             
             // 에디터 액션이 있다면 그 위치로 이동
-            // 에디터 액션이 있다면 그 위치로 이동
-        try {
-        const editorActions = this.editor.editorContainer.querySelector('.editor-actions');
-        if (editorActions && editorActions.parentNode === this.editor.editorContainer) {
-        this.editor.editorContainer.insertBefore(autoSaveStatus, editorActions);
-        } else {
-        // editorActions가 없거나 다른 부모를 가질 경우 그냥 끝에 추가
-        this.editor.editorContainer.appendChild(autoSaveStatus);
-    }
-    } catch (e) {
-    console.error('자동 저장 상태 표시 요소 추가 오류:', e);
-    // 오류가 발생해도 기능을 계속하기 위해 그냥 끝에 추가
-    try {
-        this.editor.editorContainer.appendChild(autoSaveStatus);
-    } catch (e2) {
-        console.error('대체 방법도 실패:', e2);
-    }
-}
+            try {
+                const editorActions = this.editor.editorContainer.querySelector('.editor-actions');
+                if (editorActions && editorActions.parentNode === this.editor.editorContainer) {
+                    this.editor.editorContainer.insertBefore(autoSaveStatus, editorActions);
+                } else {
+                    // editorActions가 없거나 다른 부모를 가질 경우 그냥 끝에 추가
+                    this.editor.editorContainer.appendChild(autoSaveStatus);
+                }
+            } catch (e) {
+                console.error('자동 저장 상태 표시 요소 추가 오류:', e);
+                // 오류가 발생해도 기능을 계속하기 위해 그냥 끝에 추가
+                try {
+                    this.editor.editorContainer.appendChild(autoSaveStatus);
+                } catch (e2) {
+                    console.error('대체 방법도 실패:', e2);
+                }
+            }
         } catch (e) {
             console.error('자동 저장 상태 표시 요소 추가 오류:', e);
         }

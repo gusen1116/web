@@ -48,14 +48,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
         const header = document.querySelector('header');
         
+        if (!header) return; // null 체크 추가
+        
         if (currentScroll > lastScrollTop) {
-            // 아래로 스크롤 중
             scrollUpAmount = 0;
             if (currentScroll > scrollThreshold) {
                 header.classList.add('hide');
             }
         } else {
-            // 위로 스크롤 중
             scrollUpAmount += (lastScrollTop - currentScroll);
             
             if (scrollUpAmount > scrollUpThreshold) {
@@ -64,5 +64,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
-    }, { passive: true }); // 성능 최적화를 위한 passive 옵션
-}); 
+    }, { passive: true });
+});

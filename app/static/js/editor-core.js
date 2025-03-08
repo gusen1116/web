@@ -1,8 +1,9 @@
-// EditorCore.js
-import AutoSave from '.AutoSave.js';
-import ContentManager from '.ContentManager.js';
-import ToolbarManager from './ToolbarManager.js';
-import MediaHandler from './MediaHandler.js';
+// EditorCore.js - 수정 버전
+import AutoSave from './autosave.js';
+import ContentManager from './content-manager.js';
+import ToolbarManager from './toolbar-manager.js';
+import MediaHandler from './media-handler.js';
+import Utils from './utils.js';
 
 class EditorCore {
     constructor() {
@@ -53,29 +54,34 @@ class EditorCore {
         this.setupDragAndDrop();
     }
     
-   // EditorCore.js의 setupDragAndDrop 메서드
-setupDragAndDrop() {
-    if (!this.contentArea) return;
-    
-    const throttledDragOver = Utils.throttle((e) => {
-        e.preventDefault();
-        this.contentArea.classList.add('dragover');
-    }, 100);
-    
+    setupDragAndDrop() {
+        if (!this.contentArea) return;
+        
+        const throttledDragOver = Utils.throttle((e) => {
+            e.preventDefault();
+            if (this.contentArea) {
+                this.contentArea.classList.add('dragover');
+            }
+        }, 100);
+        
         this.contentArea.addEventListener('dragover', throttledDragOver);
         
         this.contentArea.addEventListener('dragleave', () => {
-            this.contentArea.classList.remove('dragover');
+            if (this.contentArea) {
+                this.contentArea.classList.remove('dragover');
+            }
         });
         
         this.contentArea.addEventListener('drop', (e) => {
             e.preventDefault();
-            this.contentArea.classList.remove('dragover');
-            
-            if (e.dataTransfer.files.length > 0) {
-                const file = e.dataTransfer.files[0];
-                if (file.type.startsWith('image/')) {
-                    this.mediaHandler.uploadImage(file);
+            if (this.contentArea) {
+                this.contentArea.classList.remove('dragover');
+                
+                if (e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    if (file.type.startsWith('image/')) {
+                        this.mediaHandler.uploadImage(file);
+                    }
                 }
             }
         });
@@ -167,10 +173,5 @@ setupDragAndDrop() {
         });
     }
 }
-
-// 문서가 준비되면 에디터 초기화
-document.addEventListener('DOMContentLoaded', function() {
-    window.editor = new EditorCore();
-});
 
 export default EditorCore;
