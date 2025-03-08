@@ -1,6 +1,8 @@
+/* pages.css - 페이지별 스타일 */
+
 /* 블로그 상세 페이지 */
 .blog-detail-container {
-  max-width: 800px; /* 720px에서 증가 */
+  max-width: 1000px; /* 720px에서 증가 */
   margin: 0 auto;
 }
 
@@ -12,14 +14,17 @@
 }
 
 .full-content {
-  margin-top: var(--spacing-xl);
+  margin-top: var(--spacing-md);
   line-height: 1.8;
-  font-size: 1.05rem;
+  font-size: var(--content-font-size);
   width: 100%;
+  min-width: 530px; /* 379.45px의 1.4배 */
+  max-width: 645px; /* 379.45px의 1.7배 */
+  margin: 0 auto;
 }
 
 .full-content p {
-  margin-bottom: var(--spacing-lg); /* 여백 증가 */
+  margin-bottom: var(--spacing-md);
 }
 
 .full-content h1, 
@@ -27,19 +32,19 @@
 .full-content h3, 
 .full-content h4, 
 .full-content h5 {
-  margin: var(--spacing-xl) 0 var(--spacing-md); /* 여백 증가 */
+  margin: var(--spacing-lg) 0 var(--spacing-sm);
   font-weight: 700;
 }
 
 /* 슬라이더 (배너) */
 .slider-container {
   position: relative;
-  max-width: 900px; /* 720px에서 증가 */
-  margin: var(--spacing-xl) auto;
+  max-width: 950px; /* 720px에서 증가 */
+  margin: var(--spacing-md) auto;
   overflow: hidden;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
 }
 
 .slider-wrapper {
@@ -49,7 +54,7 @@
 
 .slide {
   min-width: 100%;
-  padding: var(--spacing-xl) var(--spacing-lg);
+  padding: var(--spacing-lg) var(--spacing-md);
   text-align: center;
   color: #fff;
   position: relative;
@@ -59,11 +64,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 300px;
+  height: 240px; /* 300px에서 축소 */
 }
 
 .slide h1 {
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   margin-bottom: var(--spacing-md);
   font-weight: 700;
   letter-spacing: -0.5px;
@@ -72,17 +77,11 @@
 }
 
 .slide p {
-  font-size: 1.2rem;
-  max-width: 600px; /* 480px에서 증가 */
+  font-size: 1.1rem;
+  max-width: 600px;
   margin: 0 auto;
   opacity: 0.9;
   text-align: center;
-}
-
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-  }
 }
 
 .slider-btn {
@@ -93,8 +92,8 @@
   border: none;
   color: #fff;
   font-size: 1.5rem;
-  width: 46px; /* 40px에서 증가 */
-  height: 46px; /* 40px에서 증가 */
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -128,21 +127,16 @@
 }
 
 .indicator {
-  width: 12px; /* 10px에서 증가 */
-  height: 12px; /* 10px에서 증가 */
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.5);
   cursor: pointer;
-  transition: background-color var(--transition-fast), transform var(--transition-fast);
+  transition: background-color var(--transition-fast);
 }
 
 .indicator.active {
   background-color: white;
-  transform: scale(1.2);
-}
-
-.indicator:hover {
-  background-color: rgba(255, 255, 255, 0.8);
 }
 
 /* 시뮬레이션 페이지 스타일 */
@@ -164,7 +158,7 @@
 
 .simulation-controls input[type="range"] {
   width: 100%;
-  height: 8px; /* 5px에서 증가 */
+  height: 8px;
   -webkit-appearance: none;
   appearance: none;
   background: var(--border-color);
@@ -183,7 +177,7 @@
 
 .button-group {
   display: flex;
-  gap: var(--spacing-md); /* 간격 증가 */
+  gap: var(--spacing-md);
   margin-top: var(--spacing-lg);
 }
 
@@ -211,40 +205,21 @@
   background-color: var(--bg-secondary);
 }
 
-/* 기본 CSS 변수 정의 */
-:root {
-  --content-width-desktop: 60%; /* 60%에서 증가 */
-  --content-width-tablet: 80%; /* 80%에서 증가 */
-  --content-width-mobile: 95%;
-  --content-font-size: 17px; /* 16px에서 증가 */
-  --min-content-width: min(60vw, 500px); /* 60vw, 500px에서 증가 */
-  --max-content-width: 1200px;
-}
-
-/* 콘텐츠 컨테이너 기본 스타일 */
-.content-container {
+/* 포스트 콘텐츠 영역 - 1.4배-1.7배 크기 */
+.post-content, 
+div.post-content {
   width: 100%;
-  max-width: var(--max-content-width);
-  min-width: var(--min-content-width);
+  min-width: 530px; /* 현재 379.45px의 1.4배 */
+  max-width: 645px; /* 현재 379.45px의 1.7배 */
   margin: 0 auto;
-  padding: 0 18px; /* 20px에서 증가 */
-  box-sizing: border-box;
-}
-
-/* 블로그 콘텐츠 스타일 */
-.blog-content {
-  width: var(--content-width-desktop);
-  font-size: var(--content-font-size);
-  margin: 0 auto;
-  line-height: 1.7; /* 1.6에서 증가 */
-  min-width: var(--min-content-width);
-  letter-spacing: 0.01em; /* 한국어 가독성 향상 */
+  line-height: 1.7;
+  font-size: var(--base-font-size);
 }
 
 /* 블로그 포스트 제목 스타일 */
 .post-title {
-  font-size: calc(var(--content-font-size) * 1.8); /* 1.5에서 증가 */
-  margin-bottom: 0.8em; /* 0.5em에서 증가 */
+  font-size: calc(var(--content-font-size) * 1.8);
+  margin-bottom: 0.8em;
   word-break: keep-all;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -253,7 +228,7 @@
 /* 블로그 포스트 날짜 스타일 */
 .post-date {
   color: var(--text-secondary);
-  margin-bottom: 2em; /* 1.5em에서 증가 */
+  margin-bottom: 2em;
   font-size: calc(var(--content-font-size) * 0.9);
 }
 
@@ -269,14 +244,14 @@
 .text-size-controls {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 1.5em; /* 1em에서 증가 */
+  margin-bottom: 1.5em;
 }
 
 .text-size-control {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
-  padding: 8px 12px; /* 5px 10px에서 증가 */
-  margin-left: 8px; /* 5px에서 증가 */
+  padding: 8px 12px;
+  margin-left: 8px;
   cursor: pointer;
   border-radius: var(--radius-md);
   font-size: 14px;
@@ -291,4 +266,26 @@
   background: var(--accent-primary);
   color: white;
   border-color: var(--accent-primary);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .post-content, 
+  div.post-content, 
+  .full-content {
+    min-width: 90%; /* 모바일에서는 화면 너비의 90%로 조정 */
+    max-width: 100%;
+  }
+  
+  .slider-container {
+    max-width: 100%;
+  }
+  
+  .slide {
+    height: 200px;
+  }
+  
+  .slide h1 {
+    font-size: 1.8rem;
+  }
 }
