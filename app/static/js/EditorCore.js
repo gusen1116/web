@@ -1,8 +1,8 @@
 // EditorCore.js
-import AutoSave from '/autosave.js';
-import ContentManager from '/contentmagager.js';
-import ToolbarManager from '/toolbarmanager.js';
-import MediaHandler from '/mediahandler.js';
+import AutoSave from './autosave.js';
+import ContentManager from './contentmanager.js';
+import ToolbarManager from './ToolbarManager.js';
+import MediaHandler from './MediaHandler.js';
 
 class EditorCore {
     constructor() {
@@ -107,7 +107,7 @@ class EditorCore {
             content: JSON.stringify(contentObj),
             category: this.categorySelect ? this.categorySelect.value : '',
             tags: this.tagsInput && this.tagsInput.value ? 
-                  this.tagsInput.value.split(',').map(tag => tag.trim()).filter(tag => tag) : []
+                this.tagsInput.value.split(',').map(tag => tag.trim()).filter(tag => tag) : []
         };
         
         // CSRF 토큰 가져오기

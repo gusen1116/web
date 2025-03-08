@@ -1,6 +1,7 @@
-// ToolbarManager.js
-import Utils from './Utils.js';
-import MediaHandler from '/mediahandler.js';
+
+// ToolbarManager.js - 수정 버전
+import Utils from '/utils.js';
+import MediaHandler from './MediaHandler.js';
 
 class ToolbarManager {
     constructor(editor) {

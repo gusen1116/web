@@ -1,5 +1,6 @@
 // main.js
-import EditorCore from './js/EditorCore.js';
+// main.js
+import EditorCore from './editorcore.js'; // 상대 경로로 수정;
 
 // 전역 설정
 window.DEBUG_MODE = false; // 디버깅 모드 활성화 여부

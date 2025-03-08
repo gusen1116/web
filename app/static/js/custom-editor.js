@@ -652,9 +652,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 드래그 앤 드롭으로 이미지 업로드
     if (contentArea) {
-        const throttledDragOver = throttle((e) => {
+        const throttledDragOver = Utils.throttle((e) => {
             e.preventDefault();
-            contentArea.classList.add('dragover');
+            this.contentArea.classList.add('dragover');
         }, 100);
         
         contentArea.addEventListener('dragover', throttledDragOver);

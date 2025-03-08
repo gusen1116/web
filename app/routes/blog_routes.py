@@ -369,8 +369,10 @@ def upload_file():
         optimize_image(file_path)
     
     # 파일 URL 생성
-    file_url = url_for('blog.serve_file', file_type=file_type, filename=new_filename)
-    
+    file_url = url_for('blog.serve_file', file_type=file_type, filename=new_filename)    
+    # 디버깅을 위한 출력 추가
+    print(f"파일 저장 경로: {file_path}")
+    print(f"파일 URL: {file_url}")
     # 파일 크기 계산
     file_size = os.path.getsize(file_path)
     
@@ -428,8 +430,34 @@ def upload_file():
 @blog_bp.route('/uploads/<string:file_type>/<string:filename>')
 def serve_file(file_type, filename):
     """업로드된 파일 제공"""
+    # 애플리케이션 루트 기준의 절대 경로 사용
+    basedir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    UPLOAD_FOLDER = os.path.join(basedir, 'instance', 'uploads')
+    
+    # 디버깅 출력
+    print(f"업로드 폴더 절대 경로: {UPLOAD_FOLDER}")
+    
+    full_path = os.path.join(UPLOAD_FOLDER, file_type, filename)
+    print(f"요청된 파일 절대 경로: {full_path}")
+    print(f"파일 존재 여부: {os.path.exists(full_path)}")
+    
+    
+    UPLOAD_FOLDER = 'instance/uploads'
+    full_path = os.path.join(UPLOAD_FOLDER, file_type, filename)
+    
+    # 디버깅 출력
+    print(f"요청된 파일 경로: {full_path}")
+    print(f"파일 존재 여부: {os.path.exists(full_path)}")
+    
+    if not os.path.exists(full_path):
+        # 디렉토리 내용 출력
+        dir_path = os.path.join(UPLOAD_FOLDER, file_type)
+        if os.path.exists(dir_path):
+            print(f"디렉토리 내용: {os.listdir(dir_path)}")
+        else:
+            print(f"디렉토리가 존재하지 않음: {dir_path}")
+    
     return send_from_directory(os.path.join(UPLOAD_FOLDER, file_type), filename)
-
 # 카테고리별 게시물 보기
 @blog_bp.route('/category/<int:category_id>')
 def category(category_id):

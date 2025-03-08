@@ -1,5 +1,5 @@
 // MediaHandler.js
-import Utils from './Utils.js';
+import Utils from "./Utils.js";
 
 class MediaHandler {
     constructor(editor) {

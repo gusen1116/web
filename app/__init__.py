@@ -54,6 +54,9 @@ def create_app(config_object=None):
     app.register_blueprint(auth_routes.auth_bp)
     app.register_blueprint(blog_routes.blog_bp)
     app.register_blueprint(simulation.simulation_bp)
+    # app/__init__.py 파일에 추가
+    app.config['UPLOAD_FOLDER'] = os.path.join(app.instance_path, 'uploads')
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     
     # 로그인 관리자 설정
     login_manager.login_view = 'auth.login'
