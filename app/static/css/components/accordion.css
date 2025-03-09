@@ -1,0 +1,115 @@
+/* accordion.css - 아코디언 컴포넌트 스타일 */
+
+/* 아코디언 컨테이너 */
+.accordion {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  
+  /* 아코디언 아이템 */
+  .accordion-item {
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .accordion-item:last-child {
+    border-bottom: none;
+  }
+  
+  /* 아코디언 헤더 */
+  .accordion-header {
+    margin: 0;
+  }
+  
+  .accordion-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: var(--spacing-4) var(--spacing-6);
+    background-color: var(--bg-primary);
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+    transition: background-color var(--transition-fast);
+  }
+  
+  .accordion-button:focus {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--primary-200);
+  }
+  
+  .accordion-button:hover {
+    background-color: var(--bg-secondary);
+  }
+  
+  .accordion-button::after {
+    content: '';
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin-left: var(--spacing-4);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: 16px;
+    background-position: center;
+    transition: transform var(--transition-fast);
+  }
+  
+  .accordion-button[aria-expanded="true"]::after {
+    transform: rotate(-180deg);
+  }
+  
+  /* 아코디언 내용 */
+  .accordion-collapse {
+    overflow: hidden;
+    transition: height var(--transition-normal);
+  }
+  
+  .accordion-body {
+    padding: var(--spacing-4) var(--spacing-6);
+    background-color: var(--bg-primary);
+  }
+  
+  /* 아코디언 스타일 변형 - 플러시 (테두리 없음) */
+  .accordion-flush {
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
+  
+  /* 아코디언 스타일 변형 - 카드 스타일 */
+  .accordion-card .accordion-item {
+    margin-bottom: var(--spacing-3);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+  }
+  
+  .accordion-card .accordion-button {
+    border-radius: var(--radius-md);
+  }
+  
+  .accordion-card .accordion-item:last-child {
+    margin-bottom: 0;
+  }
+  
+  /* 아코디언 애니메이션 */
+  @keyframes accordionIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .accordion-body.show {
+    animation: accordionIn var(--transition-normal) forwards;
+  }

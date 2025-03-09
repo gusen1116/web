@@ -1,0 +1,172 @@
+/* tabs.css - 탭 컴포넌트 스타일 */
+
+/* 탭 컨테이너 */
+.tabs {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  /* 탭 네비게이션 */
+  .tab-nav {
+    display: flex;
+    position: relative;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: var(--spacing-4);
+  }
+  
+  .tab-item {
+    padding: var(--spacing-3) var(--spacing-4);
+    color: var(--text-secondary);
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: var(--font-weight-medium);
+    transition: color var(--transition-fast);
+    position: relative;
+    white-space: nowrap;
+  }
+  
+  .tab-item:hover {
+    color: var(--primary-500);
+    text-decoration: none;
+  }
+  
+  .tab-item.active {
+    color: var(--primary-500);
+    font-weight: var(--font-weight-semibold);
+  }
+  
+  .tab-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--primary-500);
+    border-radius: var(--radius-full) var(--radius-full) 0 0;
+  }
+  
+  /* 탭 콘텐츠 */
+  .tab-content {
+    flex: 1;
+  }
+  
+  .tab-pane {
+    display: none;
+  }
+  
+  .tab-pane.active {
+    display: block;
+    animation: fadeIn var(--transition-normal) forwards;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  /* 탭 스타일 변형 - 카드 스타일 */
+  .tabs-card .tab-nav {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-bottom: none;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    padding: var(--spacing-2) var(--spacing-2) 0;
+    gap: var(--spacing-1);
+  }
+  
+  .tabs-card .tab-item {
+    background-color: var(--bg-tertiary);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    border: 1px solid transparent;
+  }
+  
+  .tabs-card .tab-item.active {
+    background-color: var(--bg-primary);
+    border-color: var(--border-color);
+    border-bottom-color: transparent;
+  }
+  
+  .tabs-card .tab-item.active::after {
+    display: none;
+  }
+  
+  .tabs-card .tab-content {
+    border: 1px solid var(--border-color);
+    border-top: none;
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+    padding: var(--spacing-4);
+  }
+  
+  /* 세로 탭 */
+  .tabs-vertical {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--spacing-4);
+  }
+  
+  .tabs-vertical .tab-nav {
+    flex-direction: column;
+    border-bottom: none;
+    border-right: 1px solid var(--border-color);
+    padding-right: var(--spacing-4);
+    min-width: 160px;
+  }
+  
+  .tabs-vertical .tab-item {
+    padding: var(--spacing-2) 0;
+    text-align: left;
+  }
+  
+  .tabs-vertical .tab-item.active::after {
+    bottom: 0;
+    left: auto;
+    right: -1px;
+    width: 2px;
+    height: 100%;
+    border-radius: 0 var(--radius-full) var(--radius-full) 0;
+  }
+  
+  .tabs-vertical .tab-content {
+    flex: 1;
+  }
+  
+  /* 반응형 탭 */
+  @media (max-width: 768px) {
+    .tab-nav {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+  
+    .tab-nav::-webkit-scrollbar {
+      display: none;
+    }
+  
+    .tabs-vertical {
+      flex-direction: column;
+    }
+  
+    .tabs-vertical .tab-nav {
+      flex-direction: row;
+      border-right: none;
+      border-bottom: 1px solid var(--border-color);
+      padding-right: 0;
+      min-width: auto;
+      width: 100%;
+    }
+  
+    .tabs-vertical .tab-item.active::after {
+      bottom: -1px;
+      left: 0;
+      right: auto;
+      width: 100%;
+      height: 2px;
+      border-radius: var(--radius-full) var(--radius-full) 0 0;
+    }
+  }

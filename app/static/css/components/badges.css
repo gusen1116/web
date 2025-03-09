@@ -1,0 +1,149 @@
+/* badges.css - 배지 컴포넌트 스타일 */
+
+/* 기본 배지 */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25em 0.5em;
+    font-size: 75%;
+    font-weight: var(--font-weight-semibold);
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: var(--radius-full);
+    color: white;
+    background-color: var(--neutral-600);
+  }
+  
+  /* 배지 크기 */
+  .badge-sm {
+    padding: 0.15em 0.4em;
+    font-size: 65%;
+  }
+  
+  .badge-lg {
+    padding: 0.35em 0.6em;
+    font-size: 85%;
+  }
+  
+  /* 배지 모양 */
+  .badge-pill {
+    border-radius: var(--radius-full);
+  }
+  
+  .badge-square {
+    border-radius: var(--radius-sm);
+  }
+  
+  /* 배지 색상 */
+  .badge-primary {
+    background-color: var(--primary-500);
+  }
+  
+  .badge-secondary {
+    background-color: var(--neutral-500);
+  }
+  
+  .badge-success {
+    background-color: var(--success-500);
+  }
+  
+  .badge-danger {
+    background-color: var(--danger-500);
+  }
+  
+  .badge-warning {
+    background-color: var(--warning-500);
+    color: var(--neutral-900);
+  }
+  
+  .badge-info {
+    background-color: var(--primary-300);
+  }
+  
+  .badge-light {
+    background-color: var(--neutral-200);
+    color: var(--neutral-800);
+  }
+  
+  .badge-dark {
+    background-color: var(--neutral-800);
+  }
+  
+  /* 아웃라인 배지 */
+  .badge-outline-primary {
+    color: var(--primary-500);
+    background-color: transparent;
+    border: 1px solid var(--primary-500);
+  }
+  
+  .badge-outline-secondary {
+    color: var(--neutral-600);
+    background-color: transparent;
+    border: 1px solid var(--neutral-600);
+  }
+  
+  .badge-outline-success {
+    color: var(--success-500);
+    background-color: transparent;
+    border: 1px solid var(--success-500);
+  }
+  
+  .badge-outline-danger {
+    color: var(--danger-500);
+    background-color: transparent;
+    border: 1px solid var(--danger-500);
+  }
+  
+  .badge-outline-warning {
+    color: var(--warning-500);
+    background-color: transparent;
+    border: 1px solid var(--warning-500);
+  }
+  
+  /* 배지 효과 */
+  .badge-dot {
+    position: relative;
+  }
+  
+  .badge-dot::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    background-color: var(--danger-500);
+    border-radius: 50%;
+    transform: translate(50%, -50%);
+    border: 2px solid var(--bg-primary);
+  }
+  
+  .badge-dot.badge-dot-lg::after {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .badge-dot.badge-dot-primary::after {
+    background-color: var(--primary-500);
+  }
+  
+  .badge-dot.badge-dot-success::after {
+    background-color: var(--success-500);
+  }
+  
+  .badge-dot.badge-dot-warning::after {
+    background-color: var(--warning-500);
+  }
+  
+  /* 카운터 배지 */
+  .badge-counter {
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(40%, -40%);
+    padding: 0.25em 0.5em;
+    min-width: 1em;
+    font-size: 0.75em;
+  }

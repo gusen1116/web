@@ -1,0 +1,126 @@
+/* themes/dark.css - 다크 모드 테마 */
+
+:root.dark-theme {
+    /* 기본 배경과 텍스트 색상 */
+    --bg-primary: var(--neutral-900);
+    --bg-secondary: var(--neutral-800);
+    --bg-tertiary: var(--neutral-700);
+    --text-primary: var(--neutral-50);
+    --text-secondary: var(--neutral-300);
+    --text-tertiary: var(--neutral-500);
+    
+    /* 경계선 및 구분선 */
+    --border-color: var(--neutral-700);
+    --divider-color: var(--neutral-800);
+    
+    /* 그림자 - 다크 모드에서는 더 강한 그림자가 필요함 */
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.4);
+    
+    /* 포커스 링 */
+    --focus-ring-color: var(--primary-600);
+    
+    /* 컴포넌트별 색상 변형 */
+    --card-bg: var(--neutral-800);
+    --navbar-bg: var(--neutral-900);
+    --sidebar-bg: var(--neutral-800);
+    --modal-backdrop: rgba(0, 0, 0, 0.7);
+    --tooltip-bg: var(--neutral-200);
+    --tooltip-color: var(--neutral-900);
+    
+    /* 상태 색상 변형 */
+    --disabled-bg: var(--neutral-800);
+    --disabled-color: var(--neutral-600);
+    --hover-bg: var(--neutral-800);
+    --active-bg: var(--neutral-700);
+    --selected-bg: var(--primary-900);
+    --selected-border: var(--primary-700);
+    
+    /* 코드 블록 */
+    --code-bg: var(--neutral-800);
+    --code-color: var(--neutral-200);
+    --code-border: var(--neutral-700);
+    
+    /* 인용구 */
+    --blockquote-bg: var(--neutral-800);
+    --blockquote-border: var(--primary-600);
+    --blockquote-color: var(--text-secondary);
+    
+    /* 다크 모드 특화 색상 */
+    --dark-hover: rgba(255, 255, 255, 0.1);
+    --dark-active: rgba(255, 255, 255, 0.2);
+  }
+  
+  /* 다크 테마 특화 스타일 */
+  .dark-theme .navbar {
+    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.6);
+    border-bottom: 1px solid var(--neutral-700);
+  }
+  
+  .dark-theme .text-themed-inverse {
+    color: var(--neutral-900);
+  }
+  
+  .dark-theme .bg-themed-inverse {
+    background-color: var(--neutral-50);
+  }
+  
+  /* 다크 테마에서 라이트 모드 이미지 숨기기 */
+  .dark-theme .light-only {
+    display: none;
+  }
+  
+  /* 다크 테마에서만 표시할 요소 */
+  .dark-only {
+    display: none;
+  }
+  
+  .dark-theme .dark-only {
+    display: block;
+  }
+  
+  /* 다크 테마에서 양식 요소 스타일 조정 */
+  .dark-theme input,
+  .dark-theme textarea,
+  .dark-theme select {
+    background-color: var(--neutral-800);
+    border-color: var(--neutral-700);
+    color: var(--text-primary);
+  }
+  
+  .dark-theme input:focus,
+  .dark-theme textarea:focus,
+  .dark-theme select:focus {
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px var(--primary-900);
+  }
+  
+  /* 다크 테마에서 스크롤바 스타일 */
+  .dark-theme ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .dark-theme ::-webkit-scrollbar-track {
+    background: var(--neutral-800);
+  }
+  
+  .dark-theme ::-webkit-scrollbar-thumb {
+    background-color: var(--neutral-600);
+    border-radius: 6px;
+    border: 3px solid var(--neutral-800);
+  }
+  
+  .dark-theme ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--neutral-500);
+  }
+  
+  /* 다크 테마에서 선택 영역 스타일 */
+  .dark-theme ::selection {
+    background-color: var(--primary-700);
+    color: var(--neutral-50);
+  }

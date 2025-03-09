@@ -1,0 +1,140 @@
+/* main.css - 모든 CSS 모듈 통합 */
+
+/***** 기본 스타일 *****/
+/* 디자인 토큰 및 변수 */
+@import './base/variables.css';
+
+/* CSS 리셋 및 기본 스타일 */
+@import './base/reset.css';
+
+/* 타이포그래피 */
+@import './base/typography.css';
+
+/* 레이아웃 */
+@import './base/layout.css';
+
+/* 색상 */
+@import './base/colors.css';
+
+/***** 컴포넌트 *****/
+/* 버튼 */
+@import './components/buttons.css';
+
+/* 카드 */
+@import './components/cards.css';
+
+/* 폼 요소 */
+@import './components/forms.css';
+
+/* 내비게이션 */
+@import './components/navigation.css';
+
+/* 모달 */
+@import './components/modal.css';
+
+/* 토스트 알림 */
+@import './components/toast.css';
+
+/* 탭 */
+@import './components/tabs.css';
+
+/* 아코디언 */
+@import './components/accordion.css';
+
+/* 배지 */
+@import './components/badges.css';
+
+/* 프로그레스 */
+@import './components/progress.css';
+
+/* 드롭다운 */
+@import './components/dropdown.css';
+
+/* 툴팁 */
+@import './components/tooltip.css';
+
+/* 페이지네이션 */
+@import './components/pagination.css';
+
+/* 알림 */
+@import './components/alerts.css';
+
+/* 이미지 갤러리 */
+@import './components/gallery.css';
+
+/* 테이블 */
+@import './components/tables.css';
+
+/***** 페이지별 스타일 *****/
+/* 블로그 페이지 */
+@import './pages/blog.css';
+
+/* 블로그 상세 페이지 */
+@import './pages/blog-detail.css';
+
+/* 에디터 페이지 */
+@import './pages/editor.css';
+
+/* 홈페이지 */
+@import './pages/home.css';
+
+/* 시뮬레이션 페이지 */
+@import './pages/simulation.css';
+
+/* 인증 페이지 */
+@import './pages/auth.css';
+
+/* 프로필 페이지 */
+@import './pages/profile.css';
+
+/* 검색 결과 페이지 */
+@import './pages/search.css';
+
+/***** 유틸리티 *****/
+/* 스페이싱 */
+@import './utils/spacing.css';
+
+/* 플렉스박스 */
+@import './utils/flexbox.css';
+
+/* 그리드 */
+@import './utils/grid.css';
+
+/* 디스플레이 */
+@import './utils/display.css';
+
+/* 위치 */
+@import './utils/position.css';
+
+/* 애니메이션 */
+@import './utils/animations.css';
+
+/* 접근성 */
+@import './utils/accessibility.css';
+
+/***** 테마 *****/
+/* 다크 테마 */
+@import './themes/dark.css';
+
+/* 라이트 테마 */
+@import './themes/light.css';
+
+/***** 미디어 쿼리 *****/
+/* 프린트 스타일 */
+@import './utils/print.css';
+
+/* 
+ * 메인 CSS 파일 끝
+ * 
+ * 이 파일은 모든 스타일 모듈을 통합하며,
+ * 모듈 간의 우선순위를 관리합니다.
+ * 
+ * 일반적인 우선순위 순서:
+ * 1. 기본 스타일 (리셋, 타이포그래피, 색상 등)
+ * 2. 레이아웃 (그리드, 컨테이너 등)
+ * 3. 컴포넌트 (버튼, 카드, 폼 등)
+ * 4. 페이지별 스타일
+ * 5. 유틸리티 (여백, 정렬, 표시 속성 등)
+ * 6. 테마 (테마별 색상 재정의 등)
+ * 7. 미디어 쿼리 (반응형, 프린트 등)
+ */

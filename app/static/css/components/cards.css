@@ -1,0 +1,175 @@
+/* cards.css - 카드 컴포넌트 스타일 */
+
+/* 기본 카드 */
+.card {
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  }
+  
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  /* 카드 레이아웃 */
+  .card-header {
+    padding: var(--spacing-4) var(--spacing-6);
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .card-body {
+    padding: var(--spacing-6);
+  }
+  
+  .card-footer {
+    padding: var(--spacing-4) var(--spacing-6);
+    border-top: 1px solid var(--border-color);
+  }
+  
+  /* 카드 타이틀 */
+  .card-title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-3);
+    color: var(--text-primary);
+  }
+  
+  .card-subtitle {
+    font-size: var(--font-size-md);
+    color: var(--text-secondary);
+    margin-top: calc(-1 * var(--spacing-2));
+    margin-bottom: var(--spacing-4);
+  }
+  
+  /* 카드 이미지 */
+  .card-img-top {
+    width: 100%;
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+  }
+  
+  .card-img-bottom {
+    width: 100%;
+    border-bottom-left-radius: var(--radius-lg);
+    border-bottom-right-radius: var(--radius-lg);
+  }
+  
+  .card-img-overlay {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: var(--spacing-6);
+    border-radius: var(--radius-lg);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+  }
+  
+  /* 수평 카드 */
+  .card-horizontal {
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .card-horizontal .card-img {
+    width: 33.333%;
+    flex-shrink: 0;
+  }
+  
+  .card-horizontal .card-body {
+    flex: 1;
+  }
+  
+  /* 카드 그룹 */
+  .card-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-4);
+  }
+  
+  /* 블로그 프리뷰 카드 (특수 카드) */
+  .blog-preview-card {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid transparent;
+    overflow: hidden;
+    transition: all var(--transition-normal);
+  }
+  
+  .blog-preview-card:hover {
+    border-left-color: var(--primary-500);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .blog-preview-card .card-header {
+    padding: var(--spacing-4);
+    background-color: var(--bg-secondary);
+  }
+  
+  .blog-preview-card .card-title {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .blog-preview-card .card-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+  }
+  
+  .blog-preview-card .card-body {
+    padding: var(--spacing-4);
+    flex: 1;
+  }
+  
+  .blog-preview-card .card-footer {
+    padding: var(--spacing-4);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .blog-preview-card .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+  }
+  
+  .blog-preview-card .read-more {
+    font-weight: var(--font-weight-medium);
+    color: var(--primary-500);
+    transition: transform var(--transition-fast);
+  }
+  
+  .blog-preview-card .read-more:hover {
+    transform: translateX(4px);
+  }
+  
+  /* 스켈레톤 로딩 상태 */
+  .card-skeleton {
+    position: relative;
+  }
+  
+  .card-skeleton .skeleton-item {
+    background: linear-gradient(90deg, var(--bg-secondary) 0%, var(--bg-tertiary) 50%, var(--bg-secondary) 100%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: var(--radius-md);
+  }
+  
+  @keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
