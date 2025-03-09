@@ -16,6 +16,8 @@
 /* 색상 */
 @import './base/colors.css';
 
+@import './base/sidebars.css';
+
 /***** 컴포넌트 *****/
 /* 버튼 */
 @import './components/buttons.css';
