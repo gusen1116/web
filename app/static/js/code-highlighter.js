@@ -1,6 +1,7 @@
 // code-highlighter.js
 class CodeHighlighter {
     constructor() {
+        // Prism.js 또는 Highlight.js와 같은 라이브러리를 동적으로 로드할 수 있음
         this.loaded = false;
         this.loadLibrary();
     }
