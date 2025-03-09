@@ -2,11 +2,12 @@
 
 /* 컨테이너 */
 .container {
-  width: 100%;
-  margin-right: auto;
-  margin-left: auto;
-  padding-right: var(--spacing-4);
-  padding-left: var(--spacing-4);
+    width: 100%;
+    max-width: var(--content-7xl); /* 모든 컨테이너 너비 통일 */
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--spacing-6);
+    padding-right: var(--spacing-6);
 }
 
 /* 반응형 컨테이너 크기 */
@@ -32,6 +33,16 @@
   .container {
     max-width: 1280px;
   }
+}
+
+/* 블로그 컨테이너 */
+.blog-container {
+    width: 100%;
+    max-width: var(--content-7xl); /* 모든 컨테이너 너비 통일 */
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--spacing-6);
+    padding-right: var(--spacing-6);
 }
 
 /* 그리드 시스템 */
@@ -99,3 +110,30 @@
 .gap-6 { gap: var(--spacing-6); }
 .gap-8 { gap: var(--spacing-8); }
 /* 추가 gap 클래스... */
+
+/* 블로그 레이아웃 */
+.blog-content {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: var(--spacing-8);
+}
+
+@media (max-width: 992px) {
+  .blog-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .blog-sidebar {
+    order: -1;
+  }
+}
+
+/* 슬라이더 레이아웃 */
+.slider-container {
+  width: 100%;
+  max-width: var(--content-7xl); /* 모든 컨테이너 너비 통일 */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--spacing-6);
+  padding-right: var(--spacing-6);
+}

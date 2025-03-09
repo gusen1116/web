@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
+        // 초기 테마 설정 확인 (이미 base.html에서 로드됨)
         // 초기 아이콘 상태 설정
         updateLightbulbIcon();
         
@@ -65,4 +66,59 @@ document.addEventListener('DOMContentLoaded', function() {
         
         lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
     }, { passive: true });
+    
+    // 애니메이션 효과
+    const fadeElements = document.querySelectorAll('.fade-in');
+    fadeElements.forEach((el, index) => {
+        setTimeout(() => {
+            el.classList.add('visible');
+        }, 100 * index);
+    });
+    
+    // 메인 슬라이더 초기화 (간소화된 버전)
+    initMainSlider();
+    
+    function initMainSlider() {
+        const sliderContainer = document.querySelector('.slider-container');
+        if (!sliderContainer) return;
+        
+        const sliderWrapper = sliderContainer.querySelector('.slider-wrapper');
+        const slides = sliderContainer.querySelectorAll('.slide');
+        if (!sliderWrapper || slides.length === 0) return;
+        
+        let currentSlide = 0;
+        let slideInterval;
+        
+        // 첫 번째 슬라이드 활성화
+        slides[0].classList.add('active');
+        
+        // 자동 슬라이드 시작
+        startSlideShow();
+        
+        function startSlideShow() {
+            slideInterval = setInterval(() => {
+                goToNextSlide();
+            }, 5000); // 5초마다 슬라이드 변경
+        }
+        
+        function goToNextSlide() {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+            updateSliderPosition();
+        }
+        
+        function updateSliderPosition() {
+            sliderWrapper.style.transform = `translateX(-${currentSlide * 100 / slides.length}%)`;
+        }
+        
+        // 마우스 오버 시 자동 재생 일시 정지
+        sliderContainer.addEventListener('mouseenter', () => {
+            clearInterval(slideInterval);
+        });
+        
+        sliderContainer.addEventListener('mouseleave', () => {
+            startSlideShow();
+        });
+    }
 });

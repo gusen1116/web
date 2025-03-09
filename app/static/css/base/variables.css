@@ -90,6 +90,9 @@
     --font-size-5xl: 3rem;     /* 48px */
     --font-size-6xl: 3.75rem;  /* 60px */
     
+    /* 컨텐츠 폰트 크기 - 사용자 조절 가능 */
+    --content-font-size: 16px; /* 기본 내용 글자 크기 */
+    
     /* 폰트 두께 */
     --font-weight-thin: 100;
     --font-weight-extralight: 200;

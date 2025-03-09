@@ -19,10 +19,11 @@
 }
 
 /* 개별 슬라이드 */
+/* slider.css 수정 - 배너 여백 증가 */
 .slide {
-    flex: 0 0 33.333333%; /* 3개의 슬라이드의 경우, 100% / 3 */
-    padding: 4rem 2rem;
-    min-height: 300px;
+    flex: 0 0 33.333333%;
+    padding: 5rem 3rem; /* 여백 증가 */
+    min-height: 350px; /* 높이 증가 */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -36,6 +37,11 @@
 /* 활성 슬라이드 */
 .slide.active {
     opacity: 1;
+}
+
+/* 비활성 슬라이드 */
+.slide:not(.active) {
+    opacity: 0.7;
 }
 
 /* 슬라이드 내부 스타일 */

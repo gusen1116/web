@@ -130,20 +130,3 @@
     outline: 2px solid var(--primary-300);
     outline-offset: 2px;
    }
-   
-   /* 테마 감지 및 자동 적용을 위한 미디어 쿼리 유틸리티 */
-   @media (prefers-color-scheme: dark) {
-    .dark\:text-white { color: white; }
-    .dark\:text-black { color: black; }
-    .dark\:bg-neutral-900 { background-color: var(--neutral-900); }
-    .dark\:bg-neutral-800 { background-color: var(--neutral-800); }
-    /* 더 많은 다크 모드 유틸리티 클래스들... */
-   }
-   
-   @media (prefers-color-scheme: light) {
-    .light\:text-black { color: black; }
-    .light\:text-white { color: white; }
-    .light\:bg-white { background-color: white; }
-    .light\:bg-neutral-100 { background-color: var(--neutral-100); }
-    /* 더 많은 라이트 모드 유틸리티 클래스들... */
-   }

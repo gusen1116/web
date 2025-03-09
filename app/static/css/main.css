@@ -14,13 +14,11 @@
 @import './base/layout.css';
 
 /* 색상 */
-@import './base/colors.css';
-
-@import './base/sidebars.css';
+@import './base/color.css';
 
 /***** 컴포넌트 *****/
-/* 버튼 */
-@import './components/buttons.css';
+/* 내비게이션 */
+@import './components/navigation.css';
 
 /* 카드 */
 @import './components/cards.css';
@@ -28,44 +26,17 @@
 /* 폼 요소 */
 @import './components/forms.css';
 
-/* 내비게이션 */
-@import './components/navigation.css';
+/* 버튼 */
+@import './components/buttons.css';
 
-/* 모달 */
-@import './components/modal.css';
-
-/* 토스트 알림 */
-@import './components/toast.css';
-
-/* 탭 */
-@import './components/tabs.css';
-
-/* 아코디언 */
-@import './components/accordion.css';
+/* 슬라이더 */
+@import './base/silder.css';
 
 /* 배지 */
 @import './components/badges.css';
 
-/* 프로그레스 */
-@import './components/progress.css';
-
-/* 드롭다운 */
-@import './components/dropdown.css';
-
-/* 툴팁 */
-@import './components/tooltip.css';
-
-/* 페이지네이션 */
-@import './components/pagination.css';
-
-/* 알림 */
-@import './components/alerts.css';
-
-/* 이미지 갤러리 */
-@import './components/gallery.css';
-
-/* 테이블 */
-@import './components/tables.css';
+/* 테마 관련 */
+@import './utils/theme.css';
 
 /***** 페이지별 스타일 *****/
 /* 블로그 페이지 */
@@ -125,18 +96,111 @@
 /* 프린트 스타일 */
 @import './utils/print.css';
 
-/* 
- * 메인 CSS 파일 끝
- * 
- * 이 파일은 모든 스타일 모듈을 통합하며,
- * 모듈 간의 우선순위를 관리합니다.
- * 
- * 일반적인 우선순위 순서:
- * 1. 기본 스타일 (리셋, 타이포그래피, 색상 등)
- * 2. 레이아웃 (그리드, 컨테이너 등)
- * 3. 컴포넌트 (버튼, 카드, 폼 등)
- * 4. 페이지별 스타일
- * 5. 유틸리티 (여백, 정렬, 표시 속성 등)
- * 6. 테마 (테마별 색상 재정의 등)
- * 7. 미디어 쿼리 (반응형, 프린트 등)
- */
+/* 사용자 정의 스타일 - 헤더 숨김 등 */
+header.hide {
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+}
+
+header {
+  transition: transform 0.3s ease;
+}
+
+/* 애니메이션 클래스 */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.has-fade {
+  overflow: hidden;
+  max-height: 150px;
+  position: relative;
+}
+
+.has-fade::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(to bottom, transparent, var(--bg-primary));
+}
+
+/* 슬라이더 버튼 효과 */
+.btn-effect {
+  position: relative;
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-500);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-effect:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-effect:active {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 반응형 조정 */
+@media (max-width: 768px) {
+  .blog-container {
+    padding: var(--spacing-3);
+  }
+  
+  .fade-in {
+    transform: translateY(10px);
+  }
+}
+
+/* main.css에 추가 */
+/* 컨텐츠 간격 개선 */
+.blog-container {
+    margin-top: var(--spacing-8);
+    margin-bottom: var(--spacing-8);
+}
+
+/* 콘텐츠 사이 간격 증가 */
+.blog-preview {
+    margin-bottom: var(--spacing-8);
+    padding: var(--spacing-6);
+    border-radius: var(--radius-lg);
+    background-color: var(--bg-primary);
+    box-shadow: var(--shadow-md);
+}
+
+/* 배너와 콘텐츠 사이 간격 */
+.slider-container + .blog-container {
+    margin-top: var(--spacing-12);
+}
+
+/* 반응형 조정 */
+@media (max-width: 768px) {
+    .header-container, 
+    .container,
+    .blog-container,
+    .slider-container,
+    .footer-container {
+        padding-left: var(--spacing-4);
+        padding-right: var(--spacing-4);
+    }
+    
+    .slide {
+        padding: 3rem 1.5rem;
+    }
+}

@@ -15,7 +15,11 @@
         const savedTheme = localStorage.getItem('theme');
         // 기본 테마는 라이트 모드
         if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark-theme');
             document.body.classList.add('dark-theme');
+        } else {
+            document.documentElement.classList.remove('dark-theme');
+            document.body.classList.remove('dark-theme');
         }
     </script>
 </head>
