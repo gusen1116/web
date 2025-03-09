@@ -220,7 +220,7 @@ class ContentManager {
                         attributes: preserveAttributes(node)
                     });
                 } else if (node.classList.contains('iframe-embed-container')) {
-                    // iframe 임베드 처리
+                    // iframe 임베드 처리 - 들여쓰기 수정
                     const iframe = node.querySelector('iframe');
                     if (iframe) {
                         blocks.push({
@@ -387,7 +387,8 @@ class ContentManager {
                                 style="width: ${block.width || '100%'}; height: ${block.height || '400px'}; border: 1px solid #ddd;" 
                                 allowfullscreen
                                 loading="lazy" 
-                                sandbox="allow-scripts allow-same-origin allow-forms">
+                                sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation"
+                                referrerpolicy="no-referrer-when-downgrade">
                             </iframe>
                             <div class="embed-caption" contenteditable="true">iframe 임베드 (더블클릭으로 편집)</div>
                         </div>`;

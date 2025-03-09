@@ -84,7 +84,7 @@ class AutoSave {
         }
     }
     
-    // 페이지 이탈 시 경고창 대신 자동 저장만 수행
+    // 페이지 이탈 시 경고창 제거 버전
     setupBeforeUnloadHandler() {
         window.addEventListener('beforeunload', (e) => {
             if (!this.contentManager) return;
@@ -98,7 +98,7 @@ class AutoSave {
                     this.updateLastSavedTime();
                 }
                 
-                // 경고창 표시 코드 제거 (e.preventDefault() 및 e.returnValue 설정 제거)
+                // 경고창 표시 코드 제거 - 여기서 e.preventDefault() 및 returnValue 설정 없음
             }
         });
     }

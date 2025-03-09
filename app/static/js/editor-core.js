@@ -23,10 +23,11 @@ class EditorCore {
             return;
         }
         
-        // 모듈 초기화 - 전달 시 순환 참조 방지
-        this.contentManager = new ContentManager(this.contentArea);
-        this.toolbar = new ToolbarManager(this.contentArea);
+        // 모듈 초기화 순서 변경 - MediaHandler를 먼저 생성
         this.mediaHandler = new MediaHandler(this.contentArea);
+        this.contentManager = new ContentManager(this.contentArea);
+        // MediaHandler를 ToolbarManager에 전달
+        this.toolbar = new ToolbarManager(this.contentArea, this.mediaHandler);
         this.embedHandler = new EmbedHandler(this.contentArea);
         this.codeHighlighter = new CodeHighlighter();
         
@@ -87,8 +88,8 @@ class EditorCore {
         // 에디터 영역 크기 조정
         this.adjustEditorSize();
         
-        // 글머리 정렬 문제 해결 스타일 추가
-        this.addFixingStyles();
+        // editor-components.css가 적용되었는지 확인
+        this.ensureStylesheetLoaded();
     }
     
     // 제목 입력 UI 강화
@@ -97,6 +98,9 @@ class EditorCore {
         
         // 제목 입력 스타일 강화
         this.titleInput.classList.add('enhanced-title-input');
+        
+        // 기존 placeholder 제거
+        this.titleInput.placeholder = '';
         
         // 제목 입력 필드 강조 애니메이션
         const titleWrapper = document.createElement('div');
@@ -114,6 +118,11 @@ class EditorCore {
             titleWrapper.appendChild(titleLabel);
             titleWrapper.appendChild(this.titleInput);
             
+            // 초기 상태 확인 및 설정
+            if (this.titleInput.value.trim()) {
+                titleWrapper.classList.add('has-content');
+            }
+            
             // 포커스 상태에 따라 강조 효과
             this.titleInput.addEventListener('focus', () => {
                 titleWrapper.classList.add('focused');
@@ -122,21 +131,28 @@ class EditorCore {
             this.titleInput.addEventListener('blur', () => {
                 titleWrapper.classList.remove('focused');
                 if (!this.titleInput.value.trim()) {
-                    titleWrapper.classList.add('empty');
+                    titleWrapper.classList.remove('has-content');
                     // 애니메이션으로 주의 끌기
-                    titleWrapper.classList.add('attention');
+                    titleWrapper.classList.add('empty', 'attention');
                     setTimeout(() => {
                         titleWrapper.classList.remove('attention');
                     }, 1000);
                 } else {
+                    titleWrapper.classList.add('has-content');
                     titleWrapper.classList.remove('empty');
                 }
             });
             
-            // 초기 상태 설정
-            if (!this.titleInput.value.trim()) {
-                titleWrapper.classList.add('empty');
-            }
+            // 입력 이벤트 - 입력 중 실시간 업데이트
+            this.titleInput.addEventListener('input', () => {
+                if (this.titleInput.value.trim()) {
+                    titleWrapper.classList.add('has-content');
+                    titleWrapper.classList.remove('empty');
+                } else {
+                    titleWrapper.classList.remove('has-content');
+                    titleWrapper.classList.add('empty');
+                }
+            });
         }
     }
     
@@ -152,6 +168,14 @@ class EditorCore {
         iframeButton.dataset.command = 'insertIframe';
         iframeButton.title = 'iframe 삽입';
         iframeButton.innerHTML = '<i class="fas fa-window-maximize"></i>';
+        
+        // 이벤트 리스너 직접 추가 - 문제 수정
+        iframeButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (this.embedHandler) {
+                this.embedHandler.insertIframe();
+            }
+        });
         
         // 적절한 위치에 버튼 삽입
         const imageButton = toolbar.querySelector('[data-command="insertImage"]');
@@ -175,80 +199,21 @@ class EditorCore {
         });
     }
     
-    // 글머리 정렬 문제 해결을 위한 스타일 추가
-    addFixingStyles() {
-        const style = document.createElement('style');
-        style.textContent = `
-            #content-area h1, #content-area h2, #content-area h3, 
-            #content-area h4, #content-area h5, #content-area h6 {
-                width: 100%;
-                max-width: 100%;
-                box-sizing: border-box;
-                margin-left: 0;
-                overflow-wrap: break-word;
-            }
-            
-            .title-input-wrapper {
-                position: relative;
-                margin-bottom: 20px;
-                transition: all 0.3s ease;
-                border-bottom: 2px solid #ddd;
-            }
-            
-            .title-label {
-                position: absolute;
-                top: 0;
-                left: 0;
-                font-size: 14px;
-                color: #999;
-                transition: all 0.3s ease;
-                pointer-events: none;
-            }
-            
-            .enhanced-title-input {
-                width: 100%;
-                padding: 10px 0;
-                font-size: 24px;
-                border: none;
-                background: transparent;
-                outline: none;
-            }
-            
-            .title-input-wrapper.focused {
-                border-bottom-color: #0366d6;
-            }
-            
-            .title-input-wrapper.focused .title-label {
-                top: -20px;
-                font-size: 12px;
-                color: #0366d6;
-            }
-            
-            .title-input-wrapper.empty.attention {
-                animation: pulse 1s ease;
-            }
-            
-            @keyframes pulse {
-                0% { border-bottom-color: #ddd; }
-                50% { border-bottom-color: #ff3860; }
-                100% { border-bottom-color: #ddd; }
-            }
-            
-            .iframe-embed-container {
-                margin: 1em 0;
-                border-radius: 4px;
-                overflow: hidden;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            }
-            
-            .embed-caption {
-                padding: 5px 10px;
-                background-color: #f5f5f5;
-                font-size: 14px;
-                color: #666;
-            }
-        `;
-        document.head.appendChild(style);
+    // 외부 스타일시트가 로드되었는지 확인하는 메서드
+    ensureStylesheetLoaded() {
+        // editor-components.css가 이미 로드되었는지 확인
+        const isStylesheetLoaded = Array.from(document.styleSheets).some(
+            sheet => sheet.href && sheet.href.includes('editor-components.css')
+        );
+        
+        // 스타일시트가 로드되지 않았다면 동적으로 추가
+        if (!isStylesheetLoaded) {
+            console.warn('editor-components.css가 로드되지 않았습니다. 동적으로 추가합니다.');
+            const linkElement = document.createElement('link');
+            linkElement.rel = 'stylesheet';
+            linkElement.href = '/static/css/editor-components.css';
+            document.head.appendChild(linkElement);
+        }
     }
     
     // 에디터 영역 크기 조정

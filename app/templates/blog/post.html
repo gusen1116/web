@@ -2,6 +2,11 @@
 
 {% block title %}{{ post.title }}{% endblock %}
 
+{% block head %}
+<!-- 코드 하이라이팅 추가 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism.min.css">
+{% endblock %}
+
 {% block content %}
 <div class="blog-detail-container">
     <h2>{{ post.title }}</h2>
@@ -56,7 +61,7 @@
                                 html += `<blockquote>${block.content}</blockquote>`;
                                 break;
                             case 'code':
-                                html += `<pre><code>${block.content}</code></pre>`;
+                                html += `<pre><code class="language-${block.language || 'plaintext'}">${block.content}</code></pre>`;
                                 break;
                             case 'list':
                                 const listTag = block.style === 'ordered' ? 'ol' : 'ul';
@@ -76,6 +81,41 @@
                                 break;
                             case 'delimiter':
                                 html += '<hr>';
+                                break;
+                            case 'embed':
+                                if (block.html) {
+                                    html += block.html;
+                                } else if (block.service === 'youtube' && block.data?.videoId) {
+                                    html += `<div class="media-embed youtube-embed">
+                                        <iframe width="560" height="315" src="https://www.youtube.com/embed/${block.data.videoId}" 
+                                        frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; 
+                                        gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                        <div class="embed-caption">YouTube 동영상</div>
+                                    </div>`;
+                                } else if (block.service === 'twitter' && block.data?.tweetId) {
+                                    html += `<div class="media-embed twitter-embed" data-tweet-id="${block.data.tweetId}">
+                                        <blockquote class="twitter-tweet" data-dnt="true">
+                                            <a href="https://twitter.com/x/status/${block.data.tweetId}"></a>
+                                        </blockquote>
+                                        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+                                        <div class="embed-caption">Twitter 포스트</div>
+                                    </div>`;
+                                }
+                                break;
+                            case 'iframe':
+                                if (block.src) {
+                                    html += `<div class="iframe-embed-container">
+                                        <iframe 
+                                            src="${block.src}" 
+                                            style="width: ${block.width || '100%'}; height: ${block.height || '400px'}; border: 1px solid #ddd;" 
+                                            allowfullscreen
+                                            loading="lazy" 
+                                            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-presentation"
+                                            referrerpolicy="no-referrer-when-downgrade">
+                                        </iframe>
+                                        <div class="embed-caption">iframe 임베드</div>
+                                    </div>`;
+                                }
                                 break;
                             default:
                                 // 알 수 없는 블록 타입은 내용이 있으면 표시
@@ -122,6 +162,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
 <script>
     function deletePost(postId) {
         if (confirm('정말로 이 글을 삭제하시겠습니까?')) {
@@ -146,5 +187,18 @@
             });
         }
     }
+    
+    // 페이지 로드 후 코드 블록에 구문 강조 적용
+    document.addEventListener('DOMContentLoaded', function() {
+        const codeBlocks = document.querySelectorAll('pre code');
+        codeBlocks.forEach(block => {
+            Prism.highlightElement(block);
+        });
+        
+        // Twitter 위젯 로딩
+        if (window.twttr && window.twttr.widgets) {
+            window.twttr.widgets.load();
+        }
+    });
 </script>
 {% endblock %}

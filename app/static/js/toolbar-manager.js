@@ -3,11 +3,14 @@ import Utils from './utils.js';
 import EmbedHandler from './embed-handler.js';
 
 class ToolbarManager {
-    constructor(contentArea) {
+    constructor(contentArea, mediaHandler = null) {
         // 직접 요소만 저장 (순환 참조 없음)
         this.contentArea = contentArea;
         this.toolbarButtons = document.querySelectorAll('.toolbar-button');
         this.embedHandler = new EmbedHandler(contentArea);
+        
+        // 전달받은 MediaHandler 인스턴스 저장 또는 생성
+        this.mediaHandler = mediaHandler || null;
         
         // 텍스트 크기 조절 상태 초기화
         this.currentFontSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--content-font-size') || '16px');
@@ -121,7 +124,7 @@ class ToolbarManager {
                 break;
         }
         
-        // 안전하게 포커스 되돌리기
+        // 포커스 되돌리기
         try {
             this.contentArea.focus();
         } catch (e) {
@@ -350,8 +353,69 @@ class ToolbarManager {
     }
     
     handleImageInsertion() {
-        // 이미지 삽입 기능 (실제 구현 필요)
-        alert('이미지 삽입 기능이 아직 구현되지 않았습니다.');
+        if (!this.contentArea) return;
+        
+        // 미디어 핸들러 참조 확인
+        if (!this.mediaHandler) {
+            // MediaHandler가 없는 경우 임시 처리: 파일 선택 UI 직접 표시
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+            fileInput.click();
+            
+            fileInput.addEventListener('change', (e) => {
+                if (fileInput.files && fileInput.files[0]) {
+                    // 직접 업로드 처리
+                    const formData = new FormData();
+                    formData.append('file', fileInput.files[0]);
+                    
+                    // CSRF 토큰 가져오기
+                    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                    const csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '';
+                    
+                    if (!csrfToken) {
+                        console.error('CSRF 토큰을 찾을 수 없습니다.');
+                        alert('보안 토큰을 찾을 수 없습니다. 페이지를 새로고침해 주세요.');
+                        return;
+                    }
+                    
+                    // 진행 표시기
+                    const progressIndicator = document.createElement('div');
+                    progressIndicator.className = 'upload-progress';
+                    progressIndicator.innerHTML = '<span>이미지 업로드 중...</span>';
+                    document.body.appendChild(progressIndicator);
+                    
+                    // 서버에 업로드
+                    fetch('/blog/upload', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        progressIndicator.remove();
+                        
+                        if (data.success === 1) {
+                            // 이미지 삽입
+                            const imgHtml = `<img src="${data.file.url}" alt="업로드된 이미지" class="editor-image">`;
+                            document.execCommand('insertHTML', false, imgHtml);
+                        } else {
+                            alert('이미지 업로드 실패: ' + (data.message || '알 수 없는 오류'));
+                        }
+                    })
+                    .catch(error => {
+                        progressIndicator.remove();
+                        console.error('업로드 오류:', error);
+                        alert('이미지 업로드 중 오류가 발생했습니다.');
+                    });
+                }
+            });
+        } else {
+            // MediaHandler 모듈이 있으면 위임
+            this.mediaHandler.handleImageInsertion();
+        }
     }
     
     insertTable() {
