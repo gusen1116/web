@@ -97,9 +97,13 @@ header {
     width: 100%;
     transition: transform 0.3s ease;
 }
+header.hide {
+    transform: translateY(-100%);
+}
 
 .header-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: space-between;
     padding: var(--spacing-3) var(--spacing-6);
@@ -107,24 +111,48 @@ header {
     margin: 0 auto;
 }
 
-/* 로고 스타일링 */
-.logo img {
+/* 로고 중앙 정렬 */
+.logo-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: var(--spacing-4);
+    width: 100%;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text-primary);
+  }
+
+  /* 로고 스타일링 */
+  .logo img {
     height: 40px;
     width: auto;
-    transition: transform var(--transition-fast);
-}
-
+    margin-right: var(--spacing-2);
+  }
 .logo:hover img {
     transform: scale(1.05);
 }
+.site-name {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+  }
 
+  .left-nav {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
 /* 네비게이션 메뉴 스타일링 */
 .left-nav ul {
     display: flex;
     list-style: none;
     padding: 0;
     margin: 0;
-    gap: var(--spacing-4);
+    gap: var(--spacing-6);
 }
 
 .left-nav a {
@@ -157,10 +185,13 @@ header {
 
 /* 오른쪽 네비게이션 및 검색 */
 .right-nav {
+    position: absolute;
+    top: var(--spacing-3);
+    right: var(--spacing-6);
     display: flex;
     align-items: center;
     gap: var(--spacing-4);
-}
+  }
 
 .right-nav form {
     display: flex;
@@ -195,7 +226,7 @@ header {
     padding: var(--spacing-1);
 }
 
-/* 테마 토글 버튼 */
+/* 테마 토글 버튼 개선 */
 .theme-toggle {
     display: flex;
     align-items: center;
@@ -208,6 +239,8 @@ header {
     border: none;
     cursor: pointer;
     transition: all var(--transition-fast);
+    position: relative;
+    overflow: hidden;
 }
 
 .theme-toggle:hover {
@@ -215,22 +248,26 @@ header {
     transform: rotate(15deg);
 }
 
-/* 반응형 헤더 */
+/* 반응형 조정 */
 @media (max-width: 768px) {
     .header-container {
-        padding: var(--spacing-2) var(--spacing-3);
+    padding: var(--spacing-2) var(--spacing-3);
+    }
+    
+    .right-nav {
+    position: static;
+    width: 100%;
+    justify-content: center;
+    margin-top: var(--spacing-3);
     }
     
     .left-nav ul {
-        gap: var(--spacing-2);
-    }
-    
-    .right-nav form {
-        display: none;
+    gap: var(--spacing-3);
+    flex-wrap: wrap;
+    justify-content: center;
     }
 }
-
-/* 슬라이더/배너 스타일 - silder.css와 통합 */
+/* 배너 슬라이더 간소화 */
 .slider-container {
     position: relative;
     width: 100%;
@@ -240,7 +277,8 @@ header {
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     height: 350px;
-}
+    background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+}  
 
 .slider-wrapper {
     display: flex;
@@ -251,7 +289,6 @@ header {
 
 .slide {
     position: relative;
-    flex: 0 0 33.333333%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -259,12 +296,9 @@ header {
     text-align: center;
     padding: 5rem 3rem;
     color: white;
-    transition: opacity 0.5s ease;
     height: 100%;
-    background-size: cover;
-    background-position: center;
-    overflow: hidden;
-}
+    width: 100%;
+    transition: transform 0.5s ease;}
 
 .slide-content {
     position: relative;
@@ -441,8 +475,8 @@ body, html {
 /* 다크/라이트 모드 토글 개선 */
 .theme-toggle .dark-icon,
 .theme-toggle .light-icon {
-    position: absolute;
-    transition: opacity 0.3s ease, transform 0.3s ease;
+position: absolute;
+transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .dark-theme .dark-icon {

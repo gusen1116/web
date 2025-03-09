@@ -4,38 +4,109 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}과학 블로그{% endblock %}</title>
+    <title>{% block title %}물리학과 구센{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {% block head %}{% endblock %}
-    <!-- 테마 초기화 스크립트 - 본문 상단에 위치시켜 깜빡임 방지 -->
+    
+    <!-- 테마 초기화 스크립트 - 깜빡임 방지를 위해 본문 상단에 위치 -->
     <script>
-        // 로컬 스토리지에서 테마 설정 가져오기
+        // 저장된 테마 설정 가져오기
         const savedTheme = localStorage.getItem('theme');
-        // 시스템 테마 확인
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         
-        // 저장된 테마가 있으면 적용, 없으면 시스템 설정 따름
-        if (savedTheme === 'dark' || (savedTheme === null && prefersDark)) {
+        // 테마 적용
+        if (savedTheme === 'dark') {
             document.documentElement.classList.add('dark-theme');
             document.body.classList.add('dark-theme');
-        } else {
+        } else if (savedTheme === 'light') {
             document.documentElement.classList.remove('dark-theme');
             document.body.classList.remove('dark-theme');
+        } else {
+            // 시스템 테마 감지
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (prefersDark) {
+                document.documentElement.classList.add('dark-theme');
+                document.body.classList.add('dark-theme');
+            } else {
+                document.documentElement.classList.remove('dark-theme');
+                document.body.classList.remove('dark-theme');
+            }
         }
     </script>
+    
+    <!-- 헤더 스타일 인라인 추가 - 즉시 적용 -->
+    <style>
+        /* 헤더 스타일 조정 */
+        header .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        /* 로고만 표시하고 텍스트 숨김 */
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo img {
+            height: 40px;
+            width: auto;
+        }
+        
+        .site-name {
+            display: none;
+        }
+        
+        /* 네비게이션 메뉴를 로고 왼쪽으로 이동 */
+        .left-nav {
+            position: absolute;
+            left: 0;
+            display: flex;
+        }
+        
+        .left-nav ul {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            gap: 1.5rem;
+        }
+        
+        /* 오른쪽 상단에 테마 토글 및 검색 배치 */
+        .right-nav {
+            position: absolute;
+            right: 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        /* 반응형 조정 */
+        @media (max-width: 768px) {
+            header .header-container {
+                flex-direction: column;
+                padding: 1rem 0;
+            }
+            
+            .left-nav, .right-nav {
+                position: static;
+                margin: 0.5rem 0;
+            }
+            
+            .left-nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 <body class="{% block body_class %}{% endblock %} theme-transition">
-    <!-- 개선된 헤더 -->
+    <!-- 재구성된 헤더 -->
     <header>
         <div class="header-container">
-            <div class="logo-container">
-                <a href="{{ url_for('main.index') }}" class="logo">
-                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="로고">
-                    <span class="site-name">물리학과 구센</span>
-                </a>
-            </div>
-            
+            <!-- 네비게이션 메뉴를 로고 왼쪽으로 이동 -->
             <nav class="left-nav">
                 <ul>
                     <li><a href="{{ url_for('blog.index') }}">블로그</a></li>
@@ -45,9 +116,16 @@
                 </ul>
             </nav>
             
+            <!-- 로고 (텍스트 없이 이미지만) -->
+            <a href="{{ url_for('main.index') }}" class="logo">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="로고">
+                <span class="site-name">물리학과 구센</span>
+            </a>
+            
+            <!-- 오른쪽 메뉴 (테마 토글, 검색 등) -->
             <div class="right-nav">
                 <!-- 테마 토글 버튼 -->
-                <button class="theme-toggle" id="themeToggle" title="테마 변경" aria-label="다크 모드 전환">
+                <button class="theme-toggle" id="themeToggle" title="테마 변경" aria-label="테마 전환">
                     <i class="fas fa-moon dark-icon"></i>
                     <i class="fas fa-sun light-icon"></i>
                 </button>
@@ -78,7 +156,7 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- 개선된 푸터 -->
+    <!-- 푸터 -->
     <footer>
         <div class="footer-container">
             <div class="footer-left">
@@ -104,7 +182,7 @@
         </div>
     </footer>
 
-    <!-- 통합된 UI 스크립트 -->
+    <!-- UI 스크립트 -->
     <script src="{{ url_for('static', filename='js/ui.js') }}"></script>
     {% block scripts %}{% endblock %}
 </body>

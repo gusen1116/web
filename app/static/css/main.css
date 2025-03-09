@@ -17,7 +17,7 @@
 @import './base/color.css';
 
 /***** 컴포넌트 *****/
-/* 내비게이션 */
+/* 내비게이션 - 슬라이더 포함 */
 @import './components/navigation.css';
 
 /* 카드 */
@@ -28,9 +28,6 @@
 
 /* 버튼 */
 @import './components/buttons.css';
-
-/* 슬라이더 */
-@import './base/silder.css';
 
 /* 배지 */
 @import './components/badges.css';
@@ -51,9 +48,6 @@
 /* 홈페이지 */
 @import './pages/home.css';
 
-/* 시뮬레이션 페이지 */
-@import './pages/simulation.css';
-
 /* 인증 페이지 */
 @import './pages/auth.css';
 
@@ -62,6 +56,9 @@
 
 /* 검색 결과 페이지 */
 @import './pages/search.css';
+
+/* 시뮬레이션 페이지 - navigation.css에 통합되었으므로 주석 처리 */
+/* @import './pages/simulation.css'; */
 
 /***** 유틸리티 *****/
 /* 스페이싱 */

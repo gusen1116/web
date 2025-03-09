@@ -1,44 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}홈 - 과학 블로그{% endblock %}
+{% block title %}홈 - 물리학과 구센{% endblock %}
 
 {% block content %}
-<!-- 개선된 배너 슬라이더 -->
+<!-- 배너 (슬라이더) - 간소화된 버전 -->
 <div class="slider-container">
   <div class="slider-wrapper">
-    <div class="slide">
-      <div class="slide-overlay"></div>
-      <div class="slide-content">
-        <h1>물리학과 구센</h1>
-        <p>과학 시뮬레이션과 프로그래밍의 조화, 더 나은 이해를 위한 플랫폼</p>
-        <a href="{{ url_for('simulation.index') }}" class="slide-btn btn-effect">시뮬레이션 체험하기</a>
-      </div>
+    <div class="slide fade-in">
+      <h1>물리학과 구센</h1>
+      <p>과학 시뮬레이션과 프로그래밍의 조화</p>
     </div>
-    <div class="slide">
-      <div class="slide-overlay"></div>
-      <div class="slide-content">
-        <h1>인터랙티브 시뮬레이션</h1>
-        <p>실시간으로 물리 법칙을 경험하고 탐구해보세요</p>
-        <a href="{{ url_for('blog.index') }}" class="slide-btn btn-effect">블로그 구경하기</a>
-      </div>
-    </div>
-    <div class="slide">
-      <div class="slide-overlay"></div>
-      <div class="slide-content">
-        <h1>기술 블로그</h1>
-        <p>웹 개발, 프로그래밍 그리고 과학에 대한 깊이 있는 이야기</p>
-        <a href="{{ url_for('main.about') }}" class="slide-btn btn-effect">더 알아보기</a>
-      </div>
-    </div>
-  </div>
-  <div class="slider-indicators"></div>
-  <div class="slider-nav">
-    <button class="slider-nav-btn prev-btn" aria-label="이전 슬라이드">
-      <i class="fas fa-chevron-left"></i>
-    </button>
-    <button class="slider-nav-btn next-btn" aria-label="다음 슬라이드">
-      <i class="fas fa-chevron-right"></i>
-    </button>
   </div>
 </div>
 
@@ -157,4 +128,28 @@
 {% block scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.min.js"></script>
 <script src="{{ url_for('static', filename='js/simulation.js') }}"></script>
+
+<!-- 시뮬레이션 컨트롤 값 표시 관련 -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // 컨트롤 값 표시 업데이트
+  const gravityControl = document.getElementById('gravityControl');
+  const gravityValue = document.getElementById('gravityValue');
+  
+  if (gravityControl && gravityValue) {
+    gravityControl.addEventListener('input', function() {
+      gravityValue.textContent = this.value;
+    });
+  }
+  
+  const frictionControl = document.getElementById('frictionControl');
+  const frictionValue = document.getElementById('frictionValue');
+  
+  if (frictionControl && frictionValue) {
+    frictionControl.addEventListener('input', function() {
+      frictionValue.textContent = this.value;
+    });
+  }
+});
+</script>
 {% endblock %}
