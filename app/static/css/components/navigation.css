@@ -37,7 +37,24 @@
     height: 40px;
     margin-right: var(--spacing-2);
   }
-  
+  /* 로고 크기 제어 */
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 40px; /* 원하는 높이 설정 */
+    width: auto; /* 가로세로 비율 유지 */
+    max-width: 100%; /* 반응형 보장 */
+}
+
+/* 필요시 반응형 조정 */
+@media (max-width: 768px) {
+    .logo img {
+        height: 30px; /* 모바일 기기에서 더 작게 */
+    }
+}
   /* 내비게이션 아이템 */
   .navbar-nav {
     display: flex;
