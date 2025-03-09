@@ -1,15 +1,15 @@
-/* 개선된 푸터 스타일링 - app/static/css/components/navigation.css 파일에 추가 */
+/* 통합된 UI 스타일 (푸터, 헤더, 슬라이더) */
 
-/* 푸터 개선 */
+/* 개선된 푸터 스타일 */
 footer {
     width: 100%;
     padding: var(--spacing-8) 0;
     background-color: var(--bg-secondary);
     border-top: 1px solid var(--border-color);
     margin-top: var(--spacing-12);
-  }
-  
-  .footer-container {
+}
+
+.footer-container {
     width: 100%;
     max-width: var(--content-7xl);
     margin: 0 auto;
@@ -17,58 +17,77 @@ footer {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-  }
-  
-  .footer-left {
+}
+
+.footer-left {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-3);
-  }
-  
-  .footer-links {
-    display: flex;
     gap: var(--spacing-4);
+}
+
+.footer-links {
+    display: flex;
+    gap: var(--spacing-6);
     align-items: center;
-  }
-  
-  .footer-links a {
+}
+
+.footer-links a {
     color: var(--text-secondary);
     text-decoration: none;
     transition: color var(--transition-fast);
     display: flex;
     align-items: center;
-    gap: var(--spacing-1);
-  }
-  
-  .footer-links a:hover {
+    gap: var(--spacing-2);
+    font-weight: var(--font-weight-medium);
+}
+
+.footer-links a:hover {
     color: var(--primary-500);
-  }
-  
-  .footer-right {
+}
+
+.footer-navigation {
+    display: flex;
+    gap: var(--spacing-4);
+    margin-top: var(--spacing-2);
+}
+
+.footer-navigation a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    transition: color var(--transition-fast);
+}
+
+.footer-navigation a:hover {
+    color: var(--primary-500);
+    text-decoration: underline;
+}
+
+.footer-right {
     text-align: right;
-  }
-  
-  /* 소셜 아이콘 */
-  .social-icon {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.social-icon {
     font-size: 1.25rem;
-    margin-right: var(--spacing-1);
-  }
-  
-  /* 푸터 반응형 */
-  @media (max-width: 768px) {
+}
+
+/* 푸터 반응형 */
+@media (max-width: 768px) {
     .footer-container {
-      flex-direction: column;
-      gap: var(--spacing-4);
+        flex-direction: column;
+        gap: var(--spacing-6);
     }
     
     .footer-right {
-      text-align: left;
-      margin-top: var(--spacing-4);
+        text-align: left;
+        margin-top: var(--spacing-4);
     }
-  }
-  
-  /* 개선된 헤더 스타일링 - app/static/css/components/navigation.css 파일에 추가 */
-  header {
+}
+
+/* 개선된 헤더 스타일 */
+header {
     background-color: var(--bg-primary);
     color: var(--text-primary);
     box-shadow: var(--shadow-md);
@@ -77,47 +96,47 @@ footer {
     z-index: var(--z-index-fixed);
     width: 100%;
     transition: transform 0.3s ease;
-  }
-  
-  .header-container {
+}
+
+.header-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: var(--spacing-3) var(--spacing-6);
     max-width: var(--content-7xl);
     margin: 0 auto;
-  }
-  
-  /* 로고 스타일링 */
-  .logo img {
+}
+
+/* 로고 스타일링 */
+.logo img {
     height: 40px;
     width: auto;
     transition: transform var(--transition-fast);
-  }
-  
-  .logo:hover img {
+}
+
+.logo:hover img {
     transform: scale(1.05);
-  }
-  
-  /* 네비게이션 메뉴 스타일링 */
-  .left-nav ul {
+}
+
+/* 네비게이션 메뉴 스타일링 */
+.left-nav ul {
     display: flex;
     list-style: none;
     padding: 0;
     margin: 0;
     gap: var(--spacing-4);
-  }
-  
-  .left-nav a {
+}
+
+.left-nav a {
     color: var(--text-primary);
     text-decoration: none;
     font-weight: var(--font-weight-medium);
     transition: all var(--transition-fast);
     position: relative;
     padding: var(--spacing-2) 0;
-  }
-  
-  .left-nav a:after {
+}
+
+.left-nav a:after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -126,46 +145,46 @@ footer {
     height: 2px;
     background-color: var(--primary-500);
     transition: width var(--transition-normal);
-  }
-  
-  .left-nav a:hover:after {
+}
+
+.left-nav a:hover:after {
     width: 100%;
-  }
-  
-  .left-nav a:hover {
+}
+
+.left-nav a:hover {
     color: var(--primary-500);
-  }
-  
-  /* 오른쪽 네비게이션 및 검색 */
-  .right-nav {
+}
+
+/* 오른쪽 네비게이션 및 검색 */
+.right-nav {
     display: flex;
     align-items: center;
     gap: var(--spacing-4);
-  }
-  
-  .right-nav form {
+}
+
+.right-nav form {
     display: flex;
     align-items: center;
     background-color: var(--bg-secondary);
     border-radius: var(--radius-full);
     padding: var(--spacing-1) var(--spacing-3);
     transition: box-shadow var(--transition-fast);
-  }
-  
-  .right-nav form:focus-within {
+}
+
+.right-nav form:focus-within {
     box-shadow: 0 0 0 2px var(--primary-300);
-  }
-  
-  .right-nav input {
+}
+
+.right-nav input {
     background: transparent;
     border: none;
     color: var(--text-primary);
     padding: var(--spacing-1) var(--spacing-2);
     width: 180px;
     outline: none;
-  }
-  
-  .right-nav button {
+}
+
+.right-nav button {
     background: transparent;
     border: none;
     color: var(--text-primary);
@@ -174,10 +193,10 @@ footer {
     align-items: center;
     justify-content: center;
     padding: var(--spacing-1);
-  }
-  
-  /* 테마 토글 버튼 */
-  .theme-toggle {
+}
+
+/* 테마 토글 버튼 */
+.theme-toggle {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -189,30 +208,30 @@ footer {
     border: none;
     cursor: pointer;
     transition: all var(--transition-fast);
-  }
-  
-  .theme-toggle:hover {
+}
+
+.theme-toggle:hover {
     background-color: var(--bg-tertiary);
     transform: rotate(15deg);
-  }
-  
-  /* 반응형 헤더 */
-  @media (max-width: 768px) {
+}
+
+/* 반응형 헤더 */
+@media (max-width: 768px) {
     .header-container {
-      padding: var(--spacing-2) var(--spacing-3);
+        padding: var(--spacing-2) var(--spacing-3);
     }
     
     .left-nav ul {
-      gap: var(--spacing-2);
+        gap: var(--spacing-2);
     }
     
     .right-nav form {
-      display: none;
+        display: none;
     }
-  }
-  
-  /* 개선된 슬라이더/배너 스타일링 - app/static/css/base/silder.css 파일을 수정 */
-  .slider-container {
+}
+
+/* 슬라이더/배너 스타일 - silder.css와 통합 */
+.slider-container {
     position: relative;
     width: 100%;
     max-width: 100%;
@@ -221,16 +240,16 @@ footer {
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     height: 350px;
-  }
-  
-  .slider-wrapper {
+}
+
+.slider-wrapper {
     display: flex;
     width: 300%;
     height: 100%;
     transition: transform 0.5s ease-in-out;
-  }
-  
-  .slide {
+}
+
+.slide {
     position: relative;
     flex: 0 0 33.333333%;
     display: flex;
@@ -245,15 +264,15 @@ footer {
     background-size: cover;
     background-position: center;
     overflow: hidden;
-  }
-  
-  .slide-content {
+}
+
+.slide-content {
     position: relative;
     z-index: 2;
     max-width: 800px;
-  }
-  
-  .slide-overlay {
+}
+
+.slide-overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -261,18 +280,18 @@ footer {
     bottom: 0;
     background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6));
     z-index: 1;
-  }
-  
-  .slide h1 {
+}
+
+.slide h1 {
     font-size: 2.5rem;
     font-weight: bold;
     margin-bottom: 1rem;
     transform: translateY(20px);
     opacity: 0;
     transition: transform 0.5s ease, opacity 0.5s ease;
-  }
-  
-  .slide p {
+}
+
+.slide p {
     font-size: 1.2rem;
     max-width: 600px;
     margin: 0 auto;
@@ -280,27 +299,27 @@ footer {
     opacity: 0;
     transition: transform 0.5s ease, opacity 0.5s ease;
     transition-delay: 0.1s;
-  }
-  
-  .slide.active h1,
-  .slide.active p {
+}
+
+.slide.active h1,
+.slide.active p {
     transform: translateY(0);
     opacity: 1;
-  }
-  
-  .slide:nth-child(1) {
+}
+
+.slide:nth-child(1) {
     background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
-  }
-  
-  .slide:nth-child(2) {
+}
+
+.slide:nth-child(2) {
     background: linear-gradient(135deg, var(--success-400), var(--success-600));
-  }
-  
-  .slide:nth-child(3) {
+}
+
+.slide:nth-child(3) {
     background: linear-gradient(135deg, var(--warning-400), var(--warning-600));
-  }
-  
-  .slider-nav {
+}
+
+.slider-nav {
     position: absolute;
     top: 50%;
     left: 0;
@@ -310,9 +329,9 @@ footer {
     padding: 0 1rem;
     transform: translateY(-50%);
     z-index: 10;
-  }
-  
-  .slider-nav-btn {
+}
+
+.slider-nav-btn {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -326,14 +345,14 @@ footer {
     backdrop-filter: blur(4px);
     transition: all 0.3s ease;
     opacity: 0.7;
-  }
-  
-  .slider-nav-btn:hover {
+}
+
+.slider-nav-btn:hover {
     background-color: rgba(255, 255, 255, 0.3);
     opacity: 1;
-  }
-  
-  .slider-indicators {
+}
+
+.slider-indicators {
     position: absolute;
     bottom: var(--spacing-4);
     left: 50%;
@@ -341,39 +360,39 @@ footer {
     display: flex;
     gap: var(--spacing-2);
     z-index: 10;
-  }
-  
-  .indicator {
+}
+
+.indicator {
     width: 10px;
     height: 10px;
     border-radius: 50%;
     background-color: rgba(255, 255, 255, 0.5);
     cursor: pointer;
     transition: all 0.3s ease;
-  }
-  
-  .indicator.active {
+}
+
+.indicator.active {
     background-color: white;
     transform: scale(1.2);
-  }
-  
-  /* 반응형 조정 */
-  @media (max-width: 768px) {
+}
+
+/* 슬라이더 반응형 조정 */
+@media (max-width: 768px) {
     .slide {
-      padding: 3rem 1rem;
+        padding: 3rem 1rem;
     }
     
     .slide h1 {
-      font-size: 1.8rem;
+        font-size: 1.8rem;
     }
     
     .slide p {
-      font-size: 1rem;
+        font-size: 1rem;
     }
-  }
-  
-  /* 다크/라이트 모드 개선 - app/static/css/utils/theme.css 파일에 추가 */
-  .dark-theme {
+}
+
+/* 다크/라이트 모드 관련 스타일 */
+.dark-theme {
     --bg-primary: var(--neutral-900);
     --bg-secondary: var(--neutral-800);
     --bg-tertiary: var(--neutral-700);
@@ -386,35 +405,62 @@ footer {
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
     --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
     --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-  }
-  
-  .dark-theme .theme-toggle i {
+}
+
+.dark-theme .theme-toggle i {
     color: #FFD700;
-  }
-  
-  body, html {
+}
+
+body, html {
     transition: background-color var(--transition-normal), color var(--transition-normal);
-  }
-  
-  /* 테마에 따라 바뀌는 요소들의 전환 */
-  .theme-transition, 
-  .theme-transition * {
+}
+
+/* 테마에 따라 바뀌는 요소들의 전환 */
+.theme-transition, 
+.theme-transition * {
     transition-property: background-color, border-color, color, fill, stroke;
     transition-duration: 0.3s;
     transition-timing-function: ease;
-  }
-  
-  /* 시뮬레이션 요소를 위한 다크모드 개선 */
-  .dark-theme canvas#simulationCanvas {
+}
+
+/* 시뮬레이션 요소를 위한 다크모드 개선 */
+.dark-theme canvas#simulationCanvas {
     background-color: var(--neutral-800);
     border: 1px solid var(--neutral-700);
-  }
-  
-  /* 다크모드에서 버튼 대비 개선 */
-  .dark-theme .btn-effect {
+}
+
+/* 다크모드에서 버튼 대비 개선 */
+.dark-theme .btn-effect {
     background-color: var(--primary-600);
-  }
-  
-  .dark-theme .btn-effect:hover {
+}
+
+.dark-theme .btn-effect:hover {
     background-color: var(--primary-500);
-  }
+}
+
+/* 다크/라이트 모드 토글 개선 */
+.theme-toggle .dark-icon,
+.theme-toggle .light-icon {
+    position: absolute;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.dark-theme .dark-icon {
+    opacity: 0;
+    transform: rotate(-180deg);
+}
+
+.dark-theme .light-icon {
+    opacity: 1;
+    transform: rotate(0);
+}
+
+:not(.dark-theme) .dark-icon {
+    opacity: 1;
+    transform: rotate(0);
+}
+
+:not(.dark-theme) .light-icon {
+    opacity: 0;
+    transform: rotate(180deg);
+}

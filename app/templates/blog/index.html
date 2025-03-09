@@ -1,145 +1,160 @@
 {% extends "base.html" %}
 
-{% block title %}블로그{% endblock %}
+{% block title %}홈 - 과학 블로그{% endblock %}
 
 {% block content %}
+<!-- 개선된 배너 슬라이더 -->
+<div class="slider-container">
+  <div class="slider-wrapper">
+    <div class="slide">
+      <div class="slide-overlay"></div>
+      <div class="slide-content">
+        <h1>물리학과 구센</h1>
+        <p>과학 시뮬레이션과 프로그래밍의 조화, 더 나은 이해를 위한 플랫폼</p>
+        <a href="{{ url_for('simulation.index') }}" class="slide-btn btn-effect">시뮬레이션 체험하기</a>
+      </div>
+    </div>
+    <div class="slide">
+      <div class="slide-overlay"></div>
+      <div class="slide-content">
+        <h1>인터랙티브 시뮬레이션</h1>
+        <p>실시간으로 물리 법칙을 경험하고 탐구해보세요</p>
+        <a href="{{ url_for('blog.index') }}" class="slide-btn btn-effect">블로그 구경하기</a>
+      </div>
+    </div>
+    <div class="slide">
+      <div class="slide-overlay"></div>
+      <div class="slide-content">
+        <h1>기술 블로그</h1>
+        <p>웹 개발, 프로그래밍 그리고 과학에 대한 깊이 있는 이야기</p>
+        <a href="{{ url_for('main.about') }}" class="slide-btn btn-effect">더 알아보기</a>
+      </div>
+    </div>
+  </div>
+  <div class="slider-indicators"></div>
+  <div class="slider-nav">
+    <button class="slider-nav-btn prev-btn" aria-label="이전 슬라이드">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="slider-nav-btn next-btn" aria-label="다음 슬라이드">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+</div>
+
+<!-- 최신 글 섹션 -->
 <div class="blog-container">
-    <h1 class="fade-in">블로그</h1>
-    
-    {% if posts %}
-        {% for post in posts %}
-            <div class="blog-preview fade-in fade-in-{{ loop.index }}">
-                <h3><a href="{{ url_for('blog.post', post_id=post.id) }}">{{ post.title }}</a></h3>
-                
-                <div class="meta-info">
-                    <span class="date">{{ post.created_at.strftime('%Y-%m-%d') }}</span>
-                    {% if post.category %}
-                        <span class="category">{{ post.category.name }}</span>
-                    {% endif %}
-                </div>
-                
-                <div class="post-preview">
-                    <div class="preview-content">
-                        <div class="preview-text has-fade">
-                            {{ post.get_preview(300) }}
-                        </div>
-                        
-                        <a href="{{ url_for('blog.post', post_id=post.id) }}" class="read-more">더 읽기 →</a>
-                        
-                        {% if post.tags %}
-                            <div class="tags-container">
-                                {% for tag in post.tags %}
-                                    <span class="tag">{{ tag.name }}</span>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            
-            {% if not loop.last %}
-                <hr class="separator">
-            {% endif %}
-        {% endfor %}
+  <h2>최신 글</h2>
+  
+  {% if recent_posts %}
+    {% for post in recent_posts %}
+      <div class="blog-preview">
+        <h3>
+          <a href="{{ url_for('blog.post', post_id=post.id) }}">{{ post.title }}</a>
+        </h3>
         
-        {# 페이지네이션 구현 #}
-        {% if pagination %}
-            <div class="pagination">
-                {% if pagination.has_prev %}
-                    <a href="{{ url_for('blog.index', page=pagination.prev_num) }}" class="pagination-link">&laquo; 이전</a>
-                {% endif %}
-                
-                {% for page in pagination.iter_pages(left_edge=2, left_current=2, right_current=3, right_edge=2) %}
-                    {% if page %}
-                        {% if page == pagination.page %}
-                            <span class="pagination-link current">{{ page }}</span>
-                        {% else %}
-                            <a href="{{ url_for('blog.index', page=page) }}" class="pagination-link">{{ page }}</a>
-                        {% endif %}
-                    {% else %}
-                        <span class="pagination-ellipsis">...</span>
-                    {% endif %}
-                {% endfor %}
-                
-                {% if pagination.has_next %}
-                    <a href="{{ url_for('blog.index', page=pagination.next_num) }}" class="pagination-link">다음 &raquo;</a>
-                {% endif %}
+        <div class="post-preview">
+          <div class="preview-content">
+            <div class="preview-text has-fade">
+              {{ post.get_preview(200) }}
             </div>
-        {% endif %}
-    {% else %}
-        <div class="empty-state fade-in">
-            <i class="fas fa-feather-alt empty-icon"></i>
-            <p>아직 게시글이 없습니다.</p>
+            <a href="{{ url_for('blog.post', post_id=post.id) }}" class="read-more">더 읽기 →</a>
             
-            {% if current_user.is_authenticated %}
-                <p>첫 번째 글을 작성해보세요!</p>
-                <a href="{{ url_for('blog.new') }}" class="write-post-btn">글쓰기</a>
-            {% else %}
-                <p>새로운 글이 곧 업데이트 될 예정입니다.</p>
-            {% endif %}
+            <div class="post-meta-bottom">
+              <div class="tags-category">
+                {% if post.category %}
+                  <span class="category">[{{ post.category.name }}]</span>
+                {% endif %}
+                {% if post.tags %}
+                  <div class="tags-container">
+                    {% for tag in post.tags %}
+                      <span class="tag">{{ tag.name }}</span>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+              </div>
+              <span class="date">{{ post.created_at.strftime('%Y년 %m월 %d일') }}</span>
+            </div>
+          </div>
         </div>
-    {% endif %}
+      </div>
+      
+      {% if not loop.last %}
+        <hr class="separator">
+      {% endif %}
+    {% endfor %}
     
-    <div class="write-btn-container">
-        <a href="{{ url_for('blog.new') }}" class="write-post-btn">글쓰기</a>
+    <div class="view-all">
+      <a href="{{ url_for('blog.index') }}" class="view-all-btn">모든 글 보기 →</a>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <p>아직 게시글이 없습니다.</p>
+      {% if current_user.is_authenticated %}
+        <p>블로그 페이지에서 첫 번째 글을 작성해보세요!</p>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  <!-- 카테고리 및 태그 섹션 -->
+  <div class="sidebar-section">
+    <h3>인기 카테고리</h3>
+    <ul class="category-list">
+      {% for category, count in popular_categories %}
+        <li>
+          <a href="{{ url_for('blog.index') }}?category={{ category.id }}">
+            {{ category.name }} ({{ count }})
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+    
+    <h3>인기 태그</h3>
+    <div class="tag-cloud">
+      {% for tag, count in popular_tags %}
+        <a href="{{ url_for('blog.index') }}?tag={{ tag.id }}" 
+          class="tag"
+           style="font-size: {{ 80 + count * 10 }}%;">
+          {{ tag.name }}
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- 시뮬레이션 섹션 -->
+<div class="blog-container">
+  <h2>물리 시뮬레이션</h2>
+  
+  <div class="simulation-controls">
+    <div class="control-group">
+      <label for="gravityControl">중력: <span id="gravityValue">9.8</span> m/s²</label>
+      <input type="range" id="gravityControl" min="0" max="20" step="0.1" value="9.8">
     </div>
     
-    <div class="blog-sidebar">
-        {% if categories %}
-        <div class="sidebar-widget">
-            <h3>카테고리</h3>
-            <ul class="category-list">
-                {% for category in categories %}
-                    <li>
-                        <a href="{{ url_for('blog.index', category=category.id) }}">
-                            {{ category.name }} 
-                            <span class="count">({{ category.posts|length }})</span>
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-        
-        {% if tags %}
-        <div class="sidebar-widget">
-            <h3>태그</h3>
-            <div class="tag-cloud">
-                {% for tag in tags %}
-                    <a href="{{ url_for('blog.index', tag=tag.id) }}" class="tag">{{ tag.name }}</a>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-        
-        {% if recent_posts %}
-        <div class="sidebar-widget">
-            <h3>최근 게시물</h3>
-            <ul class="recent-posts">
-                {% for post in recent_posts %}
-                    <li>
-                        <a href="{{ url_for('blog.post', post_id=post.id) }}">{{ post.title }}</a>
-                        <span class="post-date">{{ post.created_at.strftime('%Y-%m-%d') }}</span>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
+    <div class="control-group">
+      <label for="frictionControl">마찰: <span id="frictionValue">0.01</span></label>
+      <input type="range" id="frictionControl" min="0" max="0.1" step="0.001" value="0.01">
     </div>
+    
+    <div class="button-group">
+      <button id="startSimulation" class="btn-effect">시작</button>
+      <button id="stopSimulation" class="btn-effect">정지</button>
+      <button id="resetSimulation" class="btn-effect">초기화</button>
+    </div>
+  </div>
+  
+  <canvas id="simulationCanvas" width="700" height="400"></canvas>
+  
+  <div class="simulation-info">
+    <h3>물리 시뮬레이션 소개</h3>
+    <p>이 시뮬레이션은 기본적인 물리 법칙을 시각적으로 보여줍니다. 입자들이 중력과 마찰력에 따라 어떻게 움직이는지 관찰할 수 있습니다.</p>
+    <p>위의 컨트롤을 사용하여 중력과 마찰력의 크기를 조절해 보세요.</p>
+  </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script>
-    // 애니메이션 효과를 위한 스크립트
-    document.addEventListener('DOMContentLoaded', function() {
-        // 페이지 로드 시 요소들을 순차적으로 표시
-        const fadeElements = document.querySelectorAll('.fade-in');
-        fadeElements.forEach((el, index) => {
-            setTimeout(() => {
-                el.classList.add('visible');
-            }, 100 * index);
-        });
-    });
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/simulation.js') }}"></script>
 {% endblock %}
