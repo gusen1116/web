@@ -1,3 +1,4 @@
+<!-- 개선된 base.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -7,7 +8,6 @@
     <title>{% block title %}과학 블로그{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="{{ url_for('static', filename='js/main-slider.js') }}"></script>
     {% block head %}{% endblock %}
     <!-- 테마 초기화 스크립트 - 본문 상단에 위치시켜 깜빡임 방지 -->
     <script>
@@ -23,7 +23,7 @@
         }
     </script>
 </head>
-<body class="{% block body_class %}{% endblock %}">
+<body class="{% block body_class %}{% endblock %} theme-transition">
     <!-- 헤더 -->
     <header>
         <div class="header-container">
@@ -69,10 +69,20 @@
 
     <footer>
         <div class="footer-container">
-            <p>&copy; 2025 | wagusen</p>
-            <div class="footer-links">
-                <a href="#">개인정보처리방침</a>
-                <a href="#">문의하기</a>
+            <div class="footer-left">
+                <div class="footer-links">
+                    <a href="https://github.com/username" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-github social-icon"></i>
+                        GitHub
+                    </a>
+                    <a href="mailto:example@example.com">
+                        <i class="fas fa-envelope social-icon"></i>
+                        Contact
+                    </a>
+                </div>
+            </div>
+            <div class="footer-right">
+                <p>&copy; 2025 | wagusen</p>
             </div>
         </div>
     </footer>
@@ -81,3 +91,39 @@
     {% block scripts %}{% endblock %}
 </body>
 </html>
+
+<!-- 개선된 슬라이더/배너 (index.html에 적용) -->
+<div class="slider-container">
+  <div class="slider-wrapper">
+    <div class="slide">
+      <div class="slide-overlay"></div>
+      <div class="slide-content">
+        <h1>물리학과 구센</h1>
+        <p>과학 시뮬레이션과 프로그래밍의 조화, 더 나은 이해를 위한 플랫폼</p>
+      </div>
+    </div>
+    <div class="slide">
+      <div class="slide-overlay"></div>
+      <div class="slide-content">
+        <h1>인터랙티브 시뮬레이션</h1>
+        <p>실시간으로 물리 법칙을 경험하고 탐구해보세요</p>
+      </div>
+    </div>
+    <div class="slide">
+      <div class="slide-overlay"></div>
+      <div class="slide-content">
+        <h1>기술 블로그</h1>
+        <p>웹 개발, 프로그래밍 그리고 과학에 대한 깊이 있는 이야기</p>
+      </div>
+    </div>
+  </div>
+  <div class="slider-indicators"></div>
+  <div class="slider-nav">
+    <button class="slider-nav-btn prev-btn" aria-label="이전 슬라이드">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <button class="slider-nav-btn next-btn" aria-label="다음 슬라이드">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+</div>

@@ -1,205 +1,420 @@
-/* navigation.css - 내비게이션 컴포넌트 스타일 */
+/* 개선된 푸터 스타일링 - app/static/css/components/navigation.css 파일에 추가 */
 
-/* 헤더 컨테이너 스타일 */
-header {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    box-shadow: var(--shadow-md);
-    position: relative;
-    z-index: var(--z-index-fixed);
-    width: 100%;
-}
-
-.header-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--spacing-4) var(--spacing-8); /* 여백 증가 */
-    max-width: var(--content-7xl);
-    margin: 0 auto;
-}
-
-/* 왼쪽 네비게이션 스타일 */
-.left-nav ul {
-    display: flex;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    gap: var(--spacing-4);
-}
-
-.left-nav a {
-    color: var(--text-primary);
-    text-decoration: none;
-    font-weight: var(--font-weight-medium);
-    transition: opacity var(--transition-fast);
-}
-
-.left-nav a:hover {
-    opacity: 0.8;
-    text-decoration: none;
-}
-
-/* 로고 스타일 */
-.logo a {
-    display: flex;
-    align-items: center;
-}
-
-/* 오른쪽 네비게이션 스타일 */
-.right-nav {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-4);
-}
-
-.right-nav a {
-    color: var(--text-primary);
-    text-decoration: none;
-    font-weight: var(--font-weight-medium);
-    transition: opacity var(--transition-fast);
-}
-
-.right-nav a:hover {
-    opacity: 0.8;
-    text-decoration: none;
-}
-
-/* 검색 폼 스타일 */
-.right-nav form {
-    display: flex;
-    align-items: center;
-    background-color: var(--bg-secondary);
-    border-radius: var(--radius-full);
-    padding: var(--spacing-1) var(--spacing-3);
-}
-
-.right-nav input {
-    background: transparent;
-    border: none;
-    color: var(--text-primary);
-    padding: var(--spacing-1) var(--spacing-2);
-    width: 180px;
-}
-
-.right-nav input::placeholder {
-    color: var(--text-tertiary);
-}
-
-.right-nav button {
-    background: transparent;
-    border: none;
-    color: var(--text-primary);
-    cursor: pointer;
-}
-
-/* 푸터 크기 증가 */
+/* 푸터 개선 */
 footer {
     width: 100%;
-    padding: var(--spacing-10) 0; /* 패딩 증가 */
+    padding: var(--spacing-8) 0;
     background-color: var(--bg-secondary);
     border-top: 1px solid var(--border-color);
-    margin-top: var(--spacing-12); /* 마진 증가 */
-}
-
-.footer-container {
+    margin-top: var(--spacing-12);
+  }
+  
+  .footer-container {
     width: 100%;
     max-width: var(--content-7xl);
     margin: 0 auto;
     padding: 0 var(--spacing-6);
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    font-size: var(--font-size-md); /* 폰트 크기 증가 */
-}
-
-.footer-links {
+    align-items: flex-start;
+  }
+  
+  .footer-left {
     display: flex;
-    gap: var(--spacing-6); /* 간격 증가 */
-}
-
-.footer-links a {
+    flex-direction: column;
+    gap: var(--spacing-3);
+  }
+  
+  .footer-links {
+    display: flex;
+    gap: var(--spacing-4);
+    align-items: center;
+  }
+  
+  .footer-links a {
     color: var(--text-secondary);
     text-decoration: none;
     transition: color var(--transition-fast);
-    padding: var(--spacing-2); /* 클릭 영역 증가 */
-}
-
-/* 기본 네비게이션 */
-.navbar {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+  }
+  
+  .footer-links a:hover {
+    color: var(--primary-500);
+  }
+  
+  .footer-right {
+    text-align: right;
+  }
+  
+  /* 소셜 아이콘 */
+  .social-icon {
+    font-size: 1.25rem;
+    margin-right: var(--spacing-1);
+  }
+  
+  /* 푸터 반응형 */
+  @media (max-width: 768px) {
+    .footer-container {
+      flex-direction: column;
+      gap: var(--spacing-4);
+    }
+    
+    .footer-right {
+      text-align: left;
+      margin-top: var(--spacing-4);
+    }
+  }
+  
+  /* 개선된 헤더 스타일링 - app/static/css/components/navigation.css 파일에 추가 */
+  header {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-index-fixed);
+    width: 100%;
+    transition: transform 0.3s ease;
+  }
+  
+  .header-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--spacing-4) var(--spacing-6);
-    background-color: var(--bg-primary);
-    box-shadow: var(--shadow-sm);
-    position: relative;
-    z-index: var(--z-index-navbar);
-}
+    padding: var(--spacing-3) var(--spacing-6);
+    max-width: var(--content-7xl);
+    margin: 0 auto;
+  }
   
-.navbar-fixed {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-}
+  /* 로고 스타일링 */
+  .logo img {
+    height: 40px;
+    width: auto;
+    transition: transform var(--transition-fast);
+  }
   
-.navbar-transparent {
-    background-color: transparent;
-    box-shadow: none;
-}
+  .logo:hover img {
+    transform: scale(1.05);
+  }
   
-.navbar-brand {
+  /* 네비게이션 메뉴 스타일링 */
+  .left-nav ul {
     display: flex;
-    align-items: center;
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-bold);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: var(--spacing-4);
+  }
+  
+  .left-nav a {
     color: var(--text-primary);
     text-decoration: none;
-}
+    font-weight: var(--font-weight-medium);
+    transition: all var(--transition-fast);
+    position: relative;
+    padding: var(--spacing-2) 0;
+  }
   
-.navbar-brand img {
-    height: 40px;
-    margin-right: var(--spacing-2);
-}
-
-/* 로고 크기 제어 */
-.logo {
+  .left-nav a:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--primary-500);
+    transition: width var(--transition-normal);
+  }
+  
+  .left-nav a:hover:after {
+    width: 100%;
+  }
+  
+  .left-nav a:hover {
+    color: var(--primary-500);
+  }
+  
+  /* 오른쪽 네비게이션 및 검색 */
+  .right-nav {
     display: flex;
     align-items: center;
-}
-
-.logo img {
-    height: 40px; /* 원하는 높이 설정 */
-    width: auto; /* 가로세로 비율 유지 */
-    max-width: 100%; /* 반응형 보장 */
-}
-
-/* 필요시 반응형 조정 */
-@media (max-width: 768px) {
-    .logo img {
-        height: 30px; /* 모바일 기기에서 더 작게 */
-    }
-    
+    gap: var(--spacing-4);
+  }
+  
+  .right-nav form {
+    display: flex;
+    align-items: center;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-full);
+    padding: var(--spacing-1) var(--spacing-3);
+    transition: box-shadow var(--transition-fast);
+  }
+  
+  .right-nav form:focus-within {
+    box-shadow: 0 0 0 2px var(--primary-300);
+  }
+  
+  .right-nav input {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    padding: var(--spacing-1) var(--spacing-2);
+    width: 180px;
+    outline: none;
+  }
+  
+  .right-nav button {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-1);
+  }
+  
+  /* 테마 토글 버튼 */
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+  
+  .theme-toggle:hover {
+    background-color: var(--bg-tertiary);
+    transform: rotate(15deg);
+  }
+  
+  /* 반응형 헤더 */
+  @media (max-width: 768px) {
     .header-container {
-        padding: var(--spacing-2) var(--spacing-3);
+      padding: var(--spacing-2) var(--spacing-3);
     }
     
     .left-nav ul {
-        gap: var(--spacing-2);
+      gap: var(--spacing-2);
     }
     
-    .right-nav {
-        gap: var(--spacing-2);
+    .right-nav form {
+      display: none;
+    }
+  }
+  
+  /* 개선된 슬라이더/배너 스타일링 - app/static/css/base/silder.css 파일을 수정 */
+  .slider-container {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto 2rem;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    height: 350px;
+  }
+  
+  .slider-wrapper {
+    display: flex;
+    width: 300%;
+    height: 100%;
+    transition: transform 0.5s ease-in-out;
+  }
+  
+  .slide {
+    position: relative;
+    flex: 0 0 33.333333%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 5rem 3rem;
+    color: white;
+    transition: opacity 0.5s ease;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+  }
+  
+  .slide-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+  }
+  
+  .slide-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6));
+    z-index: 1;
+  }
+  
+  .slide h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+  }
+  
+  .slide p {
+    font-size: 1.2rem;
+    max-width: 600px;
+    margin: 0 auto;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+    transition-delay: 0.1s;
+  }
+  
+  .slide.active h1,
+  .slide.active p {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  
+  .slide:nth-child(1) {
+    background: linear-gradient(135deg, var(--primary-400), var(--primary-600));
+  }
+  
+  .slide:nth-child(2) {
+    background: linear-gradient(135deg, var(--success-400), var(--success-600));
+  }
+  
+  .slide:nth-child(3) {
+    background: linear-gradient(135deg, var(--warning-400), var(--warning-600));
+  }
+  
+  .slider-nav {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 1rem;
+    transform: translateY(-50%);
+    z-index: 10;
+  }
+  
+  .slider-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    transition: all 0.3s ease;
+    opacity: 0.7;
+  }
+  
+  .slider-nav-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    opacity: 1;
+  }
+  
+  .slider-indicators {
+    position: absolute;
+    bottom: var(--spacing-4);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: var(--spacing-2);
+    z-index: 10;
+  }
+  
+  .indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .indicator.active {
+    background-color: white;
+    transform: scale(1.2);
+  }
+  
+  /* 반응형 조정 */
+  @media (max-width: 768px) {
+    .slide {
+      padding: 3rem 1rem;
     }
     
-    .right-nav input {
-        width: 120px;
+    .slide h1 {
+      font-size: 1.8rem;
     }
     
-    .footer-container {
-        flex-direction: column;
-        gap: var(--spacing-2);
-        text-align: center;
+    .slide p {
+      font-size: 1rem;
     }
-}
+  }
+  
+  /* 다크/라이트 모드 개선 - app/static/css/utils/theme.css 파일에 추가 */
+  .dark-theme {
+    --bg-primary: var(--neutral-900);
+    --bg-secondary: var(--neutral-800);
+    --bg-tertiary: var(--neutral-700);
+    --text-primary: var(--neutral-50);
+    --text-secondary: var(--neutral-300);
+    --text-tertiary: var(--neutral-500);
+    --border-color: var(--neutral-700);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  }
+  
+  .dark-theme .theme-toggle i {
+    color: #FFD700;
+  }
+  
+  body, html {
+    transition: background-color var(--transition-normal), color var(--transition-normal);
+  }
+  
+  /* 테마에 따라 바뀌는 요소들의 전환 */
+  .theme-transition, 
+  .theme-transition * {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-duration: 0.3s;
+    transition-timing-function: ease;
+  }
+  
+  /* 시뮬레이션 요소를 위한 다크모드 개선 */
+  .dark-theme canvas#simulationCanvas {
+    background-color: var(--neutral-800);
+    border: 1px solid var(--neutral-700);
+  }
+  
+  /* 다크모드에서 버튼 대비 개선 */
+  .dark-theme .btn-effect {
+    background-color: var(--primary-600);
+  }
+  
+  .dark-theme .btn-effect:hover {
+    background-color: var(--primary-500);
+  }
