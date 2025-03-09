@@ -219,6 +219,21 @@ class ContentManager {
                         html: node.innerHTML,
                         attributes: preserveAttributes(node)
                     });
+                } else if (node.classList.contains('iframe-embed-container')) {
+                    // iframe 임베드 처리
+                    const iframe = node.querySelector('iframe');
+                    if (iframe) {
+                        blocks.push({
+                            type: 'iframe',
+                            src: iframe.src,
+                            width: iframe.style.width,
+                            height: iframe.style.height,
+                            html: node.innerHTML,
+                            attributes: preserveAttributes(node)
+                        });
+                    } else {
+                        this.processContentBlocks(node.childNodes, blocks);
+                    }
                 } else {
                     // 일반 div는 내부 노드 처리
                     this.processContentBlocks(node.childNodes, blocks);
@@ -312,9 +327,129 @@ class ContentManager {
                     html += listHtml;
                     break;
                     
-                // 나머지 케이스들...
-                // (다른 블록 유형 처리 코드는 동일하게 유지하고, 너무 길어서 축약합니다)
-                
+                case 'image':
+                    let imgHtml = `<img src="${block.url}" alt="${block.alt || ''}" `;
+                    
+                    // 추가 속성 처리
+                    if (block.attributes) {
+                        const attrString = Object.entries(block.attributes)
+                            .filter(([key]) => key !== 'src' && key !== 'alt')
+                            .map(([key, value]) => `${key}="${value}"`)
+                            .join(' ');
+                        
+                        if (attrString) {
+                            imgHtml += `${attrString} `;
+                        }
+                    }
+                    
+                    imgHtml += '>';
+                    
+                    // 캡션 추가
+                    if (block.caption) {
+                        imgHtml = `<figure>${imgHtml}<figcaption>${block.caption}</figcaption></figure>`;
+                    }
+                    
+                    html += imgHtml;
+                    break;
+                    
+                case 'embed':
+                    if (block.html) {
+                        html += block.html;
+                    } else if (block.service === 'youtube' && block.data?.videoId) {
+                        html += `<div class="media-embed youtube-embed">
+                            <iframe width="560" height="315" src="https://www.youtube.com/embed/${block.data.videoId}" 
+                            frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; 
+                            gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            <div class="embed-caption">YouTube 동영상</div>
+                        </div>`;
+                    } else if (block.service === 'twitter' && block.data?.tweetId) {
+                        html += `<div class="media-embed twitter-embed" data-tweet-id="${block.data.tweetId}">
+                            <blockquote class="twitter-tweet" data-dnt="true">
+                                <a href="https://twitter.com/x/status/${block.data.tweetId}"></a>
+                            </blockquote>
+                            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+                            <div class="embed-caption">Twitter 포스트</div>
+                        </div>`;
+                    } else if (block.service === 'twitch' && block.data?.videoId) {
+                        html += `<div class="media-embed twitch-embed">
+                            <iframe src="https://player.twitch.tv/?video=${block.data.videoId}&parent=${window.location.hostname}" 
+                            frameborder="0" allowfullscreen="true" scrolling="no" height="315" width="560"></iframe>
+                            <div class="embed-caption">Twitch 동영상</div>
+                        </div>`;
+                    }
+                    break;
+                    
+                case 'iframe':
+                    if (block.src) {
+                        html += `<div class="iframe-embed-container"${block.attributes ? ' ' + Object.entries(block.attributes).map(([k, v]) => `${k}="${v}"`).join(' ') : ''}>
+                            <iframe 
+                                src="${block.src}" 
+                                style="width: ${block.width || '100%'}; height: ${block.height || '400px'}; border: 1px solid #ddd;" 
+                                allowfullscreen
+                                loading="lazy" 
+                                sandbox="allow-scripts allow-same-origin allow-forms">
+                            </iframe>
+                            <div class="embed-caption" contenteditable="true">iframe 임베드 (더블클릭으로 편집)</div>
+                        </div>`;
+                    } else if (block.html) {
+                        html += block.html;
+                    }
+                    break;
+                    
+                case 'file':
+                    if (block.data && block.data.url) {
+                        html += `<div class="file-preview" data-file-url="${block.data.url}" 
+                                data-file-name="${block.data.name}" data-file-type="${block.data.type}" 
+                                data-file-size="${block.data.size}">
+                            <div class="file-icon"><i class="fas fa-file"></i></div>
+                            <div class="file-info">
+                                <div class="file-name">${block.data.name}</div>
+                                <div class="file-meta">${block.data.type}, ${block.data.size}</div>
+                            </div>
+                            <a href="${block.data.url}" class="file-download" target="_blank" 
+                            download="${block.data.name}">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>`;
+                    } else if (block.html) {
+                        html += block.html;
+                    }
+                    break;
+                    
+                case 'table':
+                    let tableHtml = '<table class="editor-table"><tbody>';
+                    
+                    if (block.attributes) {
+                        tableHtml = applyAttributes(tableHtml, block.attributes);
+                    }
+                    
+                    if (block.rows && block.rows.length > 0) {
+                        block.rows.forEach(row => {
+                            tableHtml += '<tr>';
+                            if (row && row.length > 0) {
+                                row.forEach(cell => {
+                                    const cellTag = cell.isHeader ? 'th' : 'td';
+                                    let cellHtml = `<${cellTag}>${cell.content}</${cellTag}>`;
+                                    
+                                    if (cell.attributes) {
+                                        cellHtml = applyAttributes(cellHtml, cell.attributes);
+                                    }
+                                    
+                                    tableHtml += cellHtml;
+                                });
+                            }
+                            tableHtml += '</tr>';
+                        });
+                    }
+                    
+                    tableHtml += '</tbody></table>';
+                    html += tableHtml;
+                    break;
+                    
+                case 'delimiter':
+                    html += '<hr>';
+                    break;
+                    
                 default:
                     console.warn('지원하지 않는 블록 유형:', block.type);
                     break;

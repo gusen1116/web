@@ -31,8 +31,8 @@ class AutoSave {
         // 자동 저장 상태표시 요소 생성
         this.createStatusElement();
         
-        // 페이지 언로드 시 경고
-        this.setupBeforeUnloadWarning();
+        // 페이지 언로드 시 처리 (경고창 제거 버전)
+        this.setupBeforeUnloadHandler();
     }
     
     startAutoSaveInterval() {
@@ -84,16 +84,21 @@ class AutoSave {
         }
     }
     
-    setupBeforeUnloadWarning() {
+    // 페이지 이탈 시 경고창 대신 자동 저장만 수행
+    setupBeforeUnloadHandler() {
         window.addEventListener('beforeunload', (e) => {
             if (!this.contentManager) return;
             
             const currentContent = JSON.stringify(this.contentManager.getContentObject());
             if (currentContent !== this.lastSavedContent && currentContent.trim() !== '') {
-                e.preventDefault();
-                const message = '저장되지 않은 변경사항이 있습니다. 정말 나가시겠습니까?';
-                e.returnValue = message;
-                return message;
+                // 경고창 대신 자동 저장만 수행
+                const postTitle = this.titleInput?.value || '';
+                if (postTitle) {
+                    this.saveContentToLocalStorage(postTitle, currentContent);
+                    this.updateLastSavedTime();
+                }
+                
+                // 경고창 표시 코드 제거 (e.preventDefault() 및 e.returnValue 설정 제거)
             }
         });
     }

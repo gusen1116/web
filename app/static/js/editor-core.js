@@ -4,6 +4,8 @@ import ToolbarManager from './toolbar-manager.js';
 import AutoSave from './autosave.js';
 import MediaHandler from './media-handler.js';
 import Utils from './utils.js';
+import CodeHighlighter from './code-highlighter.js';
+import EmbedHandler from './embed-handler.js';
 
 class EditorCore {
     constructor() {
@@ -25,6 +27,8 @@ class EditorCore {
         this.contentManager = new ContentManager(this.contentArea);
         this.toolbar = new ToolbarManager(this.contentArea);
         this.mediaHandler = new MediaHandler(this.contentArea);
+        this.embedHandler = new EmbedHandler(this.contentArea);
+        this.codeHighlighter = new CodeHighlighter();
         
         // AutoSave는 별도 메서드에서 초기화
         this.autoSave = null;
@@ -52,13 +56,217 @@ class EditorCore {
             this.contentManager.loadExistingContent();
         }
         
+        // 에디터 UI 강화
+        this.enhanceEditorUI();
+        
         // 이벤트 리스너 설정
         this.setupEventListeners();
+        
+        // 코드 하이라이팅 적용
+        setTimeout(() => {
+            this.applyCodeHighlighting();
+        }, 500);
         
         // AutoSave 초기화 (마지막 단계)
         this.initAutoSave();
     }
     
+    // 에디터 UI 강화 메서드
+    enhanceEditorUI() {
+        // 제목 입력 UI 강화
+        this.enhanceTitleInput();
+        
+        // 툴바 UI 개선
+        this.enhanceToolbar();
+        
+        // 에디터 컨테이너에 클래스 추가
+        if (this.editorContainer) {
+            this.editorContainer.classList.add('enhanced-editor');
+        }
+        
+        // 에디터 영역 크기 조정
+        this.adjustEditorSize();
+        
+        // 글머리 정렬 문제 해결 스타일 추가
+        this.addFixingStyles();
+    }
+    
+    // 제목 입력 UI 강화
+    enhanceTitleInput() {
+        if (!this.titleInput) return;
+        
+        // 제목 입력 스타일 강화
+        this.titleInput.classList.add('enhanced-title-input');
+        
+        // 제목 입력 필드 강조 애니메이션
+        const titleWrapper = document.createElement('div');
+        titleWrapper.className = 'title-input-wrapper';
+        
+        // 제목 라벨 추가
+        const titleLabel = document.createElement('label');
+        titleLabel.htmlFor = this.titleInput.id || 'post-title';
+        titleLabel.className = 'title-label';
+        titleLabel.textContent = '제목을 입력하세요';
+        
+        // DOM 구조 재구성
+        if (this.titleInput.parentNode) {
+            this.titleInput.parentNode.insertBefore(titleWrapper, this.titleInput);
+            titleWrapper.appendChild(titleLabel);
+            titleWrapper.appendChild(this.titleInput);
+            
+            // 포커스 상태에 따라 강조 효과
+            this.titleInput.addEventListener('focus', () => {
+                titleWrapper.classList.add('focused');
+            });
+            
+            this.titleInput.addEventListener('blur', () => {
+                titleWrapper.classList.remove('focused');
+                if (!this.titleInput.value.trim()) {
+                    titleWrapper.classList.add('empty');
+                    // 애니메이션으로 주의 끌기
+                    titleWrapper.classList.add('attention');
+                    setTimeout(() => {
+                        titleWrapper.classList.remove('attention');
+                    }, 1000);
+                } else {
+                    titleWrapper.classList.remove('empty');
+                }
+            });
+            
+            // 초기 상태 설정
+            if (!this.titleInput.value.trim()) {
+                titleWrapper.classList.add('empty');
+            }
+        }
+    }
+    
+    // 툴바 UI 개선
+    enhanceToolbar() {
+        const toolbar = document.querySelector('.editor-toolbar');
+        if (!toolbar) return;
+        
+        // 툴바에 iframe 삽입 버튼 추가
+        const iframeButton = document.createElement('button');
+        iframeButton.type = 'button';
+        iframeButton.className = 'toolbar-button';
+        iframeButton.dataset.command = 'insertIframe';
+        iframeButton.title = 'iframe 삽입';
+        iframeButton.innerHTML = '<i class="fas fa-window-maximize"></i>';
+        
+        // 적절한 위치에 버튼 삽입
+        const imageButton = toolbar.querySelector('[data-command="insertImage"]');
+        if (imageButton && imageButton.parentNode) {
+            imageButton.parentNode.insertBefore(iframeButton, imageButton.nextSibling);
+        } else {
+            toolbar.appendChild(iframeButton);
+        }
+    }
+    
+    // 코드 하이라이팅 적용
+    applyCodeHighlighting() {
+        if (!this.contentArea || !this.codeHighlighter) return;
+        
+        // 코드 블록 찾기
+        const codeBlocks = this.contentArea.querySelectorAll('pre code');
+        
+        // 각 코드 블록에 하이라이팅 적용
+        codeBlocks.forEach(codeBlock => {
+            this.codeHighlighter.highlight(codeBlock);
+        });
+    }
+    
+    // 글머리 정렬 문제 해결을 위한 스타일 추가
+    addFixingStyles() {
+        const style = document.createElement('style');
+        style.textContent = `
+            #content-area h1, #content-area h2, #content-area h3, 
+            #content-area h4, #content-area h5, #content-area h6 {
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                margin-left: 0;
+                overflow-wrap: break-word;
+            }
+            
+            .title-input-wrapper {
+                position: relative;
+                margin-bottom: 20px;
+                transition: all 0.3s ease;
+                border-bottom: 2px solid #ddd;
+            }
+            
+            .title-label {
+                position: absolute;
+                top: 0;
+                left: 0;
+                font-size: 14px;
+                color: #999;
+                transition: all 0.3s ease;
+                pointer-events: none;
+            }
+            
+            .enhanced-title-input {
+                width: 100%;
+                padding: 10px 0;
+                font-size: 24px;
+                border: none;
+                background: transparent;
+                outline: none;
+            }
+            
+            .title-input-wrapper.focused {
+                border-bottom-color: #0366d6;
+            }
+            
+            .title-input-wrapper.focused .title-label {
+                top: -20px;
+                font-size: 12px;
+                color: #0366d6;
+            }
+            
+            .title-input-wrapper.empty.attention {
+                animation: pulse 1s ease;
+            }
+            
+            @keyframes pulse {
+                0% { border-bottom-color: #ddd; }
+                50% { border-bottom-color: #ff3860; }
+                100% { border-bottom-color: #ddd; }
+            }
+            
+            .iframe-embed-container {
+                margin: 1em 0;
+                border-radius: 4px;
+                overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+            
+            .embed-caption {
+                padding: 5px 10px;
+                background-color: #f5f5f5;
+                font-size: 14px;
+                color: #666;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // 에디터 영역 크기 조정
+    adjustEditorSize() {
+        if (!this.contentArea) return;
+        
+        // 에디터 영역 최소 높이 설정
+        this.contentArea.style.minHeight = '300px';
+        
+        // 컨테이너 최대 너비 제한으로 글머리 왼쪽 치우침 방지
+        const editorWrapper = this.contentArea.closest('.editor-wrapper') || this.editorContainer;
+        if (editorWrapper) {
+            editorWrapper.style.maxWidth = '100%';
+            editorWrapper.style.boxSizing = 'border-box';
+        }
+    }
+    
+    // 페이지 나갈 때 경고창 제거를 위한 AutoSave 수정
     initAutoSave() {
         // AutoSave 매개변수 구성 (순환 참조 없이)
         const autoSaveParams = {
@@ -75,59 +283,78 @@ class EditorCore {
         this.autoSave.init();
     }
     
+    // 이벤트 리스너 설정 - 페이지 이탈 경고창 제거
     setupEventListeners() {
         // 드래그 앤 드롭 이벤트 설정
         this.setupDragAndDrop();
         
-        // 저장 버튼 이벤트
+        // 저장 버튼 이벤트 - 경고창 없이 저장
         if (this.saveButton) {
-            this.saveButton.addEventListener('click', this.savePost.bind(this));
+            this.saveButton.addEventListener('click', this.savePostWithoutWarning.bind(this));
+        }
+        
+        // 이미지 선택 이벤트 리스너 추가
+        if (this.contentArea) {
+            this.contentArea.addEventListener('click', (e) => {
+                if (e.target.tagName === 'IMG') {
+                    // 이미 선택된 이미지 클래스 제거
+                    const allImages = this.contentArea.querySelectorAll('img');
+                    allImages.forEach(img => img.classList.remove('selected'));
+                    
+                    // 클릭한 이미지 선택 표시
+                    e.target.classList.add('selected');
+                }
+            });
         }
     }
     
+    // 드래그 앤 드롭으로 이미지 업로드 설정
     setupDragAndDrop() {
-        if (!this.contentArea) return;
+        if (!this.contentArea || !this.mediaHandler) return;
         
-        const throttledDragOver = Utils.throttle((e) => {
+        // 드래그 오버 처리
+        this.contentArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             this.contentArea.classList.add('dragover');
-        }, 100);
+        });
         
-        this.contentArea.addEventListener('dragover', throttledDragOver);
-        
+        // 드래그 떠남 처리
         this.contentArea.addEventListener('dragleave', () => {
             this.contentArea.classList.remove('dragover');
         });
         
+        // 드롭 처리
         this.contentArea.addEventListener('drop', (e) => {
             e.preventDefault();
             this.contentArea.classList.remove('dragover');
             
+            // 파일 확인 및 처리
             if (e.dataTransfer.files.length > 0) {
                 const file = e.dataTransfer.files[0];
-                if (file.type.startsWith('image/') && this.mediaHandler) {
+                if (file.type.startsWith('image/')) {
                     this.mediaHandler.uploadImage(file);
                 }
             }
         });
     }
     
-    savePost() {
+    // 경고창 없이 저장하는 메서드
+    savePostWithoutWarning() {
         if (!this.titleInput || !this.contentArea) {
             console.error('필수 에디터 요소가 없습니다.');
             return;
         }
         
-        // 기본 유효성 검사
+        // 제목이 비어있는 경우 제목 입력 필드에 주의 환기
         if (!this.titleInput.value.trim()) {
-            alert('제목을 입력해주세요.');
+            const titleWrapper = this.titleInput.closest('.title-input-wrapper');
+            if (titleWrapper) {
+                titleWrapper.classList.add('empty', 'attention');
+                setTimeout(() => {
+                    titleWrapper.classList.remove('attention');
+                }, 1000);
+            }
             this.titleInput.focus();
-            return;
-        }
-        
-        if (!this.contentArea.textContent.trim()) {
-            alert('내용을 입력해주세요.');
-            this.contentArea.focus();
             return;
         }
         
@@ -185,7 +412,8 @@ class EditorCore {
                 const storageKey = postId ? `autosave_post_${postId}` : 'autosave_new_post';
                 localStorage.removeItem(storageKey);
                 
-                // 성공 페이지로 이동
+                // 성공 페이지로 이동 - beforeunload 경고 우회
+                window.onbeforeunload = null;
                 window.location.href = postId ? `/blog/post/${postId}` : `/blog/post/${data.id}`;
             } else {
                 alert('저장 실패: ' + (data.message || '알 수 없는 오류'));

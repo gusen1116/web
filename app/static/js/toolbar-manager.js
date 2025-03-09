@@ -1,11 +1,13 @@
 // toolbar-manager.js
 import Utils from './utils.js';
+import EmbedHandler from './embed-handler.js';
 
 class ToolbarManager {
     constructor(contentArea) {
         // 직접 요소만 저장 (순환 참조 없음)
         this.contentArea = contentArea;
         this.toolbarButtons = document.querySelectorAll('.toolbar-button');
+        this.embedHandler = new EmbedHandler(contentArea);
         
         // 텍스트 크기 조절 상태 초기화
         this.currentFontSize = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--content-font-size') || '16px');
@@ -109,6 +111,9 @@ class ToolbarManager {
                 break;
             case 'adjustTextSize':
                 this.adjustTextSize(value);
+                break;
+            case 'insertIframe':
+                this.embedHandler.insertIframe();
                 break;
             default:
                 // 기본 명령 실행
