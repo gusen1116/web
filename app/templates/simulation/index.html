@@ -3,9 +3,12 @@
 {% block title %}물리 시뮬레이션{% endblock %}
 
 {% block content %}
-<div class="blog-container">
-    <h2>물리 시뮬레이션</h2>
-    
+<div class="section-header">
+    <h1>물리 시뮬레이션</h1>
+    <p>물리 법칙을 시각적으로 탐험하고 실험해보세요.</p>
+</div>
+
+<div class="simulation-container card">
     <div class="simulation-controls">
         <div class="control-group">
             <label for="gravityControl">중력: <span id="gravityValue">9.8</span> m/s²</label>
@@ -18,23 +21,33 @@
         </div>
         
         <div class="button-group">
-            <button id="startSimulation">시작</button>
-            <button id="stopSimulation">정지</button>
-            <button id="resetSimulation">초기화</button>
+            <button id="startSimulation" class="btn">시작</button>
+            <button id="stopSimulation" class="btn btn-secondary">정지</button>
+            <button id="resetSimulation" class="btn btn-secondary">초기화</button>
         </div>
     </div>
     
-    <canvas id="simulationCanvas" width="700" height="400"></canvas>
+    <canvas id="simulationCanvas"></canvas>
     
     <div class="simulation-info">
         <h3>물리 시뮬레이션 소개</h3>
         <p>이 시뮬레이션은 기본적인 물리 법칙을 시각적으로 보여줍니다. 입자들이 중력과 마찰력에 따라 어떻게 움직이는지 관찰할 수 있습니다.</p>
-        <p>위의 컨트롤을 사용하여 중력과 마찰력의 크기를 조절해 보세요.</p>
+        <p>컨트롤을 사용하여 물리 매개변수를 조절해보고, 그 결과가 입자의 움직임에 어떤 영향을 미치는지 확인해보세요.</p>
+        
+        <div class="simulation-theory">
+            <h4>관련 물리 이론</h4>
+            <p>이 시뮬레이션은 다음과 같은 물리 법칙을 따릅니다:</p>
+            <ul>
+                <li><strong>뉴턴의 운동 법칙</strong>: 물체는 외부 힘이 작용하지 않는 한 등속도 운동을 유지합니다.</li>
+                <li><strong>중력</strong>: 모든 물체는 지구 중력에 의해 아래로 끌어당겨집니다.</li>
+                <li><strong>마찰력</strong>: 물체의 움직임에 반대 방향으로 작용하여 속도를 감소시킵니다.</li>
+                <li><strong>충돌 역학</strong>: 물체가 벽과 충돌할 때 에너지 손실이 발생합니다.</li>
+            </ul>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.min.js"></script>
-<script src="{{ url_for('static', filename='js/simulation.js') }}"></script>
 {% endblock %}

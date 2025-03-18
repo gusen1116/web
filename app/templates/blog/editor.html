@@ -2,19 +2,14 @@
 
 {% block title %}{% if post %}글 수정{% else %}새 글 작성{% endif %}{% endblock %}
 
-{% block head %}
-<!-- 에디터 스타일시트 -->
-<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/editor.css') }}">
-{% endblock %}
-
 {% block content %}
-<div id="editor-container" class="blog-container editor-container" {% if post %}data-post-id="{{ post.id }}"{% endif %}>
-    <h1 class="editor-title">{% if post %}글 수정{% else %}새 글 작성{% endif %}</h1>
+<div id="editor-container" class="editor-container" {% if post %}data-post-id="{{ post.id }}"{% endif %}>
+    <h1>{% if post %}글 수정{% else %}새 글 작성{% endif %}</h1>
     
     <div class="editor-form">
         <div class="form-group">
             <label for="post-title">제목</label>
-            <input type="text" id="post-title" class="form-control" value="{% if post %}{{ post.title }}{% endif %}">
+            <input type="text" id="post-title" class="form-control" value="{% if post %}{{ post.title }}{% endif %}" placeholder="제목을 입력하세요">
         </div>
         
         <div class="form-group">
@@ -31,49 +26,23 @@
             <label for="post-tags">태그 (쉼표로 구분)</label>
             <input type="text" id="post-tags" class="form-control" 
                 value="{% if post %}{% for tag in post.tags %}{{ tag.name }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}" 
-                placeholder="태그1, 태그2, 태그3">
+                placeholder="예: 물리, 프로그래밍, 시뮬레이션">
         </div>
         
         <div class="form-group">
             <label>내용</label>
             
-            <!-- 에디터 툴바 -->
+            <!-- 간소화된 에디터 툴바 -->
             <div class="editor-toolbar">
                 <div class="toolbar-group">
                     <button class="toolbar-button" data-command="bold" title="굵게"><i class="fas fa-bold"></i></button>
                     <button class="toolbar-button" data-command="italic" title="기울임"><i class="fas fa-italic"></i></button>
                     <button class="toolbar-button" data-command="underline" title="밑줄"><i class="fas fa-underline"></i></button>
-                    <button class="toolbar-button" data-command="strikeThrough" title="취소선"><i class="fas fa-strikethrough"></i></button>
-                </div>
-                
-                <div class="toolbar-separator"></div>
-                
-                <!-- 글자 색상 변경 -->
-                <div class="toolbar-group">
-                    <button class="toolbar-button" data-command="foreColor" title="글자 색상"><i class="fas fa-palette"></i></button>
-                    <button class="toolbar-button" data-command="hiliteColor" title="배경 색상"><i class="fas fa-fill-drip"></i></button>
-                </div>
-                
-                <div class="toolbar-separator"></div>
-                
-                <!-- 글자 크기 변경 -->
-                <div class="toolbar-group">
-                    <select class="toolbar-select" data-command="fontSize" title="글자 크기">
-                        <option value="">글자 크기</option>
-                        <option value="1">아주 작게</option>
-                        <option value="2">작게</option>
-                        <option value="3">보통</option>
-                        <option value="4">크게</option>
-                        <option value="5">더 크게</option>
-                        <option value="6">매우 크게</option>
-                        <option value="7">최대 크게</option>
-                    </select>
                 </div>
                 
                 <div class="toolbar-separator"></div>
                 
                 <div class="toolbar-group">
-                    <button class="toolbar-button" data-command="formatBlock" data-value="h1" title="제목 1"><i class="fas fa-heading"></i>1</button>
                     <button class="toolbar-button" data-command="formatBlock" data-value="h2" title="제목 2"><i class="fas fa-heading"></i>2</button>
                     <button class="toolbar-button" data-command="formatBlock" data-value="h3" title="제목 3"><i class="fas fa-heading"></i>3</button>
                 </div>
@@ -89,8 +58,7 @@
                 
                 <div class="toolbar-group">
                     <button class="toolbar-button" data-command="formatBlock" data-value="blockquote" title="인용구"><i class="fas fa-quote-right"></i></button>
-                    <button class="toolbar-button" data-command="formatBlock" data-value="pre" title="코드 블록"><i class="fas fa-code"></i></button>
-                    <button class="toolbar-button" data-command="insertHorizontalRule" title="구분선"><i class="fas fa-minus"></i></button>
+                    <button class="toolbar-button" data-command="insertCodeBlock" title="코드 블록"><i class="fas fa-code"></i></button>
                 </div>
                 
                 <div class="toolbar-separator"></div>
@@ -98,28 +66,22 @@
                 <div class="toolbar-group">
                     <button class="toolbar-button" data-command="createLink" title="링크 삽입"><i class="fas fa-link"></i></button>
                     <button class="toolbar-button" data-command="insertImage" title="이미지 삽입"><i class="fas fa-image"></i></button>
-                    <!-- 이미지 크기 조절 추가 -->
-                    <button class="toolbar-button" data-command="resizeImage" title="이미지 크기 조절"><i class="fas fa-expand"></i></button>
                 </div>
             </div>
             
-            <!-- 콘텐츠 영역 추가 (이 부분이 누락되어 있었음) -->
-            <div id="content-area" class="content-area" contenteditable="true" data-placeholder="내용을 입력하세요..."></div>
+            <!-- 콘텐츠 영역 -->
+            <div id="content-area" class="content-area" data-placeholder="내용을 입력하세요..."></div>
             
             <!-- 기존 콘텐츠를 저장하기 위한 숨겨진 요소 -->
             {% if post %}
             <div id="existing-content" style="display: none;">{{ post.content|safe }}</div>
             {% endif %}
         </div>
+        
         <div class="editor-actions">
-            <button id="save-post" class="btn btn-primary">저장</button>
+            <button id="save-post" class="btn">저장</button>
             <a href="{{ url_for('blog.index') }}" class="btn btn-secondary">취소</a>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<!-- 커스텀 에디터 스크립트 -->
-<script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}
