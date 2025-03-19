@@ -1,14 +1,12 @@
 # app/__init__.py
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
 from flask_socketio import SocketIO
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 import os
 
 db = SQLAlchemy()
-login_manager = LoginManager()
 socketio = SocketIO()
 migrate = Migrate()
 csrf = CSRFProtect()
@@ -39,31 +37,32 @@ def create_app(config_object=None):
     
     # 확장 모듈 초기화
     db.init_app(app)
-    login_manager.init_app(app)
     socketio.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
     
     # 모든 모델이 로드되었는지 확인
     with app.app_context():
-        from app.models import User, Category, Tag, Post, PostTag
-    
+        from app.models import Category, Tag, Post, PostTag
     # 블루프린트 등록
-    from app.routes import main_routes, auth_routes, blog_routes, simulation
+    from app.routes import main_routes, blog_routes, simulation, texts_routes
     app.register_blueprint(main_routes.main_bp)
-    app.register_blueprint(auth_routes.auth_bp)
     app.register_blueprint(blog_routes.blog_bp)
     app.register_blueprint(simulation.simulation_bp)
-    # app/__init__.py 파일에 추가
-    app.config['UPLOAD_FOLDER'] = os.path.join(app.instance_path, 'uploads')
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    app.register_blueprint(texts_routes.texts_bp)
     
-    # 로그인 관리자 설정
-    login_manager.login_view = 'auth.login'
+    # 업로드 폴더 설정
+    upload_folder = os.path.join(app.instance_path, 'uploads')
+    app.config['UPLOAD_FOLDER'] = upload_folder
+    os.makedirs(upload_folder, exist_ok=True)
     
-    @login_manager.user_loader
-    def load_user(user_id):
-        from app.models.user import User
-        return User.query.get(int(user_id))
+    # 이미지, 텍스트, 파일 디렉토리 생성
+    images_dir = os.path.join(upload_folder, 'images')
+    texts_dir = os.path.join(upload_folder, 'texts')
+    files_dir = os.path.join(upload_folder, 'files')
+    
+    os.makedirs(images_dir, exist_ok=True)
+    os.makedirs(texts_dir, exist_ok=True)
+    os.makedirs(files_dir, exist_ok=True)
     
     return app

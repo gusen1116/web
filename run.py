@@ -5,7 +5,7 @@ app = create_app()
 
 # 앱 컨텍스트에서 모델 임포트 확인
 with app.app_context():
-    from app.models import User, Category, Tag, Post, PostTag
+    from app.models import Category, Tag, Post, PostTag
     
     # 개발용: 기본 사용자 생성 (필요시)
     # 첫 실행 시 주석 해제하여 기본 사용자 생성

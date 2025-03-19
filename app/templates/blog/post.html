@@ -13,9 +13,6 @@
         <h1 class="post-title">{{ post.title }}</h1>
         
         <div class="post-meta">
-            {% if post.author %}
-                <span class="author">{{ post.author.username }}</span>
-            {% endif %}
             <span class="date">{{ post.created_at.strftime('%Y년 %m월 %d일') }}</span>
             {% if post.category %}
                 <a href="{{ url_for('blog.index') }}?category={{ post.category.id }}" class="category">{{ post.category.name }}</a>
@@ -123,45 +120,12 @@
             </div>
         </noscript>
     </div>
-    
-    {% if current_user.is_authenticated and current_user.id == post.user_id %}
-        <div class="post-actions">
-            <a href="{{ url_for('blog.edit', post_id=post.id) }}" class="btn">수정</a>
-            <button class="btn btn-secondary" onclick="deletePost({{ post.id }})">삭제</button>
-        </div>
-    {% endif %}
 </article>
 {% endblock %}
 
 {% block scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
 <script>
-    function deletePost(postId) {
-        if (confirm('정말로 이 글을 삭제하시겠습니까?')) {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            
-            fetch(`/blog/posts/${postId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    window.location.href = "{{ url_for('blog.index') }}";
-                } else {
-                    alert(data.message || '삭제에 실패했습니다.');
-                }
-            })
-            .catch(error => {
-                console.error('오류:', error);
-                alert('서버 통신 중 오류가 발생했습니다.');
-            });
-        }
-    }
-    
     // 페이지 로드 후 코드 블록에 구문 강조 적용
     document.addEventListener('DOMContentLoaded', function() {
         const codeBlocks = document.querySelectorAll('pre code');

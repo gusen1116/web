@@ -1,6 +1,5 @@
 # app/routes/__init__.py
 from app.routes.main_routes import main_bp
-from app.routes.auth_routes import auth_bp
 from app.routes.blog_routes import blog_bp
 from app.routes.simulation import simulation_bp
 

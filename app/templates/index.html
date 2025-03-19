@@ -2,135 +2,312 @@
 
 {% block title %}홈 - 물리학과 구센{% endblock %}
 
+{% block head %}
+<style>
+  /* 슬라이드 관련 스타일 */
+  .slide-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    background-color: #3366cc;
+    border-radius: 8px;
+  }
+  
+  .slides {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s ease-in-out;
+  }
+  
+  .slide {
+    flex: 0 0 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: white;
+    text-align: center;
+    padding: 2rem;
+  }
+  
+  .slide h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: white;
+  }
+  
+  .slide p {
+    font-size: 1.2rem;
+    max-width: 600px;
+    margin-bottom: 1.5rem;
+  }
+  
+  .slide-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .slide-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .slide-dot.active {
+    background-color: white;
+  }
+  
+  .slide-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.5rem;
+    transition: background 0.3s;
+  }
+  
+  .slide-arrow:hover {
+    background: rgba(255, 255, 255, 0.4);
+  }
+  
+  .slide-prev {
+    left: 20px;
+  }
+  
+  .slide-next {
+    right: 20px;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<!-- 메인 소개 영역 -->
-<section class="hero fade-in">
-    <div class="hero-content">
-        <h1>물리학과 구센</h1>
-        <p class="lead">과학 시뮬레이션과 프로그래밍의 조화</p>
-        <div class="hero-buttons">
-            <a href="{{ url_for('blog.index') }}" class="btn">블로그 보기</a>
-            <a href="{{ url_for('simulation.index') }}" class="btn btn-secondary">시뮬레이션 체험</a>
-        </div>
+<!-- 슬라이드 섹션 -->
+<div class="slide-container">
+  <div class="slides" id="slides">
+    <div class="slide">
+      <h2>물리학과 구센</h2>
+      <p>과학 시뮬레이션과 프로그래밍의 조화</p>
+      <a href="{{ url_for('simulation.index') }}" class="btn">시뮬레이션 체험</a>
     </div>
-</section>
+    <div class="slide">
+      <h2>물리 법칙의 시각화</h2>
+      <p>복잡한 물리 개념을 직관적인 시뮬레이션으로 이해해보세요</p>
+      <a href="{{ url_for('blog.index') }}" class="btn">블로그 보기</a>
+    </div>
+    <div class="slide">
+      <h2>기술과 과학의 만남</h2>
+      <p>최신 기술로 구현된 물리 시뮬레이션을 경험해보세요</p>
+      <a href="{{ url_for('main.about') }}" class="btn">자세히 알아보기</a>
+    </div>
+  </div>
+  
+  <div class="slide-controls">
+    <span class="slide-dot active" data-index="0"></span>
+    <span class="slide-dot" data-index="1"></span>
+    <span class="slide-dot" data-index="2"></span>
+  </div>
+  
+  <div class="slide-arrow slide-prev" id="slide-prev">
+    <i class="fas fa-chevron-left"></i>
+  </div>
+  <div class="slide-arrow slide-next" id="slide-next">
+    <i class="fas fa-chevron-right"></i>
+  </div>
+</div>
 
 <!-- 최신 글 섹션 -->
 <section class="section">
-    <div class="section-header">
-        <h2>최신 글</h2>
-        <p>최근에 작성된 물리학과 프로그래밍 콘텐츠를 확인해보세요.</p>
-    </div>
-    
-    <div class="posts-grid">
-        {% if recent_posts %}
-            {% for post in recent_posts %}
-                <article class="card fade-in" style="animation-delay: {{ loop.index0 * 100 }}ms">
-                    <h3>
-                        <a href="{{ url_for('blog.post', post_id=post.id) }}">{{ post.title }}</a>
-                    </h3>
-                    
-                    <div class="post-preview">
-                        <div class="preview-text">
-                            {{ post.get_preview(150) }}
-                        </div>
-                        
-                        <div class="post-meta">
-                            <span class="date">{{ post.created_at.strftime('%Y년 %m월 %d일') }}</span>
-                            {% if post.category %}
-                                <span class="category">{{ post.category.name }}</span>
-                            {% endif %}
-                        </div>
-                        
-                        <a href="{{ url_for('blog.post', post_id=post.id) }}" class="read-more">더 읽기 →</a>
-                    </div>
-                </article>
-            {% endfor %}
-        {% else %}
-            <div class="empty-state">
-                <p>아직 게시글이 없습니다.</p>
+  <div class="section-header">
+    <h2>최신 글</h2>
+    <p>최근에 작성된 물리학과 프로그래밍 콘텐츠를 확인해보세요.</p>
+  </div>
+  
+  <div class="posts-grid">
+    {% if recent_posts %}
+      {% for post in recent_posts %}
+        <article class="card fade-in" style="animation-delay: {{ loop.index0 * 100 }}ms">
+          <h3>
+            <a href="{{ url_for('blog.post', post_id=post.id) }}">{{ post.title }}</a>
+          </h3>
+          
+          <div class="post-preview">
+            <div class="preview-text">
+              {{ post.get_preview(150) }}
             </div>
-        {% endif %}
-    </div>
-    
-    <div class="section-footer">
-        <a href="{{ url_for('blog.index') }}" class="btn">모든 글 보기</a>
-    </div>
+            
+            <div class="post-meta">
+              <span class="date">{{ post.created_at.strftime('%Y년 %m월 %d일') }}</span>
+              {% if post.category %}
+                <span class="category">{{ post.category.name }}</span>
+              {% endif %}
+            </div>
+            
+            <a href="{{ url_for('blog.post', post_id=post.id) }}" class="read-more">더 읽기 →</a>
+          </div>
+        </article>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        <p>아직 게시글이 없습니다.</p>
+      </div>
+    {% endif %}
+  </div>
+  
+  <div class="section-footer">
+    <a href="{{ url_for('blog.index') }}" class="btn">모든 글 보기</a>
+  </div>
 </section>
 
 <!-- 물리 시뮬레이션 섹션 -->
 <section class="section bg-alt">
-    <div class="section-header">
-        <h2>물리 시뮬레이션</h2>
-        <p>물리 법칙을 시각적으로 탐험해보세요.</p>
+  <div class="section-header">
+    <h2>물리 시뮬레이션</h2>
+    <p>물리 법칙을 시각적으로 탐험해보세요.</p>
+  </div>
+  
+  <div class="simulation-container">
+    <div class="simulation-controls">
+      <div class="control-group">
+        <label for="gravityControl">중력: <span id="gravityValue">9.8</span> m/s²</label>
+        <input type="range" id="gravityControl" min="0" max="20" step="0.1" value="9.8">
+      </div>
+      
+      <div class="control-group">
+        <label for="frictionControl">마찰: <span id="frictionValue">0.01</span></label>
+        <input type="range" id="frictionControl" min="0" max="0.1" step="0.001" value="0.01">
+      </div>
+      
+      <div class="button-group">
+        <button id="startSimulation" class="btn btn-sm">시작</button>
+        <button id="stopSimulation" class="btn btn-sm btn-secondary">정지</button>
+        <button id="resetSimulation" class="btn btn-sm btn-secondary">초기화</button>
+      </div>
     </div>
     
-    <div class="simulation-container">
-        <div class="simulation-controls">
-            <div class="control-group">
-                <label for="gravityControl">중력: <span id="gravityValue">9.8</span> m/s²</label>
-                <input type="range" id="gravityControl" min="0" max="20" step="0.1" value="9.8">
-            </div>
-            
-            <div class="control-group">
-                <label for="frictionControl">마찰: <span id="frictionValue">0.01</span></label>
-                <input type="range" id="frictionControl" min="0" max="0.1" step="0.001" value="0.01">
-            </div>
-            
-            <div class="button-group">
-                <button id="startSimulation" class="btn btn-sm">시작</button>
-                <button id="stopSimulation" class="btn btn-sm btn-secondary">정지</button>
-                <button id="resetSimulation" class="btn btn-sm btn-secondary">초기화</button>
-            </div>
-        </div>
-        
-        <canvas id="simulationCanvas"></canvas>
-        
-        <div class="simulation-info">
-            <p>이 시뮬레이션은 기본적인 물리 법칙을 시각적으로 보여줍니다. 입자들이 중력과 마찰력에 따라 어떻게 움직이는지 관찰할 수 있습니다.</p>
-            <a href="{{ url_for('simulation.index') }}" class="btn btn-sm">모든 시뮬레이션 보기</a>
-        </div>
+    <canvas id="simulationCanvas"></canvas>
+    
+    <div class="simulation-info">
+    <p>이 시뮬레이션은 기본적인 물리 법칙을 시각적으로 보여줍니다. 입자들이 중력과 마찰력에 따라 어떻게 움직이는지 관찰할 수 있습니다.</p>
+    <a href="{{ url_for('simulation.index') }}" class="btn btn-sm">모든 시뮬레이션 보기</a>
     </div>
+  </div>
 </section>
 
 <!-- 카테고리 및 태그 섹션 -->
 <section class="section">
-    <div class="section-header">
-        <h2>탐색</h2>
-        <p>카테고리와 태그로 원하는 콘텐츠를 찾아보세요.</p>
+  <div class="section-header">
+    <h2>탐색</h2>
+    <p>카테고리와 태그로 원하는 콘텐츠를 찾아보세요.</p>
+  </div>
+  
+  <div class="explore-grid">
+    <div class="explore-categories">
+      <h3>인기 카테고리</h3>
+      <ul class="category-list">
+        {% for category, count in popular_categories %}
+          <li>
+            <a href="{{ url_for('blog.index') }}?category={{ category.id }}">
+              {{ category.name }}
+              <span class="count">{{ count }}</span>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
     </div>
     
-    <div class="explore-grid">
-        <div class="explore-categories">
-            <h3>인기 카테고리</h3>
-            <ul class="category-list">
-                {% for category, count in popular_categories %}
-                    <li>
-                        <a href="{{ url_for('blog.index') }}?category={{ category.id }}">
-                            {{ category.name }}
-                            <span class="count">{{ count }}</span>
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-        
-        <div class="explore-tags">
-            <h3>인기 태그</h3>
-            <div class="tag-cloud">
-                {% for tag, count in popular_tags %}
-                    <a href="{{ url_for('blog.index') }}?tag={{ tag.id }}" 
-                       class="tag"
-                       style="font-size: {{ 80 + count * 10 }}%;">
-                        {{ tag.name }}
-                    </a>
-                {% endfor %}
-            </div>
-        </div>
+    <div class="explore-tags">
+      <h3>인기 태그</h3>
+      <div class="tag-cloud">
+        {% for tag, count in popular_tags %}
+          <a href="{{ url_for('blog.index') }}?tag={{ tag.id }}" 
+             class="tag"
+             style="font-size: {{ 80 + count * 10 }}%;">
+            {{ tag.name }}
+          </a>
+        {% endfor %}
+      </div>
     </div>
+  </div>
 </section>
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 슬라이드 기능
+    const slides = document.getElementById('slides');
+    const dots = document.querySelectorAll('.slide-dot');
+    const prevBtn = document.getElementById('slide-prev');
+    const nextBtn = document.getElementById('slide-next');
+    let currentSlide = 0;
+    const totalSlides = dots.length;
+    
+    // 슬라이드 변경 함수
+    function goToSlide(index) {
+      currentSlide = index;
+      slides.style.transform = `translateX(-${currentSlide * 100}%)`;
+      
+      // 활성 도트 업데이트
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentSlide);
+      });
+    }
+    
+    // 다음 슬라이드
+    function nextSlide() {
+      goToSlide((currentSlide + 1) % totalSlides);
+    }
+    
+    // 이전 슬라이드
+    function prevSlide() {
+      goToSlide((currentSlide - 1 + totalSlides) % totalSlides);
+    }
+    
+    // 버튼 이벤트 리스너
+    if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+    if (nextBtn) nextBtn.addEventListener('click', nextSlide);
+    
+    // 도트 이벤트 리스너
+    dots.forEach(dot => {
+      dot.addEventListener('click', () => {
+        goToSlide(parseInt(dot.dataset.index));
+      });
+    });
+    
+    // 자동 슬라이드
+    let slideInterval = setInterval(nextSlide, 5000);
+    
+    // 마우스 오버시 자동 슬라이드 중지
+    const slideContainer = document.querySelector('.slide-container');
+    if (slideContainer) {
+      slideContainer.addEventListener('mouseenter', () => {
+        clearInterval(slideInterval);
+      });
+      
+      slideContainer.addEventListener('mouseleave', () => {
+        slideInterval = setInterval(nextSlide, 5000);
+      });
+    }
+  });
+</script>
 {% endblock %}

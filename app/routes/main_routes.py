@@ -29,9 +29,9 @@ def index():
      .limit(10).all()
     
     return render_template('index.html', 
-                           recent_posts=recent_posts,
-                           popular_categories=popular_categories,
-                           popular_tags=popular_tags)
+                        recent_posts=recent_posts,
+                        popular_categories=popular_categories,
+                        popular_tags=popular_tags)
 
 @main_bp.route('/about')
 def about():
