@@ -30,7 +30,7 @@
             </div>
             
             <div class="header-search">
-                <!-- 검색 폼 - blog.search에서 posts.search로 변경 -->
+                <!-- 검색 폼 -->
                 <form action="{{ url_for('posts.search') }}" method="get" class="search-form" role="search">
                     <input type="text" name="q" placeholder="검색..." aria-label="검색어 입력">
                     <button type="submit" aria-label="검색"><i class="fas fa-search"></i></button>
@@ -91,8 +91,28 @@
         </div>
     </footer>
 
-    <!-- 통합 스크립트 -->
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <!-- 최소한의 JS -->
+    <script>
+        // 테마 토글 기능
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            const isDark = document.documentElement.classList.contains('dark-theme');
+            
+            if (isDark) {
+                document.documentElement.classList.remove('dark-theme');
+                document.body.classList.remove('dark-theme');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark-theme');
+                document.body.classList.add('dark-theme');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+
+        // 모바일 메뉴 토글
+        document.querySelector('.mobile-toggle').addEventListener('click', function() {
+            document.querySelector('.main-nav ul').classList.toggle('active');
+        });
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
