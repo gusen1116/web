@@ -1,5 +1,5 @@
 # app/services/socket_service.py
-from flask_socketio import SocketIO, emit
+from flask_socketio import emit
 from app import socketio
 
 @socketio.on('connect')

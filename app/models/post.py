@@ -11,8 +11,7 @@ class Post(db.Model):
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # 외래 키 경로 수정
-    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True)  # 외래 키 경로 수정
+    # 카테고리 제거, 태그만 사용
     
     # tags 관계는 PostTag 모델을 통해 간접적으로 정의
     tags = db.relationship('Tag', secondary='post_tags', backref=db.backref('posts', lazy='dynamic'))
@@ -62,18 +61,6 @@ class Post(db.Model):
                 
                 # 문자열 처리가 필요한 경우
                 if isinstance(html_content, str):
-                    # 시작 부분 따옴표 제거 (JSON 파싱 오류인 경우)
-                    if html_content.startswith('"'):
-                        # JSON 문자열 형태로 저장된 경우
-                        try:
-                            import json
-                            # 다시 한번 JSON 파싱 시도
-                            html_content = json.loads(html_content)
-                        except:
-                            # 파싱 실패시 단순 따옴표 제거
-                            if html_content.startswith('"') and html_content.endswith('"'):
-                                html_content = html_content[1:-1]
-                    
                     # 이스케이프된 문자 처리
                     html_content = html_content.replace('\\n', '\n').replace('\\t', '\t').replace('\\"', '"')
                 
