@@ -45,11 +45,11 @@ def create_app(config_object=None):
     with app.app_context():
         from app.models import Category, Tag, Post, PostTag
     # 블루프린트 등록
-    from app.routes import main_routes, blog_routes, simulation, texts_routes
+    from app.routes import main_routes, blog_routes, simulation, posts_routes
     app.register_blueprint(main_routes.main_bp)
     app.register_blueprint(blog_routes.blog_bp)
     app.register_blueprint(simulation.simulation_bp)
-    app.register_blueprint(texts_routes.texts_bp)
+    app.register_blueprint(posts_routes.posts_bp)
     
     # 업로드 폴더 설정
     upload_folder = os.path.join(app.instance_path, 'uploads')

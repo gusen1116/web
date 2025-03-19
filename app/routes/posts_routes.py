@@ -8,9 +8,9 @@ from app.services.text_service import (
     get_tags_count
 )
 
-texts_bp = Blueprint('texts', __name__, url_prefix='/texts')
+posts_bp = Blueprint('posts', __name__, url_prefix='/posts')
 
-@texts_bp.route('/')
+@posts_bp.route('/')
 def index():
     """텍스트 파일 목록 페이지"""
     text_dir = os.path.join(current_app.instance_path, 'uploads', 'texts')
@@ -35,7 +35,7 @@ def index():
         recent_posts=recent_posts
     )
 
-@texts_bp.route('/<filename>')
+@posts_bp.route('/<filename>')
 def view_text(filename):
     """텍스트 파일 내용 보기"""
     text_dir = os.path.join(current_app.instance_path, 'uploads', 'texts')
@@ -67,7 +67,7 @@ def view_text(filename):
         recent_posts=recent_posts
     )
 
-@texts_bp.route('/tag/<tag>')
+@posts_bp.route('/tag/<tag>')
 def filter_by_tag(tag):
     """태그별 텍스트 파일 필터링"""
     text_dir = os.path.join(current_app.instance_path, 'uploads', 'texts')
@@ -93,19 +93,19 @@ def filter_by_tag(tag):
         current_tag=tag
     )
 
-@texts_bp.route('/images/<filename>')
+@posts_bp.route('/images/<filename>')
 def serve_image(filename):
     """이미지 파일 서빙"""
     images_dir = os.path.join(current_app.instance_path, 'uploads', 'images')
     return send_from_directory(images_dir, filename)
 
-@texts_bp.route('/files/<filename>')
+@posts_bp.route('/files/<filename>')
 def serve_file(filename):
     """파일 다운로드"""
     files_dir = os.path.join(current_app.instance_path, 'uploads', 'files')
     return send_from_directory(files_dir, filename, as_attachment=True)
 
-@texts_bp.route('/debug')
+@posts_bp.route('/debug')
 def debug_paths():
     """경로 디버깅"""
     text_dir = os.path.join(current_app.instance_path, 'uploads', 'texts')

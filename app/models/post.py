@@ -11,7 +11,7 @@ class Post(db.Model):
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # 외래 키 경로 수정
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)  # 외래 키 경로 수정
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True)  # 외래 키 경로 수정
     
     # tags 관계는 PostTag 모델을 통해 간접적으로 정의
