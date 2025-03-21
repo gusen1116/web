@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}홈 - 물리학과 구센{% endblock %}
+{% block title %}홈 - 와구센{% endblock %}
 
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/slide.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/blog-grid.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -12,23 +13,14 @@
   <div class="slide active">
     <h2>물리학과 구센</h2>
     <p>과학 시뮬레이션과 프로그래밍의 조화</p>
-    <div class="slide-content">
-      <p>하이.</p>
-    </div>
   </div>
   <div class="slide">
     <h2>물리 법칙의 시각화</h2>
     <p>이해해보세요</p>
-    <div class="slide-content">
-      <p>뭐.</p>
-    </div>
   </div>
   <div class="slide">
     <h2>기술과 과학의 만남</h2>
     <p>최신 기술로 구현된 물리 시뮬레이션을 경험해보세요</p>
-    <div class="slide-content">
-      <p>웹 기술을 활용한 인터랙티브 시뮬레이션으로 물리 현상을 직접 조작하고 탐험해보세요.</p>
-    </div>
   </div>
   
   <div class="slide-controls">
@@ -42,27 +34,37 @@
 <section class="section">
   <div class="section-header">
     <h2>최신 글</h2>
-    <p>최근에 작성된 물리학과 프로그래밍 콘텐츠를 확인해보세요.</p>
   </div>
   
-  <div class="posts-grid">
+  <div class="main-posts-grid">
     {% if recent_posts %}
       {% for post in recent_posts %}
-        <article class="card fade-in" style="animation-delay: {{ loop.index0 * 100 }}ms">
-          <h3>
-            <a href="{{ url_for('posts.view_post', filename=post.filename) }}">{{ post.title }}</a>
-          </h3>
-          
-          <div class="post-preview">
-            <div class="preview-text">
-              {{ post.get_preview(150) }}
+        <article class="post-card" onclick="window.location.href='{{ url_for('posts.view_by_slug', slug=post.id) }}'">
+          <div class="post-card-header">
+            <h2 class="post-card-title">
+              <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}">{{ post.title }}</a>
+            </h2>
+            <div class="post-card-meta">
+              <div class="post-card-date">
+                <i class="far fa-calendar-alt"></i>
+                <span>{{ post.date.strftime('%Y년 %m월 %d일') }}</span>
+              </div>
             </div>
-            
-            <div class="post-meta">
-              <span class="date">{{ post.date.strftime('%Y년 %m월 %d일') }}</span>
+          </div>
+          <div class="post-card-content">
+            <div class="post-card-preview">
+              {{ post.get_preview(300) }}
             </div>
-            
-            <a href="{{ url_for('posts.view_post', filename=post.filename) }}" class="read-more">더 읽기 →</a>
+          </div>
+          <div class="post-card-footer">
+            <div class="post-card-tags">
+              {% for tag in post.tags[:2] %}
+                <a href="{{ url_for('posts.filter_by_tag', tag=tag) }}" class="post-card-tag">{{ tag }}</a>
+              {% endfor %}
+              {% if post.tags|length > 2 %}
+                <span class="post-card-tag">+{{ post.tags|length - 2 }}</span>
+              {% endif %}
+            </div>
           </div>
         </article>
       {% endfor %}
@@ -79,7 +81,7 @@
 </section>
 
 <!-- 물리 시뮬레이션 섹션 -->
-<section class="section bg-alt">
+<section class="section">
   <div class="section-header">
     <h2>물리 시뮬레이션</h2>
     <p>물리 법칙을 시각적으로 탐험해보세요.</p>
@@ -87,11 +89,6 @@
   
   <div class="simulation-container">
     <canvas id="simulationCanvas"></canvas>
-    
-    <div class="simulation-info">
-      <p>이 시뮬레이션은 기본적인 물리 법칙을 시각적으로 보여줍니다. 입자들이 중력과 마찰력에 따라 어떻게 움직이는지 관찰할 수 있습니다.</p>
-      <a href="{{ url_for('simulation.index') }}" class="btn btn-sm">모든 시뮬레이션 보기</a>
-    </div>
   </div>
 </section>
 

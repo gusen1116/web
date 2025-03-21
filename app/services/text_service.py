@@ -21,12 +21,16 @@ class TextPost:
         self.tags = []
         self.author = "관리자"
         self.description = ""
+        self.slug = None  # URL 슬러그 추가
         
         # 메타데이터가 제공된 경우 업데이트
         if metadata:
             self.title = metadata.get('title', self.title)
             self.description = metadata.get('description', '')
             self.author = metadata.get('author', self.author)
+            
+            # 슬러그 설정
+            self.slug = metadata.get('slug', self.id)
             
             # 날짜 파싱
             date_str = metadata.get('date')
@@ -44,8 +48,11 @@ class TextPost:
     
     def get_url(self):
         """포스트 URL 반환"""
-        return url_for('posts.view_post', filename=self.filename)
-    
+        if hasattr(self, 'slug') and self.slug:
+            return url_for('posts.view_by_slug', slug=self.slug)
+        return url_for('posts.view_by_slug', slug=self.id)
+
+
     def get_preview(self, length=200):
         """본문 미리보기 생성"""
         # 특수 태그 제거

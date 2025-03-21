@@ -1,3 +1,4 @@
+
 # app/routes/posts_routes.py
 from flask import Blueprint, render_template, send_from_directory, current_app, abort, url_for, request, redirect
 import os
@@ -34,36 +35,57 @@ def index():
         recent_posts=recent_posts
     )
 
-@posts_bp.route('/<filename>')
-def view_post(filename):
-    """텍스트 파일 내용 보기"""
+@posts_bp.route('/<slug>')
+def view_by_slug(slug):
+    """슬러그, ID 또는 파일명으로 포스트 찾기"""
     text_dir = os.path.join(current_app.instance_path, 'uploads', 'texts')
     
-    # 텍스트 파일 가져오기
-    post = get_text_post(text_dir, filename)
+    # 모든 텍스트 파일을 로드
+    all_posts = get_all_text_posts(text_dir)
+    matching_post = None
     
-    if not post:
+    # 확장자가 있으면 제거
+    slug_no_ext = os.path.splitext(slug)[0]
+    
+    for post in all_posts:
+        # 슬러그가 있는 경우 먼저 확인
+        if hasattr(post, 'slug') and post.slug and post.slug == slug:
+            matching_post = post
+            break
+        # ID로 확인
+        elif post.id == slug_no_ext:
+            matching_post = post
+            break
+        # 파일명으로 확인
+        elif post.filename == slug or post.filename == slug + '.txt':
+            matching_post = post
+            break
+    
+    if not matching_post:
         abort(404)
     
-    # 렌더링된 HTML 생성
+    # 이후 렌더링 로직
     base_url_images = url_for('posts.serve_image', filename='').rstrip('/')
     base_url_files = url_for('posts.serve_file', filename='').rstrip('/')
-    rendered_content = render_content(post.content, base_url_images, base_url_files)
+    rendered_content = render_content(matching_post.content, base_url_images, base_url_files)
     
-    # 태그 카운트 가져오기
     tags_count = get_tags_count(text_dir)
     tags = [{"name": tag, "count": count} for tag, count in tags_count.items()]
     
-    # 관련 포스트 가져오기
-    related_posts = find_related_posts(text_dir, post, limit=3)
+    related_posts = find_related_posts(text_dir, matching_post, limit=3)
     
     return render_template(
         'posts/view.html', 
-        post=post, 
+        post=matching_post, 
         rendered_content=rendered_content,
         tags=tags, 
         related_posts=related_posts
     )
+
+@posts_bp.route('/view/<filename>')
+def view_post(filename):
+    """이전 URL 형식 지원"""
+    return redirect(url_for('posts.view_by_slug', slug=filename))
 
 @posts_bp.route('/tag/<tag>')
 def filter_by_tag(tag):

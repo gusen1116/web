@@ -14,7 +14,7 @@
             {% for post in posts %}
                 <article class="blog-preview fade-in">
                     <h2>
-                        <a href="{{ url_for('posts.view_post', filename=post.filename) }}">{{ post.title }}</a>
+                        <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}">{{ post.title }}</a>
                     </h2>
                     
                     <div class="post-meta">
@@ -33,7 +33,7 @@
                             {{ post.get_preview(200) }}
                         </div>
                         
-                        <a href="{{ url_for('posts.view_post', filename=post.filename) }}" class="read-more">더 읽기 →</a>
+                        <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}" class="read-more">더 읽기 →</a>
                     </div>
                 </article>
             {% endfor %}
@@ -63,7 +63,7 @@
             <ul class="recent-posts">
                 {% for post in recent_posts %}
                     <li>
-                        <a href="{{ url_for('posts.view_post', filename=post.filename) }}">{{ post.title }}</a>
+                        <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}">{{ post.title }}</a>
                         <span class="post-date">{{ post.date.strftime('%Y-%m-%d') }}</span>
                     </li>
                 {% endfor %}

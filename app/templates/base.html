@@ -4,9 +4,21 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}물리학과 구센{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>{% block title %}와구센{% endblock %}</title>
+    
+    <!-- CSS 파일들을 모듈화하여 로드 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/typography.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/simulation.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/slide.css') }}">
+    <!-- 현대적인 아이콘 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Pretendard 폰트 추가 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    
     {% block head %}{% endblock %}
     
     <!-- 테마 초기화 스크립트 - 깜빡임 방지 -->
@@ -19,50 +31,49 @@
     </script>
 </head>
 <body class="{% block body_class %}{% endblock %}">
-    <!-- 로고 및 네비게이션 헤더 영역 -->
-    <div class="top-header">
+    <!-- 통합된 헤더 영역 -->
+    <header class="top-header" id="siteHeader">
         <div class="container">
             <div class="logo-area">
                 <a href="{{ url_for('main.index') }}" class="logo">
-                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="로고">
-                    <span class="site-name">물리학과 구센</span>
+                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="로고 이미지">
+                    <span class="site-name">와구센</span>
                 </a>
             </div>
             
-            <div class="header-search">
-                <!-- 검색 폼 -->
-                <form action="{{ url_for('posts.search') }}" method="get" class="search-form" role="search">
-                    <input type="text" name="q" placeholder="검색..." aria-label="검색어 입력">
-                    <button type="submit" aria-label="검색"><i class="fas fa-search"></i></button>
-                </form>
-            </div>
+            <!-- 네비게이션 메뉴 -->
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="{{ url_for('posts.index') }}">블로그</a></li>
+                    <li><a href="{{ url_for('simulation.index') }}">시뮬레이션</a></li>
+                    <li><a href="{{ url_for('main.about') }}">소개</a></li>
+                </ul>
+            </nav>
             
-            <!-- 테마 토글 버튼 -->
-            <div class="theme-toggle-area">
-                <button class="theme-toggle" id="themeToggle" title="테마 변경" aria-label="테마 전환">
-                    <i class="fas fa-moon dark-icon"></i>
-                    <i class="fas fa-sun light-icon"></i>
+            <div class="header-controls">
+                <!-- 검색 폼 -->
+                <div class="nav-search">
+                    <form action="{{ url_for('posts.search') }}" method="get" class="search-form" role="search">
+                        <input type="text" name="q" placeholder="검색..." aria-label="검색어 입력">
+                        <button type="submit" aria-label="검색"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+                
+                <!-- 테마 토글 버튼 -->
+                <div class="theme-toggle-area">
+                    <button class="theme-toggle" id="themeToggle" title="테마 변경" aria-label="테마 전환">
+                        <i class="fas fa-moon dark-icon"></i>
+                        <i class="fas fa-sun light-icon"></i>
+                    </button>
+                </div>
+                
+                <!-- 모바일 메뉴 토글 -->
+                <button class="mobile-toggle" aria-label="메뉴 열기">
+                    <i class="fas fa-bars"></i>
                 </button>
             </div>
         </div>
-    </div>
-    
-    <!-- 네비게이션 메뉴 -->
-    <nav class="main-nav">
-        <div class="container">
-            <ul>
-                <li><a href="{{ url_for('main.index') }}">홈</a></li>
-                <li><a href="{{ url_for('posts.index') }}">블로그</a></li>
-                <li><a href="{{ url_for('simulation.index') }}">시뮬레이션</a></li>
-                <li><a href="{{ url_for('main.about') }}">소개</a></li>
-            </ul>
-            
-            <!-- 모바일 메뉴 토글 -->
-            <button class="mobile-toggle" aria-label="메뉴 열기">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-    </nav>
+    </header>
 
     <main>
         <div class="container">
@@ -75,7 +86,7 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-info">
-                    <p>&copy; 2025 | 물리학과 구센</p>
+                    <p>&copy; 2025 | 와구센</p>
                 </div>
                 <div class="footer-links">
                     <a href="https://github.com/wagusen" target="_blank" rel="noopener noreferrer">
@@ -91,7 +102,7 @@
         </div>
     </footer>
 
-    <!-- 최소한의 JS -->
+    <!-- 스크립트 - 테마 전환 및 헤더 스크롤 애니메이션 -->
     <script>
         // 테마 토글 기능
         document.getElementById('themeToggle').addEventListener('click', function() {
@@ -112,6 +123,44 @@
         document.querySelector('.mobile-toggle').addEventListener('click', function() {
             document.querySelector('.main-nav ul').classList.toggle('active');
         });
+        
+        // 스크롤 헤더 애니메이션
+        (function() {
+            const header = document.getElementById('siteHeader');
+            let lastScrollTop = 0;
+            let isScrollingUp = false;
+            let scrollTimer = null;
+            
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                // 스크롤 방향 감지
+                if (scrollTop > lastScrollTop && scrollTop > 100) {
+                    // 아래로 스크롤
+                    if (!header.classList.contains('header-hidden')) {
+                        header.classList.add('header-hidden');
+                    }
+                    isScrollingUp = false;
+                } else {
+                    // 위로 스크롤
+                    if (header.classList.contains('header-hidden')) {
+                        header.classList.remove('header-hidden');
+                    }
+                    isScrollingUp = true;
+                }
+                
+                // 스크롤 멈춤 감지
+                clearTimeout(scrollTimer);
+                scrollTimer = setTimeout(function() {
+                    // 스크롤 멈춤
+                    if (isScrollingUp || scrollTop < 100) {
+                        header.classList.remove('header-hidden');
+                    }
+                }, 300);
+                
+                lastScrollTop = scrollTop;
+            });
+        })();
     </script>
     {% block scripts %}{% endblock %}
 </body>
