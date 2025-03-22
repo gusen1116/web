@@ -76,14 +76,6 @@ class TextPost:
         words = re.findall(r'\w+', text)
         return len(words)
     
-    def get_read_time(self):
-        """읽는데 걸리는 예상 시간 (분)"""
-        word_count = self.get_word_count()
-        # 평균 읽기 속도: 분당 200단어
-        minutes = max(1, word_count // 200)
-        return minutes
-
-
 def parse_text_file(file_path):
     """텍스트 파일 파싱하여 메타데이터와 본문 분리"""
     try:
@@ -234,23 +226,3 @@ def search_posts(text_dir, query):
             results.append(post)
     
     return results
-
-
-def backup_post(text_dir, filename):
-    """포스트 백업"""
-    try:
-        file_path = os.path.join(text_dir, filename)
-        if os.path.exists(file_path):
-            backup_dir = os.path.join(text_dir, 'backups')
-            os.makedirs(backup_dir, exist_ok=True)
-            
-            timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-            backup_filename = f"{os.path.splitext(filename)[0]}_{timestamp}.txt"
-            backup_path = os.path.join(backup_dir, backup_filename)
-            
-            shutil.copy2(file_path, backup_path)
-            return True
-    except Exception as e:
-        print(f"백업 오류: {str(e)}")
-    
-    return False

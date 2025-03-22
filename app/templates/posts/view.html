@@ -16,7 +16,6 @@
         <div class="post-meta">
             <span class="date"><i class="far fa-calendar-alt"></i> {{ post.date.strftime('%Y년 %m월 %d일') }}</span>
             <span class="author"><i class="far fa-user"></i> {{ post.author }}</span>
-            <span class="reading-time"><i class="far fa-clock"></i> 읽는 시간: {{ post.get_read_time() }}분</span>
         </div>
         
         {% if post.tags %}

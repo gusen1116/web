@@ -2,135 +2,189 @@
  * base.css - 기본 설정, 변수, 리셋
  */
 
- :root {
-    /* 색상 팔레트 - 모던하고 선명한 색상으로 업데이트 */
-    --primary-50: #e8f5ff;
-    --primary-100: #d0ebff;
-    --primary-200: #a6d5ff;
-    --primary-300: #7cc0ff;
-    --primary-400: #53aafc;
-    --primary-500: #2589f5; /* 더 생동감 있는 메인 컬러 */
-    --primary-600: #0d6efd;
-    --primary-700: #0b5ed7;
-    
-    --neutral-50: #f9fafb;
-    --neutral-100: #f3f4f6;
-    --neutral-200: #e5e7eb;
-    --neutral-300: #d1d5db;
-    --neutral-400: #9ca3af;
-    --neutral-500: #6b7280;
-    --neutral-600: #4b5563;
-    --neutral-700: #374151;
-    --neutral-800: #1f2937;
-    --neutral-900: #111827;
-    
-    --success: #22c55e;
-    --warning: #fbbf24;
-    --danger: #ef4444;
-    
-    /* 테마 변수 */
-    --bg-primary: var(--neutral-50);
-    --bg-secondary: var(--neutral-100);
-    --bg-tertiary: var(--neutral-200);
-    --bg-accent: var(--primary-500);
-    
-    --text-primary: var(--neutral-900);
-    --text-secondary: var(--neutral-700);
-    --text-tertiary: var(--neutral-500);
-    --text-accent: var(--primary-600);
-    
-    --border-color: var(--neutral-300);
-    
-    /* 타이포그래피 */
-    --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --font-mono: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
-    
-    --font-size-xs: 0.75rem;   /* 12px */
-    --font-size-sm: 0.875rem;  /* 14px */
-    --font-size-md: 1rem;      /* 16px */
-    --font-size-lg: 1.125rem;  /* 18px */
-    --font-size-xl: 1.25rem;   /* 20px */
-    --font-size-2xl: 1.5rem;   /* 24px */
-    --font-size-3xl: 1.875rem; /* 30px */
-    
-    /* 간격 */
-    --spacing-1: 0.25rem;  /* 4px */
-    --spacing-2: 0.5rem;   /* 8px */
-    --spacing-3: 0.75rem;  /* 12px */
-    --spacing-4: 1rem;     /* 16px */
-    --spacing-6: 1.5rem;   /* 24px */
-    --spacing-8: 2rem;     /* 32px */
-    --spacing-12: 3rem;    /* 48px */
-    --spacing-16: 4rem;    /* 64px */
-    
-    /* 테두리 반경 */
-    --radius-sm: 0.125rem; /* 2px */
-    --radius-md: 0.25rem;  /* 4px */
-    --radius-lg: 0.5rem;   /* 8px */
-    --radius-xl: 0.75rem;  /* 12px */
-    --radius-full: 9999px; /* 원형 */
-    
-    /* 그림자 */
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 10px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
-    
-    /* 전환 */
-    --transition-fast: 150ms;
-    --transition-normal: 300ms;
-    
-    /* 컨테이너 */
-    --container-width: 900px; /* 900px로 축소 */
-  }
+/* ===== 컬러 및 디자인 변수 (수정 가능) ===== */
+:root {
+  /* 색상 팔레트 - 모던하고 선명한 색상으로 업데이트 */
+  --primary-50: #e8f5ff;
+  --primary-100: #d0ebff;
+  --primary-200: #a6d5ff;
+  --primary-300: #7cc0ff;
+  --primary-400: #53aafc;
+  --primary-500: #2589f5; /* 더 생동감 있는 메인 컬러 */
+  --primary-600: #0d6efd;
+  --primary-700: #0b5ed7;
   
-  /* 다크 테마 */
-  .dark-theme {
-    --bg-primary: var(--neutral-900);
-    --bg-secondary: var(--neutral-800);
-    --bg-tertiary: var(--neutral-700);
-    
-    --text-primary: #f9fafb; /* 더 밝게 조정함 */
-    --text-secondary: #e5e7eb;
-    --text-tertiary: #9ca3af;
-    
-    --border-color: var(--neutral-700);
-    
-    /* 다크 모드 그림자 조정 */
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 4px 10px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.36);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.36);
-  }
+  --neutral-50: #f9fafb;
+  --neutral-100: #f3f4f6;
+  --neutral-200: #e5e7eb;
+  --neutral-300: #d1d5db;
+  --neutral-400: #9ca3af;
+  --neutral-500: #6b7280;
+  --neutral-600: #4b5563;
+  --neutral-700: #374151;
+  --neutral-800: #1f2937;
+  --neutral-900: #111827;
   
-  /* 기본 스타일 리셋 */
-  *, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
+  --success: #22c55e;
+  --warning: #fbbf24;
+  --danger: #ef4444;
   
-  img {
-    max-width: 100%;
-    height: auto;
-  }
+  /* 테마 변수 */
+  --bg-primary: var(--neutral-50);
+  --bg-secondary: var(--neutral-100);
+  --bg-tertiary: var(--neutral-200);
+  --bg-accent: var(--primary-500);
   
-  /* 기본 컨테이너 */
-  .container {
-    width: 100%;
-    max-width: var(--container-width);
-    margin: 0 auto;
-    padding: 0 var(--spacing-4);
-  }
+  --text-primary: var(--neutral-900);
+  --text-secondary: var(--neutral-700);
+  --text-tertiary: var(--neutral-500);
+  --text-accent: var(--primary-600);
   
-  /* 애니메이션 */
-  .fade-in {
-    opacity: 0;
-    transform: translateY(20px);
-    animation: fadeIn 0.5s ease forwards;
-  }
+  --border-color: var(--neutral-300);
   
-  @keyframes fadeIn {
-    to {
+  /* 타이포그래피 */
+  --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+  
+  --font-size-xs: 0.75rem;   /* 12px */
+  --font-size-sm: 0.875rem;  /* 14px */
+  --font-size-md: 1rem;      /* 16px */
+  --font-size-lg: 1.125rem;  /* 18px */
+  --font-size-xl: 1.25rem;   /* 20px */
+  --font-size-2xl: 1.5rem;   /* 24px */
+  --font-size-3xl: 1.875rem; /* 30px */
+  
+  /* 간격 */
+  --spacing-1: 0.25rem;  /* 4px */
+  --spacing-2: 0.5rem;   /* 8px */
+  --spacing-3: 0.75rem;  /* 12px */
+  --spacing-4: 1rem;     /* 16px */
+  --spacing-6: 1.5rem;   /* 24px */
+  --spacing-8: 2rem;     /* 32px */
+  --spacing-12: 3rem;    /* 48px */
+  --spacing-16: 4rem;    /* 64px */
+  
+  /* 테두리 반경 */
+  --radius-sm: 0.125rem; /* 2px */
+  --radius-md: 0.25rem;  /* 4px */
+  --radius-lg: 0.5rem;   /* 8px */
+  --radius-xl: 0.75rem;  /* 12px */
+  --radius-full: 9999px; /* 원형 */
+  
+  /* 그림자 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 10px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  
+  /* 전환 */
+  --transition-fast: 150ms;
+  --transition-normal: 300ms;
+  
+  /* 컨테이너 */
+  --container-width: calc(900px * 1.4); /* 1.4배 확장된 너비 */
+}
+
+/* ===== 다크 테마 설정 ===== */
+html.dark-theme {
+  --bg-primary: var(--neutral-900);
+  --bg-secondary: var(--neutral-800);
+  --bg-tertiary: var(--neutral-700);
+  --bg-accent: var(--primary-700);
+  
+  --text-primary: var(--neutral-50);
+  --text-secondary: var(--neutral-200);
+  --text-tertiary: var(--neutral-400);
+  --text-accent: var(--primary-300);
+  
+  --border-color: var(--neutral-700);
+  
+  /* 다크 모드 그림자 조정 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 10px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.36);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.36);
+}
+
+/* ===== 기본 스타일 리셋 ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== 푸터 고정 및 기본 레이아웃 ===== */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+main {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+footer {
+  flex-shrink: 0;
+  margin-top: auto;
+  position: relative;
+  width: 100%;
+  padding: var(--spacing-6) 0;
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+}
+
+/* ===== 푸터 위에 위치하는 섹션 ===== */
+.fixed-bottom-sections {
+  width: 100%;
+  padding: var(--spacing-8) 0;
+  background-color: var(--bg-primary);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: var(--text-accent);
+  text-decoration: none;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--primary-600);
+}
+
+/* ===== 기본 컨테이너 ===== */
+.container {
+  width: 100%;
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-4);
+}
+
+/* ===== 애니메이션 ===== */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+  to {
       opacity: 1;
       transform: translateY(0);
-    }
   }
+}

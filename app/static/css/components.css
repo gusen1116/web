@@ -2,191 +2,191 @@
  * components.css - 재사용 가능한 UI 컴포넌트
  */
 
-/* 버튼 컴포넌트 */
+/* ===== 버튼 컴포넌트 ===== */
 .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--spacing-2) var(--spacing-4);
-    background-color: var(--bg-accent);
-    color: white;
-    border: none;
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    font-weight: 500;
-    transition: all var(--transition-normal);
-    box-shadow: var(--shadow-sm);
-  }
-  
-  .btn:hover {
-    background-color: var(--primary-600);
-    color: white;
-    text-decoration: none;
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
-  
-  .btn-secondary {
-    background-color: var(--bg-tertiary);
-    color: var(--text-primary);
-  }
-  
-  .btn-secondary:hover {
-    background-color: var(--neutral-400);
-    color: var(--text-primary);
-  }
-  
-  .btn-sm {
-    padding: var(--spacing-1) var(--spacing-2);
-    font-size: var(--font-size-sm);
-  }
-  
-  /* 카드 컴포넌트 */
-  .card {
-    background-color: var(--bg-primary);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    padding: var(--spacing-4);
-    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
-  }
-  
-  .card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-  }
-  
-  /* 태그 클라우드 */
-  .tags-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-2);
-    margin-bottom: var(--spacing-4);
-  }
-  
-  .tag {
-    background-color: var(--bg-tertiary);
-    color: var(--text-secondary);
-    padding: var(--spacing-1) var(--spacing-2);
-    border-radius: var(--radius-full);
-    font-size: var(--font-size-xs);
-    text-decoration: none;
-    transition: all var(--transition-fast);
-  }
-  
-  .tag:hover {
-    background-color: var(--primary-100);
-    color: var(--primary-700);
-    text-decoration: none;
-    transform: translateY(-1px);
-  }
-  
-  /* 테마 토글 버튼 */
-  .theme-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background-color: var(--bg-secondary);
-    color: var(--text-primary);
-    border: none;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    position: relative;
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
-  }
-  
-  .theme-toggle:hover {
-    background-color: var(--bg-tertiary);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
-  
-  .theme-toggle .dark-icon,
-  .theme-toggle .light-icon {
-    position: absolute;
-    transition: opacity var(--transition-normal), transform var(--transition-normal);
-  }
-  
-  .dark-theme .dark-icon {
-    opacity: 0;
-    transform: rotate(-180deg) scale(0.5);
-  }
-  
-  .dark-theme .light-icon {
-    opacity: 1;
-    transform: rotate(0) scale(1);
-  }
-  
-  :not(.dark-theme) .dark-icon {
-    opacity: 1;
-    transform: rotate(0) scale(1);
-  }
-  
-  :not(.dark-theme) .light-icon {
-    opacity: 0;
-    transform: rotate(180deg) scale(0.5);
-  }
-  
-  /* 관련 포스트 컴포넌트 */
-  .post-navigation {
-    margin-top: var(--spacing-8);
-    padding-top: var(--spacing-4);
-    border-top: 1px solid var(--border-color);
-  }
-  
-  .post-nav-header {
-    margin-bottom: var(--spacing-4);
-  }
-  
-  .related-posts {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: var(--spacing-4);
-  }
-  
-  .related-post-card {
-    background-color: var(--bg-secondary);
-    padding: var(--spacing-4);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
-    transition: all var(--transition-normal);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .related-post-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-md);
-    text-decoration: none;
-    background-color: var(--bg-tertiary);
-  }
-  
-  .related-post-card h4 {
-    color: var(--text-primary);
-    margin-bottom: var(--spacing-2);
-  }
-  
-  .related-post-card .date {
-    font-size: var(--font-size-xs);
-    color: var(--text-tertiary);
-    margin-bottom: var(--spacing-2);
-  }
-  
-  .related-post-card .tag-list {
-    margin-top: auto;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-1);
-  }
-  
-  .related-post-card .tag-item {
-    background-color: var(--bg-tertiary);
-    color: var(--text-secondary);
-    padding: var(--spacing-1) var(--spacing-2);
-    border-radius: var(--radius-full);
-    font-size: var(--font-size-xs);
-  }
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2) var(--spacing-4);
+  background-color: var(--bg-accent);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn:hover {
+  background-color: var(--primary-600);
+  color: white;
+  text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+  background-color: var(--neutral-400);
+  color: var(--text-primary);
+}
+
+.btn-sm {
+  padding: var(--spacing-1) var(--spacing-2);
+  font-size: var(--font-size-sm);
+}
+
+/* ===== 카드 컴포넌트 ===== */
+.card {
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-4);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ===== 태그 클라우드 ===== */
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  margin-bottom: var(--spacing-4);
+}
+
+.tag {
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.tag:hover {
+  background-color: var(--primary-100);
+  color: var(--primary-700);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+/* ===== 테마 토글 버튼 ===== */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.theme-toggle:hover {
+  background-color: var(--bg-tertiary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.theme-toggle .dark-icon,
+.theme-toggle .light-icon {
+  position: absolute;
+  transition: opacity var(--transition-normal), transform var(--transition-normal);
+}
+
+.dark-theme .dark-icon {
+  opacity: 0;
+  transform: rotate(-180deg) scale(0.5);
+}
+
+.dark-theme .light-icon {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+
+:not(.dark-theme) .dark-icon {
+  opacity: 1;
+  transform: rotate(0) scale(1);
+}
+
+:not(.dark-theme) .light-icon {
+  opacity: 0;
+  transform: rotate(180deg) scale(0.5);
+}
+
+/* ===== 관련 포스트 컴포넌트 ===== */
+.post-navigation {
+  margin-top: var(--spacing-8);
+  padding-top: var(--spacing-4);
+  border-top: 1px solid var(--border-color);
+}
+
+.post-nav-header {
+  margin-bottom: var(--spacing-4);
+}
+
+.related-posts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--spacing-4);
+}
+
+.related-post-card {
+  background-color: var(--bg-secondary);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.related-post-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+  background-color: var(--bg-tertiary);
+}
+
+.related-post-card h4 {
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-2);
+}
+
+.related-post-card .date {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin-bottom: var(--spacing-2);
+}
+
+.related-post-card .tag-list {
+  margin-top: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-1);
+}
+
+.related-post-card .tag-item {
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+}

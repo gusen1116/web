@@ -3,6 +3,7 @@ from flask import Flask
 from flask_socketio import SocketIO
 from flask_wtf.csrf import CSRFProtect
 import os
+from app.config import Config
 
 socketio = SocketIO()
 csrf = CSRFProtect()
@@ -10,8 +11,8 @@ csrf = CSRFProtect()
 def create_app(config_object=None):
     app = Flask(__name__, instance_relative_config=True)
     
-    # 기본 설정
-    app.config['SECRET_KEY'] = 'your-secret-key'
+    # 기본 설정은 Config 클래스에서 가져옴
+    app.config.from_object(Config)
     
     # 커스텀 설정 적용 (있다면)
     if config_object:
