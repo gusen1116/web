@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}블로그 - 와구센{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/blog-grid.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <!-- 포스트 타이틀 -->
+    <h1 class="section-title">블로그</h1>
+    
+    <!-- 최신 포스트 그리드 - 4개만 표시 -->
+    <div class="posts-grid" id="postsGrid">
+        {% for post in posts[:4] %}
+            <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}" class="post-card-link">
+                <article class="post-card">
+                    <div class="post-card-header">
+                        <h2 class="post-card-title">{{ post.title }}</h2>
+                        <div class="post-card-meta">
+                            <div class="post-card-date">
+                                <i class="far fa-calendar-alt"></i>
+                                <span>{{ post.date.strftime('%Y년 %m월 %d일') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-card-content">
+                        <div class="post-card-preview">
+                            {{ post.get_preview(200) }}
+                        </div>
+                    </div>
+                    <div class="post-card-footer">
+                        <div class="post-card-tags">
+                            {% for tag in post.tags[:2] %}
+                                <span class="post-card-tag">{{ tag }}</span>
+                            {% endfor %}
+                            {% if post.tags|length > 2 %}
+                                <span class="post-card-tag">+{{ post.tags|length - 2 }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+            </a>
+        {% else %}
+            <div class="empty-state">
+                <p>포스트가 없습니다.</p>
+            </div>
+        {% endfor %}
+    </div>
+    
+    <!-- 더 보기 버튼 - 포스트 영역과 분리하여 배치 -->
+    <div class="load-more-wrapper" id="loadMoreWrapper">
+        <div class="load-more-container">
+            <button id="loadMoreBtn" class="more-button">
+                <span>더 보기</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- 추가 포스트가 로드될 영역 -->
+    <div class="posts-grid hidden" id="additionalPosts">
+        {% for post in posts[4:] %}
+            <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}" class="post-card-link">
+                <article class="post-card">
+                    <div class="post-card-header">
+                        <h2 class="post-card-title">{{ post.title }}</h2>
+                        <div class="post-card-meta">
+                            <div class="post-card-date">
+                                <i class="far fa-calendar-alt"></i>
+                                <span>{{ post.date.strftime('%Y년 %m월 %d일') }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-card-content">
+                        <div class="post-card-preview">{{ post.get_preview(200) }}</div>
+                    </div>
+                    <div class="post-card-footer">
+                        <div class="post-card-tags">
+                            {% for tag in post.tags[:2] %}
+                                <span class="post-card-tag">{{ tag }}</span>
+                            {% endfor %}
+                            {% if post.tags|length > 2 %}
+                                <span class="post-card-tag">+{{ post.tags|length - 2 }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+            </a>
+        {% endfor %}
+    </div>
+
+    <!-- 공간 채우기용 div -->
+    <div class="spacer"></div>
+</div>
+
+<!-- 푸터 바로 위에 배치될 태그 섹션 -->
+<div class="fixed-bottom-sections" id="fixedBottomSections">
+    <!-- 태그 섹션 -->
+    <section class="tag-section">
+        <h2 class="section-title">태그</h2>
+        <div class="tag-cloud">
+            {% for tag in tags %}
+                <a href="{{ url_for('posts.filter_by_tag', tag=tag.name) }}" 
+                   class="tag tag-size-{% if tag.count < 3 %}small{% elif tag.count < 6 %}medium{% elif tag.count < 10 %}large{% else %}xlarge{% endif %}">
+                    {{ tag.name }}
+                </a>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 더 많은 포스트 로드 버튼
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const loadMoreWrapper = document.getElementById('loadMoreWrapper');
+        const additionalPosts = document.getElementById('additionalPosts');
+        const fixedBottomSections = document.getElementById('fixedBottomSections');
+        
+        // 태그 섹션을 푸터 바로 위에 고정
+        function positionFixedSections() {
+            const footer = document.querySelector('footer');
+            
+            if (footer && fixedBottomSections) {
+                // 푸터 위에 섹션 배치
+                document.body.insertBefore(fixedBottomSections, footer);
+            }
+        }
+        
+        // 페이지 로드 시 위치 조정
+        positionFixedSections();
+        
+        if (loadMoreBtn && additionalPosts) {
+            loadMoreBtn.addEventListener('click', function() {
+                if (additionalPosts.classList.contains('hidden')) {
+                    // 추가 포스트 표시
+                    additionalPosts.classList.remove('hidden');
+                    this.innerHTML = '<span>접기</span><i class="fas fa-chevron-up"></i>';
+                    
+                    // 버튼을 태그 영역 위로 이동
+                    loadMoreWrapper.style.position = 'relative';
+                    loadMoreWrapper.style.marginTop = '2rem';
+                    document.body.insertBefore(loadMoreWrapper, fixedBottomSections);
+                    
+                    // 위치 재조정
+                    setTimeout(positionFixedSections, 100);
+                } else {
+                    // 추가 포스트 숨기기
+                    additionalPosts.classList.add('hidden');
+                    this.innerHTML = '<span>더 보기</span><i class="fas fa-chevron-down"></i>';
+                    
+                    // 버튼을 원래 위치로 복원
+                    const mainContent = document.querySelector('.main-content');
+                    const postsGrid = document.getElementById('postsGrid');
+                    mainContent.insertBefore(loadMoreWrapper, additionalPosts);
+                    loadMoreWrapper.style.position = '';
+                    
+                    // 스크롤 위치 조정
+                    window.scrollTo({
+                        top: document.getElementById('postsGrid').offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                    
+                    // 위치 재조정
+                    setTimeout(positionFixedSections, 100);
+                }
+            });
+        }
+        
+        // 포스트 카드 링크 작동 개선
+        const postCards = document.querySelectorAll('.post-card-link');
+        postCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                // 태그 클릭은 전파 방지
+                if (e.target.classList.contains('post-card-tag')) {
+                    e.stopPropagation();
+                    return;
+                }
+                
+                // 링크 이동
+                window.location.href = this.getAttribute('href');
+            });
+        });
+        
+        // 창 크기 변경 시 위치 재조정
+        window.addEventListener('resize', positionFixedSections);
+    });
+</script>
+{% endblock %}

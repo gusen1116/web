@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}와구센{% endblock %}</title>
+    
+    <!-- CSS 파일들을 모듈화하여 로드 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/typography.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/simulation.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/slide.css') }}">
+    <!-- 현대적인 아이콘 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Pretendard 폰트 추가 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+    
+    {% block head %}{% endblock %}
+    
+    <!-- 테마 초기화 스크립트 - 깜빡임 방지 -->
+    <script>
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark-theme');
+            document.body.classList.add('dark-theme');
+        }
+    </script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <!-- 통합된 헤더 영역 -->
+    <header class="top-header" id="siteHeader">
+        <div class="container">
+            <div class="logo-area">
+                <a href="{{ url_for('main.index') }}" class="logo">
+                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="로고 이미지">
+                    <span class="site-name">와구센</span>
+                </a>
+            </div>
+            
+            <!-- 네비게이션 메뉴 -->
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="{{ url_for('posts.index') }}">블로그</a></li>
+                    <li><a href="{{ url_for('simulation.index') }}">시뮬레이션</a></li>
+                    <li><a href="{{ url_for('main.about') }}">소개</a></li>
+                </ul>
+            </nav>
+            
+            <div class="header-controls">
+                <!-- 검색 폼 -->
+                <div class="nav-search">
+                    <form action="{{ url_for('posts.search') }}" method="get" class="search-form" role="search">
+                        <input type="text" name="q" placeholder="검색..." aria-label="검색어 입력">
+                        <button type="submit" aria-label="검색"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+                
+                <!-- 테마 토글 버튼 -->
+                <div class="theme-toggle-area">
+                    <button class="theme-toggle" id="themeToggle" title="테마 변경" aria-label="테마 전환">
+                        <i class="fas fa-moon dark-icon"></i>
+                        <i class="fas fa-sun light-icon"></i>
+                    </button>
+                </div>
+                
+                <!-- 모바일 메뉴 토글 -->
+                <button class="mobile-toggle" aria-label="메뉴 열기">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- 푸터 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <p>&copy; 2025 | 와구센</p>
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/wagusen" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-github"></i>
+                        <span>GitHub</span>
+                    </a>
+                    <a href="mailto:contact@example.com">
+                        <i class="fas fa-envelope"></i>
+                        <span>이메일 문의</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 스크립트 -->
+    <script>
+        // 테마 토글 기능
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            const isDark = document.documentElement.classList.contains('dark-theme');
+            
+            if (isDark) {
+                document.documentElement.classList.remove('dark-theme');
+                document.body.classList.remove('dark-theme');
+                localStorage.setItem('theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark-theme');
+                document.body.classList.add('dark-theme');
+                localStorage.setItem('theme', 'dark');
+            }
+            
+            // 테마 변경 시 전체 요소에 색상 변수 적용을 위한 강제 리플로우
+            document.body.offsetHeight;
+            
+            // 다크 모드 적용 확인
+            applyThemeColors();
+        });
+
+        // 테마 색상 적용 함수
+        function applyThemeColors() {
+            const isDark = document.documentElement.classList.contains('dark-theme');
+            
+            // 루트 요소에서 CSS 변수 값 가져오기
+            const bgPrimary = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+            const textPrimary = getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim();
+            
+            // 직접 스타일 적용 (필요한 경우)
+            document.body.style.backgroundColor = bgPrimary;
+            document.body.style.color = textPrimary;
+        }
+
+        // 모바일 메뉴 토글
+        document.querySelector('.mobile-toggle').addEventListener('click', function() {
+            document.querySelector('.main-nav').classList.toggle('active');
+        });
+        
+        // 스크롤 헤더 애니메이션
+        (function() {
+            const header = document.getElementById('siteHeader');
+            let lastScrollTop = 0;
+            let isScrollingUp = false;
+            let scrollTimer = null;
+            
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                // 스크롤 방향 감지
+                if (scrollTop > lastScrollTop && scrollTop > 100) {
+                    // 아래로 스크롤
+                    if (!header.classList.contains('header-hidden')) {
+                        header.classList.add('header-hidden');
+                    }
+                    isScrollingUp = false;
+                } else {
+                    // 위로 스크롤
+                    if (header.classList.contains('header-hidden')) {
+                        header.classList.remove('header-hidden');
+                    }
+                    isScrollingUp = true;
+                }
+                
+                // 스크롤 멈춤 감지
+                clearTimeout(scrollTimer);
+                scrollTimer = setTimeout(function() {
+                    // 스크롤 멈춤
+                    if (isScrollingUp || scrollTop < 100) {
+                        header.classList.remove('header-hidden');
+                    }
+                }, 300);
+                
+                lastScrollTop = scrollTop;
+            });
+        })();
+        
+        // 문서 로드 후 실행될 함수들
+        document.addEventListener('DOMContentLoaded', function() {
+            // 포스트 카드 링크 작동 확인
+            const postLinks = document.querySelectorAll('.post-card-link');
+            
+            postLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // href 속성이 있는지 확인
+                    const href = this.getAttribute('href');
+                    if (href) {
+                        window.location.href = href;
+                    }
+                });
+                
+                // 내부 요소에 클릭 이벤트 전파 방지
+                const tagElements = link.querySelectorAll('.post-card-tag');
+                tagElements.forEach(tag => {
+                    tag.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                    });
+                });
+            });
+
+            // 모든 더보기 링크 작동 확인
+            const moreLinks = document.querySelectorAll('.more-link');
+            moreLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href) {
+                        window.location.href = href;
+                    }
+                });
+            });
+            
+            // 페이지 로드 시 테마 색상 적용
+            applyThemeColors();
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
