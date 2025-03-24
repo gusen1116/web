@@ -16,6 +16,7 @@
   font-weight: 500;
   transition: all var(--transition-normal);
   box-shadow: var(--shadow-sm);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .btn:hover {
@@ -48,6 +49,8 @@
   box-shadow: var(--shadow-md);
   padding: var(--spacing-4);
   transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  width: 100%;
+  margin: 0 auto;
 }
 
 .card:hover {
@@ -61,6 +64,10 @@
   flex-wrap: wrap;
   gap: var(--spacing-2);
   margin-bottom: var(--spacing-4);
+  width: 100%;
+  max-width: var(--container-width);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .tag {
@@ -71,6 +78,7 @@
   font-size: var(--font-size-xs);
   text-decoration: none;
   transition: all var(--transition-fast);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .tag:hover {
@@ -135,16 +143,22 @@
   margin-top: var(--spacing-8);
   padding-top: var(--spacing-4);
   border-top: 1px solid var(--border-color);
+  width: 100%;
+  max-width: var(--container-width);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .post-nav-header {
   margin-bottom: var(--spacing-4);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .related-posts {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: var(--spacing-4);
+  width: 100%;
 }
 
 .related-post-card {
@@ -168,12 +182,15 @@
 .related-post-card h4 {
   color: var(--text-primary);
   margin-bottom: var(--spacing-2);
+  width: 100%;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .related-post-card .date {
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   margin-bottom: var(--spacing-2);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .related-post-card .tag-list {
@@ -189,4 +206,5 @@
   padding: var(--spacing-1) var(--spacing-2);
   border-radius: var(--radius-full);
   font-size: var(--font-size-xs);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }

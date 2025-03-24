@@ -9,9 +9,10 @@
   gap: var(--spacing-8);
   margin-bottom: var(--spacing-8);
   width: 100%;
-  max-width: 1600px; /* 최대 너비 - 조정 가능 */
+  max-width: var(--container-width); /* 컨테이너 너비 변수 사용 */
   margin-left: auto;
   margin-right: auto;
+  padding: 0 var(--spacing-4);
 }
 
 /* ===== 메인 페이지 중앙 정렬 포스트 그리드 ===== */
@@ -21,15 +22,9 @@
   gap: var(--spacing-8);
   margin: 0 auto var(--spacing-12);
   width: calc(100% - var(--spacing-8) * 2); /* 확장된 폭에 여백 추가 */
-  max-width: 1400px; /* 최대 너비 - 조정 가능 */
+  max-width: var(--container-width); /* 컨테이너 너비 변수 사용 */
   justify-content: center;
-}
-
-/* ===== 컨테이너 너비 조정 ===== */
-.container {
-  max-width: 1400px; /* 컨테이너 폭 - 조정 가능 */
-  width: 95%;
-  margin: 0 auto;
+  padding: 0 var(--spacing-4);
 }
 
 /* ===== 슬라이드 스타일 ===== */
@@ -39,7 +34,7 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   width: 100%;
-  max-width: 1600px; /* 최대 너비 - 조정 가능 */
+  max-width: var(--container-width); /* 컨테이너 너비 변수 사용 */
   margin-left: auto;
   margin-right: auto;
   height: 300px; /* 고정 높이 - 조정 가능 */
@@ -54,7 +49,7 @@
   text-align: center;
   padding: var(--spacing-12) var(--spacing-4);
   width: 100%;
-  max-width: 800px;
+  max-width: var(--paragraph-width);
   margin: 0 auto;
 }
 
@@ -62,12 +57,19 @@
   font-size: 2.5rem; /* 슬라이드 제목 크기 - 조정 가능 */
   margin-bottom: var(--spacing-6);
   color: white;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  text-align: center;
+  width: 100%;
 }
 
 .slide p {
   font-size: 1.2rem; /* 슬라이드 본문 크기 - 조정 가능 */
   max-width: 90%;
   margin: 0 auto;
+  color: white;
+  text-align: center;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  width: 100%;
 }
 
 /* ===== 포스트 카드 스타일 ===== */
@@ -101,6 +103,7 @@
   font-size: var(--font-size-lg);
   opacity: 0;
   transition: opacity 0.3s ease;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .post-card:hover::after {
@@ -125,6 +128,8 @@
   margin-bottom: var(--spacing-3);
   line-height: 1.4;
   color: var(--text-primary);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  width: 100%;
 }
 
 .post-card-meta {
@@ -133,6 +138,7 @@
   gap: var(--spacing-2);
   font-size: calc(var(--font-size-xs) * 1.2); /* 메타 정보 크기 - 조정 가능 */
   color: var(--text-tertiary);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .post-card-date {
@@ -150,7 +156,7 @@
 }
 
 .post-card-preview {
-  font-size: 1.28rem; /* 미리보기 텍스트 크기 - 조정 가능 */
+  font-size: 1.23rem; /* 미리보기 텍스트 크기 - 조정 가능 */
   color: var(--text-secondary);
   line-height: 1.6;
   margin-bottom: var(--spacing-4);
@@ -160,6 +166,7 @@
   line-clamp: 6;
   -webkit-box-orient: vertical;
   flex: 1 1 auto;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* ===== 포스트 카드 푸터 ===== */
@@ -184,6 +191,7 @@
   padding: 4px 12px; /* 패딩 - 조정 가능 */
   border-radius: var(--radius-full);
   transition: all var(--transition-fast);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .post-card-tag:hover {
@@ -207,24 +215,40 @@
   margin-bottom: var(--spacing-8);
   color: var(--text-primary);
   text-align: center; /* 중앙 정렬 */
+  width: 100%;
+  max-width: var(--container-width);
+  margin-left: auto;
+  margin-right: auto;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .blog-section, 
 .simulation-section {
   margin-top: var(--spacing-16);
   margin-bottom: var(--spacing-16);
+  width: 100%;
+  max-width: var(--container-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 var(--spacing-4);
 }
 
 /* ===== 태그 섹션 스타일 ===== */
 .fixed-bottom-sections {
-  position: relative;
   width: 100%;
   padding: var(--spacing-8) 0;
   background-color: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+  margin-top: var(--spacing-8);
 }
 
 .tag-section {
   margin-bottom: 0; /* 마지막 섹션이므로 마진 제거 */
+  width: 100%;
+  max-width: var(--container-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 var(--spacing-4);
 }
 
 /* ===== 공간 채우기용 스타일 ===== */
@@ -239,6 +263,9 @@
   transition: all 0.3s ease;
   margin-top: var(--spacing-8);
   margin-bottom: var(--spacing-8);
+  max-width: var(--container-width);
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .load-more-container {
@@ -262,6 +289,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .more-button:hover {
@@ -277,9 +305,9 @@
 .tag-cloud {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-4); /* 간격 - 조정 가능 */
+  gap: var(--spacing-4);
   justify-content: center;
-  max-width: 1200px;
+  max-width: var(--container-width);
   margin: 0 auto;
   padding: var(--spacing-4);
 }
@@ -292,6 +320,9 @@
   text-decoration: none;
   transition: all var(--transition-fast);
   font-size: var(--font-size-md);
+  display: inline-block;
+  margin-bottom: var(--spacing-2);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .tag:hover {
@@ -336,6 +367,7 @@
   border-radius: var(--radius-lg);
   color: var(--text-tertiary);
   font-size: var(--font-size-lg);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* ===== 반응형 설정 ===== */

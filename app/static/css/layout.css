@@ -13,7 +13,7 @@
   padding: 0;
   display: flex;
   align-items: center;
-  height: 70px; /* 헤더 높이 조정 가능 */
+  width: 100%;
 }
 
 .header-hidden {
@@ -22,18 +22,18 @@
 
 .top-header .container {
   display: flex;
-  width: 100%;
-  max-width: 1600px; /* 헤더 컨테이너 최대 너비 */
-  padding: 0 var(--spacing-4);
-  margin: 0 auto;
   align-items: center;
+  max-width: var(--container-width);
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 var(--spacing-4);
 }
 
 /* ===== 로고 영역 (가로 표시) ===== */
 .logo-area {
   display: flex;
   align-items: center;
-  padding: 0 var(--spacing-4);
+  width: 16rem;
   height: 100%;
 }
 
@@ -55,6 +55,7 @@
   font-weight: 600;
   color: var(--text-primary);
   white-space: nowrap;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 /* ===== 내비게이션 스타일 ===== */
@@ -62,7 +63,6 @@
   display: flex;
   justify-content: center;
   flex-grow: 1;
-  margin-left: var(--spacing-8);
 }
 
 .main-nav ul {
@@ -72,6 +72,7 @@
   padding: 0;
   margin: 0;
   align-items: center;
+  width: auto;
 }
 
 .main-nav a {
@@ -83,6 +84,7 @@
   padding: var(--spacing-3) var(--spacing-6);
   display: flex;
   align-items: center;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .main-nav a:hover {
@@ -93,9 +95,10 @@
 .header-controls {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--spacing-4);
   height: 100%;
-  padding-right: var(--spacing-2);
+  width: 16rem;
 }
 
 /* ===== 검색 폼 ===== */
@@ -117,6 +120,7 @@
   width: 180px;
   font-size: var(--font-size-sm);
   transition: all var(--transition-fast);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .search-form input:focus {
@@ -184,11 +188,18 @@ html.dark-theme .dark-icon {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  max-width: var(--container-width);
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 var(--spacing-4);
 }
 
 .footer-info p {
   margin: 0;
   color: var(--text-secondary);
+  width: auto;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1rem;
 }
 
 .footer-links {
@@ -202,6 +213,7 @@ html.dark-theme .dark-icon {
   align-items: center;
   gap: var(--spacing-2);
   transition: color var(--transition-fast);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .footer-links a:hover {

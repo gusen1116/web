@@ -2,8 +2,14 @@
  * base.css - 기본 설정, 변수, 리셋
  */
 
+/* Import Pretendard font */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
+
 /* ===== 컬러 및 디자인 변수 (수정 가능) ===== */
 :root {
+  /* 기본 텍스트 색상을 rgb(6, 7, 39)로 통일 */
+  --text-color-primary: rgb(6, 7, 39);
+  
   /* 색상 팔레트 - 모던하고 선명한 색상으로 업데이트 */
   --primary-50: #e8f5ff;
   --primary-100: #d0ebff;
@@ -35,9 +41,9 @@
   --bg-tertiary: var(--neutral-200);
   --bg-accent: var(--primary-500);
   
-  --text-primary: var(--neutral-900);
-  --text-secondary: var(--neutral-700);
-  --text-tertiary: var(--neutral-500);
+  --text-primary: var(--text-color-primary);
+  --text-secondary: var(--text-color-primary);
+  --text-tertiary: var(--text-color-primary);
   --text-accent: var(--primary-600);
   
   --border-color: var(--neutral-300);
@@ -80,8 +86,9 @@
   --transition-fast: 150ms;
   --transition-normal: 300ms;
   
-  /* 컨테이너 */
-  --container-width: calc(900px * 1.4); /* 1.4배 확장된 너비 */
+  /* 컨테이너 - 요청에 맞게 수정 */
+  --paragraph-width: 55rem;
+  --container-width: calc(var(--paragraph-width) * 1.5);
 }
 
 /* ===== 다크 테마 설정 ===== */
@@ -91,9 +98,10 @@ html.dark-theme {
   --bg-tertiary: var(--neutral-700);
   --bg-accent: var(--primary-700);
   
-  --text-primary: var(--neutral-50);
-  --text-secondary: var(--neutral-200);
-  --text-tertiary: var(--neutral-400);
+  /* 다크모드에서도 텍스트 색상 유지 */
+  --text-primary: var(--text-color-primary);
+  --text-secondary: var(--text-color-primary);
+  --text-tertiary: var(--text-color-primary);
   --text-accent: var(--primary-300);
   
   --border-color: var(--neutral-700);
@@ -109,6 +117,7 @@ html.dark-theme {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  color: var(--text-color-primary);
 }
 
 /* ===== 푸터 고정 및 기본 레이아웃 ===== */
@@ -119,6 +128,7 @@ html, body {
 }
 
 body {
+  width: 100%;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-sans);
@@ -157,6 +167,7 @@ img {
   height: auto;
 }
 
+/* 링크 스타일 */
 a {
   color: var(--text-accent);
   text-decoration: none;
@@ -187,4 +198,61 @@ a:hover {
       opacity: 1;
       transform: translateY(0);
   }
+}
+
+/* 요청한 타이포그래피 스타일 적용 */
+h1 {
+  margin: 0 auto;
+  display: block;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 2.75rem;
+  line-height: 130%;
+  font-weight: 720;
+  text-align: left;
+  word-break: keep-all;
+  word-wrap: break-word;
+  color: inherit;
+  width: var(--paragraph-width);
+}
+
+h2 {
+  margin: 0 auto;
+  display: block;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1.9rem;
+  line-height: 130%;
+  font-weight: 700;
+  text-align: left;
+  word-break: keep-all;
+  word-wrap: break-word;
+  color: inherit;
+  width: var(--paragraph-width);
+}
+
+h3 {
+  margin: 0 auto;
+  display: block;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1.23rem;
+  line-height: 203%;
+  font-weight: 600;
+  text-align: left;
+  word-break: keep-all;
+  word-wrap: break-word;
+  color: inherit;
+  width: var(--paragraph-width);
+}
+
+p {
+  margin: 0 auto;
+  display: block;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1.23rem;
+  line-height: 203%;
+  font-weight: 400;
+  text-align: left;
+  word-break: keep-all;
+  word-wrap: break-word;
+  color: inherit;
+  width: var(--paragraph-width);
 }
