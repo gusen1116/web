@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}비행기 날개 유체역학 시뮬레이션{% endblock %}
+
+{% block content %}
+<div class="section-header">
+    <h1>비행기 날개 유체역학 시뮬레이션</h1>
+    <p>비행기 날개 주변의 유체 흐름과 압력 분포를 시각화합니다.</p>
+</div>
+
+<div class="simulation-container card">
+    <div class="simulation-controls">
+        <!-- 유체 매개변수 컨트롤 -->
+        <div class="control-group">
+            <label for="velocityControl">속도: <span id="velocityValue">50.0</span> m/s (<span id="velocityKtValue">97.2</span> kt)</label>
+            <input type="range" id="velocityControl" min="10" max="150" step="1" value="50">
+        </div>
+        
+        <div class="control-group">
+            <label for="velocityKtControl">속도(노트): <span id="velocityKtValue2">97.2</span> kt</label>
+            <input type="range" id="velocityKtControl" min="20" max="300" step="1" value="97.2">
+        </div>
+        
+        <div class="control-group">
+            <label for="altitudeControl">해발고도: <span id="altitudeValue">0</span> m</label>
+            <input type="range" id="altitudeControl" min="0" max="15000" step="100" value="0">
+        </div>
+        
+        <div class="control-group">
+            <label for="pressureControl">기압: <span id="pressureValue">101.3</span> kPa</label>
+            <input type="range" id="pressureControl" min="15" max="110" step="0.1" value="101.325">
+        </div>
+        
+        <div class="control-group">
+            <label for="temperatureControl">온도: <span id="temperatureValue">15.0</span> °C</label>
+            <input type="range" id="temperatureControl" min="-60" max="50" step="1" value="15">
+        </div>
+        
+        <!-- 날개 조종면 컨트롤 -->
+        <div class="control-group">
+            <label for="flapControl">플랩 각도: <span id="flapValue">0.0</span>°</label>
+            <input type="range" id="flapControl" min="0" max="45" step="1" value="0">
+        </div>
+        
+        <div class="control-group">
+            <label for="slatControl">슬랫 확장: <span id="slatValue">0.0</span>%</label>
+            <input type="range" id="slatControl" min="0" max="100" step="1" value="0">
+        </div>
+        
+        <div class="control-group">
+            <label for="spoilerControl">스포일러 각도: <span id="spoilerValue">0.0</span>°</label>
+            <input type="range" id="spoilerControl" min="0" max="60" step="1" value="0">
+        </div>
+        
+        <!-- 시각화 옵션 컨트롤 -->
+        <div class="control-group">
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" id="pressureToggle" checked>
+                    압력 분포 표시
+                </label>
+            </div>
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" id="particlesToggle" checked>
+                    유체 입자 표시
+                </label>
+            </div>
+            <div class="checkbox-group">
+                <label>
+                    <input type="checkbox" id="vectorsToggle" checked>
+                    속도 벡터 표시
+                </label>
+            </div>
+        </div>
+        
+        <!-- 시뮬레이션 제어 버튼 -->
+        <div class="button-group">
+            <button id="startSimulation" class="btn">시작</button>
+            <button id="stopSimulation" class="btn btn-secondary">정지</button>
+            <button id="resetSimulation" class="btn btn-secondary">초기화</button>
+        </div>
+    </div>
+    
+    <!-- 시뮬레이션 캔버스 -->
+    <canvas id="airfoilCanvas"></canvas>
+    
+    <!-- 시뮬레이션 정보 -->
+    <div class="simulation-info">
+        <h3>비행기 날개 공기역학</h3>
+        <p>이 시뮬레이션은 비행기 날개 주변의 유체 흐름과 압력 분포를 시각화합니다. 날개 형상과 유체 조건을 변경하여 어떻게 비행 성능이 영향을 받는지 관찰할 수 있습니다.</p>
+        
+        <div class="simulation-theory">
+            <h4>주요 공기역학 원리</h4>
+            <ul>
+                <li><strong>베르누이 원리</strong>: 유체 속도가 증가하면 압력이 감소합니다. 날개 윗면의 빠른 공기 흐름은 양력을 생성합니다.</li>
+                <li><strong>고양력 장치</strong>: 플랩과 슬랫은 날개의 형상을 변경하여 저속에서도 충분한 양력을 생성합니다.</li>
+                <li><strong>스포일러</strong>: 날개 윗면에서 공기 흐름을 방해하여 양력을 감소시키고 항력을 증가시킵니다.</li>
+                <li><strong>압력 분포</strong>: 빨간색은 고압 영역, 파란색은 저압 영역을 나타냅니다.</li>
+                <li><strong>표준대기 모델</strong>: 고도가 증가할수록 기압과 밀도는 감소하고, 온도는 고도 11,000m까지 약 -56.5°C로 감소합니다.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="simulation-navigation">
+    <a href="{{ url_for('simulation.index') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> 모든 시뮬레이션 보기
+    </a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/airfoil-simulation.js') }}"></script>
+{% endblock %}
