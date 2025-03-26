@@ -49,10 +49,10 @@
             <h3>태그</h3>
             <div class="tag-cloud">
                 {% for tag in tags %}
-                    <a href="{{ url_for('posts.filter_by_tag', tag=tag.name) }}" 
-                       class="tag"
-                       style="font-size: {{ 80 + tag.count * 10 }}%;">
-                        {{ tag.name }}
+                <a href="{{ url_for('posts.filter_by_tag', tag=tag.name) }}" 
+                class="tag tag-size-{% if tag.count < 3 %}small{% elif tag.count < 6 %}medium{% elif tag.count < 10 %}large{% else %}xlarge{% endif %}">
+                {{ tag.name }}
+        </a>                    {{ tag.name }}
                     </a>
                 {% endfor %}
             </div>

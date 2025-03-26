@@ -1,7 +1,7 @@
 # app/services/text_service.py
 import os
 import re
-import shutil
+# shutil 모듈 제거 - 미사용
 from datetime import datetime
 import markdown
 from flask import url_for
@@ -58,6 +58,11 @@ class TextPost:
         # 특수 태그 제거
         text = re.sub(r'\[img:[^\]]+\]', '', self.content)
         text = re.sub(r'\[file:[^\]]+\]', '', text)
+        text = re.sub(r'\[youtube:[^\]]+\]', '', text)  # 유튜브 태그 제거
+        text = re.sub(r'\[twitch:[^\]]+\]', '', text)   # 트위치 태그 제거
+        text = re.sub(r'\[twitter:[^\]]+\]', '', text)  # 트위터 태그 제거
+        text = re.sub(r'\[instagram:[^\]]+\]', '', text) # 인스타그램 태그 제거
+        text = re.sub(r'\[facebook:[^\]]+\]', '', text) # 페이스북 태그 제거
         text = re.sub(r'#+ ', '', text)  # 마크다운 헤더 태그 제거
         text = re.sub(r'\*\*|\*|__', '', text)  # 강조 태그 제거
         
@@ -71,6 +76,11 @@ class TextPost:
         # 특수 태그 제거
         text = re.sub(r'\[img:[^\]]+\]', '', self.content)
         text = re.sub(r'\[file:[^\]]+\]', '', text)
+        text = re.sub(r'\[youtube:[^\]]+\]', '', text)
+        text = re.sub(r'\[twitch:[^\]]+\]', '', text)
+        text = re.sub(r'\[twitter:[^\]]+\]', '', text)
+        text = re.sub(r'\[instagram:[^\]]+\]', '', text)
+        text = re.sub(r'\[facebook:[^\]]+\]', '', text)
         
         # 단어 수 계산
         words = re.findall(r'\w+', text)
@@ -108,8 +118,43 @@ def parse_text_file(file_path):
 
 def render_content(content, base_url_images, base_url_files):
     """특수 태그를 HTML로 변환"""
-    # 마크다운 변환을 위해 마크다운 라이브러리 사용
-    md = markdown.Markdown(extensions=['extra', 'codehilite'])
+    # 소셜 미디어 임베드를 먼저 처리 (마크다운 변환 전)
+    # 이렇게 하면 임베드 HTML이 마크다운에 의해 이스케이프되지 않음
+    
+    # YouTube 임베드 변환
+    content = re.sub(
+        r'\[youtube:([^\]]+)\]',
+        lambda m: _create_youtube_embed(m.group(1)),
+        content
+    )
+    
+    # Twitch 임베드 변환
+    content = re.sub(
+        r'\[twitch:([^\]]+)\]',
+        lambda m: _create_twitch_embed(m.group(1)),
+        content
+    )
+    
+    # Twitter 임베드 변환
+    content = re.sub(
+        r'\[twitter:([^\]]+)\]',
+        lambda m: _create_twitter_embed(m.group(1)),
+        content
+    )
+    
+    # Instagram 임베드 변환
+    content = re.sub(
+        r'\[instagram:([^\]]+)\]',
+        lambda m: _create_instagram_embed(m.group(1)),
+        content
+    )
+    
+    # Facebook 임베드 변환
+    content = re.sub(
+        r'\[facebook:([^\]]+)\]',
+        lambda m: _create_facebook_embed(m.group(1)),
+        content
+    )
     
     # 이미지 태그 변환
     content = re.sub(
@@ -125,10 +170,137 @@ def render_content(content, base_url_images, base_url_files):
         content
     )
     
+    # 마크다운 변환을 위해 마크다운 라이브러리 사용
+    md = markdown.Markdown(extensions=['extra', 'codehilite'])
+    
     # 마크다운 변환
     html_content = md.convert(content)
     
     return html_content
+
+
+def _create_youtube_embed(youtube_id_or_url):
+    """유튜브 임베드 HTML 생성"""
+    # URL에서 동영상 ID 추출
+    if 'youtube.com' in youtube_id_or_url or 'youtu.be' in youtube_id_or_url:
+        if 'youtube.com/watch' in youtube_id_or_url:
+            # https://www.youtube.com/watch?v=VIDEO_ID 형식
+            match = re.search(r'v=([^&]+)', youtube_id_or_url)
+            if match:
+                youtube_id = match.group(1)
+            else:
+                return f'<div class="error-embed">잘못된 YouTube URL: {youtube_id_or_url}</div>'
+        elif 'youtu.be/' in youtube_id_or_url:
+            # https://youtu.be/VIDEO_ID 형식
+            youtube_id = youtube_id_or_url.split('/')[-1]
+        else:
+            return f'<div class="error-embed">지원되지 않는 YouTube URL 형식: {youtube_id_or_url}</div>'
+    else:
+        # 이미 ID만 제공된 경우
+        youtube_id = youtube_id_or_url
+    
+    # 임베드 HTML 생성 (사진과 같은 크기로 설정, 16:9 비율 유지)
+    embed_html = f'''
+<div class="social-embed youtube-embed">
+    <iframe width="880" height="495" src="https://www.youtube.com/embed/{youtube_id}" 
+    frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+    allowfullscreen></iframe>
+</div>
+'''
+    return embed_html
+
+
+def _create_twitch_embed(twitch_id_or_url):
+    """트위치 임베드 HTML 생성"""
+    # URL 또는 채널명/클립ID 처리
+    if 'twitch.tv' in twitch_id_or_url:
+        # 트위치 URL 처리
+        if '/clip/' in twitch_id_or_url:
+            # 클립 URL
+            clip_id = twitch_id_or_url.split('/')[-1]
+            embed_html = f'''
+<div class="social-embed twitch-embed">
+    <iframe width="880" height="495" src="https://clips.twitch.tv/embed?clip={clip_id}" 
+    frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
+</div>
+'''
+        else:
+            # 채널 URL
+            channel_name = twitch_id_or_url.split('/')[-1]
+            embed_html = f'''
+<div class="social-embed twitch-embed">
+    <iframe width="880" height="495" src="https://player.twitch.tv/?channel={channel_name}&parent=localhost" 
+    frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
+</div>
+'''
+    else:
+        # 채널명이나 클립ID만 제공된 경우
+        # 클립 ID인지 채널명인지 구분하기 어려우므로 기본적으로 채널로 간주
+        embed_html = f'''
+<div class="social-embed twitch-embed">
+    <iframe width="880" height="495" src="https://player.twitch.tv/?channel={twitch_id_or_url}&parent=localhost" 
+    frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
+</div>
+'''
+    return embed_html
+
+
+def _create_twitter_embed(tweet_id_or_url):
+    """트위터 임베드 HTML 생성"""
+    # URL에서 트윗 ID 추출
+    if 'twitter.com' in tweet_id_or_url or 'x.com' in tweet_id_or_url:
+        # https://twitter.com/username/status/TWEET_ID 형식
+        tweet_id = tweet_id_or_url.split('/')[-1]
+    else:
+        # 이미 ID만 제공된 경우
+        tweet_id = tweet_id_or_url
+    
+    # 임베드 HTML 생성
+    embed_html = f'''
+<div class="social-embed twitter-embed">
+    <blockquote class="twitter-tweet" data-width="880">
+        <a href="https://twitter.com/x/status/{tweet_id}"></a>
+    </blockquote>
+</div>
+'''
+    return embed_html
+
+
+def _create_instagram_embed(post_id_or_url):
+    """인스타그램 임베드 HTML 생성"""
+    # URL에서 포스트 ID 추출
+    if 'instagram.com' in post_id_or_url:
+        # https://www.instagram.com/p/POST_ID/ 형식
+        if '/p/' in post_id_or_url:
+            post_id = post_id_or_url.split('/p/')[-1].strip('/')
+        else:
+            return f'<div class="error-embed">지원되지 않는 Instagram URL 형식: {post_id_or_url}</div>'
+    else:
+        # 이미 ID만 제공된 경우
+        post_id = post_id_or_url
+    
+    # 임베드 HTML 생성 (880px 너비)
+    embed_html = f'''
+<div class="social-embed instagram-embed" style="width:880px; max-width:100%;">
+    <blockquote class="instagram-media" data-width="880"
+    data-instgrm-permalink="https://www.instagram.com/p/{post_id}/"
+    style="width:880px; max-width:100%;">
+        <a href="https://www.instagram.com/p/{post_id}/"></a>
+    </blockquote>
+</div>
+'''
+    return embed_html
+
+
+def _create_facebook_embed(post_id_or_url):
+    """페이스북 임베드 HTML 생성"""
+    # 임베드 HTML 생성
+    embed_html = f'''
+<div class="social-embed facebook-embed" style="width:880px; max-width:100%;">
+    <div class="fb-post" data-href="{post_id_or_url}" data-width="880"></div>
+</div>
+'''
+    return embed_html
 
 
 def get_all_text_posts(text_dir, tag=None):

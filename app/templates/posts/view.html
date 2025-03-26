@@ -6,6 +6,8 @@
 <!-- 코드 하이라이팅 추가 -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/line-numbers/prism-line-numbers.min.css">
+<!-- 소셜 미디어 임베드 스타일 추가 -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/social-embed.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -63,6 +65,7 @@
 {% block scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+<!-- 소셜 미디어 임베드 스크립트 -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // 코드 블록에 line-numbers 클래스 추가
@@ -71,6 +74,31 @@
             block.parentNode.classList.add('line-numbers');
             Prism.highlightElement(block);
         });
+        
+        // 트위터 위젯 로딩
+        if (document.querySelector('.twitter-embed')) {
+            const script = document.createElement('script');
+            script.src = 'https://platform.twitter.com/widgets.js';
+            script.async = true;
+            document.body.appendChild(script);
+        }
+        
+        // 인스타그램 위젯 로딩
+        if (document.querySelector('.instagram-embed')) {
+            const script = document.createElement('script');
+            script.src = '//www.instagram.com/embed.js';
+            script.async = true;
+            document.body.appendChild(script);
+        }
+        
+        // 페이스북 위젯 로딩
+        if (document.querySelector('.facebook-embed')) {
+            const script = document.createElement('script');
+            script.src = 'https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v12.0';
+            script.async = true;
+            script.defer = true;
+            document.body.appendChild(script);
+        }
     });
 </script>
 {% endblock %}

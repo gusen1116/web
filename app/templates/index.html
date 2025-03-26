@@ -8,15 +8,15 @@
 {% endblock %}
 
 {% block content %}
-<!-- 심플한 슬라이드 섹션 - 수정된 부분 -->
+<!-- 슬라이드 섹션 -->
 <div class="slide-container">
   <div class="slide active">
-    <h2>기술과 과학의 만남</h2>
-    <p>최신 기술로 구현된 물리 시뮬레이션을 경험해보세요</p>
-  </div>
-  <div class="slide">
     <h2>물리 법칙의 시각화</h2>
     <p>복잡한 개념을 직관적으로 이해할 수 있습니다</p>
+  </div>
+  <div class="slide">
+    <h2>기술과 과학의 만남</h2>
+    <p>최신 기술로 구현된 물리 시뮬레이션을 경험해보세요</p>
   </div>
   <div class="slide">
     <h2>실험과 탐구의 장</h2>
@@ -30,11 +30,11 @@
   </div>
 </div>
 
-<!-- 블로그 섹션 - 중앙 정렬된 3개 포스트 -->
+<!-- 블로그 섹션 - 중앙 정렬된 포스트 -->
 <section class="blog-section">
   <h2 class="section-title">블로그</h2>
   
-  <!-- 중앙 정렬된 포스트 그리드 - 폭 확장 -->
+  <!-- 중앙 정렬된 포스트 그리드 - 3개 포스트로 수정 -->
   <div class="posts-grid-center">
     {% if recent_posts %}
       {% for post in recent_posts[:3] %}
@@ -88,7 +88,7 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- 수정된 슬라이드 스크립트 -->
+<!-- 슬라이드 스크립트 -->
 <script src="{{ url_for('static', filename='js/slide-minimal.js') }}"></script>
 <script src="{{ url_for('static', filename='js/simulation.js') }}"></script>
 {% endblock %}

@@ -16,6 +16,25 @@
   width: 100%;
 }
 
+/* 메인 컨텐츠에 여백 추가 */
+main {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  margin-top: calc(var(--font-size-2xl) * 1.5); /* H2 크기 정도의 여백 추가 */
+}
+
+main .container {
+  padding-top: var(--spacing-8); /* 상단 여백 추가 */
+  padding-bottom: var(--spacing-8); /* 하단 여백 추가 */
+}
+
+/* 섹션 타이틀에 여백 추가 */
+.section-title {
+  margin-top: var(--spacing-8);
+  margin-bottom: var(--spacing-8);
+}
+
 .header-hidden {
   transform: translateY(-100%);
 }

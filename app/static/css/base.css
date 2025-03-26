@@ -98,10 +98,10 @@ html.dark-theme {
   --bg-tertiary: var(--neutral-700);
   --bg-accent: var(--primary-700);
   
-  /* 다크모드에서도 텍스트 색상 유지 */
-  --text-primary: var(--text-color-primary);
-  --text-secondary: var(--text-color-primary);
-  --text-tertiary: var(--text-color-primary);
+  /* 다크모드에서 텍스트 색상 흰색으로 변경 */
+  --text-primary: white;
+  --text-secondary: white;
+  --text-tertiary: rgba(255, 255, 255, 0.8);
   --text-accent: var(--primary-300);
   
   --border-color: var(--neutral-700);
@@ -117,7 +117,7 @@ html.dark-theme {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  color: var(--text-color-primary);
+  color: var(--text-primary);
 }
 
 /* ===== 푸터 고정 및 기본 레이아웃 ===== */
