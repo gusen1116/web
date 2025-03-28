@@ -1,8 +1,8 @@
 /* 
- * simulation.css - 물리 시뮬레이션 관련 스타일
+ * simulation.css - Enhanced styles for physical simulations
  */
 
-/* ===== 시뮬레이션 컨테이너 ===== */
+/* ===== Simulation container ===== */
 .simulation-container {
   background-color: var(--bg-secondary);
   border-radius: var(--radius-lg);
@@ -15,27 +15,30 @@
   margin-right: auto;
 }
 
-/* ===== 시뮬레이션 캔버스 ===== */
-#simulationCanvas {
+/* ===== Simulation canvas - enhanced size ===== */
+#simulationCanvas,
+#airfoilCanvas {
   width: 100%;
-  height: 300px; /* 시뮬레이션 높이 - 조정 가능 */
+  height: 500px; /* Significantly increased height for better visualization */
   background-color: var(--bg-primary);
   border-radius: var(--radius-md);
   margin: var(--spacing-4) 0;
   box-shadow: var(--shadow-sm);
 }
 
-/* ===== 시뮬레이션 컨트롤 ===== */
+/* ===== Simulation controls ===== */
 .simulation-controls {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid layout */
   gap: var(--spacing-4);
   margin-bottom: var(--spacing-4);
+  padding: var(--spacing-4);
+  background-color: var(--bg-tertiary);
+  border-radius: var(--radius-md);
 }
 
 .control-group {
-  flex: 1;
-  min-width: 200px;
+  margin-bottom: var(--spacing-4);
 }
 
 .control-group label {
@@ -46,23 +49,55 @@
   color: var(--text-primary);
 }
 
-.control-group input {
+.control-group input[type="range"] {
   width: 100%;
   margin-bottom: var(--spacing-2);
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  padding: var(--spacing-2);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
+  padding: var(--spacing-2) 0;
+  background-color: transparent;
 }
 
-/* ===== 시뮬레이션 버튼 그룹 ===== */
+/* A320-specific indicators */
+.flaps-indicator, 
+.slats-indicator {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.flaps-position {
+  font-weight: bold;
+  color: var(--text-accent);
+}
+
+/* Improved checkbox styling */
+.checkbox-group {
+  margin-bottom: var(--spacing-2);
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin-right: var(--spacing-2);
+}
+
+/* ===== Simulation buttons ===== */
 .button-group {
   display: flex;
   gap: var(--spacing-2);
   margin-top: var(--spacing-2);
 }
 
-/* ===== 시뮬레이션 정보 ===== */
+.button-group .btn {
+  flex: 1;
+  min-width: 80px;
+}
+
+/* ===== Simulation information ===== */
 .simulation-info {
   margin-top: var(--spacing-4);
   padding-top: var(--spacing-4);
@@ -106,28 +141,46 @@
 .simulation-theory li {
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: var(--text-primary);
+  margin-bottom: var(--spacing-2);
 }
 
-/* ===== 반응형 ===== */
+/* Section header styling */
+.section-header {
+  margin-bottom: var(--spacing-6);
+  text-align: center;
+}
+
+.section-header h1 {
+  margin-bottom: var(--spacing-2);
+  font-size: 2.2rem;
+  color: var(--text-primary);
+}
+
+.section-header p {
+  color: var(--text-secondary);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Navigation controls */
+.simulation-navigation {
+  margin-top: var(--spacing-6);
+  display: flex;
+  justify-content: center;
+}
+
+/* ===== Responsive adjustments ===== */
 @media (max-width: 768px) {
   .simulation-controls {
+    grid-template-columns: 1fr; /* Single column on mobile */
+  }
+  
+  .button-group {
     flex-direction: column;
   }
   
-  .control-group {
-    width: 100%;
-  }
-  
-  #simulationCanvas {
-    height: 250px;
-  }
-  
-  .simulation-info h3,
-  .simulation-info p,
-  .simulation-theory h4,
-  .simulation-theory ul {
-    width: 100%;
-    margin-left: 0;
-    margin-right: 0;
+  #simulationCanvas,
+  #airfoilCanvas {
+    height: 350px; /* Reduced height on mobile but still larger than original */
   }
 }

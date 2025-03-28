@@ -1,103 +1,442 @@
 {% extends "base.html" %}
 
-{% block title %}비행기 날개 유체역학 시뮬레이션{% endblock %}
+{% block title %}Airbus A320 날개 시스템 완전 시뮬레이션{% endblock %}
+
+{% block head %}
+<style>
+  /* 캔버스 강화 */
+  #airfoilCanvas {
+    width: 100%;
+    height: 600px;
+    background-color: #0c0c1e;
+    border-radius: var(--radius-md);
+    margin: var(--spacing-4) 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  /* 컨트롤 섹션 향상 */
+  .simulation-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-6);
+    margin-bottom: var(--spacing-6);
+    padding: var(--spacing-6);
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+  }
+  
+  /* 슬라이더 외관 강화 */
+  input[type="range"] {
+    width: 100%;
+    height: 10px;
+    background: linear-gradient(to right, #3a7bd5, #00d2ff);
+    border-radius: 5px;
+    -webkit-appearance: none;
+    appearance: none;
+    margin: var(--spacing-2) 0 var(--spacing-4) 0;
+  }
+  
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    border: 1px solid #ccc;
+  }
+  
+  input[type="range"]::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    border: 1px solid #ccc;
+  }
+  
+  /* 제어 영역 섹션 타이틀 */
+  .control-section-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-4);
+    color: var(--text-accent);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: var(--spacing-2);
+  }
+  
+  /* A320 플랩 설정 버튼 */
+  .flap-settings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    margin: var(--spacing-4) 0;
+  }
+  
+  .flap-setting-btn {
+    flex: 1;
+    min-width: 50px;
+    padding: var(--spacing-2) var(--spacing-2);
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  
+  .flap-setting-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    background-color: var(--bg-accent);
+    color: white;
+  }
+  
+  .flap-setting-btn.active {
+    background-color: var(--bg-accent);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  
+  /* A320 슬랫 설정 버튼 */
+  .slat-settings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    margin: var(--spacing-4) 0;
+  }
+  
+  .slat-setting-btn {
+    flex: 1;
+    min-width: 50px;
+    padding: var(--spacing-2) var(--spacing-2);
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  
+  .slat-setting-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    background-color: var(--primary-400);
+    color: white;
+  }
+  
+  .slat-setting-btn.active {
+    background-color: var(--primary-400);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  
+  /* 현재 설정 표시기 */
+  .config-indicator-container {
+    background-color: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-3);
+    margin-top: var(--spacing-3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .config-indicator-label {
+    font-weight: 500;
+    font-size: 0.95rem;
+  }
+  
+  .config-indicator-value {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-accent);
+    background-color: var(--bg-primary);
+    padding: var(--spacing-1) var(--spacing-3);
+    border-radius: var(--radius-md);
+    min-width: 60px;
+    text-align: center;
+  }
+  
+  /* 토글 스위치 */
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+  }
+  
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+  }
+  
+  .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+  }
+  
+  input:checked + .toggle-slider {
+    background-color: #2196F3;
+  }
+  
+  input:checked + .toggle-slider:before {
+    transform: translateX(26px);
+  }
+  
+  /* 토글 옵션 컨테이너 */
+  .toggle-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-3);
+  }
+  
+  .visualization-options {
+    background-color: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-4);
+    margin-top: var(--spacing-4);
+  }
+  
+  .visualization-title {
+    margin-bottom: var(--spacing-3);
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  
+  /* 버튼 그룹 */
+  .button-group {
+    display: flex;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-4);
+  }
+  
+  .button-group .btn {
+    flex: 1;
+    padding: var(--spacing-3) var(--spacing-2);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+  }
+  
+  .button-group .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  /* 정보 섹션 */
+  .info-card {
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-4);
+    margin-top: var(--spacing-4);
+    box-shadow: var(--shadow-sm);
+    border-left: 4px solid var(--bg-accent);
+  }
+  
+  .info-card-title {
+    font-weight: 600;
+    margin-bottom: var(--spacing-2);
+    color: var(--text-accent);
+  }
+  
+  /* 각 섹션의 분리 */
+  .control-block {
+    margin-bottom: var(--spacing-6);
+  }
+  
+  /* 특수효과 클래스 */
+  .animate-pulse {
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+  }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="section-header">
-    <h1>비행기 날개 유체역학 시뮬레이션</h1>
-    <p>비행기 날개 주변의 유체 흐름과 압력 분포를 시각화합니다.</p>
+    <h1>Airbus A320 날개 시스템 완전 시뮬레이션</h1>
+    <p>슬랫, 플랩, 스포일러를 포함한 A320 항공기의 전체 고양력 장치 시스템 실시간 시뮬레이션</p>
 </div>
 
 <div class="simulation-container card">
-    <div class="simulation-controls">
-        <!-- 유체 매개변수 컨트롤 -->
-        <div class="control-group">
-            <label for="velocityControl">속도: <span id="velocityValue">50.0</span> m/s (<span id="velocityKtValue">97.2</span> kt)</label>
-            <input type="range" id="velocityControl" min="10" max="150" step="1" value="50">
-        </div>
-        
-        <div class="control-group">
-            <label for="velocityKtControl">속도(노트): <span id="velocityKtValue2">97.2</span> kt</label>
-            <input type="range" id="velocityKtControl" min="20" max="300" step="1" value="97.2">
-        </div>
-        
-        <div class="control-group">
-            <label for="altitudeControl">해발고도: <span id="altitudeValue">0</span> m</label>
-            <input type="range" id="altitudeControl" min="0" max="15000" step="100" value="0">
-        </div>
-        
-        <div class="control-group">
-            <label for="pressureControl">기압: <span id="pressureValue">101.3</span> kPa</label>
-            <input type="range" id="pressureControl" min="15" max="110" step="0.1" value="101.325">
-        </div>
-        
-        <div class="control-group">
-            <label for="temperatureControl">온도: <span id="temperatureValue">15.0</span> °C</label>
-            <input type="range" id="temperatureControl" min="-60" max="50" step="1" value="15">
-        </div>
-        
-        <!-- 날개 조종면 컨트롤 -->
-        <div class="control-group">
-            <label for="flapControl">플랩 각도: <span id="flapValue">0.0</span>°</label>
-            <input type="range" id="flapControl" min="0" max="45" step="1" value="0">
-        </div>
-        
-        <div class="control-group">
-            <label for="slatControl">슬랫 확장: <span id="slatValue">0.0</span>%</label>
-            <input type="range" id="slatControl" min="0" max="100" step="1" value="0">
-        </div>
-        
-        <div class="control-group">
-            <label for="spoilerControl">스포일러 각도: <span id="spoilerValue">0.0</span>°</label>
-            <input type="range" id="spoilerControl" min="0" max="60" step="1" value="0">
-        </div>
-        
-        <!-- 시각화 옵션 컨트롤 -->
-        <div class="control-group">
-            <div class="checkbox-group">
-                <label>
-                    <input type="checkbox" id="pressureToggle" checked>
-                    압력 분포 표시
-                </label>
-            </div>
-            <div class="checkbox-group">
-                <label>
-                    <input type="checkbox" id="particlesToggle" checked>
-                    유체 입자 표시
-                </label>
-            </div>
-            <div class="checkbox-group">
-                <label>
-                    <input type="checkbox" id="vectorsToggle" checked>
-                    속도 벡터 표시
-                </label>
-            </div>
-        </div>
-        
-        <!-- 시뮬레이션 제어 버튼 -->
-        <div class="button-group">
-            <button id="startSimulation" class="btn">시작</button>
-            <button id="stopSimulation" class="btn btn-secondary">정지</button>
-            <button id="resetSimulation" class="btn btn-secondary">초기화</button>
-        </div>
-    </div>
-    
     <!-- 시뮬레이션 캔버스 -->
     <canvas id="airfoilCanvas"></canvas>
     
+    <!-- 컨트롤 섹션 -->
+    <div class="simulation-controls">
+        <!-- 1. 플랩 컨트롤 영역 -->
+        <div class="control-group">
+            <h3 class="control-section-title">플랩 시스템 (Flaps)</h3>
+            
+            <!-- A320 플랩 설정 버튼 -->
+            <div class="flap-settings">
+                <button class="flap-setting-btn active" data-setting="UP">UP</button>
+                <button class="flap-setting-btn" data-setting="1">1</button>
+                <button class="flap-setting-btn" data-setting="2">2</button>
+                <button class="flap-setting-btn" data-setting="3">3</button>
+                <button class="flap-setting-btn" data-setting="FULL">FULL</button>
+                <button class="flap-setting-btn" data-setting="FULL_MAX">FULL+</button>
+            </div>
+            
+            <!-- 수동 플랩 각도 조정 -->
+            <label for="flapControl">플랩 각도 (Flap Angle): <span id="flapValue">0.0</span>°</label>
+            <input type="range" id="flapControl" min="0" max="40" step="1" value="0">
+            
+            <!-- 현재 플랩 설정 표시 -->
+            <div class="config-indicator-container">
+                <span class="config-indicator-label">현재 플랩 설정:</span>
+                <span class="config-indicator-value" id="flapPosition">UP</span>
+            </div>
+            
+            <!-- 2. 슬랫 컨트롤 영역 -->
+            <h3 class="control-section-title" style="margin-top: var(--spacing-6);">슬랫 시스템 (Slats)</h3>
+            
+            <!-- A320 슬랫 설정 버튼 -->
+            <div class="slat-settings">
+                <button class="slat-setting-btn active" data-slat="UP">UP</button>
+                <button class="slat-setting-btn" data-slat="MID">MID</button>
+                <button class="slat-setting-btn" data-slat="1">1</button>
+                <button class="slat-setting-btn" data-slat="2">2</button>
+                <button class="slat-setting-btn" data-slat="3">FULL</button>
+            </div>
+            
+            <!-- 수동 슬랫 확장 조정 -->
+            <label for="slatControl">슬랫 확장 (Slat Extension): <span id="slatValue">0.0</span>%</label>
+            <input type="range" id="slatControl" min="0" max="26" step="0.5" value="0">
+            
+            <!-- 현재 슬랫 설정 표시 -->
+            <div class="config-indicator-container">
+                <span class="config-indicator-label">현재 슬랫 설정:</span>
+                <span class="config-indicator-value" id="slatPosition">UP</span>
+            </div>
+        </div>
+        
+        <!-- 3. 스포일러 및 기본 컨트롤 영역 -->
+        <div class="control-group">
+            <h3 class="control-section-title">스포일러 (Spoilers)</h3>
+            
+            <!-- 스포일러 컨트롤 -->
+            <label for="spoilerControl">스포일러 각도 (Spoiler Angle): <span id="spoilerValue">0.0</span>°</label>
+            <input type="range" id="spoilerControl" min="0" max="50" step="1" value="0">
+            
+            <h3 class="control-section-title" style="margin-top: var(--spacing-6);">비행 매개변수 (Flight Parameters)</h3>
+            
+            <div class="control-block">
+                <label for="angleControl">받음각 (Angle of Attack): <span id="angleValue">4.0</span>°</label>
+                <input type="range" id="angleControl" min="-5" max="15" step="0.5" value="4">
+            </div>
+            
+            <div class="control-block">
+                <label for="velocityControl">유동 속도 (Airspeed): <span id="velocityValue">100.0</span> m/s</label>
+                <input type="range" id="velocityControl" min="10" max="300" step="5" value="100">
+            </div>
+            
+            <!-- 시각화 옵션 -->
+            <div class="visualization-options">
+                <div class="visualization-title">시각화 옵션</div>
+                
+                <div class="toggle-option">
+                    <label for="pressureToggle">압력 분포 표시</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="pressureToggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="toggle-option">
+                    <label for="streamlineToggle">유선 표시</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="streamlineToggle" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- 제어 버튼 -->
+            <div class="button-group">
+                <button id="startSimulation" class="btn">시작</button>
+                <button id="stopSimulation" class="btn btn-secondary">일시정지</button>
+                <button id="resetSimulation" class="btn btn-secondary">초기화</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- 시뮬레이션 정보 -->
     <div class="simulation-info">
-        <h3>비행기 날개 공기역학</h3>
-        <p>이 시뮬레이션은 비행기 날개 주변의 유체 흐름과 압력 분포를 시각화합니다. 날개 형상과 유체 조건을 변경하여 어떻게 비행 성능이 영향을 받는지 관찰할 수 있습니다.</p>
+        <h3>Airbus A320 날개 및 고양력 장치 시스템</h3>
+        <p>
+            이 시뮬레이션은 에어버스 A320 시리즈에 사용되는 날개 형상과 고양력 장치 시스템을 정확하게 구현합니다.
+            A320 항공기의 날개는 효율적인 순항 성능과 저속 안정성을 모두 제공하기 위해 3가지 주요 고양력 장치를
+            사용합니다: 슬랫(앞전 고양력 장치), 플랩(뒷전 고양력 장치), 그리고 스포일러입니다.
+        </p>
         
         <div class="simulation-theory">
-            <h4>주요 공기역학 원리</h4>
+            <h4>A320 날개 시스템의 주요 구성요소</h4>
             <ul>
-                <li><strong>베르누이 원리</strong>: 유체 속도가 증가하면 압력이 감소합니다. 날개 윗면의 빠른 공기 흐름은 양력을 생성합니다.</li>
-                <li><strong>고양력 장치</strong>: 플랩과 슬랫은 날개의 형상을 변경하여 저속에서도 충분한 양력을 생성합니다.</li>
-                <li><strong>스포일러</strong>: 날개 윗면에서 공기 흐름을 방해하여 양력을 감소시키고 항력을 증가시킵니다.</li>
-                <li><strong>압력 분포</strong>: 빨간색은 고압 영역, 파란색은 저압 영역을 나타냅니다.</li>
-                <li><strong>표준대기 모델</strong>: 고도가 증가할수록 기압과 밀도는 감소하고, 온도는 고도 11,000m까지 약 -56.5°C로 감소합니다.</li>
+                <li><strong>슬랫(Slat):</strong> 날개 앞쪽에 위치한 장치로, 확장 시 날개 앞전에 슬롯을 형성해 고받음각에서도 
+                    경계층 박리를 지연시키고 실속을 방지합니다. A320은 5단계의 슬랫 위치(0%, 18%, 22%, 24%, 26%)를 가집니다.</li>
+                
+                <li><strong>단일 슬롯 파울러 플랩(Single-slotted Fowler Flap):</strong> 날개 뒤쪽에 위치하며, 뒤로 
+                    이동하면서 동시에 아래로 회전하는 메커니즘을 사용합니다. 플랩 확장 시 1) 날개 면적 증가, 2) 캠버 증가, 
+                    3) 슬롯을 통한 공기 유입의 세 가지 효과로 양력을 증가시킵니다.</li>
+                
+                <li><strong>스포일러(Spoiler):</strong> 날개 상면에 위치한 패널로, 작동 시 경계층을 교란시켜 의도적으로 
+                    양력을 감소시키고 항력을 증가시킵니다. A320은 날개당 5개의 스포일러 패널을 갖고 있으며, 롤 제어, 비행 
+                    중 감속, 그리고 착륙 후 양력 덤핑용으로 사용됩니다.</li>
+            </ul>
+        </div>
+        
+        <!-- 플랩과 슬랫 설정에 관한 정보 -->
+        <div class="info-card">
+            <div class="info-card-title">A320 고양력 장치 설정</div>
+            <p>A320 항공기의 플랩과 슬랫은 다음과 같은 표준 설정을 가집니다:</p>
+            <ul>
+                <li><strong>CONF 0 (Clean):</strong> 플랩 0°, 슬랫 0% - 순항 비행</li>
+                <li><strong>CONF 1:</strong> 플랩 10°, 슬랫 18% (또는 22%) - 초기 이륙/접근</li>
+                <li><strong>CONF 2:</strong> 플랩 15°, 슬랫 22% - 이륙/접근</li>
+                <li><strong>CONF 3:</strong> 플랩 20°, 슬랫 22% - 이륙/접근</li>
+                <li><strong>CONF FULL:</strong> 플랩 35°/40°, 슬랫 26% - 착륙</li>
             </ul>
         </div>
     </div>
@@ -111,5 +450,54 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/airfoil-simulation.js') }}"></script>
+<script src="{{ url_for('static', filename='js/a320-complete-system.js') }}"></script>
+<script>
+    // 슬랫 버튼 이벤트 핸들러
+    document.addEventListener('DOMContentLoaded', function() {
+        const slatButtons = document.querySelectorAll('.slat-setting-btn');
+        
+        slatButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // 먼저, 모든 버튼에서 active 클래스 제거
+                slatButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // 클릭된 버튼에 active 클래스 추가
+                this.classList.add('active');
+                
+                // 슬랫 설정 데이터 가져오기
+                const slatSetting = this.getAttribute('data-slat');
+                
+                // 슬랫 컨트롤 업데이트
+                const slatControl = document.getElementById('slatControl');
+                const slatValue = document.getElementById('slatValue');
+                const slatPosition = document.getElementById('slatPosition');
+                
+                let slatExtensionValue = 0;
+                
+                // 슬랫 위치에 따른 확장 값 설정
+                switch(slatSetting) {
+                    case 'UP': slatExtensionValue = 0; break;
+                    case 'MID': slatExtensionValue = 18; break;
+                    case '1': slatExtensionValue = 22; break;
+                    case '2': slatExtensionValue = 24; break;
+                    case '3': slatExtensionValue = 26; break;
+                }
+                
+                // UI 업데이트
+                if (slatControl) slatControl.value = slatExtensionValue;
+                if (slatValue) slatValue.textContent = slatExtensionValue.toFixed(1);
+                if (slatPosition) slatPosition.textContent = slatSetting;
+                
+                // 이벤트 발생 (슬랫 컨트롤러가 변경 이벤트를 감지하도록)
+                if (slatControl) {
+                    const event = new Event('input', {
+                        bubbles: true,
+                        cancelable: true,
+                    });
+                    slatControl.dispatchEvent(event);
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}
