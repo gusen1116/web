@@ -4,13 +4,15 @@ from flask_socketio import SocketIO
 from flask_wtf.csrf import CSRFProtect
 import os
 from app.config import Config
+from app.routes.visualization import register_visualization_routes
+from app.services import socket_service
 
 socketio = SocketIO()
 csrf = CSRFProtect()
 
 def create_app(config_object=None):
     app = Flask(__name__, instance_relative_config=True)
-    
+    register_visualization_routes(app)    
     # 기본 설정은 Config 클래스에서 가져옴
     app.config.from_object(Config)
     
