@@ -1,3 +1,4 @@
+# app/routes/main_routes.py
 from flask import Blueprint, render_template, current_app
 import os
 from app.services.text_service import get_all_text_posts, get_tags_count

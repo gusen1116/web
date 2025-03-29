@@ -4,11 +4,13 @@ from flask_socketio import SocketIO
 from flask_wtf.csrf import CSRFProtect
 import os
 from app.config import Config
-from app.routes.visualization import register_visualization_routes
-from app.services import socket_service
 
+# 다른 임포트 전에 인스턴스 먼저 생성
 socketio = SocketIO()
 csrf = CSRFProtect()
+
+# 이제 socketio를 사용할 수 있는 라우트 및 기타 모듈 임포트
+from app.routes.visualization import register_visualization_routes
 
 def create_app(config_object=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -43,5 +45,8 @@ def create_app(config_object=None):
     os.makedirs(images_dir, exist_ok=True)
     os.makedirs(texts_dir, exist_ok=True)
     os.makedirs(files_dir, exist_ok=True)
+    
+    # socketio가 정의된 후 socket_service 임포트
+    from app.services import socket_service
     
     return app
