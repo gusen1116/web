@@ -1,0 +1,1460 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title | default('A320 Wing System Analysis Dashboard') }}{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/simulation.css') }}">
+<style>
+  /* Dashboard specific styles */
+  .dashboard-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto auto;
+    gap: var(--spacing-6);
+    width: 100%;
+    max-width: var(--container-width);
+    margin: 0 auto var(--spacing-8);
+  }
+  
+  .dashboard-card {
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-4);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .dashboard-card-header {
+    margin-bottom: var(--spacing-4);
+    padding-bottom: var(--spacing-2);
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .dashboard-card-header h3 {
+    width: 100%;
+    margin: 0 0 var(--spacing-1) 0;
+    font-size: 1.2rem;
+  }
+  
+  .dashboard-card-header p {
+    width: 100%;
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-tertiary);
+  }
+  
+  .dashboard-card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .dashboard-card-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+  }
+  
+  .dashboard-controls {
+    grid-column: span 2;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-4);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-4);
+  }
+  
+  .control-panel {
+    flex: 1;
+    min-width: 200px;
+  }
+  
+  .control-panel h3 {
+    margin: 0 0 var(--spacing-2) 0;
+    font-size: 1.1rem;
+    width: 100%;
+    padding-bottom: var(--spacing-2);
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .control-group {
+    margin-bottom: var(--spacing-3);
+  }
+  
+  .dashboard-data {
+    grid-column: span 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-4);
+  }
+  
+  .data-card {
+    flex: 1;
+    min-width: 200px;
+    background-color: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-3);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .data-card h4 {
+    margin: 0 0 var(--spacing-2) 0;
+    font-size: 1rem;
+    color: var(--text-tertiary);
+    width: 100%;
+  }
+  
+  .data-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-primary);
+  }
+  
+  .positive-trend {
+    color: #4cd964;
+  }
+  
+  .negative-trend {
+    color: #ff3b30;
+  }
+  
+  .neutral-trend {
+    color: var(--text-primary);
+  }
+  
+  .config-button {
+    padding: 8px 12px;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    cursor: pointer;
+    margin: 2px;
+    border: 1px solid #ccc;
+    display: inline-block;
+  }
+  
+  .config-button.active {
+    background-color: #0d6efd;
+    color: white;
+    font-weight: bold;
+    transform: scale(1.05);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+  
+  .config-button:hover:not(.active) {
+    background-color: #e9ecef;
+    transform: translateY(-2px);
+  }
+  
+  .config-settings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .control-button {
+    display: inline-block;
+    margin-bottom: 8px;
+    padding: 8px 16px;
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+  }
+  
+  .control-button.secondary {
+    background-color: #6c757d;
+  }
+  
+  .control-button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+  
+  .checkbox-option {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+  }
+  
+  .checkbox-option input {
+    margin-right: 8px;
+  }
+  
+  /* 고양력 장치 시각화 스타일 */
+  .device-settings-container {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+  }
+
+  .device-indicator {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 5px;
+    padding: 8px;
+  }
+
+  .device-visualization {
+    width: 120px;
+    height: 60px;
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .spoiler-viz {
+    height: 40px;
+    margin-top: 10px;
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+
+  .device-info {
+    font-size: 12px;
+  }
+
+  .setting-value {
+    font-weight: bold;
+    color: #0d6efd;
+  }
+
+  .device-slider {
+    width: 100%;
+    margin: 10px 0;
+  }
+  
+  /* 공기흐름 시각화 스타일 */
+  #airflowCanvas {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f0f5ff;
+    width: 100%;
+    max-width: 800px;
+    height: 400px;
+  }
+  
+  @media (max-width: 900px) {
+    .dashboard-container {
+      grid-template-columns: 1fr;
+    }
+    
+    .dashboard-controls,
+    .dashboard-data {
+      grid-column: span 1;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="section-header">
+    <h1>{{ title | default('A320 Wing System Analysis Dashboard') }}</h1>
+    <p>{{ description | default('Comprehensive analysis of A320 aerodynamics with high-lift devices') }}</p>
+</div>
+
+<!-- Main dashboard container -->
+<div class="dashboard-container">
+    <!-- Controls section -->
+    <div class="dashboard-controls">
+        <div class="control-panel">
+            <h3>Flight Parameters</h3>
+            
+            <div class="control-group">
+                <label for="aoaControl">Angle of Attack: <span id="aoaValue">2.0</span>°</label>
+                <input type="range" id="aoaControl" min="-5" max="15" step="0.5" value="2.0">
+            </div>
+            
+            <div class="control-group">
+                <label for="machControl">Mach Number: <span id="machValue">0.78</span></label>
+                <input type="range" id="machControl" min="0.1" max="0.95" step="0.01" value="0.78">
+            </div>
+            
+            <div class="control-group">
+                <label for="altitudeControl">Altitude: <span id="altitudeValue">10000</span> m</label>
+                <input type="range" id="altitudeControl" min="0" max="12000" step="100" value="10000">
+            </div>
+        </div>
+        
+        <div class="control-panel">
+            <h3>High-Lift Devices</h3>
+            
+            <!-- 플랩 설정 - 시각적으로 개선 -->
+            <div class="control-group">
+                <label>Flap Setting</label>
+                <div class="device-settings-container">
+                    <div class="config-settings" id="flapSettings">
+                        <div class="config-button" data-setting="UP">UP</div>
+                        <div class="config-button" data-setting="1">1</div>
+                        <div class="config-button active" data-setting="2">2</div>
+                        <div class="config-button" data-setting="3">3</div>
+                        <div class="config-button" data-setting="FULL">FULL</div>
+                    </div>
+                    <div class="device-indicator">
+                        <div class="device-visualization flap-viz" id="flapVisualization">
+                            <!-- 플랩 위치를 시각적으로 보여주는 이미지/SVG -->
+                            <svg width="120" height="60" viewBox="0 0 120 60">
+                                <path d="M10,30 L80,30 L90,35 L100,30 L100,40 L10,40 Z" fill="#d0d0d0" stroke="#606060" id="flapShape"/>
+                            </svg>
+                        </div>
+                        <div class="device-info">
+                            <div>현재 설정: <span id="flapSettingLabel" class="setting-value">2</span></div>
+                            <div>각도: <span id="flapAngleLabel" class="setting-value">15°</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 슬랫 설정 - 시각적으로 개선 -->
+            <div class="control-group">
+                <label>Slat Setting</label>
+                <div class="device-settings-container">
+                    <div class="config-settings" id="slatSettings">
+                        <div class="config-button" data-setting="UP">UP</div>
+                        <div class="config-button" data-setting="MID">MID</div>
+                        <div class="config-button active" data-setting="2">2</div>
+                        <div class="config-button" data-setting="3">FULL</div>
+                    </div>
+                    <div class="device-indicator">
+                        <div class="device-visualization slat-viz" id="slatVisualization">
+                            <!-- 슬랫 위치를 시각적으로 보여주는 이미지/SVG -->
+                            <svg width="120" height="60" viewBox="0 0 120 60">
+                                <path d="M20,30 L40,25 L60,30 L60,40 L20,40 Z" fill="#d8d8d8" stroke="#606060" id="slatShape"/>
+                            </svg>
+                        </div>
+                        <div class="device-info">
+                            <div>현재 설정: <span id="slatSettingLabel" class="setting-value">2</span></div>
+                            <div>확장: <span id="slatExtensionLabel" class="setting-value">24%</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 스포일러 설정 - 시각적으로 개선 -->
+            <div class="control-group">
+                <label for="spoilerControl">Spoiler Deflection: <span id="spoilerValue">0</span>°</label>
+                <input type="range" id="spoilerControl" min="0" max="50" step="1" value="0" class="device-slider">
+                <div class="device-visualization spoiler-viz" id="spoilerVisualization">
+                    <!-- 스포일러 위치를 시각적으로 보여주는 이미지/SVG -->
+                    <svg width="120" height="40" viewBox="0 0 120 40">
+                        <path d="M10,20 L110,20 L110,22 L10,22 Z" fill="#b0b0b0" stroke="#404040" id="spoilerShape"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <div class="control-panel">
+            <h3>Actions</h3>
+            
+            <div class="control-group">
+                <button id="updateData" class="control-button">
+                    <i class="fas fa-sync"></i> Update Analysis
+                </button>
+                
+                <button id="resetConfig" class="control-button secondary">
+                    <i class="fas fa-undo"></i> Reset Configuration
+                </button>
+                
+                <button id="exportData" class="control-button secondary">
+                    <i class="fas fa-download"></i> Export Data
+                </button>
+            </div>
+            
+            <div class="control-group">
+                <div class="checkbox-option">
+                    <input type="checkbox" id="autoUpdate" checked>
+                    <label for="autoUpdate">Auto-update on changes</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Key performance metrics -->
+    <div class="dashboard-data">
+        <div class="data-card">
+            <h4>Lift Coefficient (CL)</h4>
+            <div class="data-value" id="liftCoefficient">0.374</div>
+            <div class="data-trend positive-trend" id="liftTrend">+2.3%</div>
+        </div>
+        
+        <div class="data-card">
+            <h4>Drag Coefficient (CD)</h4>
+            <div class="data-value" id="dragCoefficient">0.0136</div>
+            <div class="data-trend negative-trend" id="dragTrend">+4.8%</div>
+        </div>
+        
+        <div class="data-card">
+            <h4>Lift-to-Drag Ratio</h4>
+            <div class="data-value" id="ldRatio">27.5</div>
+            <div class="data-trend neutral-trend" id="ldTrend">-2.3%</div>
+        </div>
+        
+        <div class="data-card">
+            <h4>Critical Mach Number</h4>
+            <div class="data-value" id="criticalMach">0.83</div>
+            <div class="data-trend positive-trend" id="machTrend">+5.1%</div>
+        </div>
+    </div>
+    
+    <!-- 공기흐름 시각화 대시보드 카드 추가 -->
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <h3>Airflow Visualization</h3>
+            <p>Real-time airflow around the A320 wing section</p>
+        </div>
+        <div class="dashboard-card-content">
+            <canvas id="airflowCanvas" width="800" height="400"></canvas>
+        </div>
+    </div>
+    
+    <!-- Airfoil plot -->
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <h3>Airfoil Geometry</h3>
+            <p>A320 wing section with current high-lift device configuration</p>
+        </div>
+        <div class="dashboard-card-content">
+            <img id="airfoilPlot" src="{{ url_for('visualization.get_visualization', plot_type='airfoil') }}" 
+                 alt="A320 Airfoil Geometry">
+        </div>
+    </div>
+    
+    <!-- Pressure distribution plot -->
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <h3>Pressure Distribution</h3>
+            <p>Surface pressure coefficient around the airfoil</p>
+        </div>
+        <div class="dashboard-card-content">
+            <img id="pressurePlot" src="{{ url_for('visualization.get_visualization', plot_type='pressure') }}" 
+                 alt="Pressure Distribution">
+        </div>
+    </div>
+    
+    <!-- Lift-Drag polar plot -->
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <h3>Lift-Drag Polar</h3>
+            <p>Aerodynamic performance across angles of attack</p>
+        </div>
+        <div class="dashboard-card-content">
+            <img id="polarPlot" src="{{ url_for('visualization.get_visualization', plot_type='polar') }}" 
+                 alt="Lift-Drag Polar">
+        </div>
+    </div>
+</div>
+
+<!-- Navigation links -->
+<div class="simulation-navigation">
+    <a href="{{ url_for('simulation.a320_simulation') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Simulation
+    </a>
+    
+    <a href="{{ url_for('simulation.index') }}" class="btn btn-secondary">
+        <i class="fas fa-th"></i> All Simulations
+    </a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+<!-- 차트 & 시각화 라이브러리 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+
+<!-- Socket.IO (선택적) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
+
+<!-- 대시보드 컨트롤러 스크립트 -->
+<script>
+// 전역 설정 객체
+const dashboardConfig = {
+    // 초기 설정값
+    initialConfig: {
+        aoa: 2.0,
+        mach: 0.78,
+        altitude: 10000,
+        flap: '2',
+        slat: '2',
+        spoiler: 0
+    },
+    
+    // 상태 추적
+    currentConfig: null,
+    
+    // 폴링 간격 (밀리초)
+    updateInterval: 1000,
+    
+    // 갱신 타이머
+    updateTimer: null,
+    
+    // 현재 애니메이션 대기열
+    pendingAnimations: false,
+    
+    // 캐시 방지 타임스탬프
+    timestamp: 0
+};
+
+// 대시보드 초기화
+function initDashboard() {
+    console.log("A320 대시보드 초기화 중...");
+    
+    // 초기 설정으로 구성 설정
+    dashboardConfig.currentConfig = {...dashboardConfig.initialConfig};
+    
+    // 컨트롤 요소
+    setupControls();
+    
+    // 초기 시각화 업데이트
+    updateDeviceVisualizations();
+    
+    // 공기흐름 시각화 초기화
+    initFlowVisualization();
+    
+    // 초기 데이터 가져오기
+    fetchData();
+    
+    // 주기적 업데이트 시작
+    startPeriodicUpdates();
+    
+    console.log("대시보드 초기화 완료");
+}
+
+// 컨트롤 설정
+function setupControls() {
+    // 요소
+    const aoaControl = document.getElementById('aoaControl');
+    const aoaValue = document.getElementById('aoaValue');
+    const machControl = document.getElementById('machControl');
+    const machValue = document.getElementById('machValue');
+    const altitudeControl = document.getElementById('altitudeControl');
+    const altitudeValue = document.getElementById('altitudeValue');
+    const spoilerControl = document.getElementById('spoilerControl');
+    const spoilerValue = document.getElementById('spoilerValue');
+    const flapButtons = document.querySelectorAll('#flapSettings .config-button');
+    const slatButtons = document.querySelectorAll('#slatSettings .config-button');
+    const updateButton = document.getElementById('updateData');
+    const resetButton = document.getElementById('resetConfig');
+    const exportButton = document.getElementById('exportData');
+    const autoUpdateCheckbox = document.getElementById('autoUpdate');
+    
+    // 초기 상태로 UI 설정
+    if (aoaControl && aoaValue) {
+        aoaControl.value = dashboardConfig.currentConfig.aoa;
+        aoaValue.textContent = dashboardConfig.currentConfig.aoa.toFixed(1);
+    }
+    
+    if (machControl && machValue) {
+        machControl.value = dashboardConfig.currentConfig.mach;
+        machValue.textContent = dashboardConfig.currentConfig.mach.toFixed(2);
+    }
+    
+    if (altitudeControl && altitudeValue) {
+        altitudeControl.value = dashboardConfig.currentConfig.altitude;
+        altitudeValue.textContent = dashboardConfig.currentConfig.altitude;
+    }
+    
+    if (spoilerControl && spoilerValue) {
+        spoilerControl.value = dashboardConfig.currentConfig.spoiler;
+        spoilerValue.textContent = dashboardConfig.currentConfig.spoiler;
+    }
+    
+    // 플랩 버튼 초기화
+    flapButtons.forEach(btn => {
+        if (btn.dataset.setting === dashboardConfig.currentConfig.flap) {
+            btn.classList.add('active');
+        }
+        btn.addEventListener('click', function() {
+            flapButtons.forEach(innerBtn => innerBtn.classList.remove('active'));
+            this.classList.add('active');
+            dashboardConfig.currentConfig.flap = this.dataset.setting;
+            updateAnimations();
+        });
+    });
+    
+    // 슬랫 버튼 초기화
+    slatButtons.forEach(btn => {
+        if (btn.dataset.setting === dashboardConfig.currentConfig.slat) {
+            btn.classList.add('active');
+        }
+        btn.addEventListener('click', function() {
+            slatButtons.forEach(innerBtn => innerBtn.classList.remove('active'));
+            this.classList.add('active');
+            dashboardConfig.currentConfig.slat = this.dataset.setting;
+            updateAnimations();
+        });
+    });
+    
+    // AoA 컨트롤 이벤트
+    if (aoaControl) {
+        aoaControl.addEventListener('input', function() {
+            const value = parseFloat(this.value);
+            aoaValue.textContent = value.toFixed(1);
+            dashboardConfig.currentConfig.aoa = value;
+            updateAnimations();
+        });
+    }
+    
+    // Mach 컨트롤 이벤트
+    if (machControl) {
+        machControl.addEventListener('input', function() {
+            const value = parseFloat(this.value);
+            machValue.textContent = value.toFixed(2);
+            dashboardConfig.currentConfig.mach = value;
+            updateAnimations();
+        });
+    }
+    
+    // 고도 컨트롤 이벤트
+    if (altitudeControl) {
+        altitudeControl.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            altitudeValue.textContent = value;
+            dashboardConfig.currentConfig.altitude = value;
+            updateAnimations();
+        });
+    }
+    
+    // 스포일러 컨트롤 이벤트
+    if (spoilerControl) {
+        spoilerControl.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            spoilerValue.textContent = value;
+            dashboardConfig.currentConfig.spoiler = value;
+            updateAnimations();
+        });
+    }
+    
+    // 수동 업데이트 버튼
+    if (updateButton) {
+        updateButton.addEventListener('click', function() {
+            fetchData(true); // 강제 업데이트
+        });
+    }
+    
+    // 리셋 버튼
+    if (resetButton) {
+        resetButton.addEventListener('click', function() {
+            resetConfig();
+        });
+    }
+    
+    // 데이터 내보내기 버튼
+    if (exportButton) {
+        exportButton.addEventListener('click', function() {
+            exportData();
+        });
+    }
+}
+
+// 설정값 초기화
+function resetConfig() {
+    console.log("설정 초기화 중...");
+    
+    // 기본값으로 재설정
+    dashboardConfig.currentConfig = {...dashboardConfig.initialConfig};
+    
+    // UI 업데이트
+    const aoaControl = document.getElementById('aoaControl');
+    const aoaValue = document.getElementById('aoaValue');
+    if (aoaControl && aoaValue) {
+        aoaControl.value = dashboardConfig.currentConfig.aoa;
+        aoaValue.textContent = dashboardConfig.currentConfig.aoa.toFixed(1);
+    }
+    
+    const machControl = document.getElementById('machControl');
+    const machValue = document.getElementById('machValue');
+    if (machControl && machValue) {
+        machControl.value = dashboardConfig.currentConfig.mach;
+        machValue.textContent = dashboardConfig.currentConfig.mach.toFixed(2);
+    }
+    
+    const altitudeControl = document.getElementById('altitudeControl');
+    const altitudeValue = document.getElementById('altitudeValue');
+    if (altitudeControl && altitudeValue) {
+        altitudeControl.value = dashboardConfig.currentConfig.altitude;
+        altitudeValue.textContent = dashboardConfig.currentConfig.altitude;
+    }
+    
+    const spoilerControl = document.getElementById('spoilerControl');
+    const spoilerValue = document.getElementById('spoilerValue');
+    if (spoilerControl && spoilerValue) {
+        spoilerControl.value = dashboardConfig.currentConfig.spoiler;
+        spoilerValue.textContent = dashboardConfig.currentConfig.spoiler;
+    }
+    
+    // 플랩 버튼 업데이트
+    const flapButtons = document.querySelectorAll('#flapSettings .config-button');
+    flapButtons.forEach(btn => {
+        if (btn.dataset.setting === dashboardConfig.currentConfig.flap) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+    
+    // 슬랫 버튼 업데이트
+    const slatButtons = document.querySelectorAll('#slatSettings .config-button');
+    slatButtons.forEach(btn => {
+        if (btn.dataset.setting === dashboardConfig.currentConfig.slat) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+    
+    // 시각화 업데이트
+    updateDeviceVisualizations();
+    
+    // 공기흐름 시각화 업데이트
+    updateFlowVisualization();
+    
+    // 데이터 업데이트
+    fetchData(true);
+}
+
+// 고양력 장치 시각화 업데이트 함수
+function updateDeviceVisualizations() {
+    // 플랩 시각화 업데이트
+    const flapSetting = dashboardConfig.currentConfig.flap;
+    const flapShape = document.getElementById('flapShape');
+    const flapSettingLabel = document.getElementById('flapSettingLabel');
+    const flapAngleLabel = document.getElementById('flapAngleLabel');
+    
+    // 플랩 설정에 따른 각도 및 형상 업데이트
+    let flapAngle = 0;
+    switch(flapSetting) {
+        case 'UP': flapAngle = 0; break;
+        case '1': flapAngle = 10; break;
+        case '2': flapAngle = 15; break;
+        case '3': flapAngle = 20; break;
+        case 'FULL': flapAngle = 35; break;
+    }
+    
+    if (flapShape) {
+        // SVG 경로 업데이트 - 플랩 각도에 따라 모양 변경
+        const deflection = flapAngle * 0.5; // 시각화를 위한 각도 스케일링
+        flapShape.setAttribute('d', `M10,30 L80,30 L90,${35 + deflection} L100,${30 + deflection*1.5} L100,${40 + deflection} L10,40 Z`);
+    }
+    
+    if (flapSettingLabel) flapSettingLabel.textContent = flapSetting;
+    if (flapAngleLabel) flapAngleLabel.textContent = `${flapAngle}°`;
+    
+    // 슬랫 시각화 업데이트
+    const slatSetting = dashboardConfig.currentConfig.slat;
+    const slatShape = document.getElementById('slatShape');
+    const slatSettingLabel = document.getElementById('slatSettingLabel');
+    const slatExtensionLabel = document.getElementById('slatExtensionLabel');
+    
+    // 슬랫 설정에 따른 확장 및 형상 업데이트
+    let slatExtension = 0;
+    switch(slatSetting) {
+        case 'UP': slatExtension = 0; break;
+        case 'MID': slatExtension = 18; break;
+        case '1': slatExtension = 22; break;
+        case '2': slatExtension = 24; break;
+        case '3': slatExtension = 26; break;
+    }
+    
+    if (slatShape) {
+        // SVG 경로 업데이트 - 슬랫 확장에 따라 모양 변경
+        const extension = slatExtension * 0.4; // 시각화를 위한 확장 스케일링
+        slatShape.setAttribute('d', `M${20-extension},30 L${40-extension},25 L${60-extension},30 L${60-extension},40 L${20-extension},40 Z`);
+    }
+    
+    if (slatSettingLabel) slatSettingLabel.textContent = slatSetting;
+    if (slatExtensionLabel) slatExtensionLabel.textContent = `${slatExtension}%`;
+    
+    // 스포일러 시각화 업데이트
+    const spoilerDeflection = dashboardConfig.currentConfig.spoiler;
+    const spoilerShape = document.getElementById('spoilerShape');
+    
+    if (spoilerShape) {
+        // SVG 경로 업데이트 - 스포일러 각도에 따라 모양 변경
+        const deflection = spoilerDeflection * 0.3; // 시각화를 위한 각도 스케일링
+        spoilerShape.setAttribute('d', `M10,20 L110,20 L110,${22-deflection} L10,22 Z`);
+    }
+}
+
+// 공기흐름 시각화 코드
+let airflowCanvas, airflowContext;
+let airflowAnimationId = null;
+let particles = [];
+let wingData = null;
+
+// 공기흐름 시각화 초기화 함수
+function initFlowVisualization() {
+    airflowCanvas = document.getElementById('airflowCanvas');
+    if (!airflowCanvas) return;
+    
+    airflowContext = airflowCanvas.getContext('2d');
+    const width = airflowCanvas.width;
+    const height = airflowCanvas.height;
+    
+    // 날개 형상 데이터 초기화
+    wingData = {
+        chord: 0.6 * width,
+        thickness: 0.12,
+        camber: 0.02,
+        leadingEdgeX: 0.2 * width,
+        leadingEdgeY: height / 2,
+        aoa: dashboardConfig.currentConfig.aoa * Math.PI / 180,
+        flap: dashboardConfig.currentConfig.flap,
+        slat: dashboardConfig.currentConfig.slat,
+        spoiler: dashboardConfig.currentConfig.spoiler
+    };
+    
+    // 입자 초기화
+    initParticles();
+    
+    // 애니메이션 시작
+    if (airflowAnimationId) {
+        cancelAnimationFrame(airflowAnimationId);
+    }
+    airflowAnimationId = requestAnimationFrame(updateAirflow);
+}
+
+// 입자 초기화
+function initParticles() {
+    particles = [];
+    const width = airflowCanvas.width;
+    const height = airflowCanvas.height;
+    const particleCount = 300;
+    
+    for (let i = 0; i < particleCount; i++) {
+        particles.push({
+            x: Math.random() * width * 0.2,
+            y: Math.random() * height,
+            speed: 1 + Math.random() * 2,
+            size: 1 + Math.random() * 2,
+            color: `hsla(210, 100%, ${50 + Math.random() * 30}%, 0.7)`,
+            age: Math.random() * 100,
+            trail: []  // 입자 궤적 저장용 배열
+        });
+    }
+}
+
+// 공기흐름 업데이트
+function updateAirflow() {
+    if (!airflowCanvas || !airflowContext) return;
+    
+    const width = airflowCanvas.width;
+    const height = airflowCanvas.height;
+    
+    // 현재 설정 반영
+    wingData.aoa = dashboardConfig.currentConfig.aoa * Math.PI / 180;
+    wingData.flap = dashboardConfig.currentConfig.flap;
+    wingData.slat = dashboardConfig.currentConfig.slat;
+    wingData.spoiler = dashboardConfig.currentConfig.spoiler;
+    
+    // 캔버스 초기화
+    airflowContext.clearRect(0, 0, width, height);
+    
+    // 배경
+    airflowContext.fillStyle = '#f0f5ff';
+    airflowContext.fillRect(0, 0, width, height);
+    
+    // 날개 그리기
+    drawAirfoil();
+    
+    // 입자 업데이트 및 그리기
+    updateAndDrawParticles();
+    
+    // 애니메이션 지속
+    airflowAnimationId = requestAnimationFrame(updateAirflow);
+}
+
+// 에어포일(날개 형상) 그리기
+function drawAirfoil() {
+    const ctx = airflowContext;
+    
+    // 좌표 변환
+    const chord = wingData.chord;
+    const thickness = wingData.thickness;
+    const camber = wingData.camber;
+    const leadingEdgeX = wingData.leadingEdgeX;
+    const leadingEdgeY = wingData.leadingEdgeY;
+    const aoa = wingData.aoa;
+    
+    // 회전 행렬 적용
+    const cosA = Math.cos(aoa);
+    const sinA = Math.sin(aoa);
+    
+    // 좀 더 정교한 에어포일 형상 (NACA 4-digit 기반)
+    const points = 50;
+    const upperSurface = [];
+    const lowerSurface = [];
+    
+    for (let i = 0; i <= points; i++) {
+        const x = i / points;
+        
+        // 두께 분포 (NACA 4-digit 공식)
+        const yt = 5 * thickness * (0.2969 * Math.sqrt(x) - 0.1260 * x - 0.3516 * x**2 + 0.2843 * x**3 - 0.1015 * x**4);
+        
+        // 캠버라인 (NACA 4-digit 공식)
+        let yc = 0;
+        if (x < 0.4) {
+            yc = camber * (2 * 0.4 * x - x**2) / 0.4**2;
+        } else {
+            yc = camber * ((1 - 2 * 0.4) + 2 * 0.4 * x - x**2) / (1 - 0.4)**2;
+        }
+        
+        // 상부 및 하부 표면
+        const xu = x;
+        const yu = yc + yt;
+        const xl = x;
+        const yl = yc - yt;
+        
+        // 회전 및 위치 조정
+        const xRot = leadingEdgeX + chord * (cosA * xu - sinA * yu);
+        const yRot = leadingEdgeY + chord * (sinA * xu + cosA * yu);
+        
+        upperSurface.push({x: xRot, y: yRot});
+        
+        const xRotL = leadingEdgeX + chord * (cosA * xl - sinA * yl);
+        const yRotL = leadingEdgeY + chord * (sinA * xl + cosA * yl);
+        
+        lowerSurface.unshift({x: xRotL, y: yRotL});
+    }
+    
+    // 최종 형상 그리기
+    ctx.beginPath();
+    ctx.moveTo(upperSurface[0].x, upperSurface[0].y);
+    
+    // 상부 표면
+    for (let i = 1; i < upperSurface.length; i++) {
+        ctx.lineTo(upperSurface[i].x, upperSurface[i].y);
+    }
+    
+    // 하부 표면
+    for (let i = 0; i < lowerSurface.length; i++) {
+        ctx.lineTo(lowerSurface[i].x, lowerSurface[i].y);
+    }
+    
+    ctx.closePath();
+    ctx.fillStyle = '#d0d0d0';
+    ctx.strokeStyle = '#606060';
+    ctx.lineWidth = 1;
+    ctx.fill();
+    ctx.stroke();
+    
+    // 고양력 장치 그리기
+    if (wingData.flap !== 'UP') {
+        drawFlap();
+    }
+    
+    if (wingData.slat !== 'UP') {
+        drawSlat();
+    }
+    
+    if (wingData.spoiler > 0) {
+        drawSpoiler();
+    }
+}
+
+// 플랩 그리기
+function drawFlap() {
+    const ctx = airflowContext;
+    const chord = wingData.chord;
+    const leadingEdgeX = wingData.leadingEdgeX;
+    const leadingEdgeY = wingData.leadingEdgeY;
+    const aoa = wingData.aoa;
+    
+    // 플랩 각도 설정
+    let flapDeflection = 0;
+    switch(wingData.flap) {
+        case '1': flapDeflection = 10; break;
+        case '2': flapDeflection = 15; break;
+        case '3': flapDeflection = 20; break;
+        case 'FULL': flapDeflection = 35; break;
+    }
+    
+    // 각도 변환
+    const flapRad = (flapDeflection * Math.PI / 180) + aoa;
+    
+    // 플랩 위치 - 날개 코드의 70%부터 시작
+    const flapChordFraction = 0.7;
+    const flapLength = chord * (1 - flapChordFraction);
+    
+    // 플랩 힌지 위치
+    const hingeX = leadingEdgeX + flapChordFraction * chord * Math.cos(aoa);
+    const hingeY = leadingEdgeY + flapChordFraction * chord * Math.sin(aoa);
+    
+    // 플랩 그리기
+    ctx.save();
+    ctx.translate(hingeX, hingeY);
+    ctx.rotate(flapRad);
+    
+    ctx.beginPath();
+    ctx.moveTo(0, -0.02 * chord);
+    ctx.lineTo(flapLength, -0.01 * chord);
+    ctx.lineTo(flapLength, 0.02 * chord);
+    ctx.lineTo(0, 0.03 * chord);
+    ctx.closePath();
+    
+    ctx.fillStyle = '#b0b0b0';
+    ctx.fill();
+    ctx.strokeStyle = '#606060';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    
+    ctx.restore();
+}
+
+// 슬랫 그리기
+function drawSlat() {
+    const ctx = airflowContext;
+    const chord = wingData.chord;
+    const leadingEdgeX = wingData.leadingEdgeX;
+    const leadingEdgeY = wingData.leadingEdgeY;
+    const aoa = wingData.aoa;
+    
+    // 슬랫 확장 설정
+    let slatExtension = 0;
+    let slatAngle = 0;
+    switch(wingData.slat) {
+        case 'MID': 
+            slatExtension = 0.05;
+            slatAngle = 3;
+            break;
+        case '1': 
+            slatExtension = 0.06;
+            slatAngle = 5;
+            break;
+        case '2': 
+            slatExtension = 0.07;
+            slatAngle = 6;
+            break;
+        case '3': 
+            slatExtension = 0.08;
+            slatAngle = 8;
+            break;
+    }
+    
+    // 슬랫 위치 계산
+    const slatAngleRad = (slatAngle * Math.PI / 180) + aoa;
+    const slatX = leadingEdgeX - slatExtension * chord * Math.cos(aoa - slatAngleRad);
+    const slatY = leadingEdgeY - slatExtension * chord * Math.sin(aoa - slatAngleRad);
+    
+    // 슬랫 그리기
+    ctx.save();
+    ctx.translate(slatX, slatY);
+    ctx.rotate(slatAngleRad);
+    
+    const slatLength = chord * 0.15;
+    
+    ctx.beginPath();
+    ctx.moveTo(0, -0.01 * chord);
+    ctx.lineTo(slatLength, -0.02 * chord);
+    ctx.lineTo(slatLength, 0.01 * chord);
+    ctx.lineTo(0, 0.02 * chord);
+    ctx.closePath();
+    
+    ctx.fillStyle = '#c0c0c0';
+    ctx.fill();
+    ctx.strokeStyle = '#606060';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    
+    ctx.restore();
+}
+
+// 스포일러 그리기
+function drawSpoiler() {
+    const ctx = airflowContext;
+    const chord = wingData.chord;
+    const leadingEdgeX = wingData.leadingEdgeX;
+    const leadingEdgeY = wingData.leadingEdgeY;
+    const aoa = wingData.aoa;
+    
+    // 스포일러 위치 - 날개 코드의 50%부터 시작
+    const spoilerStart = 0.5;
+    const spoilerLength = chord * 0.2;
+    
+    // 스포일러 시작점
+    const startX = leadingEdgeX + spoilerStart * chord * Math.cos(aoa);
+    const startY = leadingEdgeY + spoilerStart * chord * Math.sin(aoa);
+    
+    // 스포일러 각도
+    const spoilerAngle = wingData.spoiler * Math.PI / 180;
+    
+    // 스포일러 그리기
+    ctx.save();
+    ctx.translate(startX, startY);
+    ctx.rotate(aoa - spoilerAngle);
+    
+    ctx.beginPath();
+    ctx.moveTo(0, -0.001 * chord);
+    ctx.lineTo(spoilerLength, -0.04 * chord * (wingData.spoiler / 50));
+    ctx.lineTo(spoilerLength, -0.001 * chord);
+    ctx.closePath();
+    
+    ctx.fillStyle = '#a0a0a0';
+    ctx.fill();
+    ctx.strokeStyle = '#505050';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    
+    ctx.restore();
+}
+
+// 유동장 계산
+function calculateFlow(x, y) {
+    // 기본 유동 속도 및 방향
+    const baseSpeed = 10;
+    const aoa = wingData.aoa;
+    
+    // 자유류 성분
+    let ux = baseSpeed * Math.cos(aoa);
+    let uy = baseSpeed * Math.sin(aoa);
+    
+    // 날개 중심
+    const xc = wingData.leadingEdgeX + wingData.chord * 0.25;
+    const yc = wingData.leadingEdgeY;
+    
+    // 날개와의 상대적 위치
+    const dx = x - xc;
+    const dy = y - yc;
+    const r2 = dx*dx + dy*dy;
+    const r = Math.sqrt(r2);
+    
+    // 최소 거리 (너무 가까우면 계산 불안정)
+    if (r < 10) {
+        return { u: 0, v: 0 };
+    }
+    
+    // 받음각과 플랩/슬랫 설정에 따른 순환 강도
+    let circulation = baseSpeed * wingData.chord * Math.sin(aoa) * 2;
+    
+    // 플랩 효과
+    if (wingData.flap !== 'UP') {
+        let flapFactor = 0;
+        switch(wingData.flap) {
+            case '1': flapFactor = 0.2; break;
+            case '2': flapFactor = 0.3; break;
+            case '3': flapFactor = 0.5; break;
+            case 'FULL': flapFactor = 0.8; break;
+        }
+        circulation *= (1 + flapFactor);
+    }
+    
+    // 슬랫 효과
+    if (wingData.slat !== 'UP') {
+        let slatFactor = 0;
+        switch(wingData.slat) {
+            case 'MID': slatFactor = 0.1; break;
+            case '1': slatFactor = 0.15; break;
+            case '2': slatFactor = 0.2; break;
+            case '3': slatFactor = 0.25; break;
+        }
+        circulation *= (1 + slatFactor);
+    }
+    
+    // 스포일러 효과 (순환 감소)
+    if (wingData.spoiler > 0) {
+        const spoilerFactor = wingData.spoiler / 50 * 0.5;
+        circulation *= (1 - spoilerFactor);
+    }
+    
+    // 각도 계산
+    const theta = Math.atan2(dy, dx);
+    
+    // 양력에 의한 속도 교란 (보텍스 효과)
+    const vTheta = circulation / (2 * Math.PI * r);
+    ux -= vTheta * Math.sin(theta);
+    uy += vTheta * Math.cos(theta);
+    
+    // 두께에 의한 속도 교란 (소스/싱크 효과)
+    const source = wingData.thickness * wingData.chord * baseSpeed * 0.5;
+    const vr = source / (2 * Math.PI * r);
+    ux += vr * Math.cos(theta);
+    uy += vr * Math.sin(theta);
+    
+    return { u: ux, v: uy };
+}
+
+// 입자 업데이트 및 그리기
+function updateAndDrawParticles() {
+    if (!airflowContext || !airflowCanvas) return;
+    
+    const ctx = airflowContext;
+    const width = airflowCanvas.width;
+    const height = airflowCanvas.height;
+    
+    // 각 입자 업데이트 및 그리기
+    particles.forEach(p => {
+        // 궤적 배열 유지
+        if (p.trail.length > 10) {
+            p.trail.shift();
+        }
+        p.trail.push({ x: p.x, y: p.y });
+        
+        // 유동장에서 속도 구하기
+        const flow = calculateFlow(p.x, p.y);
+        
+        // 위치 업데이트
+        p.x += flow.u * 0.5;
+        p.y += flow.v * 0.5;
+        p.age += 1;
+        
+        // 입자가 화면을 벗어나거나 오래됐을 때 재배치
+        if (p.x < 0 || p.x > width || p.y < 0 || p.y > height || p.age > 200) {
+            p.x = Math.random() * width * 0.2;
+            p.y = Math.random() * height;
+            p.age = 0;
+            p.trail = [];
+        }
+        
+        // 궤적 그리기
+        if (p.trail.length > 1) {
+            ctx.beginPath();
+            ctx.moveTo(p.trail[0].x, p.trail[0].y);
+            
+            for (let i = 1; i < p.trail.length; i++) {
+                ctx.lineTo(p.trail[i].x, p.trail[i].y);
+            }
+            
+            ctx.strokeStyle = `hsla(210, 100%, 70%, ${0.1 + (p.trail.length / 20)})`;
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+        }
+        
+        // 입자 그리기
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+    });
+}
+
+// 공기 흐름 시각화 업데이트
+function updateFlowVisualization() {
+    // 현재 설정으로 날개 데이터 업데이트
+    if (wingData) {
+        wingData.aoa = dashboardConfig.currentConfig.aoa * Math.PI / 180;
+        wingData.flap = dashboardConfig.currentConfig.flap;
+        wingData.slat = dashboardConfig.currentConfig.slat;
+        wingData.spoiler = dashboardConfig.currentConfig.spoiler;
+    }
+}
+
+// 애니메이션 및 데이터 업데이트
+function updateAnimations() {
+    // 고양력 장치 시각화 업데이트
+    updateDeviceVisualizations();
+    
+    // 공기흐름 시각화 업데이트
+    updateFlowVisualization();
+    
+    // 자동 업데이트 체크
+    const autoUpdateCheckbox = document.getElementById('autoUpdate');
+    if (autoUpdateCheckbox && autoUpdateCheckbox.checked) {
+        // 중복 업데이트 방지
+        if (!dashboardConfig.pendingAnimations) {
+            dashboardConfig.pendingAnimations = true;
+            
+            // 약간의 딜레이 후 업데이트 (여러 컨트롤이 동시에 변경될 경우 대비)
+            setTimeout(() => {
+                fetchData(true);
+                dashboardConfig.pendingAnimations = false;
+            }, 300);
+        }
+    }
+}
+
+// 데이터 가져오기 및 플롯 업데이트
+function fetchData(forceUpdate = false) {
+    console.log("데이터 패치 중...");
+    
+    // 캐시 방지용 타임스탬프
+    dashboardConfig.timestamp = Date.now();
+    
+    // API URL 생성
+    const baseUrl = window.location.origin;
+    const apiUrl = `${baseUrl}/visualization/a320/data?aoa=${dashboardConfig.currentConfig.aoa}&mach=${dashboardConfig.currentConfig.mach}&flap=${dashboardConfig.currentConfig.flap}&slat=${dashboardConfig.currentConfig.slat}&_=${dashboardConfig.timestamp}`;
+    
+    // 데이터 요청
+    fetch(apiUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP 오류: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // 데이터 처리
+            updateDisplayedData(data);
+            // 시각화 업데이트
+            updateVisualizations(data, forceUpdate);
+        })
+        .catch(error => {
+            console.error('데이터 가져오기 오류:', error);
+            
+            // 오류 시 더미 데이터로 UI 업데이트
+            const dummyData = generateDummyData();
+            updateDisplayedData(dummyData);
+            
+            // 이미지 로드 실패 처리
+            handleImageLoadError();
+        });
+}
+
+// 표시된 데이터 업데이트
+function updateDisplayedData(data) {
+    // 계수 업데이트
+    document.getElementById('liftCoefficient').textContent = 
+        (data.current_state.lift_coefficient || 0.374).toFixed(3);
+    
+    document.getElementById('dragCoefficient').textContent = 
+        (data.current_state.drag_coefficient || 0.0136).toFixed(4);
+    
+    // L/D 비율 계산
+    const cl = data.current_state.lift_coefficient || 0.374;
+    const cd = data.current_state.drag_coefficient || 0.0136;
+    const ldRatio = cl / cd;
+    document.getElementById('ldRatio').textContent = ldRatio.toFixed(1);
+}
+
+// 시각화 업데이트
+function updateVisualizations(data, forceUpdate = false) {
+    // 캐시 방지용 타임스탬프
+    const timestamp = dashboardConfig.timestamp;
+    
+    // 에어포일 플롯
+    const airfoilPlot = document.getElementById('airfoilPlot');
+    if (airfoilPlot) {
+        airfoilPlot.src = `${data.airfoil_plot}&_=${timestamp}`;
+        airfoilPlot.onerror = handleImageLoadError;
+    }
+    
+    // 압력 분포 플롯
+    const pressurePlot = document.getElementById('pressurePlot');
+    if (pressurePlot) {
+        pressurePlot.src = `${data.pressure_plot}&_=${timestamp}`;
+        pressurePlot.onerror = handleImageLoadError;
+    }
+    
+    // 극 플롯
+    const polarPlot = document.getElementById('polarPlot');
+    if (polarPlot) {
+        polarPlot.src = `${data.polar_plot}&_=${timestamp}`;
+        polarPlot.onerror = handleImageLoadError;
+    }
+}
+
+// 더미 데이터 생성
+function generateDummyData() {
+    return {
+        airfoil_plot: `/visualization/a320/airfoil?aoa=${dashboardConfig.currentConfig.aoa}&flap=${dashboardConfig.currentConfig.flap}&slat=${dashboardConfig.currentConfig.slat}`,
+        pressure_plot: `/visualization/a320/pressure?aoa=${dashboardConfig.currentConfig.aoa}&mach=${dashboardConfig.currentConfig.mach}&flap=${dashboardConfig.currentConfig.flap}&slat=${dashboardConfig.currentConfig.slat}`,
+        polar_plot: `/visualization/a320/polar?mach=${dashboardConfig.currentConfig.mach}&flap=${dashboardConfig.currentConfig.flap}&slat=${dashboardConfig.currentConfig.slat}`,
+        current_state: {
+            angle_of_attack: dashboardConfig.currentConfig.aoa,
+            mach_number: dashboardConfig.currentConfig.mach,
+            flap_setting: dashboardConfig.currentConfig.flap,
+            slat_setting: dashboardConfig.currentConfig.slat,
+            lift_coefficient: 0.374,
+            drag_coefficient: 0.0136
+        }
+    };
+}
+
+// 이미지 로드 실패 처리
+function handleImageLoadError() {
+    // 에러 메시지로 Canvas 생성
+    console.log("이미지 로드 실패, 에러 메시지 생성 중...");
+    
+    const errorElements = document.querySelectorAll('img[id$="Plot"]');
+    errorElements.forEach(img => {
+        if (img.naturalWidth === 0) {
+            // 이미지가 로드되지 않은 경우에만 처리
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 400;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // 배경
+            ctx.fillStyle = '#f2f2f2';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 경계선
+            ctx.strokeStyle = '#ccc';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
+            
+            // 에러 메시지
+            ctx.fillStyle = '#888';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('시각화를 로드할 수 없습니다', canvas.width / 2, canvas.height / 2 - 20);
+            ctx.font = '16px Arial';
+            ctx.fillText('서버 연결을 확인하세요', canvas.width / 2, canvas.height / 2 + 20);
+            
+            // Canvas를 이미지로 변환하여 원래 이미지 대체
+            img.src = canvas.toDataURL('image/png');
+        }
+    });
+}
+
+// 데이터 내보내기
+function exportData() {
+    // 현재 구성 및 결과 포함
+    const exportData = {
+        configuration: dashboardConfig.currentConfig,
+        timestamp: new Date().toISOString(),
+        metrics: {
+            lift_coefficient: parseFloat(document.getElementById('liftCoefficient').textContent) || 0.374,
+            drag_coefficient: parseFloat(document.getElementById('dragCoefficient').textContent) || 0.0136,
+            ld_ratio: parseFloat(document.getElementById('ldRatio').textContent) || 27.5
+        }
+    };
+    
+    // JSON 파일로 다운로드
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "a320_wing_analysis.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+}
+
+// 주기적 업데이트 시작
+function startPeriodicUpdates() {
+    // 기존 타이머 정리
+    if (dashboardConfig.updateTimer !== null) {
+        clearInterval(dashboardConfig.updateTimer);
+    }
+    
+    // 새 타이머 설정 - 60초마다 업데이트
+    dashboardConfig.updateTimer = setInterval(() => {
+        const autoUpdateCheckbox = document.getElementById('autoUpdate');
+        if (autoUpdateCheckbox && autoUpdateCheckbox.checked) {
+            console.log("주기적 업데이트 실행 중...");
+            fetchData();
+        }
+    }, 60000); // 1분마다
+}
+
+// 페이지 로드시 초기화
+document.addEventListener('DOMContentLoaded', initDashboard);
+</script>
+{% endblock %}

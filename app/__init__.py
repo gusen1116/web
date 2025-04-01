@@ -4,17 +4,21 @@ from flask_socketio import SocketIO
 from flask_wtf.csrf import CSRFProtect
 import os
 from app.config import Config
+import logging
 
 # 다른 임포트 전에 인스턴스 먼저 생성
 socketio = SocketIO()
 csrf = CSRFProtect()
 
-# 이제 socketio를 사용할 수 있는 라우트 및 기타 모듈 임포트
-from app.routes.visualization import register_visualization_routes
-
 def create_app(config_object=None):
     app = Flask(__name__, instance_relative_config=True)
-    register_visualization_routes(app)    
+    
+    # 로깅 설정 추가
+    if app.debug:
+        logging.basicConfig(level=logging.DEBUG)
+        app.logger.setLevel(logging.DEBUG)
+        app.logger.debug("디버그 모드로 애플리케이션 실행 중")
+    
     # 기본 설정은 Config 클래스에서 가져옴
     app.config.from_object(Config)
     
@@ -26,11 +30,14 @@ def create_app(config_object=None):
     socketio.init_app(app)
     csrf.init_app(app)
     
-    # 블루프린트 등록
+    # 블루프린트 등록 - 일관된 방식으로 변경
     from app.routes import main_routes, simulation, posts_routes
+    from app.routes.visualization import visualization_bp
+    
     app.register_blueprint(main_routes.main_bp)
     app.register_blueprint(simulation.simulation_bp)
     app.register_blueprint(posts_routes.posts_bp)
+    app.register_blueprint(visualization_bp)  # 명시적 등록
     
     # 업로드 폴더 설정
     upload_folder = os.path.join(app.instance_path, 'uploads')

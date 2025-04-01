@@ -1,149 +1,105 @@
 {% extends "base.html" %}
 
-{% block title %}블로그 - 와구센{% endblock %}
-
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/blog-grid.css') }}">
-{% endblock %}
+{% block title %}물리 시뮬레이션{% endblock %}
 
 {% block content %}
-<div class="main-content">
-    <!-- 포스트 타이틀 -->
-    <h1 class="section-title">블로그</h1>
+<div class="section-header">
+    <h1>물리 시뮬레이션</h1>
+    <p>물리 법칙을 시각적으로 탐험하고 실험해보세요.</p>
+</div>
+
+<!-- 시뮬레이션 선택 영역 - 새 대시보드 링크 추가 -->
+<div class="simulation-grid">
+    <!-- A320 윙 시스템 대시보드 -->
+    <div class="simulation-card">
+        <div class="simulation-card-header">
+            <h2>A320 윙 시스템 대시보드</h2>
+        </div>
+        <div class="simulation-card-preview">
+            <!-- 간단한 미리보기 이미지 또는 아이콘 -->
+        </div>
+        <div class="simulation-card-description">
+            <p>A320 항공기 날개 시스템의 공기역학적 분석 대시보드입니다. 받음각, 마하수, 플랩 설정 등을 조절하며 실시간으로 결과를 확인할 수 있습니다.</p>
+        </div>
+        <div class="simulation-card-footer">
+            <a href="{{ url_for('visualization.a320_dashboard') }}" class="btn">대시보드 열기</a>
+        </div>
+    </div>
     
-    <!-- 포스트 콘텐츠 영역 -->
-    <div class="posts-container">
-        <!-- 최신 포스트 그리드 - 3개만 표시 -->
-        <div class="posts-grid" id="postsGrid">
-            {% for post in posts[:3] %}
-                <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}" class="post-card-link">
-                    <article class="post-card">
-                        <div class="post-card-header">
-                            <h2 class="post-card-title">{{ post.title }}</h2>
-                            <div class="post-card-meta">
-                                <div class="post-card-date">
-                                    <i class="far fa-calendar-alt"></i>
-                                    <span>{{ post.date.strftime('%Y년 %m월 %d일') }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="post-card-content">
-                            <div class="post-card-preview">
-                                {{ post.get_preview(200) }}
-                            </div>
-                        </div>
-                        <div class="post-card-footer">
-                            <div class="post-card-tags">
-                                {% for tag in post.tags[:2] %}
-                                    <span class="post-card-tag">{{ tag }}</span>
-                                {% endfor %}
-                                {% if post.tags|length > 2 %}
-                                    <span class="post-card-tag">+{{ post.tags|length - 2 }}</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </article>
-                </a>
-            {% else %}
-                <div class="empty-state">
-                    <p>포스트가 없습니다.</p>
-                </div>
-            {% endfor %}
+    <!-- 기본 입자 시뮬레이션 -->
+    <div class="simulation-card">
+        <div class="simulation-card-header">
+            <h2>입자 물리 시뮬레이션</h2>
+        </div>
+        <div class="simulation-card-preview">
+            <!-- 간단한 미리보기 이미지 또는 아이콘 -->
+        </div>
+        <div class="simulation-card-description">
+            <p>중력과 마찰력에 따른 입자의 움직임을 시뮬레이션합니다. 물리 매개변수를 조절하며 뉴턴의 운동 법칙을 확인해 보세요.</p>
+        </div>
+        <div class="simulation-card-footer">
+            <a href="{{ url_for('simulation.index') }}" class="btn">시뮬레이션 열기</a>
+        </div>
+    </div>
+    
+    <!-- A320 날개 시뮬레이션 -->
+    <div class="simulation-card">
+        <div class="simulation-card-header">
+            <h2>A320 날개 시뮬레이션</h2>
+        </div>
+        <div class="simulation-card-preview">
+            <!-- 간단한 미리보기 이미지 또는 아이콘 -->
+        </div>
+        <div class="simulation-card-description">
+            <p>A320 항공기 날개의 공기역학 시뮬레이션입니다. 고양력 장치의 작동과 영향을 시각적으로 확인할 수 있습니다.</p>
+        </div>
+        <div class="simulation-card-footer">
+            <a href="{{ url_for('simulation.a320_simulation') }}" class="btn">시뮬레이션 열기</a>
+        </div>
+    </div>
+</div>
+
+<div class="simulation-container card">
+    <div class="simulation-controls">
+        <div class="control-group">
+            <label for="gravityControl">중력: <span id="gravityValue">9.8</span> m/s²</label>
+            <input type="range" id="gravityControl" min="0" max="20" step="0.1" value="9.8">
         </div>
         
-        <!-- 추가 포스트가 로드될 영역 -->
-        <div class="posts-grid hidden" id="additionalPosts">
-            {% for post in posts[3:] %}
-                <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}" class="post-card-link">
-                    <article class="post-card">
-                        <div class="post-card-header">
-                            <h2 class="post-card-title">{{ post.title }}</h2>
-                            <div class="post-card-meta">
-                                <div class="post-card-date">
-                                    <i class="far fa-calendar-alt"></i>
-                                    <span>{{ post.date.strftime('%Y년 %m월 %d일') }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="post-card-content">
-                            <div class="post-card-preview">{{ post.get_preview(200) }}</div>
-                        </div>
-                        <div class="post-card-footer">
-                            <div class="post-card-tags">
-                                {% for tag in post.tags[:2] %}
-                                    <span class="post-card-tag">{{ tag }}</span>
-                                {% endfor %}
-                                {% if post.tags|length > 2 %}
-                                    <span class="post-card-tag">+{{ post.tags|length - 2 }}</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </article>
-                </a>
-            {% endfor %}
+        <div class="control-group">
+            <label for="frictionControl">마찰: <span id="frictionValue">0.01</span></label>
+            <input type="range" id="frictionControl" min="0" max="0.1" step="0.001" value="0.01">
         </div>
         
-        <!-- 더 보기 버튼 - 항상 콘텐츠 하단에 위치 -->
-        <div class="toggle-button-container" id="toggleButtonContainer">
-            <button id="toggleButton" class="toggle-button">
-                <span>더 보기</span>
-                <i class="fas fa-chevron-down"></i>
-            </button>
+        <div class="button-group">
+            <button id="startSimulation" class="btn">시작</button>
+            <button id="stopSimulation" class="btn btn-secondary">정지</button>
+            <button id="resetSimulation" class="btn btn-secondary">초기화</button>
+        </div>
+    </div>
+    
+    <canvas id="simulationCanvas"></canvas>
+    
+    <div class="simulation-info">
+        <h3>물리 시뮬레이션 소개</h3>
+        <p>이 시뮬레이션은 기본적인 물리 법칙을 시각적으로 보여줍니다. 입자들이 중력과 마찰력에 따라 어떻게 움직이는지 관찰할 수 있습니다.</p>
+        <p>컨트롤을 사용하여 물리 매개변수를 조절해보고, 그 결과가 입자의 움직임에 어떤 영향을 미치는지 확인해보세요.</p>
+        
+        <div class="simulation-theory">
+            <h4>관련 물리 이론</h4>
+            <p>이 시뮬레이션은 다음과 같은 물리 법칙을 따릅니다:</p>
+            <ul>
+                <li><strong>뉴턴의 운동 법칙</strong>: 물체는 외부 힘이 작용하지 않는 한 등속도 운동을 유지합니다.</li>
+                <li><strong>중력</strong>: 모든 물체는 지구 중력에 의해 아래로 끌어당겨집니다.</li>
+                <li><strong>마찰력</strong>: 물체의 움직임에 반대 방향으로 작용하여 속도를 감소시킵니다.</li>
+                <li><strong>충돌 역학</strong>: 물체가 벽과 충돌할 때 에너지 손실이 발생합니다.</li>
+            </ul>
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // 토글 버튼 기능
-        const toggleButton = document.getElementById('toggleButton');
-        const additionalPosts = document.getElementById('additionalPosts');
-        
-        // 추가 포스트가 없으면 버튼 숨기기
-        if (additionalPosts.children.length === 0) {
-            document.getElementById('toggleButtonContainer').style.display = 'none';
-        }
-        
-        if (toggleButton && additionalPosts) {
-            toggleButton.addEventListener('click', function() {
-                if (additionalPosts.classList.contains('hidden')) {
-                    // 추가 포스트 표시
-                    additionalPosts.classList.remove('hidden');
-                    this.innerHTML = '<span>접기</span><i class="fas fa-chevron-up"></i>';
-                    
-                    // 스크롤 위치 조정 (첫 번째 추가 포스트로)
-                    if (additionalPosts.firstElementChild) {
-                        setTimeout(function() {
-                            additionalPosts.firstElementChild.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }, 100);
-                    }
-                } else {
-                    // 추가 포스트 숨기기
-                    additionalPosts.classList.add('hidden');
-                    this.innerHTML = '<span>더 보기</span><i class="fas fa-chevron-down"></i>';
-                    
-                    // 스크롤 위치 조정 (버튼 위치로)
-                    document.getElementById('toggleButtonContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        }
-        
-        // 포스트 카드 링크 작동 개선
-        const postCards = document.querySelectorAll('.post-card-link');
-        postCards.forEach(card => {
-            card.addEventListener('click', function(e) {
-                // 태그 클릭은 전파 방지
-                if (e.target.classList.contains('post-card-tag')) {
-                    e.stopPropagation();
-                    return;
-                }
-                
-                // 링크 이동
-                window.location.href = this.getAttribute('href');
-            });
-        });
-    });
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/simulation-page.js') }}"></script>
 {% endblock %}
