@@ -32,12 +32,11 @@ def create_app(config_object=None):
     
     # 블루프린트 등록 - 일관된 방식으로 변경
     from app.routes import main_routes, simulation, posts_routes
-    from app.routes.visualization import visualization_bp
     
     app.register_blueprint(main_routes.main_bp)
     app.register_blueprint(simulation.simulation_bp)
     app.register_blueprint(posts_routes.posts_bp)
-    app.register_blueprint(visualization_bp)  # 명시적 등록
+    # 명시적 등록
     
     # 업로드 폴더 설정
     upload_folder = os.path.join(app.instance_path, 'uploads')
@@ -53,7 +52,5 @@ def create_app(config_object=None):
     os.makedirs(texts_dir, exist_ok=True)
     os.makedirs(files_dir, exist_ok=True)
     
-    # socketio가 정의된 후 socket_service 임포트
-    from app.services import socket_service
     
     return app
