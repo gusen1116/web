@@ -7,37 +7,33 @@
 {% endblock %}
 
 {% block content %}
-<div class="blog-content-wrapper">
-    <!-- 블로그 헤더 (좌측 정렬) -->
-    <div class="blog-header left-aligned">
-        <h1>블로그</h1>
-    </div>
+<!-- 블로그 헤더 -->
+<div class="blog-header">
+    <h1>블로그</h1>
+</div>
 
-    <!-- 태그 필터링 섹션 (우측 정렬) -->
-    <div class="tag-section right-aligned">
-        <h2>태그</h2>
-        <div class="tag-slider-container">
-            <button class="tag-slider-prev">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <div class="tag-box-viewport">
-                <div class="tag-box-container">
-                    <div class="tag-box active" data-tag="all">전체</div>
-                    {% for tag in tags %}
-                        <div class="tag-box" data-tag="{{ tag.name }}">{{ tag.name }}</div>
-                    {% endfor %}
-                </div>
-            </div>
-            <button class="tag-slider-next">
-                <i class="fas fa-chevron-right"></i>
-            </button>
+<!-- 태그 필터링 영역 (슬라이더 형태) -->
+<div class="tag-nav-container">
+    <button class="tag-nav-arrow tag-nav-prev" aria-label="이전 태그">
+        <i class="fas fa-chevron-left"></i>
+    </button>
+    
+    <div class="tag-slider-viewport">
+        <div class="tag-slider">
+            {% for tag in tags %}
+                <div class="tag-item" data-tag="{{ tag.name }}">{{ tag.name }}</div>
+            {% endfor %}
         </div>
     </div>
+    
+    <button class="tag-nav-arrow tag-nav-next" aria-label="다음 태그">
+        <i class="fas fa-chevron-right"></i>
+    </button>
 </div>
 
 <!-- 포스트 컨테이너 -->
 <div class="posts-container">
-    <!-- 초기 포스트 (처음 6개) -->
+    <!-- 포스트 그리드 -->
     <div class="posts-grid" id="initialPosts">
         {% if posts %}
             {% for post in posts[:6] %}
@@ -80,7 +76,6 @@
         {% for post in posts[6:] %}
             <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}" class="post-card-link" data-tags="{{ ','.join(post.tags) }}">
                 <article class="post-card fade-in">
-                    <!-- 포스트 내용 (동일) -->
                     <div class="post-card-header">
                         <h2 class="post-card-title">{{ post.title }}</h2>
                         <div class="post-card-meta">
@@ -123,7 +118,7 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // 더보기/접기 토글 기능 (기존 코드 유지)
+        // 더보기/접기 토글 기능
         const toggleButton = document.getElementById('toggleButton');
         const additionalPosts = document.getElementById('additionalPosts');
         
@@ -139,24 +134,42 @@
             });
         }
         
-        // 태그 필터링 기능 (기존 코드 유지)
-        const tagBoxes = document.querySelectorAll('.tag-box');
+        // 태그 필터링 기능 - 전체 버튼 없이 구현
+        const tagItems = document.querySelectorAll('.tag-item');
         const postCards = document.querySelectorAll('.post-card-link');
+        let activeTag = null;
         
-        tagBoxes.forEach(tag => {
+        tagItems.forEach(tag => {
             tag.addEventListener('click', function() {
-                // 활성 태그 표시 업데이트
-                tagBoxes.forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                
                 const selectedTag = this.getAttribute('data-tag');
+                
+                // 같은 태그 재클릭 시 필터 해제 (전체 태그 표시)
+                if (activeTag === selectedTag) {
+                    activeTag = null;
+                    tagItems.forEach(t => t.classList.remove('active'));
+                    
+                    postCards.forEach(post => {
+                        post.style.display = '';
+                    });
+                    return;
+                }
+                
+                // 태그 활성화 상태 업데이트
+                activeTag = selectedTag;
+                tagItems.forEach(t => {
+                    if (t.getAttribute('data-tag') === selectedTag) {
+                        t.classList.add('active');
+                    } else {
+                        t.classList.remove('active');
+                    }
+                });
                 
                 // 포스트 필터링
                 let visibleCount = 0;
                 postCards.forEach(post => {
                     const postTags = post.getAttribute('data-tags').split(',');
                     
-                    if (selectedTag === 'all' || postTags.includes(selectedTag)) {
+                    if (postTags.includes(selectedTag)) {
                         post.style.display = '';
                         visibleCount++;
                     } else {
@@ -165,7 +178,7 @@
                 });
                 
                 // 태그 필터링 시 추가 포스트도 보이게 함
-                if (selectedTag !== 'all' && additionalPosts) {
+                if (additionalPosts) {
                     additionalPosts.classList.remove('hidden');
                     
                     if (toggleButton) {
@@ -176,14 +189,9 @@
                 // 일치하는 포스트가 없으면 알림
                 if (visibleCount === 0) {
                     alert('선택한 태그의 게시물이 없습니다.');
-                    // 전체 태그로 리셋
-                    tagBoxes.forEach(t => {
-                        if (t.getAttribute('data-tag') === 'all') {
-                            t.classList.add('active');
-                        } else {
-                            t.classList.remove('active');
-                        }
-                    });
+                    // 필터 초기화
+                    activeTag = null;
+                    tagItems.forEach(t => t.classList.remove('active'));
                     
                     postCards.forEach(post => {
                         post.style.display = '';
@@ -192,22 +200,31 @@
             });
         });
         
-        // 태그 슬라이더 기능 (새로 추가)
-        const tagContainer = document.querySelector('.tag-box-container');
-        const prevButton = document.querySelector('.tag-slider-prev');
-        const nextButton = document.querySelector('.tag-slider-next');
-        const viewport = document.querySelector('.tag-box-viewport');
+        // 태그 슬라이더 기능
+        const tagSlider = document.querySelector('.tag-slider');
+        const prevButton = document.querySelector('.tag-nav-prev');
+        const nextButton = document.querySelector('.tag-nav-next');
+        const viewport = document.querySelector('.tag-slider-viewport');
         
-        if (tagContainer && prevButton && nextButton) {
+        if (tagSlider && prevButton && nextButton) {
             // 슬라이더 버튼 표시 여부 확인 함수
             function checkSliderButtons() {
-                const containerWidth = tagContainer.scrollWidth;
+                const containerWidth = tagSlider.scrollWidth;
                 const viewportWidth = viewport.clientWidth;
-                const scrollPosition = tagContainer.scrollLeft;
+                const scrollPosition = tagSlider.scrollLeft;
                 
                 // 좌우 버튼 활성화/비활성화 상태 설정
-                prevButton.classList.toggle('disabled', scrollPosition <= 0);
-                nextButton.classList.toggle('disabled', scrollPosition + viewportWidth >= containerWidth);
+                if (scrollPosition <= 0) {
+                    prevButton.classList.add('disabled');
+                } else {
+                    prevButton.classList.remove('disabled');
+                }
+                
+                if (scrollPosition + viewportWidth >= containerWidth - 5) {
+                    nextButton.classList.add('disabled');
+                } else {
+                    nextButton.classList.remove('disabled');
+                }
             }
             
             // 초기 버튼 상태 설정
@@ -216,7 +233,7 @@
             // 이전 버튼 클릭 이벤트
             prevButton.addEventListener('click', function() {
                 const scrollAmount = viewport.clientWidth * 0.8;
-                tagContainer.scrollBy({
+                tagSlider.scrollBy({
                     left: -scrollAmount,
                     behavior: 'smooth'
                 });
@@ -227,7 +244,7 @@
             // 다음 버튼 클릭 이벤트
             nextButton.addEventListener('click', function() {
                 const scrollAmount = viewport.clientWidth * 0.8;
-                tagContainer.scrollBy({
+                tagSlider.scrollBy({
                     left: scrollAmount,
                     behavior: 'smooth'
                 });
@@ -236,7 +253,7 @@
             });
             
             // 태그 컨테이너 스크롤 이벤트
-            tagContainer.addEventListener('scroll', checkSliderButtons);
+            tagSlider.addEventListener('scroll', checkSliderButtons);
             
             // 창 크기 변경 시 버튼 상태 재확인
             window.addEventListener('resize', checkSliderButtons);
