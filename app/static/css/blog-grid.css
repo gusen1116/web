@@ -85,7 +85,7 @@
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  border: 1px solid transparent;
+  border: 1px solid var(--border-color);
 }
 
 .post-card:hover {
@@ -145,7 +145,7 @@
 .post-card-date {
   display: flex;
   align-items: center;
-  gap: var(--spacing-2);
+  color: var(--text-tertiary);
 }
 
 /* ===== 포스트 카드 내용 ===== */
@@ -299,56 +299,113 @@
   transition: transform 0.3s ease;
 }
 
-/* ===== 태그 클라우드 스타일 ===== */
-.tag-cloud {
+/* ===== 상단 태그 네비게이션 영역 - 디자인 개선 ===== */
+.top-tag-navigation {
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 0.8rem 1.2rem;
+  margin-bottom: 2rem;
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-4);
-  justify-content: center;
-  max-width: var(--container-width);
-  margin: 0 auto;
-  padding: var(--spacing-4);
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 1rem;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  position: relative;
 }
 
-.tag {
+.top-tag-navigation::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* 개선된 태그 아이템 스타일 */
+.top-tag-navigation .tag-item {
   background-color: var(--bg-tertiary);
-  color: var(--text-secondary);
-  padding: var(--spacing-2) var(--spacing-4);
+  color: var(--text-primary);
+  padding: 0.6rem 1.2rem;
   border-radius: var(--radius-full);
-  text-decoration: none;
-  transition: all var(--transition-fast);
-  font-size: var(--font-size-md);
-  display: inline-block;
-  margin-bottom: var(--spacing-2);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid transparent;
+  position: relative;
+  overflow: hidden;
 }
 
-.tag:hover {
+.top-tag-navigation .tag-item:hover {
   background-color: var(--primary-100);
   color: var(--primary-700);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-200);
 }
 
-/* ===== 태그 클라우드 크기 클래스 ===== */
-.tag-cloud .tag-size-small {
-  font-size: 90%;
+.top-tag-navigation .tag-item.active {
+  background-color: var(--primary-600);
+  color: white;
+  box-shadow: var(--shadow-md);
+  border-color: var(--primary-700);
 }
 
-.tag-cloud .tag-size-medium {
-  font-size: 110%;
+/* 태그 아이템 리플 이펙트 */
+.top-tag-navigation .tag-item::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+  opacity: 0;
+  pointer-events: none;
 }
 
-.tag-cloud .tag-size-large {
-  font-size: 130%;
+.top-tag-navigation .tag-item:active::after {
+  transform: translate(-50%, -50%) scale(2);
+  opacity: 0;
+  transition: 0s;
 }
 
-.tag-cloud .tag-size-xlarge {
-  font-size: 150%;
+/* ===== 블로그 헤더 스타일 ===== */
+.blog-header {
+  margin-bottom: 2.5rem;
+  text-align: left;
+  width: 100%;
+  margin-left: 0;
+  margin-right: auto;
+  position: relative;
 }
 
-/* ===== 인기 태그 필터 - 숨김 처리 ===== */
-.tag-filters {
-  display: none; /* 인기 태그 섹션 제거 */
+.blog-header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  letter-spacing: -0.02em;
+  width: auto;
+  text-align: left;
+  font-weight: 700;
+  color: var(--text-primary);
+  position: relative;
+  display: inline-block;
+}
+
+.blog-header h1::after {
+  content: '';
+  position: absolute;
+  bottom: -0.5rem;
+  left: 0;
+  width: 3rem;
+  height: 0.25rem;
+  background-color: var(--primary-500);
+  border-radius: var(--radius-full);
 }
 
 /* ===== 숨김 처리 ===== */
@@ -366,271 +423,6 @@
   color: var(--text-tertiary);
   font-size: var(--font-size-lg);
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
-/* ===== 더 보기 버튼 스타일 (기존 스타일, 대체될 것) ===== */
-.load-more-wrapper {
-  width: 100%;
-  transition: all 0.3s ease;
-  margin-top: var(--spacing-8);
-  margin-bottom: var(--spacing-8);
-  max-width: var(--container-width);
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.load-more-container {
-  display: flex;
-  justify-content: center;
-  margin: 0;
-  padding: var(--spacing-4) 0;
-}
-
-.more-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-2);
-  background-color: var(--bg-accent);
-  color: white;
-  border: none;
-  border-radius: var(--radius-md);
-  padding: var(--spacing-3) var(--spacing-6);
-  font-size: var(--font-size-md);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
-.more-button:hover {
-  background-color: var(--primary-600);
-  transform: translateY(-2px);
-}
-
-.more-button i {
-  font-size: 0.9em;
-}
-
-/* ===== 블로그 헤더 왼쪽 정렬 클래스 ===== */
-.left-aligned {
-  text-align: left;
-  margin-left: 0;
-  margin-right: auto;
-  width: 100%;
-}
-
-/* ===== 블로그 헤더 (좌측 정렬) ===== */
-.blog-header {
-  margin-bottom: 2rem;
-  text-align: left;
-  width: 100%;
-  margin-left: 0;
-  margin-right: auto;
-}
-
-.blog-header h1 {
-  margin: 0;
-  font-size: 2.5rem;
-  letter-spacing: -0.02em;
-  width: auto;
-  text-align: left;
-  font-weight: 700;
-}
-
-/* ===== 블로그 컨텐츠 래퍼 ===== */
-.blog-content-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: var(--container-width);
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 2rem;
-}
-
-/* ===== 상단 태그 네비게이션 영역 ===== */
-.top-tag-navigation {
-  background-color: var(--bg-secondary);
-  border-radius: var(--radius-lg);
-  padding: 0.5rem 1rem;
-  margin-bottom: 1.5rem;
-  display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  gap: 0.75rem;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-}
-
-.top-tag-navigation::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
-
-.top-tag-navigation .tag-item {
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-full);
-  font-size: 0.9rem;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-.top-tag-navigation .tag-item:hover {
-  background-color: var(--primary-100);
-  color: var(--primary-700);
-  transform: translateY(-2px);
-}
-
-.top-tag-navigation .tag-item.active {
-  background-color: var(--primary-600);
-  color: white;
-}
-
-/* ===== 태그 섹션 (우측 정렬) ===== */
-.right-aligned {
-  display: none; /* 기본적으로 숨김 (추후 설정에 따라 표시) */
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  background-color: var(--bg-secondary);
-  box-shadow: var(--shadow-sm);
-  padding: 0.5rem;
-  width: 100%;
-  height: 40px; /* 고정 높이 */
-}
-
-.tag-section h2 {
-  font-size: 0.9rem;
-  margin: 0;
-  display: inline-block;
-  margin-right: 0.5rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  vertical-align: middle;
-}
-
-/* ===== 태그 슬라이더 컨테이너 ===== */
-.tag-slider-container {
-  display: inline-flex;
-  align-items: center;
-  vertical-align: middle;
-  gap: 0.25rem;
-  width: calc(100% - 50px); /* 태그 텍스트 공간 제외 */
-  height: 100%;
-}
-
-/* 태그 박스 뷰포트 - 슬라이더 영역 */
-.tag-box-viewport {
-  overflow: hidden;
-  flex: 1;
-  border-radius: var(--radius-sm);
-  height: 100%;
-}
-
-/* 태그 박스 컨테이너 - 실제 스크롤 가능한 영역 */
-.tag-box-container {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0.5rem;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 0.25rem 0;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-  scroll-behavior: smooth;
-  height: 100%;
-}
-
-.tag-box-container::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
-
-/* 태그 박스 스타일 */
-.tag-box {
-  padding: 0.25rem 0.75rem;
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-  border-radius: var(--radius-full);
-  font-size: 0.75rem;
-  font-weight: 500;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
-  cursor: pointer;
-  font-family: var(--font-sans);
-  display: flex;
-  align-items: center;
-  height: 24px;
-}
-
-.tag-box:hover {
-  background-color: var(--primary-100);
-  color: var(--primary-700);
-  transform: translateY(-2px);
-}
-
-.tag-box.active {
-  background-color: var(--primary-600);
-  color: white;
-}
-
-/* 태그 네비게이션 버튼 */
-.tag-slider-prev,
-.tag-slider-next {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  flex-shrink: 0;
-  box-shadow: var(--shadow-sm);
-  font-size: 10px;
-}
-
-.tag-slider-prev:hover,
-.tag-slider-next:hover {
-  background-color: var(--primary-100);
-  color: var(--primary-700);
-  box-shadow: var(--shadow-md);
-}
-
-.tag-slider-prev.disabled,
-.tag-slider-next.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* ===== 모바일 반응형 ===== */
-@media (max-width: 768px) {
-  .top-tag-navigation {
-    padding: 0.5rem;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-  
-  .top-tag-navigation .tag-item {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
-  }
-  
-  .tag-box {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
-  }
-  
-  .tag-slider-prev,
-  .tag-slider-next {
-    width: 24px;
-    height: 24px;
-  }
 }
 
 /* ===== 반응형 설정 ===== */
@@ -659,15 +451,14 @@
     font-size: 1.1rem;
   }
   
-  .logo-area {
-    width: 50px;
+  .top-tag-navigation {
+    padding: 0.6rem 1rem;
+    overflow-x: auto;
+    white-space: nowrap;
   }
   
-  .site-name {
-    font-size: 14px;
-  }
-  
-  .tag-box-container {
-    gap: var(--spacing-1);
+  .top-tag-navigation .tag-item {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
   }
 }

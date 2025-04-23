@@ -12,23 +12,11 @@
     <h1>블로그</h1>
 </div>
 
-<!-- 태그 필터링 영역 (슬라이더 형태) -->
-<div class="tag-nav-container">
-    <button class="tag-nav-arrow tag-nav-prev" aria-label="이전 태그">
-        <i class="fas fa-chevron-left"></i>
-    </button>
-    
-    <div class="tag-slider-viewport">
-        <div class="tag-slider">
-            {% for tag in tags %}
-                <div class="tag-item" data-tag="{{ tag.name }}">{{ tag.name }}</div>
-            {% endfor %}
-        </div>
-    </div>
-    
-    <button class="tag-nav-arrow tag-nav-next" aria-label="다음 태그">
-        <i class="fas fa-chevron-right"></i>
-    </button>
+<!-- 상단 태그 네비게이션 영역 - 동적 태그 적용 -->
+<div class="top-tag-navigation">
+    {% for tag in tags %}
+        <div class="tag-item" data-tag="{{ tag.name }}">{{ tag.name }}</div>
+    {% endfor %}
 </div>
 
 <!-- 포스트 컨테이너 -->
@@ -43,8 +31,7 @@
                             <h2 class="post-card-title">{{ post.title }}</h2>
                             <div class="post-card-meta">
                                 <div class="post-card-date">
-                                    <i class="far fa-calendar-alt"></i>
-                                    <span>{{ post.date.strftime('%Y년 %m월 %d일') }}</span>
+                                    {{ post.date.strftime('%Y년 %m월 %d일') }}
                                 </div>
                             </div>
                         </div>
@@ -80,8 +67,7 @@
                         <h2 class="post-card-title">{{ post.title }}</h2>
                         <div class="post-card-meta">
                             <div class="post-card-date">
-                                <i class="far fa-calendar-alt"></i>
-                                <span>{{ post.date.strftime('%Y년 %m월 %d일') }}</span>
+                                {{ post.date.strftime('%Y년 %m월 %d일') }}
                             </div>
                         </div>
                     </div>
@@ -134,14 +120,14 @@
             });
         }
         
-        // 태그 필터링 기능 - 전체 버튼 없이 구현
+        // 태그 필터링 기능
         const tagItems = document.querySelectorAll('.tag-item');
         const postCards = document.querySelectorAll('.post-card-link');
         let activeTag = null;
         
         tagItems.forEach(tag => {
             tag.addEventListener('click', function() {
-                const selectedTag = this.getAttribute('data-tag');
+                const selectedTag = this.textContent.trim();
                 
                 // 같은 태그 재클릭 시 필터 해제 (전체 태그 표시)
                 if (activeTag === selectedTag) {
@@ -157,7 +143,7 @@
                 // 태그 활성화 상태 업데이트
                 activeTag = selectedTag;
                 tagItems.forEach(t => {
-                    if (t.getAttribute('data-tag') === selectedTag) {
+                    if (t.textContent.trim() === selectedTag) {
                         t.classList.add('active');
                     } else {
                         t.classList.remove('active');
@@ -199,65 +185,6 @@
                 }
             });
         });
-        
-        // 태그 슬라이더 기능
-        const tagSlider = document.querySelector('.tag-slider');
-        const prevButton = document.querySelector('.tag-nav-prev');
-        const nextButton = document.querySelector('.tag-nav-next');
-        const viewport = document.querySelector('.tag-slider-viewport');
-        
-        if (tagSlider && prevButton && nextButton) {
-            // 슬라이더 버튼 표시 여부 확인 함수
-            function checkSliderButtons() {
-                const containerWidth = tagSlider.scrollWidth;
-                const viewportWidth = viewport.clientWidth;
-                const scrollPosition = tagSlider.scrollLeft;
-                
-                // 좌우 버튼 활성화/비활성화 상태 설정
-                if (scrollPosition <= 0) {
-                    prevButton.classList.add('disabled');
-                } else {
-                    prevButton.classList.remove('disabled');
-                }
-                
-                if (scrollPosition + viewportWidth >= containerWidth - 5) {
-                    nextButton.classList.add('disabled');
-                } else {
-                    nextButton.classList.remove('disabled');
-                }
-            }
-            
-            // 초기 버튼 상태 설정
-            checkSliderButtons();
-            
-            // 이전 버튼 클릭 이벤트
-            prevButton.addEventListener('click', function() {
-                const scrollAmount = viewport.clientWidth * 0.8;
-                tagSlider.scrollBy({
-                    left: -scrollAmount,
-                    behavior: 'smooth'
-                });
-                
-                setTimeout(checkSliderButtons, 400);
-            });
-            
-            // 다음 버튼 클릭 이벤트
-            nextButton.addEventListener('click', function() {
-                const scrollAmount = viewport.clientWidth * 0.8;
-                tagSlider.scrollBy({
-                    left: scrollAmount,
-                    behavior: 'smooth'
-                });
-                
-                setTimeout(checkSliderButtons, 400);
-            });
-            
-            // 태그 컨테이너 스크롤 이벤트
-            tagSlider.addEventListener('scroll', checkSliderButtons);
-            
-            // 창 크기 변경 시 버튼 상태 재확인
-            window.addEventListener('resize', checkSliderButtons);
-        }
     });
 </script>
 {% endblock %}

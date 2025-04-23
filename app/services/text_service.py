@@ -171,7 +171,8 @@ def render_content(content, base_url_images, base_url_files):
     )
     
     # 마크다운 변환을 위해 마크다운 라이브러리 사용
-    md = markdown.Markdown(extensions=['extra', 'codehilite'])
+    # nl2br 확장을 추가하여 줄 바꿈을 <br> 태그로 변환
+    md = markdown.Markdown(extensions=['extra', 'codehilite', 'nl2br'])
     
     # 마크다운 변환
     html_content = md.convert(content)

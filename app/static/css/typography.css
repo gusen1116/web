@@ -1,5 +1,5 @@
 /* 
- * typography.css - 한글 타이포그래피 최적화
+ * typography.css - 한글 타이포그래피 최적화 및 포스트 콘텐츠 스타일 통합
  */
 
 /* Import Pretendard font */
@@ -62,7 +62,7 @@ h3 {
   display: block;
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 1.23rem;
-  line-height: 203%;
+  line-height: 130%; /* 203%에서 130%로 줄임 - 요청에 따라 줄 간격 축소 */
   font-weight: 600;
   text-align: left;
   word-break: keep-all;
@@ -114,6 +114,7 @@ p {
   color: inherit;
   width: var(--paragraph-width);
   margin-bottom: var(--spacing-5);
+  overflow-wrap: break-word; /* 긴 단어 줄 바꿈 개선 */
 }
 
 ul, ol {
@@ -132,6 +133,7 @@ li {
   word-break: keep-all;
   word-wrap: break-word;
   color: inherit;
+  margin-bottom: 0.5em;
 }
 
 a {
@@ -160,6 +162,7 @@ code {
   padding: 0.2em 0.4em;
   background-color: var(--bg-secondary);
   border-radius: var(--radius-sm);
+  word-break: break-all; /* 코드 내 줄 바꿈 개선 */
 }
 
 pre {
@@ -176,6 +179,7 @@ pre {
 pre code {
   padding: 0;
   background-color: transparent;
+  white-space: pre-wrap; /* 코드 블록 내 자동 줄 바꿈 */
 }
 
 /* ===== 포스트 콘텐츠 특화 스타일 ===== */
@@ -187,6 +191,24 @@ pre code {
   letter-spacing: -0.01em;
   word-break: keep-all;
   overflow-wrap: break-word;
+  white-space: pre-wrap; /* 줄 바꿈 유지 + 자동 줄 바꿈 */
+  hyphens: auto; /* 자동 하이픈 추가 (필요한 경우) */
+  text-align: left;
+}
+
+/* 줄 바꿈 간격 최소화 */
+.post-content br {
+  display: block;
+  content: "";
+  margin-top: -0.4em; /* 음수 값으로 줄 간격 축소 */
+  line-height: 0.6; /* 줄 높이 축소 */
+}
+
+/* 두 개 연속된 <br> 태그는 단락 구분으로 처리 */
+.post-content br + br {
+  display: block;
+  content: "";
+  margin-top: 0.8em; /* 단락 구분용 여백 */
 }
 
 .post-content h1, 
@@ -217,7 +239,7 @@ pre code {
 
 .post-content h3 {
   font-size: 1.23rem;
-  line-height: 203%;
+  line-height: 130%; /* 줄 간격 조정 */
   font-weight: 600;
 }
 
@@ -232,6 +254,7 @@ pre code {
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-thickness: 1px;
+  word-break: break-all; /* 필요 시 링크에서 줄 바꿈 */
 }
 
 .post-content img, 
@@ -256,6 +279,41 @@ pre code {
   margin-top: var(--spacing-2);
 }
 
+/* 인용구 스타일 개선 */
+.post-content blockquote {
+  white-space: normal; /* 인용구 내 텍스트 처리 */
+  padding: 1em 1.5em;
+  border-left: 4px solid var(--primary-400);
+  background-color: var(--bg-secondary);
+  margin: 1.5em 0;
+}
+
+/* 테이블 스타일 조정 */
+.post-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  overflow-x: auto;
+  display: block;
+}
+
+.post-content table th,
+.post-content table td {
+  border: 1px solid var(--border-color);
+  padding: 0.75em;
+}
+
+.post-content table th {
+  background-color: var(--bg-secondary);
+  font-weight: 600;
+}
+
+/* 줄 바꿈 보존 클래스 */
+.preserve-whitespace {
+  /* 공백과 줄 바꿈 보존 */
+  white-space: pre-wrap; /* 공백과 줄 바꿈 보존하면서 자동 줄 바꿈 */
+}
+
 /* ===== 모바일 최적화 ===== */
 @media (max-width: 768px) {
   .post-content,
@@ -271,5 +329,10 @@ pre code {
   p, li {
     font-size: 1.1rem;
     line-height: 180%;
+  }
+  
+  .post-content img {
+    max-width: 100%;
+    height: auto;
   }
 }

@@ -192,6 +192,72 @@ html.dark-theme .dark-icon {
   display: block;
 }
 
+/* ===== 태그 네비게이션 스타일 ===== */
+.tag-nav-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 0.5rem;
+}
+
+.tag-nav-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--bg-tertiary);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tag-nav-arrow:hover {
+  background-color: var(--primary-100);
+  color: var(--primary-700);
+}
+
+.tag-slider-viewport {
+  flex: 1;
+  overflow: hidden;
+}
+
+.tag-slider {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.tag-slider::-webkit-scrollbar {
+  display: none;
+}
+
+.tag-item {
+  flex-shrink: 0;
+  background-color: var(--bg-tertiary);
+  padding: 0.5rem 1rem;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tag-item:hover {
+  background-color: var(--primary-100);
+  color: var(--primary-700);
+  transform: translateY(-2px);
+}
+
+.tag-item.active {
+  background-color: var(--primary-600);
+  color: white;
+}
+
 /* ===== 모바일 메뉴 토글 ===== */
 .mobile-toggle {
   display: none;
