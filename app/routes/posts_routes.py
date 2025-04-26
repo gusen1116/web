@@ -1,11 +1,11 @@
-
 # app/routes/posts_routes.py
 from flask import Blueprint, render_template, send_from_directory, current_app, abort, url_for, request, redirect
 import os
 import sys
 from app.services.text_service import (
     TextPost, parse_text_file, render_content, get_all_text_posts,
-    get_text_post, get_tags_count, find_related_posts, search_posts
+    get_text_post, get_tags_count, find_related_posts, search_posts,
+    get_series_posts  # 새로 추가된 함수
 )
 
 posts_bp = Blueprint('posts', __name__, url_prefix='/posts')
@@ -74,12 +74,20 @@ def view_by_slug(slug):
     
     related_posts = find_related_posts(text_dir, matching_post, limit=3)
     
+    # 시리즈 정보가 있을 경우 시리즈의 다른 포스트 가져오기
+    series_posts = []
+    if matching_post.series:
+        series_posts = get_series_posts(text_dir, matching_post.series)
+        # 현재 포스트 제외
+        series_posts = [p for p in series_posts if p.filename != matching_post.filename]
+    
     return render_template(
         'posts/view.html', 
         post=matching_post, 
         rendered_content=rendered_content,
         tags=tags, 
-        related_posts=related_posts
+        related_posts=related_posts,
+        series_posts=series_posts
     )
 
 @posts_bp.route('/view/<filename>')
@@ -138,6 +146,34 @@ def search():
         tags=tags,
         recent_posts=recent_posts,
         query=query
+    )
+
+# 시리즈 관련 새로운 라우트 추가
+@posts_bp.route('/series/<series_name>')
+def view_series(series_name):
+    """시리즈의 모든 포스트 보기"""
+    text_dir = os.path.join(current_app.instance_path, 'uploads', 'texts')
+    
+    # 시리즈에 속한 모든 포스트 가져오기
+    series_posts = get_series_posts(text_dir, series_name)
+    
+    if not series_posts:
+        abort(404)
+    
+    # 태그 카운트 가져오기
+    tags_count = get_tags_count(text_dir)
+    tags = [{"name": tag, "count": count} for tag, count in tags_count.items()]
+    
+    # 최신 포스트 목록 (사이드바용)
+    all_posts = get_all_text_posts(text_dir)
+    recent_posts = all_posts[:5] if len(all_posts) > 5 else all_posts
+    
+    return render_template(
+        'posts/series.html', 
+        series_name=series_name,
+        posts=series_posts,
+        tags=tags,
+        recent_posts=recent_posts
     )
 
 @posts_bp.route('/images/<filename>')

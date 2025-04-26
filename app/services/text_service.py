@@ -1,7 +1,6 @@
 # app/services/text_service.py
 import os
 import re
-# shutil 모듈 제거 - 미사용
 from datetime import datetime
 import markdown
 from flask import url_for
@@ -22,6 +21,9 @@ class TextPost:
         self.author = "관리자"
         self.description = ""
         self.slug = None  # URL 슬러그 추가
+        self.series = None  # 시리즈 정보 추가
+        self.series_part = None  # 시리즈 순서 추가
+        self.changelog = []  # 수정 이력 추가
         
         # 메타데이터가 제공된 경우 업데이트
         if metadata:
@@ -45,13 +47,29 @@ class TextPost:
             tags_str = metadata.get('tags')
             if tags_str:
                 self.tags = [tag.strip() for tag in tags_str.split(',')]
+            
+            # 시리즈 정보 파싱
+            series_str = metadata.get('series')
+            if series_str:
+                self.series = series_str
+            
+            series_part_str = metadata.get('series-part')
+            if series_part_str:
+                try:
+                    self.series_part = int(series_part_str)
+                except ValueError:
+                    self.series_part = 1
+            
+            # 수정 이력 파싱
+            changelog_str = metadata.get('changelog')
+            if changelog_str:
+                self.changelog = [item.strip() for item in changelog_str.split(',')]
     
     def get_url(self):
         """포스트 URL 반환"""
         if hasattr(self, 'slug') and self.slug:
             return url_for('posts.view_by_slug', slug=self.slug)
         return url_for('posts.view_by_slug', slug=self.id)
-
 
     def get_preview(self, length=200):
         """본문 미리보기 생성"""
@@ -63,6 +81,15 @@ class TextPost:
         text = re.sub(r'\[twitter:[^\]]+\]', '', text)  # 트위터 태그 제거
         text = re.sub(r'\[instagram:[^\]]+\]', '', text) # 인스타그램 태그 제거
         text = re.sub(r'\[facebook:[^\]]+\]', '', text) # 페이스북 태그 제거
+        
+        # 새로 추가된 태그들 제거
+        text = re.sub(r'\[highlight\].*?\[/highlight\]', '', text)
+        text = re.sub(r'\[quote.*?\].*?\[/quote\]', '', text)
+        text = re.sub(r'\[pullquote.*?\].*?\[/pullquote\]', '', text)
+        text = re.sub(r'\[gallery\].*?\[/gallery\]', '', text)
+        text = re.sub(r'\[related\].*?\[/related\]', '', text)
+        text = re.sub(r'\[changelog\].*?\[/changelog\]', '', text)
+        
         text = re.sub(r'#+ ', '', text)  # 마크다운 헤더 태그 제거
         text = re.sub(r'\*\*|\*|__', '', text)  # 강조 태그 제거
         
@@ -73,7 +100,7 @@ class TextPost:
     
     def get_word_count(self):
         """글자 수 반환"""
-        # 특수 태그 제거
+        # 특수 태그 제거 (위와 동일한 방식)
         text = re.sub(r'\[img:[^\]]+\]', '', self.content)
         text = re.sub(r'\[file:[^\]]+\]', '', text)
         text = re.sub(r'\[youtube:[^\]]+\]', '', text)
@@ -81,6 +108,14 @@ class TextPost:
         text = re.sub(r'\[twitter:[^\]]+\]', '', text)
         text = re.sub(r'\[instagram:[^\]]+\]', '', text)
         text = re.sub(r'\[facebook:[^\]]+\]', '', text)
+        
+        # 새로 추가된 태그들 제거
+        text = re.sub(r'\[highlight\].*?\[/highlight\]', '', text)
+        text = re.sub(r'\[quote.*?\].*?\[/quote\]', '', text)
+        text = re.sub(r'\[pullquote.*?\].*?\[/pullquote\]', '', text)
+        text = re.sub(r'\[gallery\].*?\[/gallery\]', '', text)
+        text = re.sub(r'\[related\].*?\[/related\]', '', text)
+        text = re.sub(r'\[changelog\].*?\[/changelog\]', '', text)
         
         # 단어 수 계산
         words = re.findall(r'\w+', text)
@@ -98,7 +133,7 @@ def parse_text_file(file_path):
         content_start = 0
         
         for i, line in enumerate(content_lines):
-            meta_match = re.match(r'\[(\w+):\s*(.*?)\]', line)
+            meta_match = re.match(r'\[(\w+[\-\w]*?):\s*(.*?)\]', line)
             if meta_match:
                 key, value = meta_match.groups()
                 metadata[key.lower()] = value
@@ -108,6 +143,47 @@ def parse_text_file(file_path):
         
         # 본문 추출
         body_content = '\n'.join(content_lines[content_start:])
+        
+        # 텍스트 구조 확인
+        lines = body_content.split('\n')
+        has_markdown_header = False
+        
+        # 첫 번째 비어있지 않은 라인이 # 또는 ## 등으로 시작하는지 확인
+        for line in lines:
+            if line.strip():
+                if line.strip().startswith('#'):
+                    has_markdown_header = True
+                break
+        
+        # 마크다운 헤더가 없는 경우 첫 번째 비어있지 않은 라인을 제목으로 처리
+        if not has_markdown_header and 'title' in metadata:
+            # 메타데이터의 title을 이미 가지고 있으므로 본문의 첫 라인이 제목인지 확인
+            first_non_empty = None
+            for i, line in enumerate(lines):
+                if line.strip():
+                    first_non_empty = i
+                    break
+            
+            # 첫 번째 비어있지 않은 라인이 있고, 이것이 제목과 유사하다면 이를 제목으로 간주하지 않고 제거
+            if first_non_empty is not None:
+                title = metadata['title']
+                if lines[first_non_empty].strip() == title or lines[first_non_empty].strip() in title:
+                    # 유사한 제목 라인 제거
+                    lines.pop(first_non_empty)
+        
+        # 명시적인 마크다운 헤더가 없는 경우, 첫 번째 비어있지 않은 텍스트를 h2로 만듦
+        if not has_markdown_header:
+            first_non_empty = None
+            for i, line in enumerate(lines):
+                if line.strip():
+                    first_non_empty = i
+                    break
+            
+            if first_non_empty is not None:
+                lines[first_non_empty] = "## " + lines[first_non_empty]
+        
+        # 수정된 본문 내용
+        body_content = '\n'.join(lines)
         
         return metadata, body_content
     
@@ -156,7 +232,69 @@ def render_content(content, base_url_images, base_url_files):
         content
     )
     
-    # 이미지 태그 변환
+    # 새로운 기능 1: 강조 내용 처리
+    content = re.sub(
+        r'\[highlight\](.*?)\[/highlight\]',
+        lambda m: _create_highlight_box(m.group(1)),
+        content,
+        flags=re.DOTALL
+    )
+    
+    # 새로운 기능 4: 인용문 처리
+    content = re.sub(
+        r'\[quote(?:\s+author="([^"]*)")?\](.*?)\[/quote\]',
+        lambda m: _create_quote_box(m.group(2), m.group(1)),
+        content,
+        flags=re.DOTALL
+    )
+    
+    # 새로운 기능 5: 큰 인용구 처리
+    content = re.sub(
+        r'\[pullquote(?:\s+align="([^"]*)")?\](.*?)\[/pullquote\]',
+        lambda m: _create_pullquote(m.group(2), m.group(1)),
+        content,
+        flags=re.DOTALL
+    )
+    
+    # 새로운 기능 7: 확장된 이미지 속성
+    content = re.sub(
+        r'\[img:([^\]|]+)(?:\|([^\]|]*))?(?:\|([^\]]+))?\]',
+        lambda m: _create_image_with_attributes(m.group(1), m.group(2), m.group(3), base_url_images),
+        content
+    )
+    
+    # 새로운 기능 6: 갤러리 처리
+    content = re.sub(
+        r'\[gallery\](.*?)\[/gallery\]',
+        lambda m: _create_gallery(m.group(1), base_url_images),
+        content,
+        flags=re.DOTALL
+    )
+    
+    # 새로운 기능 12: 관련 글 링크
+    content = re.sub(
+        r'\[related\](.*?)\[/related\]',
+        lambda m: _create_related_posts(m.group(1)),
+        content,
+        flags=re.DOTALL
+    )
+    
+    # 새로운 기능 13: 시리즈 표시
+    content = re.sub(
+        r'\[series(?:\s+name="([^"]*)")?(?:\s+part="([^"]*)")?\]',
+        lambda m: _create_series_box(m.group(1), m.group(2)),
+        content
+    )
+    
+    # 새로운 기능 14: 수정 이력
+    content = re.sub(
+        r'\[changelog\](.*?)\[/changelog\]',
+        lambda m: _create_changelog(m.group(1)),
+        content,
+        flags=re.DOTALL
+    )
+    
+    # 기존 기능: 이미지 태그 변환 (확장 속성이 없는 경우)
     content = re.sub(
         r'\[img:([^\]]+)(?:\|([^\]]+))?\]',
         lambda m: f'<figure class="post-image"><img src="{base_url_images}/{m.group(1)}" alt="{m.group(2) if m.group(2) else m.group(1)}" class="text-post-image"><figcaption>{m.group(2) if m.group(2) else ""}</figcaption></figure>',
@@ -170,14 +308,200 @@ def render_content(content, base_url_images, base_url_files):
         content
     )
     
-    # 마크다운 변환을 위해 마크다운 라이브러리 사용
-    # nl2br 확장을 추가하여 줄 바꿈을 <br> 태그로 변환
-    md = markdown.Markdown(extensions=['extra', 'codehilite', 'nl2br'])
+    # 텍스트 파일 간격 조정을 위한 전처리
+    # 1. 빈 줄(연속된 두 줄바꿈)은 문단 구분으로 보존
+    content = re.sub(r'\n\n+', '\n\n', content)  # 연속된 여러 줄바꿈을 두 개로 통일
+    
+    # 2. 마크다운 헤더 강화 - #으로 시작하는 라인이 정확히 헤더로 인식되도록 처리
+    lines = content.split('\n')
+    for i in range(len(lines)):
+        line = lines[i].strip()
+        if line and line[0] == '#':
+            # #과 텍스트 사이에 공백이 있는지 확인
+            if len(line) > 1 and line[1] != ' ':
+                # 공백이 없으면 추가
+                lines[i] = line[0] + ' ' + line[1:]
+            
+            # 헤더 라인 이후에 빈 줄 추가하여 헤더와 본문 분리
+            if i+1 < len(lines) and lines[i+1].strip() and not lines[i+1].strip().startswith('#'):
+                lines.insert(i+1, '')
+    
+    content = '\n'.join(lines)
+    
+    # 3. 마크다운으로 쉽게 변환되도록 각 마크다운 헤더 블록 분리
+    content = re.sub(r'(^|\n)(#+\s+[^\n]+)(\n)(?!\n)', r'\1\2\3\3', content)
+    
+    # 4. 단일 줄바꿈은 특수 br 태그로 변환하기 위한 임시 마커 추가
+    content = content.replace('\n', '{{SINGLE_BREAK}}')
+    
+    # 마크다운 변환을 위한 설정
+    # 모든 확장 기능 활성화하여 완전한 마크다운 지원
+    md = markdown.Markdown(extensions=['extra', 'codehilite'])
     
     # 마크다운 변환
     html_content = md.convert(content)
     
+    # 5. 임시 마커를 compact-break 클래스가 있는 br 태그로 변환
+    html_content = html_content.replace('{{SINGLE_BREAK}}', '<br class="compact-break">')
+    
+    # 6. 본문 텍스트에만 compact-text 클래스 추가 (h 태그 제외)
+    html_content = html_content.replace('<p>', '<p class="compact-text">')
+    
+    # 7. 특정 태그 사이의 간격 조정
+    # 문단(<p>) 사이의 간격 조정
+    html_content = re.sub(r'</p>\s*<p class="compact-text">', '</p><p class="compact-text">', html_content)
+    
     return html_content
+
+
+def _create_highlight_box(content):
+    """강조 내용 박스 생성"""
+    return f'<div class="highlight-box">{content}</div>'
+
+
+def _create_quote_box(content, author=None):
+    """인용문 박스 생성"""
+    author_html = f'<span class="blockquote-author">{author}</span>' if author else ''
+    return f'<blockquote class="styled-quote">{content}{author_html}</blockquote>'
+
+
+def _create_pullquote(content, align=None):
+    """큰 인용구 생성"""
+    align_class = f"align-{align}" if align in ["left", "right", "center"] else "align-center"
+    return f'<div class="pullquote {align_class}">{content}</div>'
+
+
+def _create_image_with_attributes(image_path, caption=None, attributes=None, base_url_images=None):
+    """확장 속성을 가진 이미지 생성"""
+    # 속성 파싱
+    align = "center"
+    size = "medium"
+    width = ""
+    height = ""
+    
+    if attributes:
+        align_match = re.search(r'align="([^"]*)"', attributes)
+        if align_match:
+            align = align_match.group(1)
+        
+        size_match = re.search(r'size="([^"]*)"', attributes)
+        if size_match:
+            size = size_match.group(1)
+        
+        width_match = re.search(r'width="([^"]*)"', attributes)
+        if width_match:
+            width = f'width="{width_match.group(1)}"'
+        
+        height_match = re.search(r'height="([^"]*)"', attributes)
+        if height_match:
+            height = f'height="{height_match.group(1)}"'
+    
+    # 클래스 생성
+    classes = f"post-image align-{align} size-{size}"
+    
+    # 캡션 처리
+    caption_html = f'<figcaption>{caption}</figcaption>' if caption else ''
+    
+    return f'''
+    <figure class="{classes}">
+        <img src="{base_url_images}/{image_path}" alt="{caption if caption else image_path}" {width} {height} class="text-post-image">
+        {caption_html}
+    </figure>
+    '''
+
+
+def _create_gallery(content, base_url_images):
+    """갤러리 생성"""
+    # 쉼표로 구분된 이미지 목록 파싱
+    images = [img.strip() for img in content.split(',')]
+    
+    # 갤러리 시작 태그
+    gallery_html = '<div class="gallery">'
+    
+    # 각 이미지 추가
+    for img in images:
+        # 이미지와 캡션 분리
+        parts = img.split('|')
+        image_path = parts[0].strip()
+        caption = parts[1].strip() if len(parts) > 1 else image_path
+        
+        gallery_html += f'''
+        <div class="gallery-item">
+            <img src="{base_url_images}/{image_path}" alt="{caption}" class="gallery-image">
+            <div class="gallery-caption">{caption}</div>
+        </div>
+        '''
+    
+    # 갤러리 닫는 태그
+    gallery_html += '</div>'
+    
+    return gallery_html
+
+
+def _create_related_posts(content):
+    """관련 글 링크 생성"""
+    # 줄별로 분리
+    lines = content.split('\n')
+    related_items = []
+    
+    for line in lines:
+        line = line.strip()
+        if line.startswith('-') or line.startswith('*'):
+            item = line[1:].strip()
+            if '|' in item:
+                # 제목과 URL이 분리되어 있는 경우
+                title, url = [part.strip() for part in item.split('|', 1)]
+                related_items.append((title, url))
+            else:
+                # 제목만 있는 경우
+                related_items.append((item, "#"))
+    
+    # HTML 생성
+    related_html = '<div class="related-posts-box"><h4>관련 글</h4><ul class="related-posts-list">'
+    
+    for title, url in related_items:
+        related_html += f'<li><a href="{url}">{title}</a></li>'
+    
+    related_html += '</ul></div>'
+    
+    return related_html
+
+
+def _create_series_box(series_name, part=None):
+    """시리즈 정보 박스 생성"""
+    part_text = f"파트 {part}" if part else ""
+    series_title = f"{series_name} {part_text}".strip()
+    
+    return f'''
+    <div class="series-box">
+        <div class="series-title">{series_title}</div>
+        <div class="series-info">이 글은 {series_name} 시리즈의 일부입니다.</div>
+    </div>
+    '''
+
+
+def _create_changelog(content):
+    """수정 이력 생성"""
+    lines = content.split('\n')
+    changelog_items = []
+    
+    for line in lines:
+        line = line.strip()
+        if line:
+            if line.startswith('-') or line.startswith('*'):
+                item = line[1:].strip()
+                changelog_items.append(item)
+            else:
+                changelog_items.append(line)
+    
+    changelog_html = '<div class="changelog-box"><h4>수정 이력</h4><ul class="changelog-list">'
+    
+    for item in changelog_items:
+        changelog_html += f'<li>{item}</li>'
+    
+    changelog_html += '</ul></div>'
+    
+    return changelog_html
 
 
 def _create_youtube_embed(youtube_id_or_url):
@@ -399,3 +723,24 @@ def search_posts(text_dir, query):
             results.append(post)
     
     return results
+
+
+def get_series_posts(text_dir, series_name):
+    """시리즈에 속한 모든 포스트 검색"""
+    series_posts = []
+    
+    try:
+        all_posts = get_all_text_posts(text_dir)
+        
+        # 같은 시리즈에 속한 포스트 필터링
+        for post in all_posts:
+            if hasattr(post, 'series') and post.series == series_name:
+                series_posts.append(post)
+        
+        # 시리즈 파트 순서대로 정렬
+        series_posts.sort(key=lambda x: x.series_part if x.series_part is not None else 9999)
+        
+    except Exception as e:
+        print(f"시리즈 포스트 로드 오류: {str(e)}")
+    
+    return series_posts

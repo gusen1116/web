@@ -62,7 +62,7 @@ h3 {
   display: block;
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 1.23rem;
-  line-height: 130%; /* 203%에서 130%로 줄임 - 요청에 따라 줄 간격 축소 */
+  line-height: 130%;
   font-weight: 600;
   text-align: left;
   word-break: keep-all;
@@ -84,19 +84,19 @@ h4, h5, h6 {
 
 h4 { 
   font-size: 1.15rem;
-  line-height: 180%;
+  line-height: 140%;
   font-weight: 600;
 }
 
 h5 { 
   font-size: 1.1rem;
-  line-height: 170%;
+  line-height: 140%;
   font-weight: 600;
 }
 
 h6 { 
   font-size: 1rem;
-  line-height: 160%;
+  line-height: 140%;
   font-weight: 600;
 }
 
@@ -106,34 +106,34 @@ p {
   display: block;
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 1.23rem;
-  line-height: 203%;
+  line-height: 160%;
   font-weight: 400;
   text-align: left;
   word-break: keep-all;
   word-wrap: break-word;
   color: inherit;
   width: var(--paragraph-width);
-  margin-bottom: var(--spacing-5);
+  margin-bottom: 0.5em;
   overflow-wrap: break-word; /* 긴 단어 줄 바꿈 개선 */
 }
 
 ul, ol {
   margin: 0 auto;
   width: var(--paragraph-width);
-  margin-bottom: var(--spacing-5);
+  margin-bottom: var(--spacing-3);
   padding-left: var(--spacing-6);
 }
 
 li {
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 1.23rem;
-  line-height: 180%;
+  line-height: 160%;
   font-weight: 400;
   text-align: left;
   word-break: keep-all;
   word-wrap: break-word;
   color: inherit;
-  margin-bottom: 0.5em;
+  margin-bottom: 0.3em;
 }
 
 a {
@@ -147,9 +147,9 @@ a:hover {
 }
 
 blockquote {
-  margin: var(--spacing-5) auto;
+  margin: var(--spacing-3) auto;
   width: var(--paragraph-width);
-  padding: var(--spacing-4) var(--spacing-6);
+  padding: var(--spacing-3) var(--spacing-5);
   border-left: 4px solid var(--primary-300);
   background-color: var(--bg-secondary);
   font-style: italic;
@@ -166,9 +166,9 @@ code {
 }
 
 pre {
-  margin: var(--spacing-5) auto;
+  margin: var(--spacing-3) auto;
   width: var(--paragraph-width);
-  padding: var(--spacing-4);
+  padding: var(--spacing-3);
   background-color: var(--bg-secondary);
   border-radius: var(--radius-md);
   overflow-x: auto;
@@ -185,30 +185,54 @@ pre code {
 /* ===== 포스트 콘텐츠 특화 스타일 ===== */
 .post-content {
   font-size: 1.23rem;
-  line-height: 203%;
+  line-height: 160%;
   max-width: var(--paragraph-width);
   margin: 0 auto;
   letter-spacing: -0.01em;
   word-break: keep-all;
   overflow-wrap: break-word;
-  white-space: pre-wrap; /* 줄 바꿈 유지 + 자동 줄 바꿈 */
+  white-space: normal; /* 텍스트 자연스럽게 표시 */
   hyphens: auto; /* 자동 하이픈 추가 (필요한 경우) */
   text-align: left;
 }
 
-/* 줄 바꿈 간격 최소화 */
+/* 줄 바꿈 간격 조정 - 텍스트가 겹치지 않는 적절한 간격 */
 .post-content br {
   display: block;
   content: "";
-  margin-top: -0.4em; /* 음수 값으로 줄 간격 축소 */
-  line-height: 0.6; /* 줄 높이 축소 */
+  margin-top: 0.2em; /* 약간의 여백만 추가 */
+  line-height: 1;
 }
 
 /* 두 개 연속된 <br> 태그는 단락 구분으로 처리 */
 .post-content br + br {
   display: block;
   content: "";
-  margin-top: 0.8em; /* 단락 구분용 여백 */
+  margin-top: 1em; /* 단락 구분용 여백 */
+}
+
+/* compact-break 클래스를 활용한 커스텀 줄바꿈 */
+br.compact-break {
+  display: block;
+  content: "";
+  margin-top: 0.2em; /* 줄 간격 축소하되 텍스트가 겹치지 않게 */
+  line-height: 1;
+}
+
+.post-content br.compact-break {
+  display: block;
+  content: "";
+  margin-top: 0.2em;
+  line-height: 1;
+}
+
+/* 문단 간격 조정 */
+.post-content p {
+  margin-bottom: 0.6em;
+}
+
+.post-content p + p {
+  margin-top: 0.3em;
 }
 
 .post-content h1, 
@@ -217,8 +241,8 @@ pre code {
 .post-content h4,
 .post-content h5,
 .post-content h6 {
-  margin-top: var(--spacing-6);
-  margin-bottom: var(--spacing-3);
+  margin-top: var(--spacing-4);
+  margin-bottom: var(--spacing-2);
   border-bottom: none;
   padding-bottom: 0;
   text-align: left;
@@ -239,14 +263,8 @@ pre code {
 
 .post-content h3 {
   font-size: 1.23rem;
-  line-height: 130%; /* 줄 간격 조정 */
+  line-height: 130%;
   font-weight: 600;
-}
-
-.post-content p {
-  margin-bottom: var(--spacing-5);
-  text-align: left;
-  font-weight: 400;
 }
 
 .post-content a {
@@ -262,12 +280,12 @@ pre code {
   max-width: 100%;
   height: auto;
   border-radius: var(--radius-md);
-  margin: var(--spacing-5) auto;
+  margin: var(--spacing-3) auto;
   display: block;
 }
 
 .post-content figure {
-  margin: var(--spacing-6) auto;
+  margin: var(--spacing-4) auto;
   width: var(--paragraph-width);
 }
 
@@ -276,23 +294,23 @@ pre code {
   font-style: italic;
   color: var(--text-tertiary);
   font-size: var(--font-size-sm);
-  margin-top: var(--spacing-2);
+  margin-top: var(--spacing-1);
 }
 
 /* 인용구 스타일 개선 */
 .post-content blockquote {
-  white-space: normal; /* 인용구 내 텍스트 처리 */
-  padding: 1em 1.5em;
+  white-space: normal;
+  padding: 0.7em 1.2em;
   border-left: 4px solid var(--primary-400);
   background-color: var(--bg-secondary);
-  margin: 1.5em 0;
+  margin: 1em 0;
 }
 
 /* 테이블 스타일 조정 */
 .post-content table {
   width: 100%;
   border-collapse: collapse;
-  margin: 1.5em 0;
+  margin: 1em 0;
   overflow-x: auto;
   display: block;
 }
@@ -300,7 +318,7 @@ pre code {
 .post-content table th,
 .post-content table td {
   border: 1px solid var(--border-color);
-  padding: 0.75em;
+  padding: 0.5em;
 }
 
 .post-content table th {
@@ -308,10 +326,16 @@ pre code {
   font-weight: 600;
 }
 
-/* 줄 바꿈 보존 클래스 */
+/* 줄 바꿈 보존 클래스 최적화 */
 .preserve-whitespace {
-  /* 공백과 줄 바꿈 보존 */
+  /* 공백과 줄 바꿈 보존하되 간격 최적화 */
   white-space: pre-wrap; /* 공백과 줄 바꿈 보존하면서 자동 줄 바꿈 */
+  line-height: 160%;
+}
+
+/* 적당히 조밀한 텍스트를 위한 클래스 추가 */
+.compact-text {
+  line-height: 140%;
 }
 
 /* ===== 모바일 최적화 ===== */
@@ -328,7 +352,7 @@ pre code {
   
   p, li {
     font-size: 1.1rem;
-    line-height: 180%;
+    line-height: 160%;
   }
   
   .post-content img {
@@ -336,3 +360,4 @@ pre code {
     height: auto;
   }
 }
+
