@@ -335,7 +335,98 @@ br.compact-break {
 
 /* 적당히 조밀한 텍스트를 위한 클래스 추가 */
 .compact-text {
-  line-height: 140%;
+  line-height: 1em; /* em 단위로 줄간격 조정 - 글자 크기와 동일 */
+  margin-bottom: 0.3em; /* 단락 간 간격도 줄임 */
+}
+
+/* ===== 포스트 메타 정보 스타일링 (새로 추가) ===== */
+/* 포스트 메타 정보 컨테이너 - 날짜, 작성자, 태그를 담는 영역 */
+.post-meta-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1.5rem 0 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  max-width: var(--paragraph-width);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 날짜 스타일 */
+.post-date {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  background-color: var(--bg-secondary);
+  padding: 0.35rem 0.8rem;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.post-date i {
+  margin-right: 0.5rem;
+  color: var(--primary-500);
+}
+
+.post-date:hover {
+  background-color: var(--primary-50);
+}
+
+/* 작성자 스타일 */
+.post-author {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.post-author i {
+  margin-right: 0.5rem;
+  color: var(--primary-500);
+}
+
+.post-author a {
+  color: var(--text-accent);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.post-author a:hover {
+  text-decoration: underline;
+}
+
+/* 태그 스타일 */
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-left: auto; /* 오른쪽 정렬 */
+}
+
+.post-tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--primary-50);
+  color: var(--primary-700);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.35rem 0.8rem;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.post-tag i {
+  margin-right: 0.4rem;
+  font-size: 0.8rem;
+}
+
+.post-tag:hover {
+  background-color: var(--primary-100);
+  transform: translateY(-2px);
 }
 
 /* ===== 모바일 최적화 ===== */
@@ -359,5 +450,16 @@ br.compact-break {
     max-width: 100%;
     height: auto;
   }
+  
+  /* 모바일에서 메타 정보 컨테이너 스타일 조정 */
+  .post-meta-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+  
+  .post-tags {
+    margin-left: 0; /* 모바일에서는 왼쪽 정렬 */
+    margin-top: 0.5rem;
+  }
 }
-

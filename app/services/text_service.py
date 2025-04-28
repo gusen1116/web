@@ -316,40 +316,54 @@ def render_content(content, base_url_images, base_url_files):
     lines = content.split('\n')
     for i in range(len(lines)):
         line = lines[i].strip()
+        
         if line and line[0] == '#':
-            # #과 텍스트 사이에 공백이 있는지 확인
-            if len(line) > 1 and line[1] != ' ':
-                # 공백이 없으면 추가
-                lines[i] = line[0] + ' ' + line[1:]
+            # 헤더 수준 확인 (# 개수 세기)
+            header_level = 0
+            for char in line:
+                if char == '#':
+                    header_level += 1
+                else:
+                    break
             
-            # 헤더 라인 이후에 빈 줄 추가하여 헤더와 본문 분리
-            if i+1 < len(lines) and lines[i+1].strip() and not lines[i+1].strip().startswith('#'):
-                lines.insert(i+1, '')
-    
+            # #과 텍스트 사이에 공백이 있는지 확인
+            if len(line) > header_level and line[header_level] != ' ':
+                # 공백이 없으면 추가
+                lines[i] = line[:header_level] + ' ' + line[header_level:]
+            
     content = '\n'.join(lines)
     
-    # 3. 마크다운으로 쉽게 변환되도록 각 마크다운 헤더 블록 분리
-    content = re.sub(r'(^|\n)(#+\s+[^\n]+)(\n)(?!\n)', r'\1\2\3\3', content)
+    # 3. 각 줄을 개별적으로 마크다운 처리하기 위한 준비
+    lines = content.split('\n')
+    processed_lines = []
     
-    # 4. 단일 줄바꿈은 특수 br 태그로 변환하기 위한 임시 마커 추가
-    content = content.replace('\n', '{{SINGLE_BREAK}}')
+    # 각 줄마다 독립적인 마크다운 처리
+    for line in lines:
+        line = line.strip()
+        if not line:  # 빈 줄 처리
+            processed_lines.append('<br>')
+            continue
+            
+        # 헤더 처리 (#으로 시작하는 줄)
+        if line.startswith('#'):
+            # 헤더 수준 확인
+            header_level = 0
+            for char in line:
+                if char == '#':
+                    header_level += 1
+                else:
+                    break
+                    
+            if header_level > 0 and len(line) > header_level and line[header_level] == ' ':
+                header_text = line[header_level+1:].strip()
+                processed_lines.append(f'<h{header_level}>{header_text}</h{header_level}>')
+                continue
+        
+        # 일반 텍스트 처리 (마크다운 변환 없이 일반 텍스트로 유지)
+        processed_lines.append(f'<p class="compact-text">{line}</p>')
     
-    # 마크다운 변환을 위한 설정
-    # 모든 확장 기능 활성화하여 완전한 마크다운 지원
-    md = markdown.Markdown(extensions=['extra', 'codehilite'])
-    
-    # 마크다운 변환
-    html_content = md.convert(content)
-    
-    # 5. 임시 마커를 compact-break 클래스가 있는 br 태그로 변환
-    html_content = html_content.replace('{{SINGLE_BREAK}}', '<br class="compact-break">')
-    
-    # 6. 본문 텍스트에만 compact-text 클래스 추가 (h 태그 제외)
-    html_content = html_content.replace('<p>', '<p class="compact-text">')
-    
-    # 7. 특정 태그 사이의 간격 조정
-    # 문단(<p>) 사이의 간격 조정
-    html_content = re.sub(r'</p>\s*<p class="compact-text">', '</p><p class="compact-text">', html_content)
+    # HTML로 조합
+    html_content = '\n'.join(processed_lines)
     
     return html_content
 
