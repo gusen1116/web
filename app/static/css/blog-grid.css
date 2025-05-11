@@ -9,7 +9,7 @@
   gap: var(--spacing-6); /* 여백 균일하게 조정 */
   margin-bottom: var(--spacing-8);
   width: 100%;
-  max-width: var(--container-width); /* 컨테이너 너비 변수 사용 */
+  max-width: var(--content-max-width); /* 컨텐츠 최대 너비 변수 사용 */
   margin-left: auto;
   margin-right: auto;
   padding: 0;
@@ -21,7 +21,7 @@
   grid-template-columns: repeat(3, 1fr); /* 3개 카드 표시 */
   gap: var(--spacing-6); /* 여백 균일하게 조정 */
   width: 100%; /* 컨테이너 너비에 맞춤 */
-  max-width: var(--container-width);
+  max-width: var(--content-max-width);
   margin: 0 auto var(--spacing-12);
   justify-content: center;
   padding: 0;
@@ -34,7 +34,7 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   width: 100%;
-  max-width: var(--container-width); /* 컨테이너 너비 변수 사용 */
+  max-width: var(--content-max-width); /* 컨텐츠 최대 너비 변수 사용 */
   margin-left: auto;
   margin-right: auto;
   height: 300px; /* 고정 높이 */
@@ -57,7 +57,7 @@
   font-size: 2.5rem; /* 슬라이드 제목 크기 */
   margin-bottom: var(--spacing-6);
   color: white;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   text-align: center;
   width: 100%;
 }
@@ -68,7 +68,7 @@
   margin: 0 auto;
   color: white;
   text-align: center;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   width: 100%;
 }
 
@@ -109,7 +109,7 @@
   font-size: var(--font-size-lg);
   opacity: 0;
   transition: opacity 0.3s ease;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .post-card:hover::after {
@@ -129,7 +129,7 @@
   font-weight: 600;
   margin-bottom: 0.75rem;
   color: var(--text-primary);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   width: 100%;
 }
 
@@ -139,7 +139,7 @@
   gap: var(--spacing-2);
   font-size: calc(var(--font-size-xs) * 1.2); /* 메타 정보 크기 */
   color: var(--text-tertiary);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .post-card-date {
@@ -164,7 +164,7 @@
   line-clamp: 5; /* 표준 속성 추가 */
   -webkit-box-orient: vertical;
   flex: 1 1 auto;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
 }
 
 /* ===== 포스트 카드 푸터 ===== */
@@ -189,7 +189,7 @@
   padding: 0.35rem 0.8rem;
   border-radius: var(--radius-full);
   transition: all 0.2s ease;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .post-card-tag:hover {
@@ -214,10 +214,10 @@
   color: var(--text-primary);
   text-align: center; /* 중앙 정렬 */
   width: 100%;
-  max-width: var(--container-width);
+  max-width: var(--content-max-width);
   margin-left: auto;
   margin-right: auto;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .blog-section, 
@@ -225,7 +225,7 @@
   margin-top: var(--spacing-16);
   margin-bottom: var(--spacing-16);
   width: 100%;
-  max-width: var(--container-width);
+  max-width: var(--content-max-width);
   margin-left: auto;
   margin-right: auto;
   padding: 0 var(--spacing-4);
@@ -251,7 +251,7 @@
 /* ===== 포스트 컨테이너 스타일 ===== */
 .posts-container {
   width: 100%;
-  max-width: var(--container-width);
+  max-width: var(--content-max-width);
   margin: 0 auto;
   position: relative;
   padding-bottom: calc(var(--spacing-16) + 50px); /* 버튼 공간 확보 */
@@ -282,7 +282,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: var(--shadow-md);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .toggle-button:hover {
@@ -422,7 +422,7 @@
   border-radius: var(--radius-lg);
   color: var(--text-tertiary);
   font-size: var(--font-size-lg);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
 }
 
 /* ===== 반응형 설정 ===== */

@@ -758,3 +758,32 @@ def get_series_posts(text_dir, series_name):
         print(f"시리즈 포스트 로드 오류: {str(e)}")
     
     return series_posts
+
+# 수정된 함수: 이전/다음 포스트 가져오기
+def get_adjacent_posts(text_dir, current_post):
+    """현재 포스트의 이전 및 다음 포스트 반환"""
+    try:
+        all_posts = get_all_text_posts(text_dir)
+        
+        # 날짜순으로 정렬 (최신순)
+        all_posts.sort(key=lambda x: x.date, reverse=True)
+        
+        current_index = None
+        for i, post in enumerate(all_posts):
+            if post.id == current_post.id:
+                current_index = i
+                break
+        
+        if current_index is None:
+            return None, None
+        
+        # 이전 포스트 (더 최신 게시물)
+        prev_post = all_posts[current_index - 1] if current_index > 0 else None
+        
+        # 다음 포스트 (더 오래된 게시물)
+        next_post = all_posts[current_index + 1] if current_index < len(all_posts) - 1 else None
+        
+        return prev_post, next_post
+    except Exception as e:
+        print(f"이전/다음 포스트 조회 오류: {str(e)}")
+        return None, None

@@ -87,9 +87,11 @@
   --transition-fast: 150ms;
   --transition-normal: 300ms;
   
-  /* 컨테이너 - 요청에 맞게 수정 */
+  /* 레이아웃 변수 - 통일된 관리를 위해 여기에서 정의 */
   --paragraph-width: 55rem;
-  --container-width: calc(var(--paragraph-width) * 1.5);
+  --container-width: 88rem; /* 너비 값을 직접 설정하여 계산 오류 방지 */
+  --header-width: var(--container-width); /* 헤더 너비를 컨테이너 너비로 맞춤 */
+  --content-max-width: var(--container-width);
 }
 
 /* ===== 다크 테마 설정 ===== */
@@ -205,7 +207,7 @@ a:hover {
 h1 {
   margin: 0 auto;
   display: block;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   font-size: 2.75rem;
   line-height: 130%;
   font-weight: 720;
@@ -219,7 +221,7 @@ h1 {
 h2 {
   margin: 0 auto;
   display: block;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   font-size: 1.9rem;
   line-height: 130%;
   font-weight: 700;
@@ -233,7 +235,7 @@ h2 {
 h3 {
   margin: 0 auto;
   display: block;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   font-size: 1.23rem;
   line-height: 203%;
   font-weight: 600;
@@ -247,7 +249,7 @@ h3 {
 p {
   margin: 0 auto;
   display: block;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   font-size: 1.23rem;
   line-height: 203%;
   font-weight: 400;

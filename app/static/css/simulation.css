@@ -3,6 +3,11 @@
  */
 
 /* ===== Simulation container ===== */
+/* 
+ * simulation.css - Enhanced styles for physical simulations
+ */
+
+/* ===== Simulation container ===== */
 .simulation-container {
   background-color: var(--bg-secondary);
   border-radius: var(--radius-lg);
@@ -16,14 +21,20 @@
 }
 
 /* ===== Simulation canvas - enhanced size ===== */
-#simulationCanvas,
-#airfoilCanvas {
+#simulationCanvas {
   width: 100%;
   height: 500px; /* Significantly increased height for better visualization */
   background-color: var(--bg-primary);
   border-radius: var(--radius-md);
   margin: var(--spacing-4) 0;
   box-shadow: var(--shadow-sm);
+  cursor: pointer; /* 클릭 상호작용 표시 */
+  transition: all 0.3s ease;
+}
+
+#simulationCanvas:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 /* ===== Simulation controls ===== */
@@ -57,44 +68,109 @@
   background-color: transparent;
 }
 
-/* A320-specific indicators */
-.flaps-indicator, 
-.slats-indicator {
-  margin-top: 10px;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
+/* 새로운 셀렉트 스타일 */
+.form-select {
+  width: 100%;
+  padding: var(--spacing-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='currentColor' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 12px;
 }
 
-.flaps-position {
-  font-weight: bold;
-  color: var(--text-accent);
+.form-select:focus {
+  outline: none;
+  border-color: var(--primary-400);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
 }
 
 /* Improved checkbox styling */
 .checkbox-group {
   margin-bottom: var(--spacing-2);
+  display: flex;
+  align-items: center;
 }
 
 .checkbox-group label {
   display: flex;
   align-items: center;
   cursor: pointer;
+  font-weight: 400;
+  margin-bottom: 0;
 }
 
 .checkbox-group input[type="checkbox"] {
   margin-right: var(--spacing-2);
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+/* 커스텀 체크박스 스타일 */
+.checkbox-group input[type="checkbox"] {
+  appearance: none;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  margin-right: var(--spacing-2);
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.checkbox-group input[type="checkbox"]:checked {
+  background-color: var(--primary-500);
+  border-color: var(--primary-600);
+}
+
+.checkbox-group input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 5px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.checkbox-group input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
 }
 
 /* ===== Simulation buttons ===== */
 .button-group {
   display: flex;
   gap: var(--spacing-2);
-  margin-top: var(--spacing-2);
+  margin-top: var(--spacing-4);
 }
 
 .button-group .btn {
   flex: 1;
   min-width: 80px;
+  padding: var(--spacing-2) var(--spacing-4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.button-group .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.button-group .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* ===== Simulation information ===== */
@@ -116,6 +192,24 @@
   color: var(--text-secondary);
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   width: 100%;
+}
+
+.simulation-interaction-hint {
+  background-color: var(--primary-50);
+  color: var(--primary-700);
+  padding: var(--spacing-3);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--primary-500);
+  margin-bottom: var(--spacing-4);
+}
+
+.simulation-interaction-hint p {
+  margin-bottom: 0;
+  color: var(--primary-700);
+}
+
+.simulation-interaction-hint strong {
+  color: var(--primary-800);
 }
 
 .simulation-theory {
@@ -144,6 +238,10 @@
   margin-bottom: var(--spacing-2);
 }
 
+.simulation-theory strong {
+  color: var(--primary-600);
+}
+
 /* Section header styling */
 .section-header {
   margin-bottom: var(--spacing-6);
@@ -162,11 +260,20 @@
   margin: 0 auto;
 }
 
-/* Navigation controls */
-.simulation-navigation {
-  margin-top: var(--spacing-6);
-  display: flex;
-  justify-content: center;
+/* 다크 테마 호환성 조정 */
+html.dark-theme .simulation-interaction-hint {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--primary-300);
+  border-left-color: var(--primary-400);
+}
+
+html.dark-theme .simulation-interaction-hint p,
+html.dark-theme .simulation-interaction-hint strong {
+  color: var(--primary-300);
+}
+
+html.dark-theme .simulation-theory strong {
+  color: var(--primary-400);
 }
 
 /* ===== Responsive adjustments ===== */
@@ -179,8 +286,25 @@
     flex-direction: column;
   }
   
-  #simulationCanvas,
-  #airfoilCanvas {
+  #simulationCanvas {
     height: 350px; /* Reduced height on mobile but still larger than original */
+  }
+  
+  .form-select {
+    font-size: 16px; /* iOS에서 확대 방지 */
+    padding: 10px; /* 탭 영역 확대 */
+  }
+  
+  .checkbox-group input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+  }
+  
+  .checkbox-group input[type="checkbox"]:checked::after {
+    left: 7px;
+    top: 3px;
+    width: 6px;
+    height: 11px;
   }
 }

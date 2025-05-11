@@ -4,8 +4,8 @@
 
 {% block content %}
 <div class="section-header">
-    <h1>물리 시뮬레이션</h1>
-    <p>물리 법칙을 시각적으로 탐험하고 실험해보세요.</p>
+    <h1>입자 물리 시뮬레이션</h1>
+    <p>물리 법칙에 따라 상호작용하는 입자들의 움직임을 관찰해보세요.</p>
 </div>
 
 <div class="simulation-container card">
@@ -20,8 +20,53 @@
             <input type="range" id="frictionControl" min="0" max="0.1" step="0.001" value="0.01">
         </div>
         
+        <div class="control-group">
+            <label for="elasticityControl">탄성: <span id="elasticityValue">0.8</span></label>
+            <input type="range" id="elasticityControl" min="0" max="1" step="0.01" value="0.8">
+        </div>
+        
+        <div class="control-group">
+            <label for="airResistanceControl">공기저항: <span id="airResistanceValue">0.001</span></label>
+            <input type="range" id="airResistanceControl" min="0" max="0.01" step="0.0001" value="0.001">
+        </div>
+        
+        <div class="control-group">
+            <label for="particleCountControl">입자 수: <span id="particleCountValue">30</span></label>
+            <input type="range" id="particleCountControl" min="1" max="100" step="1" value="30">
+        </div>
+        
+        <div class="checkbox-group">
+            <label>
+                <input type="checkbox" id="collisionToggle" checked>
+                입자 간 충돌 감지
+            </label>
+        </div>
+        
+        <div class="checkbox-group">
+            <label>
+                <input type="checkbox" id="vectorToggle">
+                속도 벡터 표시
+            </label>
+        </div>
+        
+        <div class="checkbox-group">
+            <label>
+                <input type="checkbox" id="trailToggle">
+                궤적 표시
+            </label>
+        </div>
+        
+        <div class="control-group">
+            <label for="colorModeSelect">색상 모드:</label>
+            <select id="colorModeSelect" class="form-select">
+                <option value="velocity">속도 기반</option>
+                <option value="size">크기 기반</option>
+                <option value="random">랜덤 고정</option>
+            </select>
+        </div>
+        
         <div class="button-group">
-            <button id="startSimulation" class="btn">시작</button>
+            <button id="startSimulation" class="btn" disabled>시작</button>
             <button id="stopSimulation" class="btn btn-secondary">정지</button>
             <button id="resetSimulation" class="btn btn-secondary">초기화</button>
         </div>
@@ -30,18 +75,21 @@
     <canvas id="simulationCanvas"></canvas>
     
     <div class="simulation-info">
-        <h3>물리 시뮬레이션 소개</h3>
-        <p>이 시뮬레이션은 기본적인 물리 법칙을 시각적으로 보여줍니다. 입자들이 중력과 마찰력에 따라 어떻게 움직이는지 관찰할 수 있습니다.</p>
-        <p>컨트롤을 사용하여 물리 매개변수를 조절해보고, 그 결과가 입자의 움직임에 어떤 영향을 미치는지 확인해보세요.</p>
+        <h3>입자 물리 시뮬레이션</h3>
+        <p>이 시뮬레이션은 다양한 물리 법칙이 적용된 입자들의 움직임을 보여줍니다. 중력, 마찰, 탄성, 공기저항 등의 매개변수를 조절하여 물리 세계가 어떻게 변화하는지 관찰해보세요.</p>
+        
+        <div class="simulation-interaction-hint">
+            <p><strong>팁:</strong> 캔버스를 클릭하면 새로운 입자를 추가할 수 있습니다.</p>
+        </div>
         
         <div class="simulation-theory">
-            <h4>관련 물리 이론</h4>
-            <p>이 시뮬레이션은 다음과 같은 물리 법칙을 따릅니다:</p>
+            <h4>관련 물리 원리</h4>
             <ul>
-                <li><strong>뉴턴의 운동 법칙</strong>: 물체는 외부 힘이 작용하지 않는 한 등속도 운동을 유지합니다.</li>
-                <li><strong>중력</strong>: 모든 물체는 지구 중력에 의해 아래로 끌어당겨집니다.</li>
-                <li><strong>마찰력</strong>: 물체의 움직임에 반대 방향으로 작용하여 속도를 감소시킵니다.</li>
-                <li><strong>충돌 역학</strong>: 물체가 벽과 충돌할 때 에너지 손실이 발생합니다.</li>
+                <li><strong>중력:</strong> 지구의 중력 가속도는 약 9.8 m/s²입니다. 이 값을 조정하면 다른 행성이나 무중력 상태를 시뮬레이션할 수 있습니다.</li>
+                <li><strong>탄성 충돌:</strong> 탄성계수가 1에 가까울수록 충돌 시 에너지 손실이 적어 더 많이 튀어오르게 됩니다.</li>
+                <li><strong>마찰력:</strong> 물체가 표면에 닿을 때 발생하는 힘으로, 운동 방향과 반대로 작용합니다.</li>
+                <li><strong>공기저항:</strong> 물체의 속도 제곱에 비례하는 항력으로, 빠를수록 더 큰 저항을 받습니다.</li>
+                <li><strong>운동량 보존:</strong> 입자 간 충돌에서 운동량(질량×속도)의 합은 보존됩니다.</li>
             </ul>
         </div>
     </div>
@@ -49,6 +97,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.min.js"></script>
-<script src="{{ url_for('static', filename='js/simulation-page.js') }}"></script>
+<script src="{{ url_for('static', filename='js/simulation.js') }}"></script>
 {% endblock %}

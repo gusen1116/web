@@ -85,26 +85,44 @@
     {% endif %}
 </article>
 
-<div class="post-navigation">
-    <h3 class="post-nav-header">관련 포스트</h3>
-    <div class="related-posts">
-        {% for related_post in related_posts %}
-            <a href="{{ url_for('posts.view_post', filename=related_post.filename) }}" class="related-post-card">
-                <h4>{{ related_post.title }}</h4>
-                <div class="date">{{ related_post.date.strftime('%Y년 %m월 %d일') }}</div>
-                {% if related_post.tags %}
-                    <div class="tag-list">
-                        {% for tag in related_post.tags %}
-                            <span class="tag-item">{{ tag }}</span>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </a>
+<!-- 간결한 이전글/다음글 네비게이션 -->
+<nav class="post-nav-simple">
+    <div class="post-nav-container">
+        {% if prev_post %}
+        <a href="{{ url_for('posts.view_by_slug', slug=prev_post.id) }}" class="post-nav-link prev">
+            <span class="post-nav-icon"><i class="fas fa-chevron-left"></i></span>
+            <span class="post-nav-text">이전 글</span>
+        </a>
         {% else %}
-            <p>관련 포스트가 없습니다.</p>
-        {% endfor %}
+        <span class="post-nav-link prev disabled">
+            <span class="post-nav-icon"><i class="fas fa-chevron-left"></i></span>
+            <span class="post-nav-text">이전 글이 없습니다</span>
+        </span>
+        {% endif %}
+
+        {% if next_post %}
+        <a href="{{ url_for('posts.view_by_slug', slug=next_post.id) }}" class="post-nav-link next">
+            <span class="post-nav-text">다음 글</span>
+            <span class="post-nav-icon"><i class="fas fa-chevron-right"></i></span>
+        </a>
+        {% else %}
+        <span class="post-nav-link next disabled">
+            <span class="post-nav-text">다음 글이 없습니다</span>
+            <span class="post-nav-icon"><i class="fas fa-chevron-right"></i></span>
+        </span>
+        {% endif %}
     </div>
-</div>
+
+    {% if next_post %}
+    <div class="post-nav-details">
+        <a href="{{ url_for('posts.view_by_slug', slug=next_post.id) }}" class="post-nav-detail-link">
+            <span class="post-nav-detail-title">{{ next_post.title }}</span>
+            <span class="post-nav-detail-date">{{ next_post.date.strftime('%Y년 %m월 %d일') }}</span>
+            <span class="post-nav-arrow"><i class="fas fa-long-arrow-alt-right"></i></span>
+        </a>
+    </div>
+    {% endif %}
+</nav>
 {% endblock %}
 
 {% block scripts %}

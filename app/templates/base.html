@@ -6,18 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}와구센{% endblock %}</title>
     
-    
+    <!-- 기본 스타일을 가장 먼저 로드하여 변수 정의 -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <!-- 레이아웃 스타일을 두 번째로 로드 -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+    <!-- 타이포그래피 스타일 로드 -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/typography.css') }}">
+    <!-- 나머지 스타일 로드 -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-content.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/simulation.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/slide.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-content.css') }}">
+    
     <!-- 현대적인 아이콘 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    
+    <!-- 페이지별 추가 스타일 -->
     {% block head %}{% endblock %}
     
     <!-- 테마 초기화 스크립트 - 깜빡임 방지 -->
@@ -50,14 +54,6 @@
             </nav>
             
             <div class="header-controls">
-                <!-- 검색 폼 -->
-                <div class="nav-search">
-                    <form action="{{ url_for('posts.search') }}" method="get" class="search-form" role="search">
-                        <input type="text" name="q" placeholder="검색..." aria-label="검색어 입력">
-                        <button type="submit" aria-label="검색"><i class="fas fa-search"></i></button>
-                    </form>
-                </div>
-                
                 <!-- 테마 토글 버튼 -->
                 <div class="theme-toggle-area">
                     <button class="theme-toggle" id="themeToggle" title="테마 변경" aria-label="테마 전환">

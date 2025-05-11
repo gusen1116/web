@@ -5,7 +5,7 @@ import sys
 from app.services.text_service import (
     TextPost, parse_text_file, render_content, get_all_text_posts,
     get_text_post, get_tags_count, find_related_posts, search_posts,
-    get_series_posts  # 새로 추가된 함수
+    get_series_posts, get_adjacent_posts  # 이전/다음 포스트 함수 추가
 )
 
 posts_bp = Blueprint('posts', __name__, url_prefix='/posts')
@@ -72,7 +72,17 @@ def view_by_slug(slug):
     tags_count = get_tags_count(text_dir)
     tags = [{"name": tag, "count": count} for tag, count in tags_count.items()]
     
-    related_posts = find_related_posts(text_dir, matching_post, limit=3)
+    # 디버깅 정보 추가
+    current_app.logger.debug(f"현재 포스트: {matching_post.id}, {matching_post.filename}")
+    
+    # 이전/다음 포스트 가져오기
+    prev_post, next_post = get_adjacent_posts(text_dir, matching_post)
+    
+    # 이전/다음 포스트 디버깅 정보
+    if prev_post:
+        current_app.logger.debug(f"이전 포스트: {prev_post.id}, {prev_post.title}")
+    if next_post:
+        current_app.logger.debug(f"다음 포스트: {next_post.id}, {next_post.title}")
     
     # 시리즈 정보가 있을 경우 시리즈의 다른 포스트 가져오기
     series_posts = []
@@ -85,8 +95,9 @@ def view_by_slug(slug):
         'posts/view.html', 
         post=matching_post, 
         rendered_content=rendered_content,
-        tags=tags, 
-        related_posts=related_posts,
+        tags=tags,
+        prev_post=prev_post,
+        next_post=next_post,
         series_posts=series_posts
     )
 
@@ -119,36 +130,6 @@ def filter_by_tag(tag):
         current_tag=tag
     )
 
-@posts_bp.route('/search')
-def search():
-    """포스트 검색"""
-    query = request.args.get('q', '')
-    
-    if not query:
-        return redirect(url_for('posts.index'))
-    
-    text_dir = os.path.join(current_app.instance_path, 'uploads', 'texts')
-    
-    # 검색 결과 가져오기
-    posts = search_posts(text_dir, query)
-    
-    # 태그 카운트 가져오기
-    tags_count = get_tags_count(text_dir)
-    tags = [{"name": tag, "count": count} for tag, count in tags_count.items()]
-    
-    # 최신 포스트 목록 (사이드바용)
-    all_posts = get_all_text_posts(text_dir)
-    recent_posts = all_posts[:5] if len(all_posts) > 5 else all_posts
-    
-    return render_template(
-        'posts/search.html', 
-        posts=posts, 
-        tags=tags,
-        recent_posts=recent_posts,
-        query=query
-    )
-
-# 시리즈 관련 새로운 라우트 추가
 @posts_bp.route('/series/<series_name>')
 def view_series(series_name):
     """시리즈의 모든 포스트 보기"""
