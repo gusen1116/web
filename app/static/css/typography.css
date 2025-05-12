@@ -55,6 +55,8 @@ h2 {
   word-wrap: break-word;
   color: inherit;
   width: var(--paragraph-width);
+  margin-top: 2.5em;
+  margin-bottom: 1em;
 }
 
 h3 {
@@ -69,6 +71,8 @@ h3 {
   word-wrap: break-word;
   color: inherit;
   width: var(--paragraph-width);
+  margin-top: 2em;
+  margin-bottom: 0.8em;
 }
 
 h4, h5, h6 {
@@ -106,15 +110,20 @@ p {
   display: block;
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 1.23rem;
-  line-height: 160%;
+  line-height: 1.8; /* 가독성 향상을 위해 line-height 증가 */
   font-weight: 400;
   text-align: left;
   word-break: keep-all;
   word-wrap: break-word;
   color: inherit;
   width: var(--paragraph-width);
-  margin-bottom: 0.5em;
+  margin-bottom: 1.5em; /* 단락 간격 확대 */
   overflow-wrap: break-word; /* 긴 단어 줄 바꿈 개선 */
+}
+
+/* 부제목과 본문 사이 간격 */
+h2 + p, h3 + p {
+  margin-top: 0.8em;
 }
 
 ul, ol {
@@ -127,13 +136,13 @@ ul, ol {
 li {
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 1.23rem;
-  line-height: 160%;
+  line-height: 1.8; /* 가독성 향상을 위해 line-height 증가 */
   font-weight: 400;
   text-align: left;
   word-break: keep-all;
   word-wrap: break-word;
   color: inherit;
-  margin-bottom: 0.3em;
+  margin-bottom: 0.6em; /* 리스트 아이템 간격 */
 }
 
 a {
@@ -185,7 +194,7 @@ pre code {
 /* ===== 포스트 콘텐츠 특화 스타일 ===== */
 .post-content {
   font-size: 1.23rem;
-  line-height: 160%;
+  line-height: 1.8; /* 가독성 향상을 위해 line-height 증가 */
   max-width: var(--paragraph-width);
   margin: 0 auto;
   letter-spacing: -0.01em;
@@ -228,7 +237,7 @@ br.compact-break {
 
 /* 문단 간격 조정 */
 .post-content p {
-  margin-bottom: 0.6em;
+  margin-bottom: 1.5em; /* 단락 간격 확대 */
 }
 
 .post-content p + p {
@@ -330,12 +339,12 @@ br.compact-break {
 .preserve-whitespace {
   /* 공백과 줄 바꿈 보존하되 간격 최적화 */
   white-space: pre-wrap; /* 공백과 줄 바꿈 보존하면서 자동 줄 바꿈 */
-  line-height: 160%;
+  line-height: 1.8; /* 가독성 향상을 위한 행간 조정 */
 }
 
 /* 적당히 조밀한 텍스트를 위한 클래스 추가 */
 .compact-text {
-  line-height: 1em; /* em 단위로 줄간격 조정 - 글자 크기와 동일 */
+  line-height: 1.5em; /* em 단위로 줄간격 조정 - 이전보다 약간 증가 */
   margin-bottom: 0.3em; /* 단락 간 간격도 줄임 */
 }
 
@@ -555,6 +564,27 @@ br.compact-break {
 
 /* ===== 모바일 최적화 ===== */
 @media (max-width: 768px) {
+  /* 모바일에서 본문 글자 크기 최적화 */
+  body {
+    font-size: 16px;
+  }
+  
+  /* 포스트 콘텐츠 모바일 최적화 */
+  .post-content {
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+  
+  /* 제목 크기 최적화 */
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.6rem; }
+  h3 { font-size: 1.3rem; }
+  
+  /* 모바일에서 단락 간격 최적화 */
+  .post-content p {
+    margin-bottom: 1.2em;
+  }
+  
   .post-content,
   h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, pre,
   .post-meta-container,
@@ -574,15 +604,6 @@ br.compact-break {
   
   .post-nav-detail-title {
     font-size: 1rem;
-  }
-  
-  h1 { font-size: 2.25rem; }
-  h2 { font-size: 1.75rem; }
-  h3 { font-size: 1.2rem; }
-  
-  p, li {
-    font-size: 1.1rem;
-    line-height: 160%;
   }
   
   .post-content img {

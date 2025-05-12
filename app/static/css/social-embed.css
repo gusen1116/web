@@ -1,102 +1,110 @@
 /* 
- * social-embed.css - 소셜 미디어 임베드 스타일
+ * social-embed.css - GitHub 스타일 소셜 미디어 임베드
  */
 
 /* 공통 임베드 스타일 */
 .social-embed {
-    width: 100%;
-    max-width: 880px;
-    margin: 2rem auto;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    box-shadow: var(--shadow-md);
-  }
-  
-  /* 코드 블록과 충돌 방지를 위한 스타일 */
-  .social-embed pre,
-  .social-embed code {
-    background: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    box-shadow: none !important;
-    border: none !important;
-    border-radius: 0 !important;
-  }
-  
-  /* 유튜브 임베드 */
-  .youtube-embed {
-    aspect-ratio: 16 / 9;
-    position: relative;
-    background-color: #000;
-  }
-  
-  .youtube-embed iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
-  
-  /* 트위치 임베드 */
-  .twitch-embed {
-    aspect-ratio: 16 / 9;
-    position: relative;
-    background-color: #6441a5;
-  }
-  
-  .twitch-embed iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
-  
-  /* 트위터 임베드 */
-  .twitter-embed {
-    width: 100%;
-    max-width: 880px;
-    margin: 2rem auto;
-    background-color: transparent !important;
-    box-shadow: none !important;
-  }
-  
-  .twitter-embed blockquote {
-    margin: 0 auto !important;
-    width: 100% !important;
-  }
-  
-  /* 인스타그램 임베드 */
-  .instagram-embed {
-    width: 100%;
-    margin: 2rem auto;
-    background-color: transparent !important;
-    box-shadow: none !important;
-  }
-  
-  .instagram-embed blockquote {
-    margin: 0 auto !important;
-    width: 100% !important;
-    max-width: 880px !important;
-  }
-  
-  /* 페이스북 임베드 */
-  .facebook-embed {
-    width: 100%;
-    margin: 2rem auto;
-    background-color: transparent !important;
-    box-shadow: none !important;
-  }
-  
-  /* 에러 메시지 */
-  .error-embed {
-    padding: 1rem;
-    background-color: var(--bg-tertiary);
-    color: var(--danger);
-    text-align: center;
-    border-radius: var(--radius-md);
-    margin: 1rem 0;
-  }
+  width: 100%;
+  max-width: 880px;
+  margin: 2rem auto;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+/* 코드 블록과 충돌 방지를 위한 스타일 */
+.social-embed pre,
+.social-embed code {
+  background: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+/* 유튜브 임베드 */
+.youtube-embed {
+  aspect-ratio: 16 / 9;
+  position: relative;
+  background-color: #000;
+}
+
+.youtube-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* 트위치 임베드 */
+.twitch-embed {
+  aspect-ratio: 16 / 9;
+  position: relative;
+  background-color: #6441a5;
+}
+
+.twitch-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* 트위터 임베드 */
+.twitter-embed {
+  width: 100%;
+  max-width: 880px;
+  margin: 2rem auto;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.twitter-embed blockquote {
+  margin: 0 auto !important;
+  width: 100% !important;
+}
+
+/* 인스타그램 임베드 */
+.instagram-embed {
+  width: 100%;
+  margin: 2rem auto;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.instagram-embed blockquote {
+  margin: 0 auto !important;
+  width: 100% !important;
+  max-width: 880px !important;
+}
+
+/* 페이스북 임베드 */
+.facebook-embed {
+  width: 100%;
+  margin: 2rem auto;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* 에러 메시지 */
+.error-embed {
+  padding: 1rem;
+  background-color: var(--bg-tertiary);
+  color: var(--danger);
+  text-align: center;
+  border-radius: 6px;
+  margin: 1rem 0;
+  border: 1px solid var(--border-color);
+}
+
+/* 다크 모드 조정 */
+html.dark-theme .error-embed {
+  background-color: rgba(207, 34, 46, 0.15);
+  border-color: rgba(207, 34, 46, 0.4);
+}

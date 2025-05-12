@@ -1,51 +1,49 @@
 /* 
- * simulation.css - Enhanced styles for physical simulations
+ * simulation.css - GitHub 스타일 시뮬레이션 UI, 타이포그래피 유지
  */
 
-/* ===== Simulation container ===== */
-/* 
- * simulation.css - Enhanced styles for physical simulations
- */
-
-/* ===== Simulation container ===== */
+/* ===== Simulation container - GitHub 스타일 ===== */
 .simulation-container {
   background-color: var(--bg-secondary);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
   padding: var(--spacing-4);
   margin-bottom: var(--spacing-8);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
   width: 100%;
   max-width: var(--container-width);
   margin-left: auto;
   margin-right: auto;
 }
 
-/* ===== Simulation canvas - enhanced size ===== */
+/* ===== Simulation canvas ===== */
 #simulationCanvas {
   width: 100%;
-  height: 500px; /* Significantly increased height for better visualization */
+  height: 500px;
   background-color: var(--bg-primary);
-  border-radius: var(--radius-md);
+  border-radius: 6px;
   margin: var(--spacing-4) 0;
   box-shadow: var(--shadow-sm);
-  cursor: pointer; /* 클릭 상호작용 표시 */
+  cursor: pointer;
   transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
 }
 
 #simulationCanvas:hover {
   box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  border-color: var(--github-accent);
 }
 
-/* ===== Simulation controls ===== */
+/* ===== Simulation controls - GitHub 스타일 ===== */
 .simulation-controls {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid layout */
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: var(--spacing-4);
   margin-bottom: var(--spacing-4);
   padding: var(--spacing-4);
-  background-color: var(--bg-tertiary);
-  border-radius: var(--radius-md);
+  background-color: var(--bg-primary);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
 }
 
 .control-group {
@@ -56,27 +54,27 @@
   display: block;
   margin-bottom: var(--spacing-2);
   font-weight: 500;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   color: var(--text-primary);
 }
 
 .control-group input[type="range"] {
   width: 100%;
   margin-bottom: var(--spacing-2);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   padding: var(--spacing-2) 0;
   background-color: transparent;
 }
 
-/* 새로운 셀렉트 스타일 */
+/* GitHub 스타일 셀렉트 */
 .form-select {
   width: 100%;
-  padding: var(--spacing-2);
-  border-radius: var(--radius-md);
+  padding: 5px 12px;
+  border-radius: 6px;
   border: 1px solid var(--border-color);
-  background-color: var(--bg-primary);
+  background-color: var(--bg-secondary);
   color: var(--text-primary);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='currentColor' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -86,11 +84,11 @@
 
 .form-select:focus {
   outline: none;
-  border-color: var(--primary-400);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+  border-color: var(--github-accent);
+  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
 }
 
-/* Improved checkbox styling */
+/* GitHub 스타일 체크박스 */
 .checkbox-group {
   margin-bottom: var(--spacing-2);
   display: flex;
@@ -112,40 +110,7 @@
   height: 16px;
 }
 
-/* 커스텀 체크박스 스타일 */
-.checkbox-group input[type="checkbox"] {
-  appearance: none;
-  background-color: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  margin-right: var(--spacing-2);
-  position: relative;
-  transition: all 0.2s ease;
-}
-
-.checkbox-group input[type="checkbox"]:checked {
-  background-color: var(--primary-500);
-  border-color: var(--primary-600);
-}
-
-.checkbox-group input[type="checkbox"]:checked::after {
-  content: '';
-  position: absolute;
-  left: 5px;
-  top: 2px;
-  width: 5px;
-  height: 9px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-}
-
-.checkbox-group input[type="checkbox"]:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
-}
-
-/* ===== Simulation buttons ===== */
+/* ===== 시뮬레이션 버튼 영역 ===== */
 .button-group {
   display: flex;
   gap: var(--spacing-2);
@@ -155,16 +120,15 @@
 .button-group .btn {
   flex: 1;
   min-width: 80px;
-  padding: var(--spacing-2) var(--spacing-4);
+  padding: 5px 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .button-group .btn:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
 }
 
 .button-group .btn:disabled {
@@ -173,7 +137,7 @@
   transform: none;
 }
 
-/* ===== Simulation information ===== */
+/* ===== Simulation information - GitHub 스타일 ===== */
 .simulation-info {
   margin-top: var(--spacing-4);
   padding-top: var(--spacing-4);
@@ -182,7 +146,7 @@
 
 .simulation-info h3 {
   margin-bottom: var(--spacing-2);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   width: 100%;
   text-align: left;
 }
@@ -190,38 +154,45 @@
 .simulation-info p {
   margin-bottom: var(--spacing-4);
   color: var(--text-secondary);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   width: 100%;
 }
 
 .simulation-interaction-hint {
-  background-color: var(--primary-50);
-  color: var(--primary-700);
+  background-color: #ddf4ff;
+  color: var(--github-accent);
   padding: var(--spacing-3);
-  border-radius: var(--radius-md);
-  border-left: 4px solid var(--primary-500);
+  border-radius: 6px;
   margin-bottom: var(--spacing-4);
+  border: 1px solid rgba(9, 105, 218, 0.1);
+}
+
+html.dark-theme .simulation-interaction-hint {
+  background-color: rgba(56, 139, 253, 0.15);
+  color: #58a6ff;
+  border-color: rgba(56, 139, 253, 0.4);
 }
 
 .simulation-interaction-hint p {
   margin-bottom: 0;
-  color: var(--primary-700);
+  color: var(--github-accent);
 }
 
-.simulation-interaction-hint strong {
-  color: var(--primary-800);
+html.dark-theme .simulation-interaction-hint p {
+  color: #58a6ff;
 }
 
 .simulation-theory {
-  background-color: var(--bg-tertiary);
+  background-color: var(--bg-primary);
   padding: var(--spacing-4);
-  border-radius: var(--radius-md);
+  border-radius: 6px;
   margin-top: var(--spacing-4);
+  border: 1px solid var(--border-color);
 }
 
 .simulation-theory h4 {
   margin-bottom: var(--spacing-2);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   width: 100%;
   color: var(--text-primary);
 }
@@ -229,23 +200,21 @@
 .simulation-theory ul {
   margin-bottom: 0;
   width: 100%;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
 }
 
 .simulation-theory li {
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   color: var(--text-primary);
   margin-bottom: var(--spacing-2);
 }
 
-.simulation-theory strong {
-  color: var(--primary-600);
-}
-
-/* Section header styling */
+/* 섹션 헤더 스타일 - GitHub 스타일 */
 .section-header {
   margin-bottom: var(--spacing-6);
-  text-align: center;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: var(--spacing-4);
 }
 
 .section-header h1 {
@@ -257,26 +226,10 @@
 .section-header p {
   color: var(--text-secondary);
   max-width: 800px;
-  margin: 0 auto;
+  margin: 0;
 }
 
-/* 다크 테마 호환성 조정 */
-html.dark-theme .simulation-interaction-hint {
-  background-color: rgba(59, 130, 246, 0.1);
-  color: var(--primary-300);
-  border-left-color: var(--primary-400);
-}
-
-html.dark-theme .simulation-interaction-hint p,
-html.dark-theme .simulation-interaction-hint strong {
-  color: var(--primary-300);
-}
-
-html.dark-theme .simulation-theory strong {
-  color: var(--primary-400);
-}
-
-/* ===== Responsive adjustments ===== */
+/* ===== 반응형 조정 ===== */
 @media (max-width: 768px) {
   .simulation-controls {
     grid-template-columns: 1fr; /* Single column on mobile */

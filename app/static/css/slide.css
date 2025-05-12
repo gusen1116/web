@@ -1,5 +1,5 @@
 /* 
- * slide.css - 반응형 슬라이드 컨테이너 수정
+ * slide.css - GitHub 스타일 슬라이드 컨테이너
  */
 
 /* ===== 슬라이드 컨테이너 ===== */
@@ -9,16 +9,21 @@
   height: 300px;
   overflow: hidden;
   margin-bottom: 3rem;
-  background-color: #007BFF;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  background-color: var(--github-accent);
+  border-radius: 6px;
+  box-shadow: var(--shadow-sm);
   margin-left: auto;
   margin-right: auto;
   padding: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  max-width: 880px; /* 고정 너비로 설정하여 더 이상 늘어나지 않도록 함 */
+  max-width: 880px;
+  border: 1px solid var(--border-color);
+}
+
+html.dark-theme .slide-container {
+  background-color: #1f6feb;
 }
 
 /* ===== 슬라이드 ===== */
@@ -36,7 +41,6 @@
   opacity: 0;
   z-index: 1;
   transition: opacity 0.7s ease;
-  background-color: #007BFF;
 }
 
 .slide.active {
@@ -46,23 +50,23 @@
 
 /* ===== 슬라이드 내용 ===== */
 .slide h2 {
-  font-size: 3rem;
+  font-size: 2.5rem;
   margin-bottom: 1.5rem;
   color: white;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   letter-spacing: -0.02em;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   width: 100%;
   text-align: center;
 }
 
 .slide p {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   max-width: var(--paragraph-width);
   margin: 0 auto 2rem;
   line-height: 1.5;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
   width: 100%;
   text-align: center;
   color: white;
@@ -99,17 +103,17 @@
   background-color: rgba(255, 255, 255, 0.8);
 }
 
-/* 반응형 설정 추가 */
+/* 반응형 설정 */
 @media (max-width: 880px) {
   .slide-container {
-    width: calc(100% - 2rem); /* 좁은 화면에서 여백 추가 */
+    width: calc(100% - 2rem);
   }
   
   .slide h2 {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
   
   .slide p {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
 }
