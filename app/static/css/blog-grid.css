@@ -119,7 +119,7 @@
 
 /* ===== 포스트 카드 헤더 - GitHub 스타일 ===== */
 .post-card-header {
-  padding: var(--spacing-5) var(--spacing-5) var(--spacing-3);
+  padding: calc(var(--spacing-5) / 2) var(--spacing-5) var(--spacing-3);
   border-bottom: 1px solid var(--border-color);
   flex: 0 0 auto;
 }
