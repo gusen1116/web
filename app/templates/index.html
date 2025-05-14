@@ -12,16 +12,16 @@
 <!-- 슬라이드 섹션 -->
 <div class="slide-container">
   <div class="slide active">
-    <h2>물리 법칙의 시각화</h2>
-    <p>복잡한 개념을 직관적으로 이해할 수 있습니다</p>
+    <h2>구센의 법칙</h2>
+    <p>구센 이해하기 프로젝트</p>
   </div>
   <div class="slide">
-    <h2>기술과 과학의 만남</h2>
-    <p>최신 기술로 구현된 물리 시뮬레이션을 경험해보세요</p>
+    <h2>구센의 작품들</h2>
+    <p>구센이 만들어 본 것들</p>
   </div>
   <div class="slide">
-    <h2>실험과 탐구의 장</h2>
-    <p>다양한 매개변수를 조절하여 결과를 관찰해보세요</p>
+    <h2>뭔가 더 있을듯</h2>
+    <p>더 적을 게 있으면 적을게요</p>
   </div>
   
   <div class="slide-controls">
@@ -30,6 +30,21 @@
     <div class="slide-indicator" data-index="2"></div>
   </div>
 </div>
+
+<!-- 소개 섹션 -->
+<section class="intro-section">
+  <div class="intro-container">
+    <!-- 왼쪽: 이미지 영역 -->
+    <div class="intro-image-area">
+      <img src="{{ url_for('static', filename='img/gusen-jb.png') }}" alt="마스코트 이미지" class="intro-image">
+    </div>
+    
+    <!-- 오른쪽: 텍스트 콘텐츠 영역 -->
+    <div class="intro-content-area">
+      <!-- 여기에 소개 내용을 추가하세요 -->
+    </div>
+  </div>
+</section>
 
 <!-- 블로그 섹션 - 중앙 정렬된 포스트 -->
 <section class="blog-section">
@@ -76,8 +91,8 @@
 
 <!-- 물리 시뮬레이션 섹션 -->
 <section class="simulation-section">
-  <h2 class="section-title">물리 시뮬레이션</h2>
-  <p>물리 법칙을 시각적으로 탐험해보세요.</p>
+  <h2 class="section-title">팅팅 탱탱</h2>
+  <p>팅팅탱탱 중력과 함께하기기</p>
   
   <div class="simulation-container">
     <canvas id="simulationCanvas"></canvas>

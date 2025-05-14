@@ -73,6 +73,114 @@
   width: 100%;
 }
 
+/* ===== 소개 섹션 스타일 - GitHub 스타일 ===== */
+.intro-section {
+  margin-top: var(--spacing-8);
+  margin-bottom: var(--spacing-16);
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 var(--spacing-4);
+}
+
+.intro-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  background-color: var(--bg-secondary);
+  border-radius: 6px; /* GitHub 스타일 라운딩 */
+  padding: var(--spacing-6);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.intro-container:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--github-accent);
+}
+
+.intro-image-area {
+  flex: 0 0 220px;
+  position: relative;
+}
+
+.intro-image {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  transition: transform 0.4s ease;
+  border: 1px solid var(--border-color);
+}
+
+.intro-image:hover {
+  transform: translateY(-5px) rotate(2deg);
+}
+
+.intro-content-area {
+  flex: 1;
+  min-height: 180px;
+}
+
+/* 콘텐츠 영역 스타일 예시 - 필요에 따라 사용 */
+.intro-content-area h2 {
+  font-size: 1.9rem;
+  line-height: 130%;
+  font-weight: 700;
+  margin-bottom: var(--spacing-3);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+
+.intro-content-area p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: var(--spacing-4);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+}
+
+.intro-content-area .intro-links {
+  display: flex;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-4);
+}
+
+.intro-content-area .intro-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-family: var(--font-sans);
+}
+
+.intro-content-area .intro-link.primary {
+  background-color: var(--github-accent);
+  color: white;
+}
+
+.intro-content-area .intro-link.primary:hover {
+  background-color: #0860C9;
+  transform: translateY(-2px);
+}
+
+.intro-content-area .intro-link.secondary {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.intro-content-area .intro-link.secondary:hover {
+  background-color: var(--neutral-200);
+  transform: translateY(-2px);
+}
+
 /* ===== 포스트 카드 스타일 - GitHub 스타일 ===== */
 .post-card {
   background-color: var(--bg-secondary);
@@ -119,7 +227,7 @@
 
 /* ===== 포스트 카드 헤더 - GitHub 스타일 ===== */
 .post-card-header {
-  padding: calc(var(--spacing-5) / 2) var(--spacing-5) var(--spacing-3);
+  padding: 0.8rem 1.25rem 0.75rem; /* 상하 패딩 축소 */
   border-bottom: 1px solid var(--border-color);
   flex: 0 0 auto;
 }
@@ -128,7 +236,8 @@
   font-size: 1.6rem; /* 제목 크기 약간 키움 */
   line-height: 1.3;
   font-weight: 700; /* 더 두껍게 */
-  margin-bottom: 0.6rem; /* 제목과 날짜 사이 간격 줄임 */
+  margin-top: 0.5rem; /* 상단 마진 축소 (64px → 0.5rem) */
+  margin-bottom: 0.6rem; /* 제목과 날짜 사이 간격 */
   color: var(--text-primary);
   font-family: var(--font-sans);
   width: 100%;
@@ -222,6 +331,10 @@
 }
 
 /* Dark mode for post card tags */
+html.dark-theme .intro-container {
+  background-color: var(--bg-secondary);
+}
+
 html.dark-theme .post-card-tag {
   background-color: rgba(56, 139, 253, 0.15);
   color: #58a6ff;
@@ -456,6 +569,14 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   .posts-grid-center {
     grid-template-columns: repeat(2, 1fr); /* 중간 화면에서는 2개 */
   }
+  
+  .intro-container {
+    gap: var(--spacing-6);
+  }
+  
+  .intro-image-area {
+    flex: 0 0 180px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -511,5 +632,39 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   .post-card-action {
     padding: 8px 16px;
     font-size: 1rem;
+  }
+  
+  /* 소개 섹션 모바일 최적화 */
+  .intro-section {
+    margin-top: var(--spacing-6);
+    margin-bottom: var(--spacing-8);
+  }
+  
+  .intro-container {
+    flex-direction: column;
+    text-align: center;
+    gap: var(--spacing-5);
+    padding: var(--spacing-5);
+  }
+  
+  .intro-image-area {
+    flex: 0 0 auto;
+    width: 160px;
+  }
+  
+  .intro-content-area {
+    min-height: auto;
+  }
+  
+  .intro-content-area h2 {
+    font-size: 1.6rem;
+  }
+  
+  .intro-content-area p {
+    font-size: 1rem;
+  }
+  
+  .intro-content-area .intro-links {
+    justify-content: center;
   }
 }
