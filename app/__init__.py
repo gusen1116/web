@@ -26,8 +26,8 @@ def create_app(config_object=None):
     if config_object:
         app.config.from_object(config_object)
     
-    # 확장 모듈 초기화
-    socketio.init_app(app)
+    # 확장 모듈 초기화 - socket.io 서비스 제한적으로만 사용
+    socketio.init_app(app, async_mode='eventlet', cors_allowed_origins="*")
     csrf.init_app(app)
     
     # 블루프린트 등록 - 일관된 방식으로 변경
@@ -36,7 +36,6 @@ def create_app(config_object=None):
     app.register_blueprint(main_routes.main_bp)
     app.register_blueprint(simulation.simulation_bp)
     app.register_blueprint(posts_routes.posts_bp)
-    # 명시적 등록
     
     # 업로드 폴더 설정
     upload_folder = os.path.join(app.instance_path, 'uploads')
@@ -51,6 +50,5 @@ def create_app(config_object=None):
     os.makedirs(images_dir, exist_ok=True)
     os.makedirs(texts_dir, exist_ok=True)
     os.makedirs(files_dir, exist_ok=True)
-    
     
     return app
