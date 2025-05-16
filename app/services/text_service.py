@@ -1,20 +1,26 @@
-# app/services/text_service.py
+# app/services/text_service.py - 보안 강화 및 임베드 문제 해결
 import os
 import re
 from datetime import datetime
 import markdown
 from flask import url_for
+from markupsafe import escape, Markup
+from werkzeug.utils import secure_filename
 
 class TextPost:
     """텍스트 파일 기반 포스트 클래스"""
     
     def __init__(self, filename, content, metadata=None):
-        self.filename = filename
+        # 파일명 검증
+        if not isinstance(filename, str) or '..' in filename or '/' in filename or '\\' in filename:
+            raise ValueError("잘못된 파일명입니다")
+            
+        self.filename = secure_filename(filename)
         self.content = content
-        self.id = os.path.splitext(filename)[0]
+        self.id = os.path.splitext(self.filename)[0]
         
         # 메타데이터 기본값
-        self.title = filename
+        self.title = self.filename
         self.date = datetime.now()
         self.created_at = datetime.now()  # 호환성을 위해 추가
         self.tags = []
@@ -25,45 +31,70 @@ class TextPost:
         self.series_part = None  # 시리즈 순서 추가
         self.changelog = []  # 수정 이력 추가
         
-        # 메타데이터가 제공된 경우 업데이트
+        # 메타데이터가 제공된 경우 안전하게 업데이트
         if metadata:
-            self.title = metadata.get('title', self.title)
-            self.description = metadata.get('description', '')
-            self.author = metadata.get('author', self.author)
+            # 문자열 타입 필드 검증 및 이스케이핑
+            if 'title' in metadata and isinstance(metadata['title'], str):
+                self.title = escape(metadata['title'])
+                
+            if 'description' in metadata and isinstance(metadata['description'], str):
+                self.description = escape(metadata['description'])
+                
+            if 'author' in metadata and isinstance(metadata['author'], str):
+                self.author = escape(metadata['author'])
+                
+            # 슬러그 설정 및 검증
+            if 'slug' in metadata and isinstance(metadata['slug'], str):
+                clean_slug = secure_filename(metadata['slug'])
+                self.slug = clean_slug if clean_slug else self.id
+            else:
+                self.slug = self.id
             
-            # 슬러그 설정
-            self.slug = metadata.get('slug', self.id)
-            
-            # 날짜 파싱
+            # 날짜 파싱 - 안전하게
             date_str = metadata.get('date')
-            if date_str:
+            if date_str and isinstance(date_str, str):
                 try:
                     self.date = datetime.strptime(date_str, '%Y-%m-%d')
                     self.created_at = self.date
                 except ValueError:
+                    # 날짜 형식이 잘못된 경우 기본값 유지
                     pass
             
-            # 태그 파싱
+            # 태그 파싱 - 안전하게
             tags_str = metadata.get('tags')
-            if tags_str:
-                self.tags = [tag.strip() for tag in tags_str.split(',')]
+            if tags_str and isinstance(tags_str, str):
+                clean_tags = []
+                for tag in tags_str.split(','):
+                    clean_tag = tag.strip()
+                    if clean_tag and len(clean_tag) <= 50:  # 태그 길이 제한
+                        clean_tags.append(escape(clean_tag))
+                self.tags = clean_tags
             
-            # 시리즈 정보 파싱
+            # 시리즈 정보 파싱 - 안전하게
             series_str = metadata.get('series')
-            if series_str:
-                self.series = series_str
+            if series_str and isinstance(series_str, str):
+                self.series = escape(series_str)
             
             series_part_str = metadata.get('series-part')
-            if series_part_str:
+            if series_part_str and isinstance(series_part_str, str):
                 try:
-                    self.series_part = int(series_part_str)
+                    part = int(series_part_str)
+                    if 0 < part < 1000:  # 합리적인 범위로 제한
+                        self.series_part = part
+                    else:
+                        self.series_part = 1
                 except ValueError:
                     self.series_part = 1
             
-            # 수정 이력 파싱
+            # 수정 이력 파싱 - 안전하게
             changelog_str = metadata.get('changelog')
-            if changelog_str:
-                self.changelog = [item.strip() for item in changelog_str.split(',')]
+            if changelog_str and isinstance(changelog_str, str):
+                clean_logs = []
+                for item in changelog_str.split(','):
+                    clean_item = item.strip()
+                    if clean_item and len(clean_item) <= 200:  # 항목 길이 제한
+                        clean_logs.append(escape(clean_item))
+                self.changelog = clean_logs
     
     def get_url(self):
         """포스트 URL 반환"""
@@ -72,58 +103,87 @@ class TextPost:
         return url_for('posts.view_by_slug', slug=self.id)
 
     def get_preview(self, length=200):
-        """본문 미리보기 생성"""
+        """본문 미리보기 생성 - 안전하게"""
+        if not isinstance(length, int) or length <= 0 or length > 1000:
+            length = 200  # 기본값으로 안전하게 제한
+            
         # 특수 태그 제거
-        text = re.sub(r'\[img:[^\]]+\]', '', self.content)
-        text = re.sub(r'\[file:[^\]]+\]', '', text)
-        text = re.sub(r'\[youtube:[^\]]+\]', '', text)  # 유튜브 태그 제거
-        text = re.sub(r'\[twitch:[^\]]+\]', '', text)   # 트위치 태그 제거
-        text = re.sub(r'\[twitter:[^\]]+\]', '', text)  # 트위터 태그 제거
-        text = re.sub(r'\[instagram:[^\]]+\]', '', text) # 인스타그램 태그 제거
-        text = re.sub(r'\[facebook:[^\]]+\]', '', text) # 페이스북 태그 제거
+        text = self.content
+        patterns = [
+            r'\[img:[^\]]+\]',
+            r'\[file:[^\]]+\]',
+            r'\[youtube:[^\]]+\]',
+            r'\[twitch:[^\]]+\]',
+            r'\[twitter:[^\]]+\]',
+            r'\[instagram:[^\]]+\]',
+            r'\[facebook:[^\]]+\]',
+            r'\[highlight\].*?\[/highlight\]',
+            r'\[quote.*?\].*?\[/quote\]',
+            r'\[pullquote.*?\].*?\[/pullquote\]',
+            r'\[gallery\].*?\[/gallery\]',
+            r'\[related\].*?\[/related\]',
+            r'\[changelog\].*?\[/changelog\]',
+            r'#+ ',
+            r'\*\*|\*|__'
+        ]
         
-        # 새로 추가된 태그들 제거
-        text = re.sub(r'\[highlight\].*?\[/highlight\]', '', text)
-        text = re.sub(r'\[quote.*?\].*?\[/quote\]', '', text)
-        text = re.sub(r'\[pullquote.*?\].*?\[/pullquote\]', '', text)
-        text = re.sub(r'\[gallery\].*?\[/gallery\]', '', text)
-        text = re.sub(r'\[related\].*?\[/related\]', '', text)
-        text = re.sub(r'\[changelog\].*?\[/changelog\]', '', text)
+        for pattern in patterns:
+            text = re.sub(pattern, '', text, flags=re.DOTALL)
         
-        text = re.sub(r'#+ ', '', text)  # 마크다운 헤더 태그 제거
-        text = re.sub(r'\*\*|\*|__', '', text)  # 강조 태그 제거
-        
-        # 길이 제한
+        # 길이 제한 및 이스케이핑
         if len(text) > length:
-            return text[:length] + "..."
-        return text
+            preview = text[:length] + "..."
+        else:
+            preview = text
+            
+        return escape(preview)
     
     def get_word_count(self):
-        """글자 수 반환"""
-        # 특수 태그 제거 (위와 동일한 방식)
-        text = re.sub(r'\[img:[^\]]+\]', '', self.content)
-        text = re.sub(r'\[file:[^\]]+\]', '', text)
-        text = re.sub(r'\[youtube:[^\]]+\]', '', text)
-        text = re.sub(r'\[twitch:[^\]]+\]', '', text)
-        text = re.sub(r'\[twitter:[^\]]+\]', '', text)
-        text = re.sub(r'\[instagram:[^\]]+\]', '', text)
-        text = re.sub(r'\[facebook:[^\]]+\]', '', text)
+        """글자 수 반환 - 안전하게"""
+        # 특수 태그 제거 (위와 동일한 패턴)
+        text = self.content
+        patterns = [
+            r'\[img:[^\]]+\]',
+            r'\[file:[^\]]+\]',
+            r'\[youtube:[^\]]+\]',
+            r'\[twitch:[^\]]+\]',
+            r'\[twitter:[^\]]+\]',
+            r'\[instagram:[^\]]+\]',
+            r'\[facebook:[^\]]+\]',
+            r'\[highlight\].*?\[/highlight\]',
+            r'\[quote.*?\].*?\[/quote\]',
+            r'\[pullquote.*?\].*?\[/pullquote\]',
+            r'\[gallery\].*?\[/gallery\]',
+            r'\[related\].*?\[/related\]',
+            r'\[changelog\].*?\[/changelog\]',
+        ]
         
-        # 새로 추가된 태그들 제거
-        text = re.sub(r'\[highlight\].*?\[/highlight\]', '', text)
-        text = re.sub(r'\[quote.*?\].*?\[/quote\]', '', text)
-        text = re.sub(r'\[pullquote.*?\].*?\[/pullquote\]', '', text)
-        text = re.sub(r'\[gallery\].*?\[/gallery\]', '', text)
-        text = re.sub(r'\[related\].*?\[/related\]', '', text)
-        text = re.sub(r'\[changelog\].*?\[/changelog\]', '', text)
+        for pattern in patterns:
+            text = re.sub(pattern, '', text, flags=re.DOTALL)
         
-        # 단어 수 계산
-        words = re.findall(r'\w+', text)
-        return len(words)
+        # 단어 수 계산 - 안전하게
+        try:
+            words = re.findall(r'\w+', text)
+            return min(len(words), 100000)  # 비정상적으로 큰 값 방지
+        except Exception:
+            return 0  # 오류 시 기본값
     
 def parse_text_file(file_path):
-    """텍스트 파일 파싱하여 메타데이터와 본문 분리"""
+    """텍스트 파일 파싱하여 메타데이터와 본문 분리 - 보안 강화"""
+    # 경로 검증
+    if not isinstance(file_path, str):
+        return {}, ""
+        
+    # 경로 정규화 및 검증
+    abs_path = os.path.abspath(file_path)
+    if '..' in file_path or not abs_path.endswith('.txt'):
+        return {}, ""
+    
     try:
+        # 파일 크기 검증 (5MB 이하로 제한)
+        if os.path.getsize(file_path) > 5 * 1024 * 1024:
+            return {}, "파일 크기가 너무 큽니다"
+            
         with open(file_path, 'r', encoding='utf-8') as file:
             content = file.read()
         
@@ -136,7 +196,9 @@ def parse_text_file(file_path):
             meta_match = re.match(r'\[(\w+[\-\w]*?):\s*(.*?)\]', line)
             if meta_match:
                 key, value = meta_match.groups()
-                metadata[key.lower()] = value
+                # 메타데이터 키/값 검증
+                if isinstance(key, str) and isinstance(value, str) and len(key) <= 50 and len(value) <= 500:
+                    metadata[key.lower()] = value
                 content_start = i + 1
             else:
                 break
@@ -188,494 +250,494 @@ def parse_text_file(file_path):
         return metadata, body_content
     
     except Exception as e:
-        print(f"파일 파싱 오류: {str(e)}")
         return {}, ""
 
 
 def render_content(content, base_url_images, base_url_files):
-    """특수 태그를 HTML로 변환"""
-    # 소셜 미디어 임베드를 먼저 처리 (마크다운 변환 전)
-    # 이렇게 하면 임베드 HTML이 마크다운에 의해 이스케이프되지 않음
+    """특수 태그를 HTML로 변환 - 임베드 문제 해결"""
+    if not isinstance(content, str):
+        return ""
     
-    # YouTube 임베드 변환
-    content = re.sub(
-        r'\[youtube:([^\]]+)\]',
-        lambda m: _create_youtube_embed(m.group(1)),
-        content
-    )
+    # URL 검증
+    if not isinstance(base_url_images, str) or not base_url_images.startswith('/'):
+        base_url_images = '/posts/images'
+    if not isinstance(base_url_files, str) or not base_url_files.startswith('/'):
+        base_url_files = '/posts/files'
     
-    # Twitch 임베드 변환
-    content = re.sub(
-        r'\[twitch:([^\]]+)\]',
-        lambda m: _create_twitch_embed(m.group(1)),
-        content
-    )
+    # 임베드 플레이스홀더 맵 및 카운터 초기화
+    placeholders = {}
+    counter = 0
     
-    # Twitter 임베드 변환
-    content = re.sub(
-        r'\[twitter:([^\]]+)\]',
-        lambda m: _create_twitter_embed(m.group(1)),
-        content
-    )
+    # 1. 특수 임베드 태그 처리 및 안전한 플레이스홀더로 대체
     
-    # Instagram 임베드 변환
-    content = re.sub(
-        r'\[instagram:([^\]]+)\]',
-        lambda m: _create_instagram_embed(m.group(1)),
-        content
-    )
+    # YouTube 임베드 처리
+    def youtube_handler(match):
+        nonlocal counter
+        youtube_id_or_url = match.group(1)
+        embed_html = _create_youtube_embed(youtube_id_or_url)
+        placeholder = f"__YOUTUBE_EMBED_{counter}__"
+        counter += 1
+        placeholders[placeholder] = embed_html
+        return placeholder
     
-    # Facebook 임베드 변환
-    content = re.sub(
-        r'\[facebook:([^\]]+)\]',
-        lambda m: _create_facebook_embed(m.group(1)),
-        content
-    )
+    # Twitch 임베드 처리
+    def twitch_handler(match):
+        nonlocal counter
+        twitch_id_or_url = match.group(1)
+        embed_html = _create_twitch_embed(twitch_id_or_url)
+        placeholder = f"__TWITCH_EMBED_{counter}__"
+        counter += 1
+        placeholders[placeholder] = embed_html
+        return placeholder
     
-    # 새로운 기능 1: 강조 내용 처리
-    content = re.sub(
-        r'\[highlight\](.*?)\[/highlight\]',
-        lambda m: _create_highlight_box(m.group(1)),
-        content,
-        flags=re.DOTALL
-    )
+    # Twitter 임베드 처리
+    def twitter_handler(match):
+        nonlocal counter
+        tweet_id_or_url = match.group(1)
+        embed_html = _create_twitter_embed(tweet_id_or_url)
+        placeholder = f"__TWITTER_EMBED_{counter}__"
+        counter += 1
+        placeholders[placeholder] = embed_html
+        return placeholder
     
-    # 새로운 기능 4: 인용문 처리
-    content = re.sub(
-        r'\[quote(?:\s+author="([^"]*)")?\](.*?)\[/quote\]',
-        lambda m: _create_quote_box(m.group(2), m.group(1)),
-        content,
-        flags=re.DOTALL
-    )
+    # Instagram 임베드 처리
+    def instagram_handler(match):
+        nonlocal counter
+        post_id_or_url = match.group(1)
+        embed_html = _create_instagram_embed(post_id_or_url)
+        placeholder = f"__INSTAGRAM_EMBED_{counter}__"
+        counter += 1
+        placeholders[placeholder] = embed_html
+        return placeholder
     
-    # 새로운 기능 5: 큰 인용구 처리
-    content = re.sub(
-        r'\[pullquote(?:\s+align="([^"]*)")?\](.*?)\[/pullquote\]',
-        lambda m: _create_pullquote(m.group(2), m.group(1)),
-        content,
-        flags=re.DOTALL
-    )
+    # Facebook 임베드 처리
+    def facebook_handler(match):
+        nonlocal counter
+        post_url = match.group(1)
+        embed_html = _create_facebook_embed(post_url)
+        placeholder = f"__FACEBOOK_EMBED_{counter}__"
+        counter += 1
+        placeholders[placeholder] = embed_html
+        return placeholder
     
-    # 새로운 기능 7: 확장된 이미지 속성
-    content = re.sub(
-        r'\[img:([^\]|]+)(?:\|([^\]|]*))?(?:\|([^\]]+))?\]',
-        lambda m: _create_image_with_attributes(m.group(1), m.group(2), m.group(3), base_url_images),
-        content
-    )
+    # 강조 박스 처리
+    def highlight_handler(match):
+        nonlocal counter
+        highlight_content = match.group(1)
+        # 내용만 이스케이핑하고 HTML 구조는 유지
+        safe_content = escape(highlight_content)
+        embed_html = _create_highlight_box(safe_content)
+        placeholder = f"__HIGHLIGHT_BOX_{counter}__"
+        counter += 1
+        placeholders[placeholder] = embed_html
+        return placeholder
     
-    # 새로운 기능 6: 갤러리 처리
-    content = re.sub(
-        r'\[gallery\](.*?)\[/gallery\]',
-        lambda m: _create_gallery(m.group(1), base_url_images),
-        content,
-        flags=re.DOTALL
-    )
+    # 인용문 처리
+    def quote_handler(match):
+        nonlocal counter
+        author = match.group(1)
+        quote_content = match.group(2)
+        # 내용만 이스케이핑하고 HTML 구조는 유지
+        safe_content = escape(quote_content)
+        safe_author = escape(author) if author else None
+        embed_html = _create_quote_box(safe_content, safe_author)
+        placeholder = f"__QUOTE_BOX_{counter}__"
+        counter += 1
+        placeholders[placeholder] = embed_html
+        return placeholder
     
-    # 새로운 기능 12: 관련 글 링크
-    content = re.sub(
-        r'\[related\](.*?)\[/related\]',
-        lambda m: _create_related_posts(m.group(1)),
-        content,
-        flags=re.DOTALL
-    )
+    # 이미지 태그 처리
+    def image_handler(match):
+        nonlocal counter
+        src = match.group(1)
+        alt = match.group(2) if match.group(2) else None
+        embed_html = _safe_image_tag(src, alt, base_url_images)
+        placeholder = f"__IMAGE_TAG_{counter}__"
+        counter += 1
+        placeholders[placeholder] = embed_html
+        return placeholder
     
-    # 새로운 기능 13: 시리즈 표시
-    content = re.sub(
-        r'\[series(?:\s+name="([^"]*)")?(?:\s+part="([^"]*)")?\]',
-        lambda m: _create_series_box(m.group(1), m.group(2)),
-        content
-    )
+    # 파일 링크 처리
+    def file_handler(match):
+        nonlocal counter
+        filename = match.group(1)
+        text = match.group(2) if match.group(2) else None
+        embed_html = _safe_file_link(filename, text, base_url_files)
+        placeholder = f"__FILE_LINK_{counter}__"
+        counter += 1
+        placeholders[placeholder] = embed_html
+        return placeholder
     
-    # 새로운 기능 14: 수정 이력
-    content = re.sub(
-        r'\[changelog\](.*?)\[/changelog\]',
-        lambda m: _create_changelog(m.group(1)),
-        content,
-        flags=re.DOTALL
-    )
+    # 각 특수 태그 패턴에 핸들러 적용
+    content = re.sub(r'\[youtube:([^\]]+)\]', youtube_handler, content)
+    content = re.sub(r'\[twitch:([^\]]+)\]', twitch_handler, content)
+    content = re.sub(r'\[twitter:([^\]]+)\]', twitter_handler, content)
+    content = re.sub(r'\[instagram:([^\]]+)\]', instagram_handler, content)
+    content = re.sub(r'\[facebook:([^\]]+)\]', facebook_handler, content)
+    content = re.sub(r'\[highlight\](.*?)\[/highlight\]', highlight_handler, content, flags=re.DOTALL)
+    content = re.sub(r'\[quote(?:\s+author="([^"]*)")?\](.*?)\[/quote\]', quote_handler, content, flags=re.DOTALL)
+    content = re.sub(r'\[img:([^\]]+)(?:\|([^\]]+))?\]', image_handler, content)
+    content = re.sub(r'\[file:([^|\]]+)(?:\|([^\]]+))?\]', file_handler, content)
     
-    # 기존 기능: 이미지 태그 변환 (확장 속성이 없는 경우)
-    content = re.sub(
-        r'\[img:([^\]]+)(?:\|([^\]]+))?\]',
-        lambda m: f'<figure class="post-image"><img src="{base_url_images}/{m.group(1)}" alt="{m.group(2) if m.group(2) else m.group(1)}" class="text-post-image"><figcaption>{m.group(2) if m.group(2) else ""}</figcaption></figure>',
-        content
-    )
-    
-    # 파일 태그 변환
-    content = re.sub(
-        r'\[file:([^|\]]+)(?:\|([^\]]+))?\]',
-        lambda m: f'<a href="{base_url_files}/{m.group(1)}" class="file-download" download><i class="fas fa-download"></i> {m.group(2) if m.group(2) else m.group(1)}</a>',
-        content
-    )
+    # 2. 텍스트 행 처리 (마크다운 구조 및 일반 텍스트)
     
     # 텍스트 파일 간격 조정을 위한 전처리
-    # 1. 빈 줄(연속된 두 줄바꿈)은 문단 구분으로 보존
-    content = re.sub(r'\n\n+', '\n\n', content)  # 연속된 여러 줄바꿈을 두 개로 통일
+    content = re.sub(r'\n\n+', '\n\n', content)  # 빈 줄 정규화
     
-    # 2. 마크다운 헤더 강화 - #으로 시작하는 라인이 정확히 헤더로 인식되도록 처리
-    lines = content.split('\n')
-    for i in range(len(lines)):
-        line = lines[i].strip()
-        
-        if line and line[0] == '#':
-            # 헤더 수준 확인 (# 개수 세기)
-            header_level = 0
-            for char in line:
-                if char == '#':
-                    header_level += 1
-                else:
-                    break
-            
-            # #과 텍스트 사이에 공백이 있는지 확인
-            if len(line) > header_level and line[header_level] != ' ':
-                # 공백이 없으면 추가
-                lines[i] = line[:header_level] + ' ' + line[header_level:]
-            
-    content = '\n'.join(lines)
-    
-    # 3. 각 줄을 개별적으로 마크다운 처리하기 위한 준비
     lines = content.split('\n')
     processed_lines = []
+    in_code_block = False  # 코드 블록 내부 여부 추적
+    empty_line_count = 0   # 연속된 빈 줄 카운트
     
-    # 각 줄마다 독립적인 마크다운 처리
     for line in lines:
-        line = line.strip()
-        if not line:  # 빈 줄 처리
-            processed_lines.append('<br>')
+        # 플레이스홀더 확인 - 이미 처리된 특수 태그가 있는지
+        placeholder_found = any(ph in line for ph in placeholders.keys())
+        if placeholder_found:
+            # 플레이스홀더가 있는 행은 그대로 유지
+            processed_lines.append(line)
             continue
-            
-        # 헤더 처리 (#으로 시작하는 줄)
+        
+        line = line.strip()
+        
+        # 빈 줄 처리
+        if not line:
+            empty_line_count += 1
+            if empty_line_count == 1:  # 첫 번째 빈 줄만 <br>로 변환
+                processed_lines.append('<br>')
+            continue
+        else:
+            empty_line_count = 0
+        
+        # 코드 블록 처리
+        if line.startswith('```'):
+            if not in_code_block:
+                # 코드 블록 시작
+                language = line[3:].strip()
+                in_code_block = True
+                processed_lines.append(f'<pre><code class="language-{escape(language)}">')
+            else:
+                # 코드 블록 종료
+                in_code_block = False
+                processed_lines.append('</code></pre>')
+            continue
+        
+        # 코드 블록 내부의 코드는 구조만 이스케이핑
+        if in_code_block:
+            processed_lines.append(escape(line))
+            continue
+        
+        # 헤더 처리 (# 시작)
         if line.startswith('#'):
-            # 헤더 수준 확인
-            header_level = 0
-            for char in line:
-                if char == '#':
-                    header_level += 1
-                else:
-                    break
-                    
+            header_level = len(re.match(r'^#+', line).group(0))
             if header_level > 0 and len(line) > header_level and line[header_level] == ' ':
-                header_text = line[header_level+1:].strip()
+                header_text = escape(line[header_level+1:].strip())
                 processed_lines.append(f'<h{header_level}>{header_text}</h{header_level}>')
                 continue
         
-        # 일반 텍스트 처리 (마크다운 변환 없이 일반 텍스트로 유지)
-        processed_lines.append(f'<p class="compact-text">{line}</p>')
+        # 목록 처리
+        if line.startswith('- ') or line.startswith('* '):
+            list_content = escape(line[2:])
+            processed_lines.append(f'<li>{list_content}</li>')
+            continue
+        
+        # 번호 목록 처리
+        if re.match(r'^\d+\.\s', line):
+            match = re.match(r'^\d+\.\s(.+)$', line)
+            if match:
+                list_content = escape(match.group(1))
+                processed_lines.append(f'<li>{list_content}</li>')
+                continue
+        
+        # 수평선 처리
+        if line == '---' or line == '***' or line == '___':
+            processed_lines.append('<hr>')
+            continue
+        
+        # 일반 텍스트 처리
+        processed_lines.append(f'<p class="compact-text">{escape(line)}</p>')
     
-    # HTML로 조합
+    # 3. 모든 라인을 HTML로 결합
     html_content = '\n'.join(processed_lines)
     
-    return html_content
+    # 4. 플레이스홀더를 실제 HTML로 대체
+    for placeholder, embed_html in placeholders.items():
+        html_content = html_content.replace(placeholder, embed_html)
+    
+    # 5. 안전한 HTML로 명시적 표시 (Markup)
+    return Markup(html_content)
 
+# 안전한 보조 함수들
+def _safe_image_tag(src, alt=None, base_url='/'):
+    """안전한 이미지 태그 생성"""
+    if not isinstance(src, str) or not src or '..' in src or '/' in src:
+        return ""
+    
+    safe_src = secure_filename(src)
+    safe_alt = escape(alt) if alt else escape(safe_src)
+    
+    return f'<figure class="post-image"><img src="{base_url}/{safe_src}" alt="{safe_alt}" class="text-post-image"><figcaption>{safe_alt if alt else ""}</figcaption></figure>'
 
-def _create_highlight_box(content):
-    """강조 내용 박스 생성"""
-    return f'<div class="highlight-box">{content}</div>'
-
-
-def _create_quote_box(content, author=None):
-    """인용문 박스 생성"""
-    author_html = f'<span class="blockquote-author">{author}</span>' if author else ''
-    return f'<blockquote class="styled-quote">{content}{author_html}</blockquote>'
-
-
-def _create_pullquote(content, align=None):
-    """큰 인용구 생성"""
-    align_class = f"align-{align}" if align in ["left", "right", "center"] else "align-center"
-    return f'<div class="pullquote {align_class}">{content}</div>'
-
-
-def _create_image_with_attributes(image_path, caption=None, attributes=None, base_url_images=None):
-    """확장 속성을 가진 이미지 생성"""
-    # 속성 파싱
-    align = "center"
-    size = "medium"
-    width = ""
-    height = ""
+def _safe_file_link(filename, text=None, base_url='/'):
+    """안전한 파일 링크 생성"""
+    if not isinstance(filename, str) or not filename or '..' in filename or '/' in filename:
+        return ""
     
-    if attributes:
-        align_match = re.search(r'align="([^"]*)"', attributes)
-        if align_match:
-            align = align_match.group(1)
-        
-        size_match = re.search(r'size="([^"]*)"', attributes)
-        if size_match:
-            size = size_match.group(1)
-        
-        width_match = re.search(r'width="([^"]*)"', attributes)
-        if width_match:
-            width = f'width="{width_match.group(1)}"'
-        
-        height_match = re.search(r'height="([^"]*)"', attributes)
-        if height_match:
-            height = f'height="{height_match.group(1)}"'
+    safe_filename = secure_filename(filename)
+    safe_text = escape(text) if text else escape(safe_filename)
     
-    # 클래스 생성
-    classes = f"post-image align-{align} size-{size}"
-    
-    # 캡션 처리
-    caption_html = f'<figcaption>{caption}</figcaption>' if caption else ''
-    
-    return f'''
-    <figure class="{classes}">
-        <img src="{base_url_images}/{image_path}" alt="{caption if caption else image_path}" {width} {height} class="text-post-image">
-        {caption_html}
-    </figure>
-    '''
-
-
-def _create_gallery(content, base_url_images):
-    """갤러리 생성"""
-    # 쉼표로 구분된 이미지 목록 파싱
-    images = [img.strip() for img in content.split(',')]
-    
-    # 갤러리 시작 태그
-    gallery_html = '<div class="gallery">'
-    
-    # 각 이미지 추가
-    for img in images:
-        # 이미지와 캡션 분리
-        parts = img.split('|')
-        image_path = parts[0].strip()
-        caption = parts[1].strip() if len(parts) > 1 else image_path
-        
-        gallery_html += f'''
-        <div class="gallery-item">
-            <img src="{base_url_images}/{image_path}" alt="{caption}" class="gallery-image">
-            <div class="gallery-caption">{caption}</div>
-        </div>
-        '''
-    
-    # 갤러리 닫는 태그
-    gallery_html += '</div>'
-    
-    return gallery_html
-
-
-def _create_related_posts(content):
-    """관련 글 링크 생성"""
-    # 줄별로 분리
-    lines = content.split('\n')
-    related_items = []
-    
-    for line in lines:
-        line = line.strip()
-        if line.startswith('-') or line.startswith('*'):
-            item = line[1:].strip()
-            if '|' in item:
-                # 제목과 URL이 분리되어 있는 경우
-                title, url = [part.strip() for part in item.split('|', 1)]
-                related_items.append((title, url))
-            else:
-                # 제목만 있는 경우
-                related_items.append((item, "#"))
-    
-    # HTML 생성
-    related_html = '<div class="related-posts-box"><h4>관련 글</h4><ul class="related-posts-list">'
-    
-    for title, url in related_items:
-        related_html += f'<li><a href="{url}">{title}</a></li>'
-    
-    related_html += '</ul></div>'
-    
-    return related_html
-
-
-def _create_series_box(series_name, part=None):
-    """시리즈 정보 박스 생성"""
-    part_text = f"파트 {part}" if part else ""
-    series_title = f"{series_name} {part_text}".strip()
-    
-    return f'''
-    <div class="series-box">
-        <div class="series-title">{series_title}</div>
-        <div class="series-info">이 글은 {series_name} 시리즈의 일부입니다.</div>
-    </div>
-    '''
-
-
-def _create_changelog(content):
-    """수정 이력 생성"""
-    lines = content.split('\n')
-    changelog_items = []
-    
-    for line in lines:
-        line = line.strip()
-        if line:
-            if line.startswith('-') or line.startswith('*'):
-                item = line[1:].strip()
-                changelog_items.append(item)
-            else:
-                changelog_items.append(line)
-    
-    changelog_html = '<div class="changelog-box"><h4>수정 이력</h4><ul class="changelog-list">'
-    
-    for item in changelog_items:
-        changelog_html += f'<li>{item}</li>'
-    
-    changelog_html += '</ul></div>'
-    
-    return changelog_html
-
+    return f'<a href="{base_url}/{safe_filename}" class="file-download" download><i class="fas fa-download"></i> {safe_text}</a>'
 
 def _create_youtube_embed(youtube_id_or_url):
-    """유튜브 임베드 HTML 생성"""
-    # URL에서 동영상 ID 추출
+    """유튜브 임베드 HTML 생성 - 안전하게 처리하고 올바른 HTML 반환"""
+    # 안전한 ID 추출
+    safe_id = ""
+    youtube_id_or_url = str(youtube_id_or_url)  # 입력값 문자열 보장
+    
     if 'youtube.com' in youtube_id_or_url or 'youtu.be' in youtube_id_or_url:
         if 'youtube.com/watch' in youtube_id_or_url:
             # https://www.youtube.com/watch?v=VIDEO_ID 형식
             match = re.search(r'v=([^&]+)', youtube_id_or_url)
             if match:
-                youtube_id = match.group(1)
-            else:
-                return f'<div class="error-embed">잘못된 YouTube URL: {youtube_id_or_url}</div>'
+                safe_id = match.group(1)
         elif 'youtu.be/' in youtube_id_or_url:
             # https://youtu.be/VIDEO_ID 형식
-            youtube_id = youtube_id_or_url.split('/')[-1]
-        else:
-            return f'<div class="error-embed">지원되지 않는 YouTube URL 형식: {youtube_id_or_url}</div>'
+            parts = youtube_id_or_url.split('/')
+            if len(parts) > 0:
+                safe_id = parts[-1]
     else:
         # 이미 ID만 제공된 경우
-        youtube_id = youtube_id_or_url
+        safe_id = youtube_id_or_url
     
-    # 임베드 HTML 생성 (사진과 같은 크기로 설정, 16:9 비율 유지)
-    embed_html = f'''
+    # 안전한 ID 이스케이핑 - URL 파라미터용
+    safe_id = escape(safe_id)
+    
+    if not safe_id:
+        return '<div class="error-embed">잘못된 YouTube URL</div>'
+    
+    # 임베드 HTML 생성 - 반환값은 이미 준비된 HTML이므로 이스케이핑하지 않음
+    return f'''
 <div class="social-embed youtube-embed">
-    <iframe width="880" height="495" src="https://www.youtube.com/embed/{youtube_id}" 
+    <iframe width="880" height="495" src="https://www.youtube.com/embed/{safe_id}" 
     frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
     allowfullscreen></iframe>
 </div>
 '''
-    return embed_html
-
 
 def _create_twitch_embed(twitch_id_or_url):
-    """트위치 임베드 HTML 생성"""
-    # URL 또는 채널명/클립ID 처리
+    """트위치 임베드 HTML 생성 - 안전하게"""
+    # 안전한 ID 추출
+    safe_id = ""
+    twitch_id_or_url = str(twitch_id_or_url)  # 입력값 문자열 보장
+    
     if 'twitch.tv' in twitch_id_or_url:
-        # 트위치 URL 처리
-        if '/clip/' in twitch_id_or_url:
-            # 클립 URL
-            clip_id = twitch_id_or_url.split('/')[-1]
-            embed_html = f'''
-<div class="social-embed twitch-embed">
-    <iframe width="880" height="495" src="https://clips.twitch.tv/embed?clip={clip_id}" 
-    frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
-</div>
-'''
-        else:
-            # 채널 URL
-            channel_name = twitch_id_or_url.split('/')[-1]
-            embed_html = f'''
-<div class="social-embed twitch-embed">
-    <iframe width="880" height="495" src="https://player.twitch.tv/?channel={channel_name}&parent=localhost" 
-    frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
-</div>
-'''
+        # https://www.twitch.tv/CHANNEL_ID 형식
+        parts = twitch_id_or_url.split('/')
+        if len(parts) > 0:
+            safe_id = parts[-1]
     else:
-        # 채널명이나 클립ID만 제공된 경우
-        # 클립 ID인지 채널명인지 구분하기 어려우므로 기본적으로 채널로 간주
-        embed_html = f'''
+        # 이미 ID만 제공된 경우
+        safe_id = twitch_id_or_url
+    
+    # 안전한 ID 이스케이핑 - URL 파라미터용
+    safe_id = escape(safe_id)
+    
+    if not safe_id:
+        return '<div class="error-embed">잘못된 Twitch URL</div>'
+    
+    # 임베드 HTML 생성
+    return f'''
 <div class="social-embed twitch-embed">
-    <iframe width="880" height="495" src="https://player.twitch.tv/?channel={twitch_id_or_url}&parent=localhost" 
-    frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
+    <iframe src="https://player.twitch.tv/?channel={safe_id}&parent=localhost" 
+    frameborder="0" allowfullscreen="true" scrolling="no" height="378" width="620"></iframe>
 </div>
 '''
-    return embed_html
-
 
 def _create_twitter_embed(tweet_id_or_url):
-    """트위터 임베드 HTML 생성"""
-    # URL에서 트윗 ID 추출
+    """트위터 임베드 HTML 생성 - 안전하게"""
+    # 안전한 ID 추출
+    safe_id = ""
+    tweet_id_or_url = str(tweet_id_or_url)  # 입력값 문자열 보장
+    
     if 'twitter.com' in tweet_id_or_url or 'x.com' in tweet_id_or_url:
         # https://twitter.com/username/status/TWEET_ID 형식
-        tweet_id = tweet_id_or_url.split('/')[-1]
+        parts = tweet_id_or_url.split('/')
+        if len(parts) > 0 and 'status' in tweet_id_or_url:
+            for i, part in enumerate(parts):
+                if part == 'status' and i + 1 < len(parts):
+                    safe_id = parts[i+1]
+                    break
     else:
         # 이미 ID만 제공된 경우
-        tweet_id = tweet_id_or_url
+        safe_id = tweet_id_or_url
+    
+    # 안전한 ID 이스케이핑 - URL 파라미터용
+    safe_id = escape(safe_id)
+    
+    if not safe_id:
+        return '<div class="error-embed">잘못된 Twitter URL</div>'
     
     # 임베드 HTML 생성
-    embed_html = f'''
+    return f'''
 <div class="social-embed twitter-embed">
-    <blockquote class="twitter-tweet" data-width="880">
-        <a href="https://twitter.com/x/status/{tweet_id}"></a>
+    <blockquote class="twitter-tweet">
+        <a href="https://twitter.com/i/status/{safe_id}"></a>
     </blockquote>
+    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 </div>
 '''
-    return embed_html
-
 
 def _create_instagram_embed(post_id_or_url):
-    """인스타그램 임베드 HTML 생성"""
-    # URL에서 포스트 ID 추출
+    """인스타그램 임베드 HTML 생성 - 안전하게"""
+    # 안전한 ID 추출
+    safe_id = ""
+    post_id_or_url = str(post_id_or_url)  # 입력값 문자열 보장
+    
     if 'instagram.com' in post_id_or_url:
         # https://www.instagram.com/p/POST_ID/ 형식
-        if '/p/' in post_id_or_url:
-            post_id = post_id_or_url.split('/p/')[-1].strip('/')
-        else:
-            return f'<div class="error-embed">지원되지 않는 Instagram URL 형식: {post_id_or_url}</div>'
+        match = re.search(r'instagram\.com/p/([^/]+)', post_id_or_url)
+        if match:
+            safe_id = match.group(1)
     else:
         # 이미 ID만 제공된 경우
-        post_id = post_id_or_url
+        safe_id = post_id_or_url
     
-    # 임베드 HTML 생성 (880px 너비)
-    embed_html = f'''
-<div class="social-embed instagram-embed" style="width:880px; max-width:100%;">
-    <blockquote class="instagram-media" data-width="880"
-    data-instgrm-permalink="https://www.instagram.com/p/{post_id}/"
-    style="width:880px; max-width:100%;">
-        <a href="https://www.instagram.com/p/{post_id}/"></a>
-    </blockquote>
-</div>
-'''
-    return embed_html
-
-
-def _create_facebook_embed(post_id_or_url):
-    """페이스북 임베드 HTML 생성"""
+    # 안전한 ID 이스케이핑 - URL 파라미터용
+    safe_id = escape(safe_id)
+    
+    if not safe_id:
+        return '<div class="error-embed">잘못된 Instagram URL</div>'
+    
     # 임베드 HTML 생성
-    embed_html = f'''
-<div class="social-embed facebook-embed" style="width:880px; max-width:100%;">
-    <div class="fb-post" data-href="{post_id_or_url}" data-width="880"></div>
+    return f'''
+<div class="social-embed instagram-embed">
+    <blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/p/{safe_id}/">
+        <a href="https://www.instagram.com/p/{safe_id}/"></a>
+    </blockquote>
+    <script async src="//www.instagram.com/embed.js"></script>
 </div>
 '''
-    return embed_html
 
+def _create_facebook_embed(post_url):
+    """페이스북 임베드 HTML 생성 - 안전하게"""
+    # 안전한 URL 이스케이핑 - URL 파라미터용
+    post_url = str(post_url)  # 입력값 문자열 보장
+    safe_url = escape(post_url)
+    
+    if 'facebook.com' not in safe_url:
+        return '<div class="error-embed">잘못된 Facebook URL</div>'
+    
+    # 임베드 HTML 생성
+    return f'''
+<div class="social-embed facebook-embed">
+    <div class="fb-post" data-href="{safe_url}"></div>
+    <div id="fb-root"></div>
+    <script async defer src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.2"></script>
+</div>
+'''
 
-def get_all_text_posts(text_dir, tag=None):
-    """모든 텍스트 파일 로드하여 TextPost 객체 목록 반환"""
-    posts = []
+def _create_highlight_box(content):
+    """강조 내용 박스 생성 - 안전하게"""
+    if not isinstance(content, str):
+        return ""
+    
+    return f'<div class="highlight-box">{content}</div>'
+
+def _create_quote_box(content, author=None):
+    """인용문 박스 생성 - 안전하게"""
+    if not isinstance(content, str):
+        return ""
+    
+    author_html = f'<span class="blockquote-author">{author}</span>' if author else ''
+    return f'<blockquote class="styled-quote">{content}{author_html}</blockquote>'
+
+def get_text_post(text_dir, filename):
+    """특정 텍스트 파일 로드하여 TextPost 객체 반환 - 보안 강화"""
+    # 경로 및 파일명 검증
+    if not isinstance(text_dir, str) or not isinstance(filename, str):
+        return None
+        
+    if '..' in filename or '/' in filename or '\\' in filename:
+        return None
+        
+    # 파일명 정규화
+    safe_filename = secure_filename(filename)
+    if safe_filename != filename:
+        return None
     
     try:
-        for filename in os.listdir(text_dir):
+        # 경로 정규화 및 검증
+        file_path = os.path.join(text_dir, safe_filename)
+        abs_path = os.path.abspath(file_path)
+        
+        # 기본 디렉토리 외부 접근 시도 방지
+        if not abs_path.startswith(os.path.abspath(text_dir)):
+            return None
+            
+        # 파일 존재 확인
+        if not os.path.exists(abs_path) or not os.path.isfile(abs_path):
+            return None
+            
+        # 파일 확장자 확인
+        if not abs_path.endswith('.txt'):
+            return None
+            
+        # 파일 크기 제한 (5MB)
+        if os.path.getsize(abs_path) > 5 * 1024 * 1024:
+            return None
+            
+        # 파일 파싱
+        metadata, content = parse_text_file(abs_path)
+        
+        # TextPost 객체 생성 및 반환
+        return TextPost(safe_filename, content, metadata)
+        
+    except Exception as e:
+        print(f"텍스트 포스트 로드 오류: {str(e)}")
+    
+    return None
+
+def get_all_text_posts(text_dir, tag=None):
+    """모든 텍스트 파일 로드하여 TextPost 객체 목록 반환 - 보안 강화"""
+    posts = []
+    
+    # 경로 검증
+    if not isinstance(text_dir, str):
+        return posts
+        
+    # 태그 검증
+    if tag is not None and (not isinstance(tag, str) or len(tag) > 50):
+        return posts
+    
+    try:
+        # 디렉토리 존재 확인
+        if not os.path.exists(text_dir) or not os.path.isdir(text_dir):
+            return posts
+            
+        # 디렉토리 내 파일 목록 가져오기
+        filenames = []
+        try:
+            filenames = os.listdir(text_dir)
+        except Exception:
+            return posts
+            
+        # 파일 수 제한 (최대 1000개)
+        filenames = filenames[:1000]
+        
+        for filename in filenames:
             if filename.endswith('.txt'):
-                file_path = os.path.join(text_dir, filename)
-                metadata, content = parse_text_file(file_path)
-                post = TextPost(filename, content, metadata)
+                # 안전한 방식으로 TextPost 객체 가져오기
+                post = get_text_post(text_dir, filename)
                 
-                # 태그 필터링
-                if tag is None or tag in post.tags:
-                    posts.append(post)
+                if post:
+                    # 태그 필터링
+                    if tag is None or tag in post.tags:
+                        posts.append(post)
     except Exception as e:
         print(f"텍스트 포스트 로드 오류: {str(e)}")
     
     # 날짜순 정렬 (최신순)
     posts.sort(key=lambda x: x.date, reverse=True)
     return posts
-
-
-def get_text_post(text_dir, filename):
-    """특정 텍스트 파일 로드하여 TextPost 객체 반환"""
-    try:
-        file_path = os.path.join(text_dir, filename)
-        if os.path.exists(file_path):
-            metadata, content = parse_text_file(file_path)
-            return TextPost(filename, content, metadata)
-    except Exception as e:
-        print(f"텍스트 포스트 로드 오류: {str(e)}")
-    
-    return None
-
 
 def get_tags_count(text_dir):
     """모든 텍스트 파일의 태그 카운트 반환"""
@@ -725,7 +787,12 @@ def search_posts(text_dir, query):
     if not query:
         return []
     
-    query = query.lower()
+    # 검색어 검증
+    if not isinstance(query, str) or len(query) > 100:
+        return []
+        
+    # 검색어 이스케이핑 - 비교용
+    query = escape(query).lower()
     results = []
     
     all_posts = get_all_text_posts(text_dir)
@@ -741,6 +808,10 @@ def search_posts(text_dir, query):
 
 def get_series_posts(text_dir, series_name):
     """시리즈에 속한 모든 포스트 검색"""
+    # 시리즈명 검증
+    if not isinstance(series_name, str) or len(series_name) > 100:
+        return []
+        
     series_posts = []
     
     try:
@@ -759,9 +830,12 @@ def get_series_posts(text_dir, series_name):
     
     return series_posts
 
-# 수정된 함수: 이전/다음 포스트 가져오기
 def get_adjacent_posts(text_dir, current_post):
     """현재 포스트의 이전 및 다음 포스트 반환"""
+    # 포스트 검증
+    if not current_post or not isinstance(current_post, TextPost):
+        return None, None
+        
     try:
         all_posts = get_all_text_posts(text_dir)
         
