@@ -2,9 +2,8 @@
 import os
 
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key'  # 환경변수 사용 권장
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key'
     
-    # 불필요한 SQLALCHEMY_TRACK_MODIFICATIONS 제거
     
     # 업로드 관련 설정
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB 최대 업로드 사이즈
