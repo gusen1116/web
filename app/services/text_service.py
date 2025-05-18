@@ -1,4 +1,4 @@
-# app/services/text_service.py - 보안 강화 및 임베드 문제 해결
+# app/services/text_service.py
 import os
 import re
 from datetime import datetime
@@ -111,7 +111,8 @@ class TextPost:
         text = self.content
         patterns = [
             r'\[img:[^\]]+\]',
-            r'\[file:[^\]]+\]',
+            r'\[video:[^\]]+\]',
+            r'\[audio:[^\]]+\]',
             r'\[youtube:[^\]]+\]',
             r'\[twitch:[^\]]+\]',
             r'\[twitter:[^\]]+\]',
@@ -144,7 +145,8 @@ class TextPost:
         text = self.content
         patterns = [
             r'\[img:[^\]]+\]',
-            r'\[file:[^\]]+\]',
+            r'\[video:[^\]]+\]',
+            r'\[audio:[^\]]+\]',
             r'\[youtube:[^\]]+\]',
             r'\[twitch:[^\]]+\]',
             r'\[twitter:[^\]]+\]',
@@ -253,7 +255,7 @@ def parse_text_file(file_path):
         return {}, ""
 
 
-def render_content(content, base_url_images, base_url_files):
+def render_content(content, base_url_images='/posts/images', base_url_videos='/posts/videos', base_url_audios='/posts/audios'):
     """특수 태그를 HTML로 변환 - 임베드 문제 해결"""
     if not isinstance(content, str):
         return ""
@@ -261,8 +263,10 @@ def render_content(content, base_url_images, base_url_files):
     # URL 검증
     if not isinstance(base_url_images, str) or not base_url_images.startswith('/'):
         base_url_images = '/posts/images'
-    if not isinstance(base_url_files, str) or not base_url_files.startswith('/'):
-        base_url_files = '/posts/files'
+    if not isinstance(base_url_videos, str) or not base_url_videos.startswith('/'):
+        base_url_videos = '/posts/videos'
+    if not isinstance(base_url_audios, str) or not base_url_audios.startswith('/'):
+        base_url_audios = '/posts/audios'
     
     # 임베드 플레이스홀더 맵 및 카운터 초기화
     placeholders = {}
@@ -357,13 +361,24 @@ def render_content(content, base_url_images, base_url_files):
         placeholders[placeholder] = embed_html
         return placeholder
     
-    # 파일 링크 처리
-    def file_handler(match):
+    # 비디오 태그 처리
+    def video_handler(match):
         nonlocal counter
         filename = match.group(1)
-        text = match.group(2) if match.group(2) else None
-        embed_html = _safe_file_link(filename, text, base_url_files)
-        placeholder = f"__FILE_LINK_{counter}__"
+        caption = match.group(2) if match.group(2) else None
+        embed_html = _create_video_embed(filename, caption, base_url_videos)
+        placeholder = f"__VIDEO_EMBED_{counter}__"
+        counter += 1
+        placeholders[placeholder] = embed_html
+        return placeholder
+    
+    # 오디오 태그 처리
+    def audio_handler(match):
+        nonlocal counter
+        filename = match.group(1)
+        caption = match.group(2) if match.group(2) else None
+        embed_html = _create_audio_embed(filename, caption, base_url_audios)
+        placeholder = f"__AUDIO_EMBED_{counter}__"
         counter += 1
         placeholders[placeholder] = embed_html
         return placeholder
@@ -377,7 +392,8 @@ def render_content(content, base_url_images, base_url_files):
     content = re.sub(r'\[highlight\](.*?)\[/highlight\]', highlight_handler, content, flags=re.DOTALL)
     content = re.sub(r'\[quote(?:\s+author="([^"]*)")?\](.*?)\[/quote\]', quote_handler, content, flags=re.DOTALL)
     content = re.sub(r'\[img:([^\]]+)(?:\|([^\]]+))?\]', image_handler, content)
-    content = re.sub(r'\[file:([^|\]]+)(?:\|([^\]]+))?\]', file_handler, content)
+    content = re.sub(r'\[video:([^\]]+)(?:\|([^\]]+))?\]', video_handler, content)
+    content = re.sub(r'\[audio:([^\]]+)(?:\|([^\]]+))?\]', audio_handler, content)
     
     # 2. 텍스트 행 처리 (마크다운 구조 및 일반 텍스트)
     
@@ -466,6 +482,60 @@ def render_content(content, base_url_images, base_url_files):
     # 5. 안전한 HTML로 명시적 표시 (Markup)
     return Markup(html_content)
 
+# 비디오 및 오디오 임베드 지원 함수
+def _create_video_embed(video_filename, caption=None, base_url='/'):
+    """비디오 임베드 HTML 생성"""
+    if not isinstance(video_filename, str) or not video_filename or '..' in video_filename or '/' in video_filename:
+        return ""
+    
+    safe_filename = secure_filename(video_filename)
+    safe_caption = escape(caption) if caption else escape(safe_filename)
+    
+    file_ext = safe_filename.rsplit('.', 1)[1].lower() if '.' in safe_filename else ''
+    mime_type = {
+        'mp4': 'video/mp4',
+        'webm': 'video/webm',
+        'ogg': 'video/ogg',
+        'mov': 'video/quicktime'
+    }.get(file_ext, 'video/mp4')
+    
+    return f'''
+<div class="video-embed">
+    <video controls width="100%">
+        <source src="{base_url}/{safe_filename}" type="{mime_type}">
+        브라우저가 비디오 재생을 지원하지 않습니다.
+    </video>
+    {f'<figcaption>{safe_caption}</figcaption>' if caption else ''}
+</div>
+'''
+
+def _create_audio_embed(audio_filename, caption=None, base_url='/'):
+    """오디오 임베드 HTML 생성"""
+    if not isinstance(audio_filename, str) or not audio_filename or '..' in audio_filename or '/' in audio_filename:
+        return ""
+    
+    safe_filename = secure_filename(audio_filename)
+    safe_caption = escape(caption) if caption else escape(safe_filename)
+    
+    file_ext = safe_filename.rsplit('.', 1)[1].lower() if '.' in safe_filename else ''
+    mime_type = {
+        'mp3': 'audio/mpeg',
+        'wav': 'audio/wav',
+        'ogg': 'audio/ogg',
+        'flac': 'audio/flac',
+        'm4a': 'audio/mp4'
+    }.get(file_ext, 'audio/mpeg')
+    
+    return f'''
+<div class="audio-embed">
+    <audio controls width="100%">
+        <source src="{base_url}/{safe_filename}" type="{mime_type}">
+        브라우저가 오디오 재생을 지원하지 않습니다.
+    </audio>
+    {f'<p class="audio-caption">{safe_caption}</p>' if caption else ''}
+</div>
+'''
+
 # 안전한 보조 함수들
 def _safe_image_tag(src, alt=None, base_url='/'):
     """안전한 이미지 태그 생성"""
@@ -476,16 +546,6 @@ def _safe_image_tag(src, alt=None, base_url='/'):
     safe_alt = escape(alt) if alt else escape(safe_src)
     
     return f'<figure class="post-image"><img src="{base_url}/{safe_src}" alt="{safe_alt}" class="text-post-image"><figcaption>{safe_alt if alt else ""}</figcaption></figure>'
-
-def _safe_file_link(filename, text=None, base_url='/'):
-    """안전한 파일 링크 생성"""
-    if not isinstance(filename, str) or not filename or '..' in filename or '/' in filename:
-        return ""
-    
-    safe_filename = secure_filename(filename)
-    safe_text = escape(text) if text else escape(safe_filename)
-    
-    return f'<a href="{base_url}/{safe_filename}" class="file-download" download><i class="fas fa-download"></i> {safe_text}</a>'
 
 def _create_youtube_embed(youtube_id_or_url):
     """유튜브 임베드 HTML 생성 - 안전하게 처리하고 올바른 HTML 반환"""
@@ -756,56 +816,6 @@ def get_tags_count(text_dir):
     
     return tags_count
 
-
-def find_related_posts(text_dir, current_post, limit=3):
-    """관련 포스트 찾기 (태그 기반)"""
-    if not current_post or not current_post.tags:
-        return []
-    
-    all_posts = get_all_text_posts(text_dir)
-    related_posts = []
-    
-    # 현재 포스트 제외
-    all_posts = [p for p in all_posts if p.filename != current_post.filename]
-    
-    # 태그 일치 점수 계산
-    for post in all_posts:
-        common_tags = set(post.tags) & set(current_post.tags)
-        score = len(common_tags)
-        if score > 0:
-            related_posts.append((post, score))
-    
-    # 일치 점수 기준 정렬
-    related_posts.sort(key=lambda x: x[1], reverse=True)
-    
-    # 상위 N개 반환
-    return [post for post, _ in related_posts[:limit]]
-
-
-def search_posts(text_dir, query):
-    """포스트 검색"""
-    if not query:
-        return []
-    
-    # 검색어 검증
-    if not isinstance(query, str) or len(query) > 100:
-        return []
-        
-    # 검색어 이스케이핑 - 비교용
-    query = escape(query).lower()
-    results = []
-    
-    all_posts = get_all_text_posts(text_dir)
-    for post in all_posts:
-        # 제목, 내용, 태그에서 검색
-        if (query in post.title.lower() or 
-            query in post.content.lower() or 
-            any(query in tag.lower() for tag in post.tags)):
-            results.append(post)
-    
-    return results
-
-
 def get_series_posts(text_dir, series_name):
     """시리즈에 속한 모든 포스트 검색"""
     # 시리즈명 검증
@@ -861,3 +871,26 @@ def get_adjacent_posts(text_dir, current_post):
     except Exception as e:
         print(f"이전/다음 포스트 조회 오류: {str(e)}")
         return None, None
+
+def search_posts(text_dir, query):
+    """포스트 검색"""
+    if not query:
+        return []
+    
+    # 검색어 검증
+    if not isinstance(query, str) or len(query) > 100:
+        return []
+        
+    # 검색어 이스케이핑 - 비교용
+    query = escape(query).lower()
+    results = []
+    
+    all_posts = get_all_text_posts(text_dir)
+    for post in all_posts:
+        # 제목, 내용, 태그에서 검색
+        if (query in post.title.lower() or 
+            query in post.content.lower() or 
+            any(query in tag.lower() for tag in post.tags)):
+            results.append(post)
+    
+    return results

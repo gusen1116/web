@@ -1,13 +1,12 @@
 # app/routes/posts_routes.py
 from flask import Blueprint, render_template, send_from_directory, current_app, abort, url_for, request, redirect
 import os
-import sys
 from werkzeug.utils import secure_filename
 from markupsafe import escape
 from app.services.text_service import (
     TextPost, parse_text_file, render_content, get_all_text_posts,
-    get_text_post, get_tags_count, find_related_posts, search_posts,
-    get_series_posts, get_adjacent_posts
+    get_text_post, get_tags_count, get_series_posts, get_adjacent_posts,
+    search_posts
 )
 
 posts_bp = Blueprint('posts', __name__, url_prefix='/posts')
@@ -15,6 +14,7 @@ posts_bp = Blueprint('posts', __name__, url_prefix='/posts')
 @posts_bp.route('/')
 def index():
     """텍스트 파일 목록 페이지"""
+    # 경로 수정: 'uploads/texts' 경로 사용
     text_dir = os.path.join(current_app.instance_path, 'uploads', 'texts')
     
     # 디렉토리가 없으면 생성
@@ -51,6 +51,7 @@ def view_by_slug(slug):
     if '..' in slug or '/' in slug or '\\' in slug:
         abort(400, "잘못된 슬러그 형식입니다")
     
+    # 경로 수정: 'uploads/texts' 경로 사용
     text_dir = os.path.join(current_app.instance_path, 'uploads', 'texts')
     
     # 모든 텍스트 파일을 로드
@@ -79,27 +80,16 @@ def view_by_slug(slug):
     
     # 이후 렌더링 로직
     base_url_images = url_for('posts.serve_image', filename='').rstrip('/')
-    base_url_files = url_for('posts.serve_file', filename='').rstrip('/')
-    rendered_content = render_content(matching_post.content, base_url_images, base_url_files)
+    base_url_videos = url_for('posts.serve_video', filename='').rstrip('/')
+    base_url_audios = url_for('posts.serve_audio', filename='').rstrip('/')
+    
+    rendered_content = render_content(matching_post.content, base_url_images, base_url_videos, base_url_audios)
     
     tags_count = get_tags_count(text_dir)
     tags = [{"name": tag, "count": count} for tag, count in tags_count.items()]
     
-    # 디버깅 정보 추가 - 운영 환경에서는 로깅 안함
-    if current_app.debug:
-        current_app.logger.debug(f"현재 포스트: {matching_post.id}, {matching_post.filename}")
-        
-        # 이전/다음 포스트 가져오기
-        prev_post, next_post = get_adjacent_posts(text_dir, matching_post)
-        
-        # 이전/다음 포스트 디버깅 정보
-        if prev_post:
-            current_app.logger.debug(f"이전 포스트: {prev_post.id}, {prev_post.title}")
-        if next_post:
-            current_app.logger.debug(f"다음 포스트: {next_post.id}, {next_post.title}")
-    else:
-        # 운영 환경에서는 로깅 없이 포스트만 가져옴
-        prev_post, next_post = get_adjacent_posts(text_dir, matching_post)
+    # 이전/다음 포스트 가져오기
+    prev_post, next_post = get_adjacent_posts(text_dir, matching_post)
     
     # 시리즈 정보가 있을 경우 시리즈의 다른 포스트 가져오기
     series_posts = []
@@ -137,6 +127,7 @@ def filter_by_tag(tag):
     # XSS 방지를 위한 이스케이핑
     tag = escape(tag)
     
+    # 경로 수정: 'uploads/texts' 경로 사용
     text_dir = os.path.join(current_app.instance_path, 'uploads', 'texts')
     
     # 태그로 필터링된 포스트 가져오기
@@ -168,6 +159,7 @@ def view_series(series_name):
     # XSS 방지를 위한 이스케이핑
     series_name = escape(series_name)
     
+    # 경로 수정: 'uploads/texts' 경로 사용
     text_dir = os.path.join(current_app.instance_path, 'uploads', 'texts')
     
     # 시리즈에 속한 모든 포스트 가져오기
@@ -194,9 +186,13 @@ def view_series(series_name):
 
 @posts_bp.route('/images/<filename>')
 def serve_image(filename):
-    """이미지 파일 서빙 - 보안 강화"""
+    """이미지 파일 서빙"""
     # 파일명 검증
-    if not is_safe_filename(filename):
+    if not isinstance(filename, str) or not filename:
+        abort(403, "잘못된 파일명입니다")
+    
+    # 경로 탐색 패턴 검사
+    if '..' in filename or '/' in filename or '\\' in filename:
         abort(403, "잘못된 파일명입니다")
     
     # 확장자 검증
@@ -204,6 +200,7 @@ def serve_image(filename):
     if not ('.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions):
         abort(403, "허용되지 않는 파일 형식입니다")
     
+    # 경로 수정: 'uploads/images' 경로 사용
     images_dir = os.path.join(current_app.instance_path, 'uploads', 'images')
     
     # 경로 검증
@@ -215,40 +212,67 @@ def serve_image(filename):
     if not os.path.exists(abs_path):
         abort(404, "이미지를 찾을 수 없습니다")
     
-    # 파일 크기 제한 (선택적)
-    if os.path.getsize(abs_path) > 10 * 1024 * 1024:  # 10MB 제한
-        abort(403, "파일 크기가 너무 큽니다")
-    
     return send_from_directory(images_dir, filename)
 
-@posts_bp.route('/files/<filename>')
-def serve_file(filename):
-    """파일 다운로드 - 보안 강화"""
+@posts_bp.route('/videos/<filename>')
+def serve_video(filename):
+    """비디오 파일 서빙"""
     # 파일명 검증
-    if not is_safe_filename(filename):
+    if not isinstance(filename, str) or not filename:
+        abort(403, "잘못된 파일명입니다")
+    
+    # 경로 탐색 패턴 검사
+    if '..' in filename or '/' in filename or '\\' in filename:
         abort(403, "잘못된 파일명입니다")
     
     # 확장자 검증
-    allowed_extensions = {'pdf', 'doc', 'docx', 'txt', 'rtf', 'md', 'zip', 'rar', '7z'}
+    allowed_extensions = {'mp4', 'webm', 'ogg', 'mov'}
     if not ('.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions):
         abort(403, "허용되지 않는 파일 형식입니다")
     
-    files_dir = os.path.join(current_app.instance_path, 'uploads', 'files')
+    # 경로 수정: 'uploads/videos' 경로 사용
+    videos_dir = os.path.join(current_app.instance_path, 'uploads', 'videos')
     
     # 경로 검증
-    abs_path = os.path.abspath(os.path.join(files_dir, filename))
-    if not abs_path.startswith(os.path.abspath(files_dir)):
+    abs_path = os.path.abspath(os.path.join(videos_dir, filename))
+    if not abs_path.startswith(os.path.abspath(videos_dir)):
         abort(403, "경로 위반입니다")
     
     # 파일 존재 확인
     if not os.path.exists(abs_path):
-        abort(404, "파일을 찾을 수 없습니다")
+        abort(404, "비디오를 찾을 수 없습니다")
     
-    # 파일 크기 제한 (선택적)
-    if os.path.getsize(abs_path) > 50 * 1024 * 1024:  # 50MB 제한
-        abort(403, "파일 크기가 너무 큽니다")
+    return send_from_directory(videos_dir, filename)
+
+@posts_bp.route('/audios/<filename>')
+def serve_audio(filename):
+    """오디오 파일 서빙"""
+    # 파일명 검증
+    if not isinstance(filename, str) or not filename:
+        abort(403, "잘못된 파일명입니다")
     
-    return send_from_directory(files_dir, filename, as_attachment=True)
+    # 경로 탐색 패턴 검사
+    if '..' in filename or '/' in filename or '\\' in filename:
+        abort(403, "잘못된 파일명입니다")
+    
+    # 확장자 검증
+    allowed_extensions = {'mp3', 'wav', 'ogg', 'flac', 'm4a'}
+    if not ('.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions):
+        abort(403, "허용되지 않는 파일 형식입니다")
+    
+    # 경로 수정: 'uploads/audios' 경로 사용
+    audios_dir = os.path.join(current_app.instance_path, 'uploads', 'audios')
+    
+    # 경로 검증
+    abs_path = os.path.abspath(os.path.join(audios_dir, filename))
+    if not abs_path.startswith(os.path.abspath(audios_dir)):
+        abort(403, "경로 위반입니다")
+    
+    # 파일 존재 확인
+    if not os.path.exists(abs_path):
+        abort(404, "오디오를 찾을 수 없습니다")
+    
+    return send_from_directory(audios_dir, filename)
 
 @posts_bp.route('/search')
 def search():
@@ -262,6 +286,7 @@ def search():
     # 검색어 이스케이핑
     query = escape(query)
     
+    # 경로 수정: 'uploads/texts' 경로 사용
     text_dir = os.path.join(current_app.instance_path, 'uploads', 'texts')
     
     # 검색 결과 가져오기
@@ -282,30 +307,6 @@ def search():
         tags=tags,
         recent_posts=recent_posts
     )
-
-@posts_bp.route('/debug')
-def debug_paths():
-    """경로 디버깅 - 운영 환경에서 비활성화 필요"""
-    # 운영 환경에서는 이 기능 비활성화
-    if not current_app.debug:
-        abort(403, "디버그 모드에서만 사용 가능합니다")
-    
-    text_dir = os.path.join(current_app.instance_path, 'uploads', 'texts')
-    
-    debug_info = {
-        'text_dir': text_dir,
-        'text_dir_exists': os.path.exists(text_dir),
-        'text_files': os.listdir(text_dir) if os.path.exists(text_dir) else [],
-        'instance_path': current_app.instance_path,
-        'uploads_dir': os.path.join(current_app.instance_path, 'uploads'),
-        'uploads_dir_exists': os.path.exists(os.path.join(current_app.instance_path, 'uploads')),
-        'server_info': {
-            'python_version': sys.version,
-            'timezone': os.environ.get('TZ', 'Not set')
-        }
-    }
-    
-    return render_template('posts/debug.html', debug_info=debug_info)
 
 # 보안 강화 유틸리티 함수
 def is_safe_filename(filename):

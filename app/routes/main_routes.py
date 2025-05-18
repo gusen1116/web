@@ -7,6 +7,7 @@ main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def index():
+    # 경로 수정: 'uploads/texts' 경로 사용
     text_dir = os.path.join(current_app.instance_path, 'uploads', 'texts')
     
     # 최근 게시물 3개 불러오기
