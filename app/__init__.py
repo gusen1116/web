@@ -44,7 +44,8 @@ def create_app(config_object=None):
     images_dir = os.path.join(upload_folder, 'images')
     videos_dir = os.path.join(upload_folder, 'videos')
     audios_dir = os.path.join(upload_folder, 'audios')
-    
+    files_dir = os.path.join(upload_folder, 'files')
+    os.makedirs(files_dir, exist_ok=True)
     os.makedirs(texts_dir, exist_ok=True)
     os.makedirs(images_dir, exist_ok=True)
     os.makedirs(videos_dir, exist_ok=True)

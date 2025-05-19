@@ -1,5 +1,5 @@
 /* 
- * typography.css - 한글 타이포그래피 최적화 (test.css 기반으로 수정)
+ * typography.css - test.css 기반으로 수정
  */
 
 /* Import Pretendard font */
@@ -13,7 +13,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  color: rgb(6, 7, 39);
+  color: rgb(6, 7, 39); /* test.css에 맞게 변경 */
   width: 100%;
 }
 
@@ -26,19 +26,19 @@ body {
   }
 }
 
-/* ===== 제목 스타일 ===== */
+/* ===== 제목 스타일 - test.css와 일치하도록 수정 ===== */
 h1 {
   margin: 0 auto;
   display: block;
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 2.75rem;
-  line-height: 130%; /* test.css 기준 줄간격 */
+  line-height: 130%;
   font-weight: 720;
   text-align: left;
   word-break: keep-all;
   word-wrap: break-word;
   color: inherit;
-  width: var(--paragraph-width);
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
 }
 
 h2 {
@@ -46,15 +46,13 @@ h2 {
   display: block;
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 1.9rem;
-  line-height: 130%; /* test.css 기준 줄간격 */
+  line-height: 130%;
   font-weight: 700;
   text-align: left;
   word-break: keep-all;
   word-wrap: break-word;
   color: inherit;
-  width: var(--paragraph-width);
-  margin-top: 2em;
-  margin-bottom: 0.8em;
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
 }
 
 h3 {
@@ -62,15 +60,13 @@ h3 {
   display: block;
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 1.23rem;
-  line-height: 130%; /* 줄간격 수정: 203% → 130% */
+  line-height: 203%; /* test.css 기준으로 수정: 130% → 203% */
   font-weight: 600;
   text-align: left;
   word-break: keep-all;
   word-wrap: break-word;
   color: inherit;
-  width: var(--paragraph-width);
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
 }
 
 h4, h5, h6 {
@@ -81,40 +77,40 @@ h4, h5, h6 {
   word-break: keep-all;
   word-wrap: break-word;
   color: inherit;
-  width: var(--paragraph-width);
-  line-height: 130%; /* 줄간격 통일 */
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
 }
 
 h4 { 
   font-size: 1.15rem;
+  line-height: 203%; /* test.css의 h3와 일치 */
   font-weight: 600;
 }
 
 h5 { 
   font-size: 1.1rem;
+  line-height: 203%; /* test.css의 h3와 일치 */
   font-weight: 600;
 }
 
 h6 { 
   font-size: 1rem;
+  line-height: 203%; /* test.css의 h3와 일치 */
   font-weight: 600;
 }
 
-/* ===== 일반 텍스트 요소 ===== */
+/* ===== 일반 텍스트 요소 - test.css와 일치하도록 수정 ===== */
 p {
   margin: 0 auto;
   display: block;
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 1.23rem;
-  line-height: 150%; /* 줄간격 수정: 203% → 150% */
+  line-height: 203%; /* test.css 기준으로 수정: 150% → 203% */
   font-weight: 400;
   text-align: left;
   word-break: keep-all;
   word-wrap: break-word;
   color: inherit;
-  width: var(--paragraph-width);
-  margin-bottom: 1em; /* 단락 간격 축소 */
-  overflow-wrap: break-word; /* 긴 단어 줄 바꿈 개선 */
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
 }
 
 /* 부제목과 본문 사이 간격 */
@@ -124,22 +120,21 @@ h2 + p, h3 + p {
 
 ul, ol {
   margin: 0 auto;
-  width: var(--paragraph-width);
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
   margin-bottom: var(--spacing-3);
   padding-left: var(--spacing-6);
-  line-height: 150%; /* 줄간격 수정 */
 }
 
 li {
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 1.23rem;
-  line-height: 150%; /* 줄간격 수정: 1.8 → 1.5 */
+  line-height: 203%; /* test.css 기준으로 수정 */
   font-weight: 400;
   text-align: left;
   word-break: keep-all;
   word-wrap: break-word;
   color: inherit;
-  margin-bottom: 0.3em; /* 리스트 아이템 간격 축소 */
+  margin-bottom: 0.3em;
 }
 
 a {
@@ -154,7 +149,7 @@ a:hover {
 
 blockquote {
   margin: var(--spacing-3) auto;
-  width: var(--paragraph-width);
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
   padding: var(--spacing-3) var(--spacing-5);
   border-left: 4px solid var(--primary-300);
   background-color: var(--bg-secondary);
@@ -168,12 +163,12 @@ code {
   padding: 0.2em 0.4em;
   background-color: var(--bg-secondary);
   border-radius: var(--radius-sm);
-  word-break: break-all; /* 코드 내 줄 바꿈 개선 */
+  word-break: break-all;
 }
 
 pre {
   margin: var(--spacing-3) auto;
-  width: var(--paragraph-width);
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
   padding: var(--spacing-3);
   background-color: var(--bg-secondary);
   border-radius: var(--radius-md);
@@ -185,20 +180,20 @@ pre {
 pre code {
   padding: 0;
   background-color: transparent;
-  white-space: pre-wrap; /* 코드 블록 내 자동 줄 바꿈 */
+  white-space: pre-wrap;
 }
 
 /* ===== 포스트 콘텐츠 특화 스타일 ===== */
 .post-content {
   font-size: 1.23rem;
-  line-height: 150%; /* 줄간격 수정: 1.8 → 1.5 */
-  max-width: var(--paragraph-width);
+  line-height: 203%; /* test.css 기준으로 수정: 150% → 203% */
+  max-width: 55rem; /* 고정 너비 55rem으로 지정 */
   margin: 0 auto;
   letter-spacing: -0.01em;
   word-break: keep-all;
   overflow-wrap: break-word;
-  white-space: normal; /* 텍스트 자연스럽게 표시 */
-  hyphens: auto; /* 자동 하이픈 추가 (필요한 경우) */
+  white-space: normal;
+  hyphens: auto;
   text-align: left;
 }
 
@@ -214,7 +209,7 @@ pre code {
 .post-content br + br {
   display: block;
   content: "";
-  margin-top: 0.5em; /* 단락 구분용 여백 축소 */
+  margin-top: 0.5em;
 }
 
 /* compact-break 클래스를 활용한 커스텀 줄바꿈 */
@@ -234,7 +229,8 @@ br.compact-break {
 
 /* 문단 간격 조정 */
 .post-content p {
-  margin-bottom: 1em; /* 단락 간격 축소 */
+  margin-bottom: 1em;
+  line-height: 203%; /* test.css 기준으로 수정 */
 }
 
 .post-content p + p {
@@ -269,7 +265,7 @@ br.compact-break {
 
 .post-content h3 {
   font-size: 1.23rem;
-  line-height: 150%;
+  line-height: 203%; /* test.css 기준으로 수정 */
   font-weight: 600;
 }
 
@@ -278,7 +274,7 @@ br.compact-break {
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-thickness: 1px;
-  word-break: break-all; /* 필요 시 링크에서 줄 바꿈 */
+  word-break: break-all;
 }
 
 .post-content img, 
@@ -292,7 +288,7 @@ br.compact-break {
 
 .post-content figure {
   margin: var(--spacing-4) auto;
-  width: var(--paragraph-width);
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
 }
 
 .post-content figcaption {
@@ -334,19 +330,17 @@ br.compact-break {
 
 /* 줄 바꿈 보존 클래스 최적화 */
 .preserve-whitespace {
-  /* 공백과 줄 바꿈 보존하되 간격 최적화 */
-  white-space: pre-wrap; /* 공백과 줄 바꿈 보존하면서 자동 줄 바꿈 */
-  line-height: 1.5; /* 가독성 향상을 위한 행간 조정 */
+  white-space: pre-wrap;
+  line-height: 203%; /* test.css 기준으로 수정 */
 }
 
 /* 적당히 조밀한 텍스트를 위한 클래스 추가 */
 .compact-text {
-  line-height: 1.3em; /* 줄간격 수정: 1.5em → 1.3em */
-  margin-bottom: 0.2em; /* 단락 간 간격도 줄임 */
+  line-height: 203%; /* test.css 기준으로 수정: 1.3em → 203% */
+  margin-bottom: 0.2em;
 }
 
 /* ===== 포스트 메타 정보 스타일링 ===== */
-/* 포스트 메타 정보 컨테이너 - 날짜, 작성자, 태그를 담는 영역 */
 .post-meta-container {
   display: flex;
   align-items: center;
@@ -355,7 +349,7 @@ br.compact-break {
   margin: 0.75rem 0 2rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--border-color);
-  width: var(--paragraph-width);
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
   max-width: 100%;
   margin-left: auto;
   margin-right: auto;
@@ -363,7 +357,7 @@ br.compact-break {
 
 /* 제목 스타일 */
 .post-title {
-  width: var(--paragraph-width);
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
   max-width: 100%;
   margin-left: auto;
   margin-right: auto;
@@ -421,7 +415,7 @@ br.compact-break {
   gap: 0.5rem;
   margin-left: 0;
   width: 100%;
-  max-width: var(--paragraph-width);
+  max-width: 55rem; /* 고정 너비 55rem으로 지정 */
 }
 
 .post-tag {
@@ -448,7 +442,7 @@ br.compact-break {
 
 /* 간결한 이전글/다음글 네비게이션 */
 .post-nav-simple {
-  width: var(--paragraph-width);
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
   max-width: 100%;
   margin: 3rem auto 1rem;
   border-top: 1px solid var(--border-color);
@@ -555,7 +549,7 @@ br.compact-break {
   /* 포스트 콘텐츠 모바일 최적화 */
   .post-content {
     font-size: 1.1rem;
-    line-height: 150%;
+    line-height: 203%; /* test.css 기준으로 수정 */
   }
   
   /* 제목 크기 최적화 */
