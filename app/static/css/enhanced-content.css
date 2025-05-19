@@ -1,16 +1,16 @@
 /* 
- * enhanced-content.css - GitHub 스타일 블로그 기능, 타이포그래피 유지
+ * enhanced-content.css - 통합 콘텐츠 및 미디어 스타일
  */
 
-/* 1. 강조 박스 - GitHub 스타일 */
+/* ===== 1. 강조 박스 ===== */
 .highlight-box {
-  background-color: #ddf4ff;
-  border-left: 4px solid var(--github-accent);
-  padding: 1.5rem;
-  margin: 1.5rem auto;
-  border-radius: 6px;
-  width: var(--paragraph-width);
+  width: 55rem;
   max-width: 100%;
+  margin: 1.5rem auto;
+  padding: 1rem 1.5rem;
+  background-color: #ddf4ff;
+  border-left: 4px solid #0969da;
+  border-radius: 6px;
 }
 
 html.dark-theme .highlight-box {
@@ -26,15 +26,16 @@ html.dark-theme .highlight-box {
   margin-bottom: 0;
 }
 
-/* 4. 인용문 - GitHub 스타일 */
+/* ===== 2. 인용문 ===== */
 blockquote.styled-quote {
-  background-color: var(--bg-primary);
-  border-left: 4px solid var(--border-color);
-  padding: 1rem 1rem 1rem 2rem;
-  margin: 1.2rem auto;
-  font-style: italic;
-  width: var(--paragraph-width);
+  width: 55rem;
   max-width: 100%;
+  margin: 1.5rem auto;
+  padding: 1rem 1.5rem;
+  background-color: #f6f8fa;
+  border-left: 4px solid #d0d7de;
+  color: #57606a;
+  font-style: italic;
   position: relative;
 }
 
@@ -49,28 +50,33 @@ blockquote.styled-quote::before {
   font-family: serif;
 }
 
+html.dark-theme blockquote.styled-quote {
+  background-color: #161b22;
+  border-left-color: #30363d;
+  color: #8b949e;
+}
+
 .blockquote-author {
   display: block;
   margin-top: 0.8rem;
-  font-style: normal;
   font-weight: 600;
   text-align: right;
-  color: var(--text-primary);
+  font-style: normal;
 }
 
-/* 5. 큰 인용구 - GitHub 스타일 */
+/* ===== 3. 큰 인용구 ===== */
 .pullquote {
   font-size: 1.5rem;
   line-height: 1.4;
   font-weight: 300;
-  width: 100%;
-  max-width: var(--container-width);
+  width: 55rem;
+  max-width: 100%;
   margin: 2rem auto;
   padding: 1.5rem;
   text-align: center;
-  color: var(--text-accent);
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
+  color: #0969da;
+  border-top: 1px solid #d0d7de;
+  border-bottom: 1px solid #d0d7de;
 }
 
 .pullquote.align-left {
@@ -87,17 +93,27 @@ blockquote.styled-quote::before {
   text-align: right;
 }
 
-/* 6 & 7. 이미지 갤러리 및 확장 속성 - GitHub 스타일 */
+/* ===== 4. 이미지 및 미디어 ===== */
+/* 이미지 컨테이너 */
 figure.post-image {
-  margin: 1.5rem auto;
-  width: var(--paragraph-width);
+  width: 55rem;
   max-width: 100%;
+  margin: 2rem auto;
   text-align: center;
 }
 
 figure.post-image img {
-  border: 1px solid var(--border-color);
+  max-width: 100%;
+  height: auto;
   border-radius: 6px;
+  border: 1px solid #d0d7de;
+}
+
+figure.post-image figcaption {
+  margin-top: 0.5rem;
+  color: #57606a;
+  font-style: italic;
+  font-size: 0.9rem;
 }
 
 figure.post-image.align-left {
@@ -132,37 +148,30 @@ figure.post-image.size-full img {
   max-width: 100%;
 }
 
-figcaption {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: var(--text-tertiary);
-  font-style: italic;
-}
-
-/* 갤러리 - GitHub 스타일 */
+/* 갤러리 */
 .gallery {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1rem;
   margin: 2rem auto;
-  width: var(--paragraph-width);
+  width: 55rem;
   max-width: 100%;
 }
 
 .gallery-item {
   overflow: hidden;
   border-radius: 6px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
   position: relative;
-  border: 1px solid var(--border-color);
+  border: 1px solid #d0d7de;
 }
 
 .gallery-item:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--github-accent);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #0969da;
 }
 
 .gallery-image {
@@ -189,15 +198,178 @@ figcaption {
   opacity: 1;
 }
 
-/* 12. 관련 글 - GitHub 스타일 */
+/* 비디오 컨테이너 */
+.video-embed {
+  width: 55rem;
+  max-width: 100%;
+  margin: 2rem auto;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #000;
+}
+
+.video-embed video {
+  display: block;
+  width: 100%;
+  border-radius: 6px;
+}
+
+.video-embed figcaption {
+  margin-top: 0.5rem;
+  color: #57606a;
+  font-style: italic;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* 오디오 컨테이너 */
+.audio-embed {
+  width: 55rem;
+  max-width: 100%;
+  margin: 2rem auto;
+  padding: 1rem;
+  background-color: #f6f8fa;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+}
+
+.audio-embed audio {
+  width: 100%;
+  display: block;
+}
+
+.audio-caption {
+  margin-top: 0.5rem;
+  color: #57606a;
+  font-style: italic;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* ===== 5. 소셜 미디어 임베드 ===== */
+/* 소셜 미디어 임베드 공통 스타일 */
+.social-embed {
+  width: 55rem;
+  max-width: 100%;
+  margin: 2rem auto;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #d0d7de;
+  background-color: #ffffff;
+}
+
+html.dark-theme .social-embed {
+  background-color: #161b22;
+  border-color: #30363d;
+}
+
+/* 코드 블록과 충돌 방지를 위한 스타일 */
+.social-embed pre,
+.social-embed code {
+  background: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+/* 유튜브 임베드 */
+.youtube-embed {
+  position: relative;
+  width: 55rem;
+  max-width: 100%;
+  margin: 2rem auto;
+  padding-bottom: 56.25%; /* 16:9 비율 */
+  height: 0;
+  overflow: hidden;
+  background-color: #f0f0f0;
+  border-radius: 6px;
+}
+
+.youtube-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* 트위치 임베드 */
+.twitch-embed {
+  position: relative;
+  width: 55rem;
+  max-width: 100%;
+  margin: 2rem auto;
+  padding-bottom: 56.25%; /* 16:9 비율 */
+  height: 0;
+  overflow: hidden;
+  background-color: #6441a5;
+  border-radius: 6px;
+}
+
+.twitch-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* 트위터 임베드 */
+.twitter-embed {
+  width: 55rem;
+  max-width: 100%;
+  margin: 2rem auto;
+}
+
+/* 인스타그램 임베드 */
+.instagram-embed {
+  width: 55rem;
+  max-width: 100%;
+  margin: 2rem auto;
+}
+
+/* 페이스북 임베드 */
+.facebook-embed {
+  width: 55rem;
+  max-width: 100%;
+  margin: 2rem auto;
+}
+
+/* 에러 메시지 */
+.error-embed {
+  width: 55rem;
+  max-width: 100%;
+  margin: 1.5rem auto;
+  padding: 1rem;
+  background-color: #ffebe9;
+  border: 1px solid #cf222e;
+  border-radius: 6px;
+  color: #cf222e;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+html.dark-theme .error-embed {
+  background-color: rgba(207, 34, 46, 0.15);
+  border-color: rgba(207, 34, 46, 0.4);
+  color: #f85149;
+}
+
+/* ===== 6. 기타 콘텐츠 요소 ===== */
+/* 관련 글 섹션 */
 .related-posts-box {
-  background-color: var(--bg-primary);
+  background-color: #f6f8fa;
   border-radius: 6px;
   padding: 1.2rem 1.5rem;
   margin: 1.5rem auto;
-  width: var(--paragraph-width);
+  width: 55rem;
   max-width: 100%;
-  border: 1px solid var(--border-color);
+  border: 1px solid #d0d7de;
 }
 
 .related-posts-box h4 {
@@ -220,7 +392,7 @@ figcaption {
 }
 
 .related-posts-list a {
-  color: var(--text-accent);
+  color: #0969da;
   text-decoration: none;
 }
 
@@ -228,13 +400,13 @@ figcaption {
   text-decoration: underline;
 }
 
-/* 13. 시리즈 박스 - GitHub 스타일 */
+/* 시리즈 박스 */
 .series-box {
   background-color: #ddf4ff;
   border-radius: 6px;
   padding: 1.2rem 1.5rem;
   margin: 1.5rem auto;
-  width: var(--paragraph-width);
+  width: 55rem;
   max-width: 100%;
   border: 1px solid rgba(9, 105, 218, 0.1);
 }
@@ -248,7 +420,7 @@ html.dark-theme .series-box {
   font-weight: 600;
   margin-bottom: 0.5rem;
   font-size: 1.1rem;
-  color: var(--github-accent);
+  color: #0969da;
 }
 
 html.dark-theme .series-title {
@@ -260,15 +432,15 @@ html.dark-theme .series-title {
   color: var(--text-secondary);
 }
 
-/* 14. 수정 이력 - GitHub 스타일 */
+/* 수정 이력 */
 .changelog-box {
-  background-color: var(--bg-primary);
+  background-color: #f6f8fa;
   border-radius: 6px;
   padding: 1.2rem 1.5rem;
   margin: 1.5rem auto;
-  width: var(--paragraph-width);
+  width: 55rem;
   max-width: 100%;
-  border: 1px solid var(--border-color);
+  border: 1px solid #d0d7de;
 }
 
 .changelog-box h4 {
@@ -295,15 +467,24 @@ html.dark-theme .series-title {
   content: "\2022";
   position: absolute;
   left: -1rem;
-  color: var(--github-accent);
+  color: #0969da;
 }
 
 html.dark-theme .changelog-list li::before {
   color: #58a6ff;
 }
 
-/* 반응형 조정 */
-@media (max-width: 768px) {
+/* ===== 7. 모바일 최적화 ===== */
+@media screen and (max-width: 1024px) {
+  .post-image, .video-embed, .audio-embed, .youtube-embed,
+  .twitch-embed, .twitter-embed, .instagram-embed, .facebook-embed,
+  .error-embed, .highlight-box, blockquote.styled-quote, 
+  .pullquote, .gallery, .related-posts-box, .series-box, .changelog-box {
+    width: 90%;
+  }
+}
+
+@media screen and (max-width: 768px) {
   .pullquote.align-left,
   .pullquote.align-right {
     float: none;
@@ -322,13 +503,30 @@ html.dark-theme .changelog-list li::before {
   .gallery {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
+}
+
+@media screen and (max-width: 480px) {
+  .post-image, .video-embed, .audio-embed, .youtube-embed,
+  .twitch-embed, .twitter-embed, .instagram-embed, .facebook-embed,
+  .error-embed, .highlight-box, blockquote.styled-quote, 
+  .pullquote, .gallery, .related-posts-box, .series-box, .changelog-box {
+    width: 100%;
+    margin: 1.5rem auto;
+  }
+  
+  .post-image figcaption,
+  .video-embed figcaption,
+  .audio-caption {
+    font-size: 0.8rem;
+  }
   
   .highlight-box,
-  blockquote.styled-quote,
-  .related-posts-box,
-  .series-box,
-  .changelog-box {
-    width: 100%;
+  blockquote.styled-quote {
+    padding: 0.8rem 1rem;
+  }
+  
+  .pullquote {
+    font-size: 1.25rem;
     padding: 1rem;
   }
 }

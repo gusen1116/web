@@ -2,10 +2,18 @@
 import os
 import re
 from datetime import datetime
-import markdown
 from flask import url_for
 from markupsafe import escape, Markup
 from werkzeug.utils import secure_filename
+
+# 마크다운 처리를 위한 임포트
+try:
+    import markdown
+    import bleach
+    MARKDOWN_ENABLED = True
+except ImportError:
+    MARKDOWN_ENABLED = False
+    print("markdown 또는 bleach 라이브러리가 설치되지 않았습니다. 기본 텍스트 처리 방식을 사용합니다.")
 
 class TextPost:
     """텍스트 파일 기반 포스트 클래스"""
@@ -252,11 +260,12 @@ def parse_text_file(file_path):
         return metadata, body_content
     
     except Exception as e:
+        print(f"텍스트 파일 파싱 오류: {str(e)}")
         return {}, ""
 
 
 def render_content(content, base_url_images='/posts/images', base_url_videos='/posts/videos', base_url_audios='/posts/audios'):
-    """특수 태그를 HTML로 변환 - 임베드 문제 해결"""
+    """특수 태그를 HTML로 변환 후 마크다운 처리 - 개선된 버전"""
     if not isinstance(content, str):
         return ""
     
@@ -268,122 +277,68 @@ def render_content(content, base_url_images='/posts/images', base_url_videos='/p
     if not isinstance(base_url_audios, str) or not base_url_audios.startswith('/'):
         base_url_audios = '/posts/audios'
     
-    # 임베드 플레이스홀더 맵 및 카운터 초기화
-    placeholders = {}
-    counter = 0
-    
-    # 1. 특수 임베드 태그 처리 및 안전한 플레이스홀더로 대체
+    # 1. 특수 임베드 태그 처리 - 직접 HTML 대체 방식으로 변경
     
     # YouTube 임베드 처리
     def youtube_handler(match):
-        nonlocal counter
         youtube_id_or_url = match.group(1)
-        embed_html = _create_youtube_embed(youtube_id_or_url)
-        placeholder = f"__YOUTUBE_EMBED_{counter}__"
-        counter += 1
-        placeholders[placeholder] = embed_html
-        return placeholder
+        return _create_youtube_embed(youtube_id_or_url)
     
     # Twitch 임베드 처리
     def twitch_handler(match):
-        nonlocal counter
         twitch_id_or_url = match.group(1)
-        embed_html = _create_twitch_embed(twitch_id_or_url)
-        placeholder = f"__TWITCH_EMBED_{counter}__"
-        counter += 1
-        placeholders[placeholder] = embed_html
-        return placeholder
+        return _create_twitch_embed(twitch_id_or_url)
     
     # Twitter 임베드 처리
     def twitter_handler(match):
-        nonlocal counter
         tweet_id_or_url = match.group(1)
-        embed_html = _create_twitter_embed(tweet_id_or_url)
-        placeholder = f"__TWITTER_EMBED_{counter}__"
-        counter += 1
-        placeholders[placeholder] = embed_html
-        return placeholder
+        return _create_twitter_embed(tweet_id_or_url)
     
     # Instagram 임베드 처리
     def instagram_handler(match):
-        nonlocal counter
         post_id_or_url = match.group(1)
-        embed_html = _create_instagram_embed(post_id_or_url)
-        placeholder = f"__INSTAGRAM_EMBED_{counter}__"
-        counter += 1
-        placeholders[placeholder] = embed_html
-        return placeholder
+        return _create_instagram_embed(post_id_or_url)
     
     # Facebook 임베드 처리
     def facebook_handler(match):
-        nonlocal counter
         post_url = match.group(1)
-        embed_html = _create_facebook_embed(post_url)
-        placeholder = f"__FACEBOOK_EMBED_{counter}__"
-        counter += 1
-        placeholders[placeholder] = embed_html
-        return placeholder
+        return _create_facebook_embed(post_url)
     
     # 강조 박스 처리
     def highlight_handler(match):
-        nonlocal counter
         highlight_content = match.group(1)
         # 내용만 이스케이핑하고 HTML 구조는 유지
         safe_content = escape(highlight_content)
-        embed_html = _create_highlight_box(safe_content)
-        placeholder = f"__HIGHLIGHT_BOX_{counter}__"
-        counter += 1
-        placeholders[placeholder] = embed_html
-        return placeholder
+        return _create_highlight_box(safe_content)
     
     # 인용문 처리
     def quote_handler(match):
-        nonlocal counter
         author = match.group(1)
         quote_content = match.group(2)
         # 내용만 이스케이핑하고 HTML 구조는 유지
         safe_content = escape(quote_content)
         safe_author = escape(author) if author else None
-        embed_html = _create_quote_box(safe_content, safe_author)
-        placeholder = f"__QUOTE_BOX_{counter}__"
-        counter += 1
-        placeholders[placeholder] = embed_html
-        return placeholder
+        return _create_quote_box(safe_content, safe_author)
     
     # 이미지 태그 처리
     def image_handler(match):
-        nonlocal counter
         src = match.group(1)
         alt = match.group(2) if match.group(2) else None
-        embed_html = _safe_image_tag(src, alt, base_url_images)
-        placeholder = f"__IMAGE_TAG_{counter}__"
-        counter += 1
-        placeholders[placeholder] = embed_html
-        return placeholder
+        return _safe_image_tag(src, alt, base_url_images)
     
     # 비디오 태그 처리
     def video_handler(match):
-        nonlocal counter
         filename = match.group(1)
         caption = match.group(2) if match.group(2) else None
-        embed_html = _create_video_embed(filename, caption, base_url_videos)
-        placeholder = f"__VIDEO_EMBED_{counter}__"
-        counter += 1
-        placeholders[placeholder] = embed_html
-        return placeholder
+        return _create_video_embed(filename, caption, base_url_videos)
     
     # 오디오 태그 처리
     def audio_handler(match):
-        nonlocal counter
         filename = match.group(1)
         caption = match.group(2) if match.group(2) else None
-        embed_html = _create_audio_embed(filename, caption, base_url_audios)
-        placeholder = f"__AUDIO_EMBED_{counter}__"
-        counter += 1
-        placeholders[placeholder] = embed_html
-        return placeholder
+        return _create_audio_embed(filename, caption, base_url_audios)
     
-    # 각 특수 태그 패턴에 핸들러 적용
+    # 특수 태그 직접 HTML로 변환 (플레이스홀더 사용하지 않음)
     content = re.sub(r'\[youtube:([^\]]+)\]', youtube_handler, content)
     content = re.sub(r'\[twitch:([^\]]+)\]', twitch_handler, content)
     content = re.sub(r'\[twitter:([^\]]+)\]', twitter_handler, content)
@@ -395,37 +350,89 @@ def render_content(content, base_url_images='/posts/images', base_url_videos='/p
     content = re.sub(r'\[video:([^\]]+)(?:\|([^\]]+))?\]', video_handler, content)
     content = re.sub(r'\[audio:([^\]]+)(?:\|([^\]]+))?\]', audio_handler, content)
     
-    # 2. 텍스트 행 처리 (마크다운 구조 및 일반 텍스트)
+    # 2. 텍스트 처리 - 마크다운 또는 기존 방식
+    if MARKDOWN_ENABLED:
+        try:
+            # 마크다운 확장 기능 설정
+            extensions = ['extra', 'nl2br', 'sane_lists']
+            extension_configs = {
+                'nl2br': {}, # 줄바꿈을 <br>로 변환
+                'extra': {},
+                'sane_lists': {}
+            }
+            
+            # 마크다운 변환
+            md_content = markdown.markdown(content, extensions=extensions, extension_configs=extension_configs)
+            
+            # 안전한 HTML 태그만 허용
+            allowed_tags = [
+                'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'hr', 
+                'a', 'strong', 'em', 'code', 'pre', 'blockquote', 'img',
+                'ul', 'ol', 'li', 'span', 'div', 'iframe', 'figure', 'figcaption',
+                'video', 'audio', 'source'
+            ]
+            allowed_attrs = {
+                'a': ['href', 'title', 'target', 'rel'],
+                'img': ['src', 'alt', 'title', 'width', 'height', 'class'],
+                'p': ['class'],
+                'div': ['class'],
+                'span': ['class'],
+                'code': ['class'],
+                'pre': ['class'],
+                'iframe': ['src', 'width', 'height', 'frameborder', 'allowfullscreen', 'allow'],
+                'figure': ['class'],
+                'figcaption': ['class'],
+                'video': ['controls', 'width', 'height', 'class'],
+                'audio': ['controls', 'class'],
+                'source': ['src', 'type']
+            }
+            
+            # HTML 안전성 처리 (XSS 방지)
+            cleaned_content = bleach.clean(md_content, tags=allowed_tags, attributes=allowed_attrs)
+            
+            # 스타일 클래스 적용 (기존 스타일 유지)
+            # <p> 태그에 compact-text 클래스 추가 (test.css 스타일 적용)
+            cleaned_content = cleaned_content.replace('<p>', '<p class="compact-text">')
+            
+        except Exception as e:
+            # 마크다운 처리 오류 시 기존 방식으로 폴백
+            print(f"마크다운 처리 오류, 기존 방식으로 대체: {str(e)}")
+            cleaned_content = _process_content_legacy(content)
+    else:
+        # 마크다운 라이브러리가 없을 경우 기존 방식 사용
+        cleaned_content = _process_content_legacy(content)
     
-    # 텍스트 파일 간격 조정을 위한 전처리
-    content = re.sub(r'\n\n+', '\n\n', content)  # 빈 줄 정규화
-    
+    # 3. 안전한 HTML로 명시적 표시 (Markup)
+    return Markup(cleaned_content)
+
+
+# 기존 방식의 텍스트 처리 (폴백용 함수)
+def _process_content_legacy(content):
+    """기존 방식으로 텍스트 처리 (마크다운 라이브러리 사용 실패시 폴백)"""
     lines = content.split('\n')
     processed_lines = []
     in_code_block = False  # 코드 블록 내부 여부 추적
-    empty_line_count = 0   # 연속된 빈 줄 카운트
+    current_paragraph = []  # 현재 단락의 텍스트 라인들
     
     for line in lines:
-        # 플레이스홀더 확인 - 이미 처리된 특수 태그가 있는지
-        placeholder_found = any(ph in line for ph in placeholders.keys())
-        if placeholder_found:
-            # 플레이스홀더가 있는 행은 그대로 유지
-            processed_lines.append(line)
-            continue
-        
         line = line.strip()
         
-        # 빈 줄 처리
+        # 빈 줄 처리 - 단락 경계
         if not line:
-            empty_line_count += 1
-            if empty_line_count == 1:  # 첫 번째 빈 줄만 <br>로 변환
-                processed_lines.append('<br>')
+            # 현재 단락이 있으면 처리
+            if current_paragraph:
+                processed_lines.append(f'<p class="compact-text">{" ".join(current_paragraph)}</p>')
+                current_paragraph = []
+            processed_lines.append('<br>')
             continue
-        else:
-            empty_line_count = 0
         
         # 코드 블록 처리
         if line.startswith('```'):
+            # 현재 단락이 있으면 처리
+            if current_paragraph:
+                processed_lines.append(f'<p class="compact-text">{" ".join(current_paragraph)}</p>')
+                current_paragraph = []
+                
             if not in_code_block:
                 # 코드 블록 시작
                 language = line[3:].strip()
@@ -444,6 +451,11 @@ def render_content(content, base_url_images='/posts/images', base_url_videos='/p
         
         # 헤더 처리 (# 시작)
         if line.startswith('#'):
+            # 현재 단락이 있으면 처리
+            if current_paragraph:
+                processed_lines.append(f'<p class="compact-text">{" ".join(current_paragraph)}</p>')
+                current_paragraph = []
+                
             header_level = len(re.match(r'^#+', line).group(0))
             if header_level > 0 and len(line) > header_level and line[header_level] == ' ':
                 header_text = escape(line[header_level+1:].strip())
@@ -452,12 +464,22 @@ def render_content(content, base_url_images='/posts/images', base_url_videos='/p
         
         # 목록 처리
         if line.startswith('- ') or line.startswith('* '):
+            # 현재 단락이 있으면 처리
+            if current_paragraph:
+                processed_lines.append(f'<p class="compact-text">{" ".join(current_paragraph)}</p>')
+                current_paragraph = []
+                
             list_content = escape(line[2:])
             processed_lines.append(f'<li>{list_content}</li>')
             continue
         
         # 번호 목록 처리
         if re.match(r'^\d+\.\s', line):
+            # 현재 단락이 있으면 처리
+            if current_paragraph:
+                processed_lines.append(f'<p class="compact-text">{" ".join(current_paragraph)}</p>')
+                current_paragraph = []
+                
             match = re.match(r'^\d+\.\s(.+)$', line)
             if match:
                 list_content = escape(match.group(1))
@@ -466,89 +488,29 @@ def render_content(content, base_url_images='/posts/images', base_url_videos='/p
         
         # 수평선 처리
         if line == '---' or line == '***' or line == '___':
+            # 현재 단락이 있으면 처리
+            if current_paragraph:
+                processed_lines.append(f'<p class="compact-text">{" ".join(current_paragraph)}</p>')
+                current_paragraph = []
+                
             processed_lines.append('<hr>')
             continue
         
-        # 일반 텍스트 처리
-        processed_lines.append(f'<p class="compact-text">{escape(line)}</p>')
+        # 일반 텍스트 - 현재 단락에 추가
+        current_paragraph.append(escape(line))
     
-    # 3. 모든 라인을 HTML로 결합
-    html_content = '\n'.join(processed_lines)
+    # 마지막 단락 처리
+    if current_paragraph:
+        processed_lines.append(f'<p class="compact-text">{" ".join(current_paragraph)}</p>')
     
-    # 4. 플레이스홀더를 실제 HTML로 대체
-    for placeholder, embed_html in placeholders.items():
-        html_content = html_content.replace(placeholder, embed_html)
-    
-    # 5. 안전한 HTML로 명시적 표시 (Markup)
-    return Markup(html_content)
+    # 모든 라인을 HTML로 결합
+    return '\n'.join(processed_lines)
 
-# 비디오 및 오디오 임베드 지원 함수
-def _create_video_embed(video_filename, caption=None, base_url='/'):
-    """비디오 임베드 HTML 생성"""
-    if not isinstance(video_filename, str) or not video_filename or '..' in video_filename or '/' in video_filename:
-        return ""
-    
-    safe_filename = secure_filename(video_filename)
-    safe_caption = escape(caption) if caption else escape(safe_filename)
-    
-    file_ext = safe_filename.rsplit('.', 1)[1].lower() if '.' in safe_filename else ''
-    mime_type = {
-        'mp4': 'video/mp4',
-        'webm': 'video/webm',
-        'ogg': 'video/ogg',
-        'mov': 'video/quicktime'
-    }.get(file_ext, 'video/mp4')
-    
-    return f'''
-<div class="video-embed">
-    <video controls width="100%">
-        <source src="{base_url}/{safe_filename}" type="{mime_type}">
-        브라우저가 비디오 재생을 지원하지 않습니다.
-    </video>
-    {f'<figcaption>{safe_caption}</figcaption>' if caption else ''}
-</div>
-'''
 
-def _create_audio_embed(audio_filename, caption=None, base_url='/'):
-    """오디오 임베드 HTML 생성"""
-    if not isinstance(audio_filename, str) or not audio_filename or '..' in audio_filename or '/' in audio_filename:
-        return ""
-    
-    safe_filename = secure_filename(audio_filename)
-    safe_caption = escape(caption) if caption else escape(safe_filename)
-    
-    file_ext = safe_filename.rsplit('.', 1)[1].lower() if '.' in safe_filename else ''
-    mime_type = {
-        'mp3': 'audio/mpeg',
-        'wav': 'audio/wav',
-        'ogg': 'audio/ogg',
-        'flac': 'audio/flac',
-        'm4a': 'audio/mp4'
-    }.get(file_ext, 'audio/mpeg')
-    
-    return f'''
-<div class="audio-embed">
-    <audio controls width="100%">
-        <source src="{base_url}/{safe_filename}" type="{mime_type}">
-        브라우저가 오디오 재생을 지원하지 않습니다.
-    </audio>
-    {f'<p class="audio-caption">{safe_caption}</p>' if caption else ''}
-</div>
-'''
-
-# 안전한 보조 함수들
-def _safe_image_tag(src, alt=None, base_url='/'):
-    """안전한 이미지 태그 생성"""
-    if not isinstance(src, str) or not src or '..' in src or '/' in src:
-        return ""
-    
-    safe_src = secure_filename(src)
-    safe_alt = escape(alt) if alt else escape(safe_src)
-    
-    return f'<figure class="post-image"><img src="{base_url}/{safe_src}" alt="{safe_alt}" class="text-post-image"><figcaption>{safe_alt if alt else ""}</figcaption></figure>'
+# 미디어 임베드 함수들
 
 def _create_youtube_embed(youtube_id_or_url):
-    """유튜브 임베드 HTML 생성 - 안전하게 처리하고 올바른 HTML 반환"""
+    """유튜브 임베드 HTML 생성 - 직접 HTML 반환"""
     # 안전한 ID 추출
     safe_id = ""
     youtube_id_or_url = str(youtube_id_or_url)  # 입력값 문자열 보장
@@ -574,10 +536,10 @@ def _create_youtube_embed(youtube_id_or_url):
     if not safe_id:
         return '<div class="error-embed">잘못된 YouTube URL</div>'
     
-    # 임베드 HTML 생성 - 반환값은 이미 준비된 HTML이므로 이스케이핑하지 않음
+    # 임베드 HTML 생성 - 반응형 디자인
     return f'''
 <div class="social-embed youtube-embed">
-    <iframe width="880" height="495" src="https://www.youtube.com/embed/{safe_id}" 
+    <iframe src="https://www.youtube.com/embed/{safe_id}" 
     frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
     allowfullscreen></iframe>
 </div>
@@ -604,11 +566,11 @@ def _create_twitch_embed(twitch_id_or_url):
     if not safe_id:
         return '<div class="error-embed">잘못된 Twitch URL</div>'
     
-    # 임베드 HTML 생성
+    # 임베드 HTML 생성 - 반응형 디자인
     return f'''
 <div class="social-embed twitch-embed">
     <iframe src="https://player.twitch.tv/?channel={safe_id}&parent=localhost" 
-    frameborder="0" allowfullscreen="true" scrolling="no" height="378" width="620"></iframe>
+    frameborder="0" allowfullscreen="true" scrolling="no"></iframe>
 </div>
 '''
 
@@ -691,7 +653,78 @@ def _create_facebook_embed(post_url):
 <div class="social-embed facebook-embed">
     <div class="fb-post" data-href="{safe_url}"></div>
     <div id="fb-root"></div>
-    <script async defer src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.2"></script>
+    <script async defer src="https://connect.facebook.net/ko_KR/sdk.js#xfbml=1&version=v16.0"></script>
+</div>
+'''
+
+def _safe_image_tag(src, alt=None, base_url='/'):
+    """안전한 이미지 태그 생성"""
+    if not isinstance(src, str) or not src or '..' in src or '/' in src:
+        return '<div class="error-embed">잘못된 이미지 경로</div>'
+    
+    safe_src = secure_filename(src)
+    safe_alt = escape(alt) if alt else escape(safe_src)
+    
+    # 이미지 HTML 생성
+    return f'''
+<figure class="post-image">
+    <img src="{base_url}/{safe_src}" alt="{safe_alt}" class="text-post-image">
+    {f'<figcaption>{safe_alt}</figcaption>' if alt else ''}
+</figure>
+'''
+
+def _create_video_embed(video_filename, caption=None, base_url='/'):
+    """비디오 임베드 HTML 생성"""
+    if not isinstance(video_filename, str) or not video_filename or '..' in video_filename or '/' in video_filename:
+        return '<div class="error-embed">잘못된 비디오 파일명</div>'
+    
+    safe_filename = secure_filename(video_filename)
+    safe_caption = escape(caption) if caption else escape(safe_filename)
+    
+    file_ext = safe_filename.rsplit('.', 1)[1].lower() if '.' in safe_filename else ''
+    mime_type = {
+        'mp4': 'video/mp4',
+        'webm': 'video/webm',
+        'ogg': 'video/ogg',
+        'mov': 'video/quicktime'
+    }.get(file_ext, 'video/mp4')
+    
+    # 비디오 HTML 생성
+    return f'''
+<div class="video-embed">
+    <video controls width="100%">
+        <source src="{base_url}/{safe_filename}" type="{mime_type}">
+        브라우저가 비디오 재생을 지원하지 않습니다.
+    </video>
+    {f'<figcaption>{safe_caption}</figcaption>' if caption else ''}
+</div>
+'''
+
+def _create_audio_embed(audio_filename, caption=None, base_url='/'):
+    """오디오 임베드 HTML 생성"""
+    if not isinstance(audio_filename, str) or not audio_filename or '..' in audio_filename or '/' in audio_filename:
+        return '<div class="error-embed">잘못된 오디오 파일명</div>'
+    
+    safe_filename = secure_filename(audio_filename)
+    safe_caption = escape(caption) if caption else escape(safe_filename)
+    
+    file_ext = safe_filename.rsplit('.', 1)[1].lower() if '.' in safe_filename else ''
+    mime_type = {
+        'mp3': 'audio/mpeg',
+        'wav': 'audio/wav',
+        'ogg': 'audio/ogg',
+        'flac': 'audio/flac',
+        'm4a': 'audio/mp4'
+    }.get(file_ext, 'audio/mpeg')
+    
+    # 오디오 HTML 생성
+    return f'''
+<div class="audio-embed">
+    <audio controls style="width:100%">
+        <source src="{base_url}/{safe_filename}" type="{mime_type}">
+        브라우저가 오디오 재생을 지원하지 않습니다.
+    </audio>
+    {f'<div class="audio-caption">{safe_caption}</div>' if caption else ''}
 </div>
 '''
 
