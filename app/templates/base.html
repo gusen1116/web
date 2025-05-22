@@ -1,353 +1,447 @@
-/* 
- * layout.css - 모바일 헤더 다크모드 버튼 추가
- * 기존 layout.css에서 모바일 부분만 수정
- */
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{% block title %}와구센{% endblock %}</title>
+    
+    <!-- 기본 스타일을 가장 먼저 로드하여 변수 정의 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <!-- 레이아웃 스타일을 두 번째로 로드 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+    <!-- 모바일 테마 전용 스타일 추가 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile-theme.css') }}">
+    <!-- 타이포그래피 스타일 로드 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/typography.css') }}">
+    <!-- 나머지 스타일 로드 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-content.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/simulation.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/slide.css') }}">
+    <!-- 파비콘 설정 -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+    <!-- 현대적인 아이콘 라이브러리 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 페이지별 추가 스타일 -->
+    {% block head %}{% endblock %}
+    
+    <!-- 테마 초기화 스크립트 - 페이지 깜빡임 방지를 위해 head에 배치 -->
+    <script>
+        // 로컬 스토리지에서 저장된 테마 설정을 확인하고 즉시 적용
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark-theme');
+            document.body.classList.add('dark-theme');
+        }
+    </script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <!-- 통합된 헤더 영역 -->
+    <header class="top-header" id="siteHeader">
+        <div class="container">
+            <div class="logo-area">
+                <a href="{{ url_for('main.index') }}" class="logo">
+                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="로고 이미지">
+                    <span class="site-name">와구센</span>
+                </a>
+            </div>
+            
+            <!-- 네비게이션 메뉴 - 데스크톱에서는 수평, 모바일에서는 사이드바로 변환 -->
+            <nav class="main-nav" id="mainNav">
+                <ul>
+                    <li><a href="{{ url_for('posts.index') }}">블로그</a></li>
+                    <li><a href="{{ url_for('simulation.index') }}">시뮬레이션</a></li>
+                    <li><a href="{{ url_for('main.about') }}">소개</a></li>
+                </ul>
+            </nav>
+            
+            <div class="header-controls">
+                <!-- 데스크톱 전용 테마 토글 버튼 -->
+                <div class="theme-toggle-area">
+                    <button class="theme-toggle" id="themeToggle" title="테마 변경" aria-label="테마 전환">
+                        <i class="fas fa-moon dark-icon"></i>
+                        <i class="fas fa-sun light-icon"></i>
+                    </button>
+                </div>
+                
+                <!-- 모바일 전용 다크모드 버튼 - 헤더에 고정 표시 -->
+                <button class="mobile-theme-toggle" id="mobileThemeToggle" title="다크모드 전환" aria-label="다크모드 전환">
+                    <i class="fas fa-moon dark-icon"></i>
+                    <i class="fas fa-sun light-icon"></i>
+                </button>
+                
+                <!-- 모바일 메뉴 토글 버튼 -->
+                <button class="mobile-toggle" id="mobileToggle" aria-label="메뉴 열기">
+                    <i class="fas fa-bars"></i>
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    </header>
 
-/* ===== 모바일 다크모드 버튼 (헤더에 표시) ===== */
-.mobile-theme-toggle {
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-primary);
-  font-size: 1.25rem;
-  padding: var(--spacing-1);
-  border-radius: 6px;
-  transition: background-color var(--transition-fast);
-  align-items: center;
-  justify-content: center;
-  height: 60px;
-  width: 44px;
-  margin: 0;
-  position: relative;
-  z-index: 1001;
-}
+    <!-- 모바일 메뉴 배경 오버레이 -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
 
-.mobile-theme-toggle:hover {
-  background-color: var(--bg-tertiary);
-}
+    <!-- 메인 콘텐츠 영역 -->
+    <main>
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
 
-.mobile-theme-toggle .dark-icon, 
-.mobile-theme-toggle .light-icon {
-  display: none;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
+    <!-- 사이트 푸터 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <p>&copy; 2025 | 와구센</p>
+                    <!-- 애니메이션 푸터 로고 -->
+                    <a href="#" class="footer-logo">
+                        <img src="{{ url_for('static', filename='img/footer-logo.gif') }}" alt="푸터 로고">
+                    </a>
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/wagusen" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-github"></i>
+                        <span>GitHub</span>
+                    </a>
+                    <a href="mailto:gusen@wagusen.com">
+                        <i class="fas fa-envelope"></i>
+                        <span>메일</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
 
-html:not(.dark-theme) .mobile-theme-toggle .light-icon {
-  display: block;
-}
+    <!-- JavaScript 기능들 -->
+    <script>
+        // ===== 공통 테마 토글 함수 =====
+        // 데스크톱과 모바일 버튼이 동일한 로직을 사용하도록 통합
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains('dark-theme');
+            
+            if (isDark) {
+                // 라이트 모드로 전환
+                document.documentElement.classList.remove('dark-theme');
+                document.body.classList.remove('dark-theme');
+                localStorage.setItem('theme', 'light');
+            } else {
+                // 다크 모드로 전환
+                document.documentElement.classList.add('dark-theme');
+                document.body.classList.add('dark-theme');
+                localStorage.setItem('theme', 'dark');
+            }
+            
+            // CSS 변수 재계산을 위한 강제 리플로우
+            document.body.offsetHeight;
+            
+            // 테마 색상 적용 함수 호출
+            applyThemeColors();
+            
+            console.log('Theme toggled to:', isDark ? 'light' : 'dark');
+        }
 
-html.dark-theme .mobile-theme-toggle .dark-icon {
-  display: block;
-}
+        // ===== 테마 토글 이벤트 리스너 설정 =====
+        
+        // 데스크톱 테마 토글 버튼
+        const desktopThemeToggle = document.getElementById('themeToggle');
+        if (desktopThemeToggle) {
+            desktopThemeToggle.addEventListener('click', toggleTheme);
+        }
+        
+        // 모바일 헤더 테마 토글 버튼 (핵심 신규 기능)
+        const mobileThemeToggle = document.getElementById('mobileThemeToggle');
+        if (mobileThemeToggle) {
+            mobileThemeToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleTheme();
+                
+                // 버튼 클릭 시 시각적 피드백 제공
+                this.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        }
 
-/* ===== 모바일 반응형 수정 (768px 이하) ===== */
-@media (max-width: 768px) {
-  /* 기존 스크롤 문제 해결 */
-  html {
-    overflow-x: hidden;
-  }
-  
-  body {
-    overflow-x: hidden;
-    position: relative;
-    width: 100%;
-  }
+        // 테마 색상 적용 함수
+        function applyThemeColors() {
+            const isDark = document.documentElement.classList.contains('dark-theme');
+            
+            // CSS 변수에서 색상 값 가져오기
+            const bgPrimary = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+            const textPrimary = getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim();
+            
+            // 필요한 경우 직접 스타일 적용
+            document.body.style.backgroundColor = bgPrimary;
+            document.body.style.color = textPrimary;
+        }
 
-  /* 햄버거 메뉴 버튼 표시 */
-  .mobile-toggle {
-    display: flex;
-    position: relative;
-    overflow: hidden;
-  }
+        // ===== 향상된 모바일 메뉴 시스템 =====
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileToggle = document.getElementById('mobileToggle');
+            const mainNav = document.getElementById('mainNav');
+            const overlay = document.getElementById('mobileOverlay');
+            const body = document.body;
+            
+            let isMenuOpen = false;
+            
+            console.log('Mobile menu elements initialized:', {
+                mobileToggle: !!mobileToggle,
+                mainNav: !!mainNav,
+                overlay: !!overlay,
+                mobileThemeToggle: !!mobileThemeToggle
+            });
+            
+            // 모바일 환경에서만 메뉴 구조 개선
+            function initMobileMenu() {
+                if (window.innerWidth <= 768 && mainNav) {
+                    // 메뉴 헤더 추가 (중복 생성 방지)
+                    if (!mainNav.querySelector('.nav-header')) {
+                        const navHeader = document.createElement('div');
+                        navHeader.className = 'nav-header';
+                        navHeader.innerHTML = '<h3>메뉴</h3>';
+                        mainNav.insertBefore(navHeader, mainNav.firstChild);
+                    }
+                    
+                    // 각 메뉴 링크에 적절한 아이콘 추가
+                    const menuLinks = mainNav.querySelectorAll('ul a');
+                    const menuIcons = {
+                        '블로그': 'fas fa-blog',
+                        '시뮬레이션': 'fas fa-atom',
+                        '소개': 'fas fa-info-circle'
+                    };
+                    
+                    menuLinks.forEach(link => {
+                        const text = link.textContent.trim();
+                        if (menuIcons[text] && !link.querySelector('i')) {
+                            link.innerHTML = `<i class="${menuIcons[text]}" style="margin-right: 0.5rem;"></i> ${text}`;
+                        }
+                    });
+                }
+            }
+            
+            // 메뉴 열기 함수
+            function openMenu() {
+                console.log('Opening mobile menu...');
+                isMenuOpen = true;
+                
+                // 시각적 상태 변경
+                if (mainNav) mainNav.classList.add('active');
+                if (mobileToggle) mobileToggle.classList.add('active');
+                if (overlay) overlay.classList.add('active');
+                if (body) body.classList.add('nav-open');
+                
+                // 배경 스크롤 완전 차단
+                const scrollY = window.scrollY;
+                body.style.overflow = 'hidden';
+                body.style.position = 'fixed';
+                body.style.top = `-${scrollY}px`;
+                body.style.width = '100%';
+                body.setAttribute('data-scroll-y', scrollY);
+            }
+            
+            // 메뉴 닫기 함수
+            function closeMenu() {
+                console.log('Closing mobile menu...');
+                isMenuOpen = false;
+                
+                // 시각적 상태 복원
+                if (mainNav) mainNav.classList.remove('active');
+                if (mobileToggle) mobileToggle.classList.remove('active');
+                if (overlay) overlay.classList.remove('active');
+                if (body) body.classList.remove('nav-open');
+                
+                // 스크롤 위치 정확히 복원
+                const scrollY = body.getAttribute('data-scroll-y');
+                body.style.overflow = '';
+                body.style.position = '';
+                body.style.top = '';
+                body.style.width = '';
+                
+                if (scrollY) {
+                    window.scrollTo(0, parseInt(scrollY));
+                    body.removeAttribute('data-scroll-y');
+                }
+            }
+            
+            // 메뉴 토글 함수
+            function toggleMenu() {
+                if (isMenuOpen) {
+                    closeMenu();
+                } else {
+                    openMenu();
+                }
+            }
+            
+            // ===== 이벤트 리스너 등록 =====
+            
+            // 햄버거 메뉴 버튼 클릭
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Mobile menu toggle clicked!');
+                    toggleMenu();
+                });
+            }
+            
+            // 오버레이 클릭으로 메뉴 닫기
+            if (overlay) {
+                overlay.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Overlay clicked - closing menu');
+                    closeMenu();
+                });
+            }
+            
+            // 메뉴 링크 클릭 시 자동으로 메뉴 닫기
+            if (mainNav) {
+                const menuLinks = mainNav.querySelectorAll('ul a');
+                menuLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        if (isMenuOpen) {
+                            console.log('Menu link clicked - closing menu');
+                            closeMenu();
+                        }
+                    });
+                });
+            }
+            
+            // ESC 키로 메뉴 닫기 (접근성 향상)
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && isMenuOpen) {
+                    closeMenu();
+                }
+            });
+            
+            // 스와이프 제스처로 메뉴 닫기
+            let startX = 0;
+            let startY = 0;
+            if (mainNav) {
+                mainNav.addEventListener('touchstart', function(e) {
+                    startX = e.touches[0].clientX;
+                    startY = e.touches[0].clientY;
+                });
+                
+                mainNav.addEventListener('touchend', function(e) {
+                    const endX = e.changedTouches[0].clientX;
+                    const endY = e.changedTouches[0].clientY;
+                    const diffX = startX - endX;
+                    const diffY = Math.abs(startY - endY);
+                    
+                    // 오른쪽으로 스와이프할 때만 메뉴 닫기 (수직 움직임이 작을 때)
+                    if (diffX > 50 && diffY < 100) {
+                        closeMenu();
+                    }
+                });
+            }
+            
+            // 화면 크기 변경 감지
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    closeMenu(); // 데스크톱으로 전환 시 메뉴 닫기
+                } else {
+                    initMobileMenu(); // 모바일로 전환 시 메뉴 초기화
+                }
+            });
+            
+            // 터치 이벤트 최적화
+            document.addEventListener('touchmove', function(e) {
+                // 메뉴가 열린 상태에서 배경 스크롤 방지
+                if (isMenuOpen && !e.target.closest('.main-nav')) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+            
+            // 페이지 로드 시 모바일 메뉴 초기화
+            initMobileMenu();
+            
+            console.log('Mobile menu system fully initialized');
+        });
+        
+        // ===== 스크롤에 따른 헤더 애니메이션 =====
+        (function() {
+            const header = document.getElementById('siteHeader');
+            let lastScrollTop = 0;
+            let isScrollingUp = false;
+            let scrollTimer = null;
+            
+            window.addEventListener('scroll', function() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                // 스크롤 방향 감지
+                if (scrollTop > lastScrollTop && scrollTop > 100) {
+                    // 아래로 스크롤 - 헤더 숨기기
+                    if (!header.classList.contains('header-hidden')) {
+                        header.classList.add('header-hidden');
+                    }
+                    isScrollingUp = false;
+                } else {
+                    // 위로 스크롤 - 헤더 보이기
+                    if (header.classList.contains('header-hidden')) {
+                        header.classList.remove('header-hidden');
+                    }
+                    isScrollingUp = true;
+                }
+                
+                // 스크롤 멈춤 감지
+                clearTimeout(scrollTimer);
+                scrollTimer = setTimeout(function() {
+                    // 스크롤이 멈추면 헤더 다시 표시
+                    if (isScrollingUp || scrollTop < 100) {
+                        header.classList.remove('header-hidden');
+                    }
+                }, 300);
+                
+                lastScrollTop = scrollTop;
+            });
+        })();
+        
+        // ===== 페이지 로드 완료 후 실행되는 기능들 =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // 포스트 카드 링크 기능 활성화
+            const postLinks = document.querySelectorAll('.post-card-link');
+            
+            postLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href) {
+                        window.location.href = href;
+                    }
+                });
+                
+                // 태그 클릭 시 이벤트 전파 방지
+                const tagElements = link.querySelectorAll('.post-card-tag');
+                tagElements.forEach(tag => {
+                    tag.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                    });
+                });
+            });
 
-  /* 모바일 다크모드 버튼 표시 */
-  .mobile-theme-toggle {
-    display: flex;
-  }
-
-  /* 기존 데스크톱 테마 토글 숨기기 */
-  .theme-toggle-area {
-    display: none;
-  }
-
-  /* 헤더 컨트롤 영역 조정 */
-  .header-controls {
-    width: auto;
-    gap: var(--spacing-1); /* 간격 줄이기 */
-    display: flex;
-    align-items: center;
-  }
-
-  /* 햨버거 아이콘 애니메이션 */
-  .mobile-toggle:hover {
-    transform: scale(1.1);
-  }
-
-  .mobile-toggle .fa-bars {
-    transition: opacity 0.3s ease, transform 0.3s ease;
-  }
-
-  .mobile-toggle .fa-times {
-    position: absolute;
-    opacity: 0;
-    transform: rotate(180deg);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-  }
-
-  .mobile-toggle.active .fa-bars {
-    opacity: 0;
-    transform: rotate(-180deg);
-  }
-
-  .mobile-toggle.active .fa-times {
-    opacity: 1;
-    transform: rotate(0deg);
-  }
-
-  /* 슬라이드 사이드바 스타일 */
-  .main-nav {
-    position: fixed;
-    top: 0;
-    right: -100%;
-    width: 280px;
-    height: 100vh;
-    background-color: var(--bg-primary);
-    z-index: 1000;
-    overflow-y: auto;
-    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
-    border-left: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .main-nav.active {
-    right: 0;
-  }
-
-  /* 메뉴 헤더 */
-  .nav-header {
-    padding: var(--spacing-6) var(--spacing-4);
-    border-bottom: 1px solid var(--border-color);
-    background-color: var(--bg-secondary);
-    flex-shrink: 0;
-  }
-
-  .nav-header h3 {
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    width: 100%;
-  }
-
-  /* 메뉴 리스트 */
-  .main-nav ul {
-    flex-direction: column;
-    gap: 0;
-    padding: var(--spacing-4) 0;
-    margin: 0;
-    width: 100%;
-    flex: 1;
-    justify-content: flex-start;
-    height: auto;
-  }
-
-  .main-nav li {
-    height: auto;
-    width: 100%;
-    display: block;
-  }
-
-  .main-nav a {
-    display: flex;
-    align-items: center;
-    padding: var(--spacing-4) var(--spacing-5);
-    height: 56px;
-    font-size: 1.1rem;
-    font-weight: 500;
-    border-radius: 0;
-    margin: 0;
-    transition: all 0.2s ease;
-    position: relative;
-    justify-content: flex-start;
-    width: 100%;
-  }
-
-  .main-nav a::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background-color: var(--github-accent);
-    transform: scaleY(0);
-    transition: transform 0.2s ease;
-  }
-
-  .main-nav a:hover {
-    background-color: var(--bg-tertiary);
-    padding-left: calc(var(--spacing-5) + 8px);
-  }
-
-  .main-nav a:hover::before {
-    transform: scaleY(1);
-  }
-
-  .main-nav a.active::before {
-    transform: scaleY(1);
-  }
-
-  .main-nav a.active::after {
-    display: none;
-  }
-
-  /* 메뉴 하단 영역 개선 */
-  .nav-footer {
-    padding: var(--spacing-4);
-    border-top: 1px solid var(--border-color);
-    background-color: var(--bg-secondary);
-    flex-shrink: 0;
-  }
-
-  .nav-footer .theme-toggle {
-    width: 100%;
-    justify-content: flex-start;
-    padding: var(--spacing-3) var(--spacing-4);
-    font-size: 1rem;
-    background-color: var(--bg-tertiary);
-    border-radius: 6px;
-    gap: var(--spacing-3);
-    height: 48px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-  }
-
-  .nav-footer .theme-toggle:hover {
-    background-color: var(--github-accent);
-    color: white;
-    transform: translateY(-2px);
-  }
-
-  /* 네비게이션 사이드바에서는 다크모드 버튼 숨기기 (헤더에 있으니까) */
-  .nav-footer {
-    display: none;
-  }
-
-  /* 기존 검색 숨기기 */
-  .nav-search {
-    display: none;
-  }
-
-  /* 로고 영역 조정 */
-  .logo-area {
-    padding: 0 var(--spacing-2);
-    width: auto;
-    flex: 1;
-  }
-
-  .site-name {
-    font-size: 16px;
-  }
-
-  /* 모바일 푸터 최적화 */
-  .footer-content {
-    flex-direction: column;
-    gap: var(--spacing-4);
-    text-align: center;
-  }
-
-  .footer-links {
-    justify-content: center;
-  }
-
-  .footer-info {
-    flex-direction: row;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .footer-logo {
-    margin-left: var(--spacing-2);
-  }
-
-  .footer-logo img {
-    height: 20px;
-  }
-
-  /* 터치 영역 최적화 */
-  .footer-links a,
-  .tag-item,
-  .btn,
-  .mobile-theme-toggle,
-  .mobile-toggle {
-    min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* 모바일에서 섹션 간격 최적화 */
-  .blog-section, 
-  .simulation-section,
-  .content-section {
-    margin: var(--spacing-8) 0;
-  }
-
-  /* 모바일에서의 콘텐츠 패딩 최적화 */
-  main .container {
-    padding: var(--spacing-6) var(--spacing-4);
-  }
-}
-
-/* ===== 다크모드 호환 ===== */
-html.dark-theme .main-nav {
-  background-color: var(--bg-primary);
-  border-left-color: var(--border-color);
-}
-
-html.dark-theme .nav-header {
-  background-color: var(--bg-secondary);
-}
-
-html.dark-theme .nav-footer {
-  background-color: var(--bg-secondary);
-}
-
-/* ===== 부드러운 애니메이션 효과 ===== */
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-.main-nav.active {
-  animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ===== 스크롤 방지 (메뉴 열린 상태) ===== */
-body.nav-open {
-  overflow: hidden;
-  position: fixed;
-  width: 100%;
-}
-
-/* ===== 접근성 개선 ===== */
-.main-nav a:focus-visible {
-  outline: 2px solid var(--github-accent);
-  outline-offset: -2px;
-}
-
-.mobile-toggle:focus-visible,
-.mobile-theme-toggle:focus-visible {
-  outline: 2px solid var(--github-accent);
-  outline-offset: 2px;
-}
+            // 더보기 링크 기능 활성화
+            const moreLinks = document.querySelectorAll('.more-link');
+            moreLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href) {
+                        window.location.href = href;
+                    }
+                });
+            });
+            
+            // 초기 테마 색상 적용
+            applyThemeColors();
+            
+            console.log('All page scripts loaded and initialized successfully');
+        });
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
