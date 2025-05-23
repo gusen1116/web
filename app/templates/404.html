@@ -1,0 +1,677 @@
+{% extends "base.html" %}
+
+{% block title %}페이지를 찾을 수 없습니다 - 와구센{% endblock %}
+
+{% block head %}
+<style>
+  /* 404 페이지 - 세로 이미지 최적화 디자인 */
+  .error-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* 배경 그라디언트 효과 */
+  .error-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 30%, rgba(9, 105, 218, 0.08) 0%, transparent 60%),
+      radial-gradient(circle at 80% 70%, rgba(255, 107, 107, 0.06) 0%, transparent 60%),
+      radial-gradient(circle at 40% 80%, rgba(76, 201, 240, 0.05) 0%, transparent 60%);
+    animation: backgroundFloat 25s ease-in-out infinite;
+    z-index: -1;
+  }
+  
+  @keyframes backgroundFloat {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(-20px, -10px) rotate(90deg); }
+    50% { transform: translate(10px, -20px) rotate(180deg); }
+    75% { transform: translate(-10px, 10px) rotate(270deg); }
+  }
+  
+  .error-container {
+    max-width: 1200px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 4rem;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* 왼쪽 콘텐츠 영역 */
+  .error-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem 0;
+  }
+  
+  .error-code {
+    font-size: 8rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #0969da 0%, #1f6feb 50%, #4493f8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+    font-family: var(--font-sans);
+    letter-spacing: -0.05em;
+    line-height: 0.9;
+    animation: pulse 3s ease-in-out infinite;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .error-code:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 20px rgba(9, 105, 218, 0.4));
+  }
+  
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+  }
+  
+  .error-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    font-family: var(--font-sans);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  
+  .error-description {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+    font-family: var(--font-sans);
+    max-width: 500px;
+  }
+  
+  .error-suggestions {
+    margin-bottom: 3rem;
+  }
+  
+  .suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem 1.5rem;
+    background: rgba(9, 105, 218, 0.05);
+    border: 1px solid rgba(9, 105, 218, 0.1);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .suggestion-item:hover {
+    background: rgba(9, 105, 218, 0.1);
+    transform: translateX(8px);
+    border-color: rgba(9, 105, 218, 0.2);
+  }
+  
+  .suggestion-icon {
+    font-size: 1.5rem;
+    color: var(--github-accent);
+    min-width: 24px;
+  }
+  
+  .suggestion-text {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    font-family: var(--font-sans);
+  }
+  
+  .error-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .error-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    font-family: var(--font-sans);
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    justify-content: flex-start;
+  }
+  
+  .error-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.6s;
+  }
+  
+  .error-btn:hover::before {
+    left: 100%;
+  }
+  
+  .error-btn-primary {
+    background: linear-gradient(135deg, #0969da, #1f6feb);
+    color: white;
+    box-shadow: 0 4px 16px rgba(9, 105, 218, 0.3);
+  }
+  
+  .error-btn-primary:hover {
+    background: linear-gradient(135deg, #0860C9, #1a5feb);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(9, 105, 218, 0.4);
+    text-decoration: none;
+    color: white;
+  }
+  
+  .error-btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .error-btn-secondary:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    color: var(--text-primary);
+    border-color: var(--github-accent);
+  }
+  
+  .error-btn-fun {
+    background: linear-gradient(135deg, #ff6b6b, #4ecdc4);
+    color: white;
+    box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
+    position: relative;
+  }
+  
+  .error-btn-fun:hover {
+    background: linear-gradient(135deg, #ff5252, #26c6da);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(255, 107, 107, 0.4);
+    text-decoration: none;
+    color: white;
+  }
+  
+  /* 우측 이미지 영역 */
+  .error-image-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  
+  .error-image-container {
+    position: relative;
+    width: 100%;
+    max-width: 350px;
+  }
+  
+  .error-image-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3/4; /* 3000x4000 비율 유지 */
+    background: linear-gradient(145deg, var(--bg-secondary), rgba(255, 255, 255, 0.9));
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 1.5rem;
+    box-shadow: 
+      0 20px 40px rgba(0, 0, 0, 0.1),
+      0 8px 16px rgba(0, 0, 0, 0.05),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    cursor: pointer;
+  }
+  
+  .error-image-frame:hover {
+    transform: translateY(-12px) rotateY(5deg) rotateX(5deg);
+    box-shadow: 
+      0 30px 60px rgba(0, 0, 0, 0.15),
+      0 12px 24px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+  
+  .error-image {
+    width: 100%;
+    aspect-ratio: 3/4; /* 3000x4000 비율 완벽 유지 */
+    object-fit: cover;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    background: linear-gradient(45deg, #f8f9fa, #ffffff);
+  }
+  
+  .error-image:hover {
+    transform: scale(1.02);
+  }
+  
+  /* 이미지 장식 효과 */
+  .error-image-frame::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(45deg, #0969da, #1f6feb, #4493f8, #0969da);
+    border-radius: 27px;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  
+  .error-image-frame:hover::after {
+    opacity: 0.4;
+  }
+  
+  .image-caption {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 1rem;
+    color: var(--text-tertiary);
+    font-style: italic;
+    font-family: var(--font-sans);
+  }
+  
+  /* 플로팅 요소들 */
+  .floating-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  .floating-shape {
+    position: absolute;
+    opacity: 0.1;
+    animation: floatAround 15s linear infinite;
+  }
+  
+  .floating-shape:nth-child(1) {
+    top: 10%;
+    left: 5%;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(45deg, #0969da, #4493f8);
+    border-radius: 50%;
+    animation-delay: 0s;
+  }
+  
+  .floating-shape:nth-child(2) {
+    top: 70%;
+    right: 10%;
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+    border-radius: 20%;
+    animation-delay: 5s;
+  }
+  
+  .floating-shape:nth-child(3) {
+    top: 30%;
+    right: 20%;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+    border-radius: 50%;
+    animation-delay: 10s;
+  }
+  
+  @keyframes floatAround {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(30px, -20px) rotate(90deg); }
+    50% { transform: translate(-20px, -40px) rotate(180deg); }
+    75% { transform: translate(-40px, 20px) rotate(270deg); }
+    100% { transform: translate(0, 0) rotate(360deg); }
+  }
+  
+  /* 반응형 디자인 */
+  @media (max-width: 1024px) {
+    .error-container {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+      text-align: center;
+    }
+    
+    .error-content {
+      order: 2;
+    }
+    
+    .error-image-area {
+      order: 1;
+    }
+    
+    .error-image-container {
+      max-width: 280px;
+    }
+    
+    .error-code {
+      font-size: 6rem;
+    }
+    
+    .error-title {
+      font-size: 2.5rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .error-page {
+      padding: 1.5rem 1rem;
+    }
+    
+    .error-container {
+      gap: 2rem;
+    }
+    
+    .error-code {
+      font-size: 4.5rem;
+    }
+    
+    .error-title {
+      font-size: 2rem;
+    }
+    
+    .error-description {
+      font-size: 1.1rem;
+    }
+    
+    .error-image-container {
+      max-width: 240px;
+    }
+    
+    .error-actions {
+      align-items: center;
+    }
+    
+    .error-btn {
+      width: 100%;
+      max-width: 320px;
+      justify-content: center;
+    }
+    
+    .suggestion-item {
+      padding: 0.8rem 1.2rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .error-page {
+      padding: 1rem 0.75rem;
+    }
+    
+    .error-code {
+      font-size: 3.5rem;
+    }
+    
+    .error-title {
+      font-size: 1.75rem;
+    }
+    
+    .error-image-container {
+      max-width: 200px;
+    }
+    
+    .error-image-frame {
+      padding: 1rem;
+    }
+  }
+  
+  /* 다크모드 최적화 */
+  html.dark-theme .error-image-frame {
+    background: linear-gradient(145deg, var(--bg-secondary), rgba(33, 38, 45, 0.9));
+    border-color: var(--border-color);
+  }
+  
+  html.dark-theme .error-image {
+    background: linear-gradient(45deg, #161b22, #21262d);
+  }
+  
+  html.dark-theme .suggestion-item {
+    background: rgba(88, 166, 255, 0.1);
+    border-color: rgba(88, 166, 255, 0.2);
+  }
+  
+  html.dark-theme .suggestion-item:hover {
+    background: rgba(88, 166, 255, 0.15);
+    border-color: rgba(88, 166, 255, 0.3);
+  }
+  
+  html.dark-theme .error-btn-secondary {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+  }
+  
+  html.dark-theme .error-btn-secondary:hover {
+    background-color: rgba(48, 54, 61, 0.8);
+    border-color: #58a6ff;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-page">
+  <!-- 플로팅 장식 요소들 -->
+  <div class="floating-elements">
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+  </div>
+  
+  <div class="error-container">
+    <!-- 왼쪽: 텍스트 콘텐츠 -->
+    <div class="error-content">
+      <div class="error-code">404</div>
+      <h1 class="error-title">페이지를 찾을 수 없습니다</h1>
+      <p class="error-description">
+        요청하신 페이지가 존재하지 않거나 이동되었을 수 있습니다. URL을 확인하시거나 아래 방법들을 시도해보세요.
+      </p>
+      
+      <!-- 재미있는 제안들 -->
+      <div class="error-suggestions">
+        <div class="suggestion-item">
+          <div class="suggestion-icon">🐱</div>
+          <div class="suggestion-text">아래 고양이를 보거나 다시 생각하세요</div>
+        </div>
+        <div class="suggestion-item">
+          <div class="suggestion-icon">⚽</div>
+          <div class="suggestion-text">아래 공 움직이는거 보실래요?</div>
+        </div>
+      </div>
+      
+      <!-- 액션 버튼들 -->
+      <div class="error-actions">
+        <a href="{{ url_for('main.index') }}" class="error-btn error-btn-primary">
+          <i class="fas fa-home"></i>
+          <span>홈으로 돌아가기</span>
+        </a>
+        
+        <a href="{{ url_for('posts.index') }}" class="error-btn error-btn-secondary">
+          <i class="fas fa-blog"></i>
+          <span>블로그 보기</span>
+        </a>
+        
+        <a href="{{ url_for('simulation.index') }}" class="error-btn error-btn-fun">
+          <i class="fas fa-atom"></i>
+          <span>공 움직이는거 보러가기</span>
+        </a>
+      </div>
+    </div>
+    
+    <!-- 우측: 이미지 영역 -->
+    <div class="error-image-area">
+      <div class="error-image-container">
+        <div class="error-image-frame">
+          <img src="{{ url_for('static', filename='img/404.png') }}" alt="404 에러 이미지" class="error-image">
+        </div>
+        <div class="image-caption">구센이가 길을 잃었어요...</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// 404 페이지 고도화된 인터랙션
+document.addEventListener('DOMContentLoaded', function() {
+    // 이미지 클릭 시 회전 효과
+    const errorImage = document.querySelector('.error-image');
+    const errorImageFrame = document.querySelector('.error-image-frame');
+    const errorCode = document.querySelector('.error-code');
+    
+    if (errorImage && errorImageFrame) {
+        errorImageFrame.addEventListener('click', function() {
+            // 3D 회전 효과
+            this.style.transform = 'translateY(-12px) rotateY(360deg) scale(1.05)';
+            this.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            
+            setTimeout(() => {
+                this.style.transform = 'translateY(-12px) rotateY(5deg) rotateX(5deg)';
+                this.style.transition = 'all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            }, 800);
+        });
+    }
+    
+    // 404 숫자 클릭 시 그라디언트 변경
+    if (errorCode) {
+        const gradients = [
+            'linear-gradient(135deg, #ff6b6b, #4ecdc4)',
+            'linear-gradient(135deg, #667eea, #764ba2)',
+            'linear-gradient(135deg, #f093fb, #f5576c)',
+            'linear-gradient(135deg, #4facfe, #00f2fe)',
+            'linear-gradient(135deg, #43e97b, #38f9d7)',
+            'linear-gradient(135deg, #fa709a, #fee140)',
+            'linear-gradient(135deg, #0969da, #1f6feb, #4493f8)' // 원래 색상
+        ];
+        let currentGradient = 0;
+        
+        errorCode.addEventListener('click', function() {
+            currentGradient = (currentGradient + 1) % gradients.length;
+            this.style.background = gradients[currentGradient];
+            this.style.webkitBackgroundClip = 'text';
+            this.style.backgroundClip = 'text';
+            
+            // 클릭 효과
+            this.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+            }, 200);
+        });
+    }
+    
+    // 제안 아이템 클릭 효과
+    const suggestionItems = document.querySelectorAll('.suggestion-item');
+    suggestionItems.forEach(item => {
+        item.addEventListener('click', function() {
+            this.style.transform = 'translateX(8px) scale(1.02)';
+            setTimeout(() => {
+                this.style.transform = 'translateX(8px)';
+            }, 150);
+        });
+    });
+    
+    // 버튼 인터랙션 강화
+    const buttons = document.querySelectorAll('.error-btn');
+    buttons.forEach(button => {
+        const icon = button.querySelector('i');
+        
+        button.addEventListener('mouseenter', function() {
+            if (icon) {
+                icon.style.transform = 'scale(1.2) rotate(12deg)';
+                icon.style.transition = 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            }
+        });
+        
+        button.addEventListener('mouseleave', function() {
+            if (icon) {
+                icon.style.transform = 'scale(1) rotate(0deg)';
+            }
+        });
+        
+        // 클릭 효과
+        button.addEventListener('click', function(e) {
+            const ripple = document.createElement('div');
+            ripple.style.cssText = `
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.6);
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                pointer-events: none;
+            `;
+            
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = `${size}px`;
+            ripple.style.left = `${e.clientX - rect.left - size / 2}px`;
+            ripple.style.top = `${e.clientY - rect.top - size / 2}px`;
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+    
+    // CSS 애니메이션 추가
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes ripple {
+            to {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // 마우스 움직임에 따른 이미지 기울기 효과
+    if (errorImageFrame) {
+        document.addEventListener('mousemove', function(e) {
+            const rect = errorImageFrame.getBoundingClientRect();
+            const x = (e.clientX - rect.left - rect.width / 2) / rect.width;
+            const y = (e.clientY - rect.top - rect.height / 2) / rect.height;
+            
+            if (Math.abs(x) < 0.5 && Math.abs(y) < 0.5) {
+                const rotateY = x * 20;
+                const rotateX = -y * 20;
+                errorImageFrame.style.transform = `translateY(-12px) rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}  

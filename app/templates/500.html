@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}서버 오류 - 와구센{% endblock %}
+
+{% block head %}
+<style>
+  /* 500 페이지는 404와 동일한 스타일 사용 */
+  .error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    padding: 2rem 1rem;
+  }
+  
+  .error-code {
+    font-size: 4rem;
+    font-weight: 800;
+    color: #cf222e; /* 서버 에러는 빨간색으로 */
+    margin-bottom: 1rem;
+    font-family: var(--font-sans);
+    letter-spacing: -0.02em;
+  }
+  
+  .error-image-frame {
+    position: relative;
+    display: inline-block;
+    margin: 2rem 0;
+    padding: 1rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .error-image-frame:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .error-image {
+    max-width: 300px;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+  }
+  
+  .error-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    font-family: var(--font-sans);
+  }
+  
+  .error-description {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    max-width: 500px;
+    line-height: 1.6;
+    font-family: var(--font-sans);
+  }
+  
+  .error-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 2rem;
+  }
+  
+  .error-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-family: var(--font-sans);
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .error-btn-primary {
+    background-color: var(--github-accent);
+    color: white;
+  }
+  
+  .error-btn-primary:hover {
+    background-color: #0860C9;
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: white;
+  }
+  
+  .error-btn-secondary {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+  }
+  
+  .error-btn-secondary:hover {
+    background-color: var(--neutral-200);
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: var(--text-primary);
+  }
+  
+  /* 반응형 디자인 */
+  @media (max-width: 768px) {
+    .error-code {
+      font-size: 3rem;
+    }
+    
+    .error-title {
+      font-size: 1.5rem;
+    }
+    
+    .error-description {
+      font-size: 1rem;
+    }
+    
+    .error-image {
+      max-width: 250px;
+    }
+    
+    .error-actions {
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .error-btn {
+      width: 100%;
+      max-width: 280px;
+      justify-content: center;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .error-container {
+      padding: 1rem 0.5rem;
+    }
+    
+    .error-image {
+      max-width: 200px;
+    }
+    
+    .error-image-frame {
+      margin: 1.5rem 0;
+      padding: 0.75rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+  <!-- 500 숫자 -->
+  <div class="error-code">500</div>
+  
+  <!-- 페이지 제목 -->
+  <h1 class="error-title">서버에 문제가 발생했습니다</h1>
+  
+  <!-- 설명 -->
+  <p class="error-description">
+    죄송합니다. 서버에서 예상치 못한 오류가 발생했습니다.<br>
+    잠시 후 다시 시도해주시거나 관리자에게 문의해주세요.
+  </p>
+  
+  <!-- 404 이미지 재사용 (서버 에러에도 동일한 이미지 사용) -->
+  <div class="error-image-frame">
+    <img src="{{ url_for('static', filename='img/404.png') }}" alt="서버 에러 이미지" class="error-image">
+  </div>
+  
+  <!-- 위로 제안 -->
+  <p style="color: var(--text-tertiary); margin-bottom: 1rem; font-family: var(--font-sans);">
+    구센이도 당황했어요... 😅
+  </p>
+  
+  <!-- 액션 버튼들 -->
+  <div class="error-actions">
+    <a href="{{ url_for('main.index') }}" class="error-btn error-btn-primary">
+      <i class="fas fa-home"></i>
+      홈으로 돌아가기
+    </a>
+    
+    <button onclick="window.location.reload()" class="error-btn error-btn-secondary">
+      <i class="fas fa-redo"></i>
+      새로고침
+    </button>
+    
+    <a href="mailto:gusen@wagusen.com" class="error-btn error-btn-secondary">
+      <i class="fas fa-envelope"></i>
+      문제 신고하기
+    </a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 500 에러 시 자동 새로고침 (10초 후)
+    let countdown = 10;
+    const countdownElement = document.createElement('div');
+    countdownElement.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        padding: 1rem;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        box-shadow: var(--shadow-md);
+    `;
+    
+    function updateCountdown() {
+        countdownElement.textContent = `${countdown}초 후 자동 새로고침`;
+        countdown--;
+        
+        if (countdown < 0) {
+            window.location.reload();
+        }
+    }
+    
+    // 자동 새로고침 카운트다운 (선택사항)
+    // document.body.appendChild(countdownElement);
+    // updateCountdown();
+    // setInterval(updateCountdown, 1000);
+});
+</script>
+{% endblock %}

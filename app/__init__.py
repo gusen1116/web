@@ -1,5 +1,5 @@
 # app/__init__.py
-from flask import Flask
+from flask import Flask, render_template
 from flask_wtf.csrf import CSRFProtect
 import os
 from app.config import Config
@@ -50,5 +50,40 @@ def create_app(config_object=None):
     os.makedirs(images_dir, exist_ok=True)
     os.makedirs(videos_dir, exist_ok=True)
     os.makedirs(audios_dir, exist_ok=True)
+    
+    # ===== 에러 핸들러 등록 =====
+    
+    @app.errorhandler(404)
+    def not_found_error(error):
+        """404 에러 처리"""
+        return render_template('404.html'), 404
+    
+    @app.errorhandler(500)
+    def internal_error(error):
+        """500 에러 처리"""
+        return render_template('500.html'), 500
+    
+    @app.errorhandler(403)
+    def forbidden_error(error):
+        """403 에러 처리"""
+        return render_template('403.html'), 403
+    
+    # 개발 환경에서 에러 로깅
+    if not app.debug:
+        # 프로덕션 환경에서만 로깅
+        import logging
+        from logging.handlers import RotatingFileHandler
+        
+        if not os.path.exists('logs'):
+            os.mkdir('logs')
+        
+        file_handler = RotatingFileHandler('logs/wagusen.log', maxBytes=10240, backupCount=10)
+        file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+        ))
+        file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+        app.logger.setLevel(logging.INFO)
+        app.logger.info('와구센 애플리케이션 시작')
     
     return app
