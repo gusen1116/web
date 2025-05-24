@@ -6,29 +6,31 @@
 <!-- 코드 하이라이팅 추가 -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/line-numbers/prism-line-numbers.min.css">
-<!-- 소셜 미디어 임베드 스타일 추가 -->
-<link rel="stylesheet" href="{{ url_for('static', filename='css/media-elements.css') }}">
-<!-- 추가 스타일 -->
-<style>
-  /* 조절된 줄바꿈 스타일 */
-  .compact-break {
-    display: block;
-    content: "";
-    margin-top: 0.2em;
-    line-height: 1;
-  }
-  
-  .compact-text {
-    line-height: 203%;
-  }
-</style>
+<!-- 개선된 링크 스타일 추가 -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-links.css') }}">
+<!-- 미디어 요소 스타일 -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-content.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/social-embed.css') }}">
 {% endblock %}
 
 {% block content %}
 <article class="post-detail">
     <header class="post-header">
+        <!-- 메인 제목 -->
         <h1 class="post-title">{{ post.title }}</h1>
         
+        <!-- 부제목/설명 - 제목 바로 아래 위치 -->
+        {% if post.subtitle %}
+        <div class="post-subtitle">
+            {{ post.subtitle }}
+        </div>
+        {% elif post.description %}
+        <div class="post-description-header">
+            {{ post.description }}
+        </div>
+        {% endif %}
+        
+        <!-- 메타 정보 -->
         <div class="post-meta-container">
             <div class="post-date">
                 <i class="far fa-calendar-alt"></i>
@@ -37,7 +39,13 @@
             
             <div class="post-author">
                 <i class="far fa-user"></i>
-                <a href="#" title="작성자 프로필">{{ post.author }}</a>
+                <span>{{ post.author }}</span>
+            </div>
+            
+            <!-- 글자 수 정보 추가 -->
+            <div class="post-word-count">
+                <i class="fas fa-file-alt"></i>
+                약 {{ post.get_word_count() }}단어
             </div>
             
             {% if post.tags %}
@@ -50,22 +58,26 @@
             </div>
             {% endif %}
         </div>
-        
-        {% if post.description %}
-            <div class="post-description">
-                {{ post.description }}
-            </div>
-        {% endif %}
     </header>
     
     {% if post.series %}
     <!-- 시리즈 정보 표시 -->
     <div class="series-box">
-        <div class="series-title">{{ post.series }} {% if post.series_part %}(파트 {{ post.series_part }}){% endif %}</div>
-        <div class="series-info">이 글은 {{ post.series }} 시리즈의 일부입니다.</div>
+        <div class="series-title">
+            <i class="fas fa-list-ol"></i>
+            {{ post.series }} 
+            {% if post.series_part %}(파트 {{ post.series_part }}){% endif %}
+        </div>
+        <div class="series-info">
+            이 글은 <strong>{{ post.series }}</strong> 시리즈의 일부입니다.
+            <a href="{{ url_for('posts.view_series', series_name=post.series) }}" class="series-link">
+                시리즈 전체 보기 →
+            </a>
+        </div>
     </div>
     {% endif %}
     
+    <!-- 본문 내용 -->
     <div class="post-content compact-text">
         {{ rendered_content|safe }}
     </div>
@@ -73,7 +85,7 @@
     {% if post.changelog and post.changelog|length > 0 %}
     <!-- 수정 이력 표시 -->
     <div class="changelog-box">
-        <h4>수정 이력</h4>
+        <h4><i class="fas fa-history"></i> 수정 이력</h4>
         <ul class="changelog-list">
             {% for change in post.changelog %}
             <li>{{ change }}</li>
@@ -83,51 +95,82 @@
     {% endif %}
 </article>
 
+<!-- 관련 포스트 (같은 시리즈 또는 태그) -->
+{% if series_posts %}
+<section class="related-posts-section">
+    <h3 class="related-posts-title">
+        <i class="fas fa-list-alt"></i>
+        같은 시리즈의 다른 글
+    </h3>
+    <div class="related-posts-grid">
+        {% for related_post in series_posts[:3] %}
+        <a href="{{ url_for('posts.view_by_slug', slug=related_post.id) }}" class="related-post-card">
+            <h4>{{ related_post.title }}</h4>
+            <div class="related-post-meta">
+                <span class="date">{{ related_post.date.strftime('%Y.%m.%d') }}</span>
+                {% if related_post.series_part %}
+                <span class="part">파트 {{ related_post.series_part }}</span>
+                {% endif %}
+            </div>
+            <div class="related-post-preview">{{ related_post.get_preview(80) }}</div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
 <!-- 간결한 이전글/다음글 네비게이션 -->
 <nav class="post-nav-simple">
     <div class="post-nav-container">
         {% if prev_post %}
         <a href="{{ url_for('posts.view_by_slug', slug=prev_post.id) }}" class="post-nav-link prev">
             <span class="post-nav-icon"><i class="fas fa-chevron-left"></i></span>
-            <span class="post-nav-text">이전 글</span>
+            <div class="post-nav-info">
+                <span class="post-nav-label">이전 글</span>
+                <span class="post-nav-title">{{ prev_post.title[:30] }}{% if prev_post.title|length > 30 %}...{% endif %}</span>
+            </div>
         </a>
         {% else %}
-        <span class="post-nav-link prev disabled">
+        <div class="post-nav-link prev disabled">
             <span class="post-nav-icon"><i class="fas fa-chevron-left"></i></span>
-            <span class="post-nav-text">이전 글이 없습니다</span>
-        </span>
+            <div class="post-nav-info">
+                <span class="post-nav-label">이전 글이 없습니다</span>
+            </div>
+        </div>
         {% endif %}
 
         {% if next_post %}
         <a href="{{ url_for('posts.view_by_slug', slug=next_post.id) }}" class="post-nav-link next">
-            <span class="post-nav-text">다음 글</span>
+            <div class="post-nav-info">
+                <span class="post-nav-label">다음 글</span>
+                <span class="post-nav-title">{{ next_post.title[:30] }}{% if next_post.title|length > 30 %}...{% endif %}</span>
+            </div>
             <span class="post-nav-icon"><i class="fas fa-chevron-right"></i></span>
         </a>
         {% else %}
-        <span class="post-nav-link next disabled">
-            <span class="post-nav-text">다음 글이 없습니다</span>
+        <div class="post-nav-link next disabled">
+            <div class="post-nav-info">
+                <span class="post-nav-label">다음 글이 없습니다</span>
+            </div>
             <span class="post-nav-icon"><i class="fas fa-chevron-right"></i></span>
-        </span>
+        </div>
         {% endif %}
     </div>
-
-    {% if next_post %}
-    <div class="post-nav-details">
-        <a href="{{ url_for('posts.view_by_slug', slug=next_post.id) }}" class="post-nav-detail-link">
-            <span class="post-nav-detail-title">{{ next_post.title }}</span>
-            <span class="post-nav-detail-date">{{ next_post.date.strftime('%Y년 %m월 %d일') }}</span>
-            <span class="post-nav-arrow"><i class="fas fa-long-arrow-alt-right"></i></span>
-        </a>
-    </div>
-    {% endif %}
 </nav>
+
+<!-- 블로그 홈으로 돌아가기 버튼 -->
+<div class="post-actions">
+    <a href="{{ url_for('posts.index') }}" class="btn-link back-to-blog">
+        <i class="fas fa-arrow-left"></i>
+        블로그 홈으로 돌아가기
+    </a>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
 
-<!-- 포스트 내 미디어 요소 처리 스크립트 -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // 1. 코드 블록 강조
@@ -137,10 +180,16 @@ document.addEventListener('DOMContentLoaded', function() {
         Prism.highlightElement(block);
     });
     
-    // 2. 미디어 에러 처리
+    // 2. 외부 링크에 target="_blank" 추가
+    const externalLinks = document.querySelectorAll('.post-content a[href^="http"]:not([href*="wagusen.com"]):not([href*="localhost"])');
+    externalLinks.forEach(link => {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+    });
+    
+    // 3. 미디어 오류 처리
     function setupMediaErrorHandling() {
-        // 이미지 오류 처리
-        const images = document.querySelectorAll('.post-image img');
+        const images = document.querySelectorAll('.post-content img');
         images.forEach(img => {
             img.onerror = function() {
                 if (!this.hasAttribute('data-error-handled')) {
@@ -154,8 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         });
         
-        // 비디오 오류 처리
-        const videos = document.querySelectorAll('.video-embed video');
+        const videos = document.querySelectorAll('.post-content video');
         videos.forEach(video => {
             video.onerror = function() {
                 if (!this.hasAttribute('data-error-handled')) {
@@ -169,11 +217,10 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         });
         
-        // 오디오 오류 처리
-        const audios = document.querySelectorAll('.audio-embed audio');
+        const audios = document.querySelectorAll('.post-content audio');
         audios.forEach(audio => {
             audio.onerror = function() {
-                if (!this.hasAttribute('data-error-handled')) {
+                if (!this.hasAttribute('data-error-handled') ) {
                     this.style.display = 'none';
                     const errorMsg = document.createElement('div');
                     errorMsg.className = 'error-embed';
@@ -185,32 +232,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 3. 유튜브 임베드 처리
-    function checkYouTubeEmbeds() {
-        const content = document.querySelector('.post-content');
-        if (!content) return;
-        
-        // "YOUTUBE_EMBED_0" 패턴 찾아 실제 유튜브 임베드로 교체
-        const embedPattern = /YOUTUBE_EMBED_(\d+)/g;
-        const html = content.innerHTML;
-        
-        if (html.match(embedPattern)) {
-            // 유튜브 임베드 실패한 경우 교체
-            const updatedHtml = html.replace(embedPattern, (match, id) => {
-                return `<div class="social-embed youtube-embed">
-                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
-                    frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                    allowfullscreen></iframe>
-                </div>`;
-            });
-            
-            content.innerHTML = updatedHtml;
-        }
-    }
-    
     // 4. 소셜 미디어 위젯 스크립트 로드
     function loadSocialScripts() {
-        // Twitter 위젯 로딩
         if (document.querySelector('.twitter-embed')) {
             const twitterScript = document.createElement('script');
             twitterScript.src = 'https://platform.twitter.com/widgets.js';
@@ -219,7 +242,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.appendChild(twitterScript);
         }
         
-        // Instagram 위젯 로딩
         if (document.querySelector('.instagram-embed')) {
             const instaScript = document.createElement('script');
             instaScript.src = '//www.instagram.com/embed.js';
@@ -227,7 +249,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.appendChild(instaScript);
         }
         
-        // Facebook 위젯 로딩
         if (document.querySelector('.facebook-embed')) {
             if (!document.getElementById('fb-root')) {
                 const fbRoot = document.createElement('div');
@@ -246,13 +267,30 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 5. 실행
     setupMediaErrorHandling();
-    checkYouTubeEmbeds();
     loadSocialScripts();
     
-    // 페이지 전체 로드 후 한번 더 확인 (비동기 콘텐츠 처리)
+    // 6. 스크롤 진행률 표시 (선택사항)
+    const progressBar = document.createElement('div');
+    progressBar.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 0%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--github-accent), #1f6feb);
+        z-index: 1000;
+        transition: width 0.3s ease;
+    `;
+    document.body.appendChild(progressBar);
+    
+    window.addEventListener('scroll', () => {
+        const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+        progressBar.style.width = Math.min(scrolled, 100) + '%';
+    });
+    
+    // 페이지 전체 로드 후 한번 더 확인
     window.addEventListener('load', function() {
         setupMediaErrorHandling();
-        checkYouTubeEmbeds();
     });
 });
 </script>

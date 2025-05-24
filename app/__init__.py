@@ -34,22 +34,20 @@ def create_app(config_object=None):
     app.register_blueprint(simulation.simulation_bp)
     app.register_blueprint(posts_routes.posts_bp)
     
-    # 기존 폴더 구조 유지 (uploads 폴더를 기본으로 사용)
-    upload_folder = os.path.join(app.instance_path, 'uploads')
-    app.config['UPLOAD_FOLDER'] = upload_folder
-    os.makedirs(upload_folder, exist_ok=True)
+    # ===== 깔끔한 폴더 구조 설정 =====
+    # static 폴더를 기본으로 사용 (instance 폴더 대신)
+    content_folder = os.path.join(app.root_path, 'static', 'content')
+    app.config['CONTENT_FOLDER'] = content_folder
     
-    # 필요한 디렉토리 생성
-    texts_dir = os.path.join(upload_folder, 'texts')
-    images_dir = os.path.join(upload_folder, 'images')
-    videos_dir = os.path.join(upload_folder, 'videos')
-    audios_dir = os.path.join(upload_folder, 'audios')
-    files_dir = os.path.join(upload_folder, 'files')
-    os.makedirs(files_dir, exist_ok=True)
-    os.makedirs(texts_dir, exist_ok=True)
-    os.makedirs(images_dir, exist_ok=True)
-    os.makedirs(videos_dir, exist_ok=True)
-    os.makedirs(audios_dir, exist_ok=True)
+    # 필요한 서브 디렉토리만 생성
+    directories = [
+        os.path.join(content_folder, 'posts'),    # 블로그 포스트
+        os.path.join(content_folder, 'media'),    # 이미지, 비디오, 오디오
+        os.path.join(content_folder, 'files')     # 기타 파일들
+    ]
+    
+    for directory in directories:
+        os.makedirs(directory, exist_ok=True)
     
     # ===== 에러 핸들러 등록 =====
     
