@@ -1,5 +1,5 @@
 /* 
- * slide.css - GitHub 스타일 슬라이드 컨테이너
+ * slide.css - GitHub 스타일 슬라이드 컨테이너 (폭 통일)
  */
 
 /* ===== 슬라이드 컨테이너 ===== */
@@ -18,7 +18,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  max-width: 880px;
+  /* 블로그 포스트 영역과 동일한 최대 폭 사용 */
+  max-width: var(--content-max-width);
   border: 1px solid var(--border-color);
 }
 
@@ -105,13 +106,33 @@ html.dark-theme .slide-container {
 }
 
 /* 반응형 설정 */
-@media (max-width: 880px) {
+@media (max-width: 1200px) {
   .slide-container {
+    /* 중간 화면에서도 동일한 비율로 축소 */
     width: calc(100% - 2rem);
+    margin-left: auto;
+    margin-right: auto;
   }
   
   .slide h2 {
     font-size: 2rem;
+  }
+  
+  .slide p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .slide-container {
+    /* 모바일에서는 전체 폭 사용 (패딩만 적용) */
+    width: 100%;
+    margin: 0 auto 3rem;
+    height: 250px;
+  }
+  
+  .slide h2 {
+    font-size: 1.8rem;
   }
   
   .slide p {

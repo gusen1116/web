@@ -19,11 +19,11 @@ class TextPost:
     """텍스트 파일 기반 포스트 클래스 - 설명 위치 개선"""
     
     def __init__(self, filename, content, metadata=None):
-        # 파일명 검증
+        # 파일명 검증 - 한글 지원을 위해 더 유연하게 수정
         if not isinstance(filename, str) or '..' in filename or '/' in filename or '\\' in filename:
             raise ValueError("잘못된 파일명입니다")
             
-        self.filename = secure_filename(filename)
+        self.filename = filename  # secure_filename 제거하여 한글 파일명 지원
         self.content = content
         self.id = os.path.splitext(self.filename)[0]
         
@@ -55,10 +55,14 @@ class TextPost:
             if 'author' in metadata and isinstance(metadata['author'], str):
                 self.author = escape(metadata['author'])
                 
-            # 슬러그 설정 및 검증
+            # 슬러그 설정 및 검증 - 한글도 지원하도록 수정
             if 'slug' in metadata and isinstance(metadata['slug'], str):
-                clean_slug = secure_filename(metadata['slug'])
-                self.slug = clean_slug if clean_slug else self.id
+                # 위험한 문자만 제거하고 한글은 유지
+                clean_slug = metadata['slug']
+                if not ('..' in clean_slug or '/' in clean_slug or '\\' in clean_slug):
+                    self.slug = clean_slug
+                else:
+                    self.slug = self.id
             else:
                 self.slug = self.id
             
@@ -114,18 +118,11 @@ class TextPost:
         return url_for('posts.view_by_slug', slug=self.id)
 
     def get_preview(self, length=200):
-        """본문 미리보기 생성 - 개선된 버전"""
+        """본문 미리보기 생성 - 항상 본문에서 추출"""
         if not isinstance(length, int) or length <= 0 or length > 1000:
             length = 200
             
-        # 설명이 있으면 설명을 우선 사용
-        if self.description and len(self.description.strip()) > 0:
-            desc = self.description.strip()
-            if len(desc) > length:
-                return desc[:length] + "..."
-            return desc
-            
-        # 설명이 없으면 본문에서 미리보기 생성
+        # 항상 본문에서 미리보기 생성 (description 무시)
         text = self.content
         patterns = [
             r'\[img:[^\]]+\]',
@@ -487,29 +484,35 @@ def _create_facebook_embed(post_url):
 '''
 
 def _safe_image_tag(src, alt=None, base_url='/'):
-    """안전한 이미지 태그 생성"""
+    """안전한 이미지 태그 생성 - 한글 파일명 지원"""
     if not isinstance(src, str) or not src or '..' in src or '/' in src:
         return '<div class="error-embed">잘못된 이미지 경로</div>'
     
-    safe_src = secure_filename(src)
-    safe_alt = escape(alt) if alt else escape(safe_src)
+    # secure_filename 대신 위험한 문자만 체크
+    if any(char in src for char in ['<', '>', '"', "'"]):
+        return '<div class="error-embed">잘못된 이미지 경로</div>'
+    
+    safe_alt = escape(alt) if alt else escape(src)
     
     return f'''
 <figure class="post-image">
-    <img src="{base_url}/{safe_src}" alt="{safe_alt}" class="text-post-image">
+    <img src="{base_url}/{src}" alt="{safe_alt}" class="text-post-image">
     {f'<figcaption>{safe_alt}</figcaption>' if alt else ''}
 </figure>
 '''
 
 def _create_video_embed(video_filename, caption=None, base_url='/'):
-    """비디오 임베드 HTML 생성"""
+    """비디오 임베드 HTML 생성 - 한글 파일명 지원"""
     if not isinstance(video_filename, str) or not video_filename or '..' in video_filename or '/' in video_filename:
         return '<div class="error-embed">잘못된 비디오 파일명</div>'
     
-    safe_filename = secure_filename(video_filename)
-    safe_caption = escape(caption) if caption else escape(safe_filename)
+    # 위험한 문자만 체크
+    if any(char in video_filename for char in ['<', '>', '"', "'"]):
+        return '<div class="error-embed">잘못된 비디오 파일명</div>'
     
-    file_ext = safe_filename.rsplit('.', 1)[1].lower() if '.' in safe_filename else ''
+    safe_caption = escape(caption) if caption else escape(video_filename)
+    
+    file_ext = video_filename.rsplit('.', 1)[1].lower() if '.' in video_filename else ''
     mime_type = {
         'mp4': 'video/mp4',
         'webm': 'video/webm',
@@ -520,7 +523,7 @@ def _create_video_embed(video_filename, caption=None, base_url='/'):
     return f'''
 <div class="video-embed">
     <video controls width="100%">
-        <source src="{base_url}/{safe_filename}" type="{mime_type}">
+        <source src="{base_url}/{video_filename}" type="{mime_type}">
         브라우저가 비디오 재생을 지원하지 않습니다.
     </video>
     {f'<figcaption>{safe_caption}</figcaption>' if caption else ''}
@@ -528,14 +531,17 @@ def _create_video_embed(video_filename, caption=None, base_url='/'):
 '''
 
 def _create_audio_embed(audio_filename, caption=None, base_url='/'):
-    """오디오 임베드 HTML 생성"""
+    """오디오 임베드 HTML 생성 - 한글 파일명 지원"""
     if not isinstance(audio_filename, str) or not audio_filename or '..' in audio_filename or '/' in audio_filename:
         return '<div class="error-embed">잘못된 오디오 파일명</div>'
     
-    safe_filename = secure_filename(audio_filename)
-    safe_caption = escape(caption) if caption else escape(safe_filename)
+    # 위험한 문자만 체크
+    if any(char in audio_filename for char in ['<', '>', '"', "'"]):
+        return '<div class="error-embed">잘못된 오디오 파일명</div>'
     
-    file_ext = safe_filename.rsplit('.', 1)[1].lower() if '.' in safe_filename else ''
+    safe_caption = escape(caption) if caption else escape(audio_filename)
+    
+    file_ext = audio_filename.rsplit('.', 1)[1].lower() if '.' in audio_filename else ''
     mime_type = {
         'mp3': 'audio/mpeg',
         'wav': 'audio/wav',
@@ -547,7 +553,7 @@ def _create_audio_embed(audio_filename, caption=None, base_url='/'):
     return f'''
 <div class="audio-embed">
     <audio controls style="width:100%">
-        <source src="{base_url}/{safe_filename}" type="{mime_type}">
+        <source src="{base_url}/{audio_filename}" type="{mime_type}">
         브라우저가 오디오 재생을 지원하지 않습니다.
     </audio>
     {f'<div class="audio-caption">{safe_caption}</div>' if caption else ''}
@@ -662,41 +668,72 @@ def get_all_text_posts(posts_dir=None, tag=None):
     return posts
 
 def get_text_post(posts_dir, filename):
-    """특정 텍스트 파일 로드하여 TextPost 객체 반환"""
+    """특정 텍스트 파일 로드하여 TextPost 객체 반환 - 한글 파일명 지원"""
+    
+    # 기본 타입 검증
     if not isinstance(posts_dir, str) or not isinstance(filename, str):
         return None
-        
-    if '..' in filename or '/' in filename or '\\' in filename:
+    
+    # 파일명 길이 제한 (너무 긴 파일명 방지)
+    if len(filename) > 255:
         return None
-        
-    safe_filename = secure_filename(filename)
-    if safe_filename != filename:
+    
+    # 경로 조작 방지를 위한 위험한 문자 검사
+    dangerous_patterns = ['..', '/', '\\', '\x00']  # null byte 포함
+    for pattern in dangerous_patterns:
+        if pattern in filename:
+            return None
+    
+    # 숨김 파일 검사 (점으로 시작하는 파일 차단)
+    if filename.startswith('.'):
+        return None
+    
+    # 텍스트 파일만 허용 (.txt 확장자 검증)
+    if not filename.lower().endswith('.txt'):
+        return None
+    
+    # 제어 문자 검사 (ASCII 제어 문자들 차단)
+    if any(ord(char) < 32 for char in filename if ord(char) < 127):
+        return None
+    
+    # 파일명에 인쇄 불가능한 문자가 있는지 검사
+    try:
+        # 파일명이 유효한 유니코드인지 확인
+        filename.encode('utf-8').decode('utf-8')
+    except UnicodeError:
         return None
     
     try:
-        file_path = os.path.join(posts_dir, safe_filename)
+        # 파일 경로 구성
+        file_path = os.path.join(posts_dir, filename)
         abs_path = os.path.abspath(file_path)
         
+        # 경로가 지정된 디렉토리 내부에 있는지 확인 (디렉토리 트래버설 방지)
         if not abs_path.startswith(os.path.abspath(posts_dir)):
             return None
             
+        # 파일 존재 여부 및 타입 확인
         if not os.path.exists(abs_path) or not os.path.isfile(abs_path):
             return None
-            
-        if not abs_path.endswith('.txt'):
-            return None
-            
+        
+        # 파일 크기 제한 (5MB 초과 시 차단)
         if os.path.getsize(abs_path) > 5 * 1024 * 1024:
             return None
+        
+        # 파일 읽기 권한 확인
+        if not os.access(abs_path, os.R_OK):
+            return None
             
+        # 메타데이터와 본문 파싱
         metadata, content = parse_text_file(abs_path)
         
-        return TextPost(safe_filename, content, metadata)
+        # TextPost 객체 생성 및 반환
+        return TextPost(filename, content, metadata)
         
     except Exception as e:
-        print(f"텍스트 포스트 로드 오류: {str(e)}")
-    
-    return None
+        # 예외 발생 시 로그 출력 (디버깅용)
+        print(f"텍스트 포스트 로드 오류 (파일: {filename}): {str(e)}")
+        return None
 
 def get_tags_count(posts_dir=None):
     """모든 텍스트 파일의 태그 카운트 반환"""
