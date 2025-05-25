@@ -1,0 +1,217 @@
+/* enhanced-links.css - 향상된 링크 스타일 */
+
+/* ===== 포스트 콘텐츠 내 링크 ===== */
+.post-content a {
+    color: var(--text-accent);
+    text-decoration: none;
+    font-weight: 500;
+    position: relative;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    background: linear-gradient(to right, transparent 50%, rgba(9, 105, 218, 0.1) 50%);
+    background-size: 200% 100%;
+    background-position: left bottom;
+}
+
+.post-content a:hover {
+    background-position: right bottom;
+    color: var(--primary-600);
+    text-decoration: none;
+}
+
+/* 외부 링크 표시 */
+.post-content a[href^="http"]:not([href*="wagusen.com"]):not([href*="localhost"])::after {
+    content: "↗";
+    display: inline-block;
+    margin-left: 0.3em;
+    font-size: 0.85em;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.post-content a[href^="http"]:not([href*="wagusen.com"]):not([href*="localhost"]):hover::after {
+    opacity: 1;
+    transform: translate(2px, -2px);
+}
+
+/* ===== 자동 링크 변환 ===== */
+.auto-link {
+    color: var(--text-accent);
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 3px;
+    word-break: break-all;
+}
+
+.auto-link:hover {
+    text-decoration-style: solid;
+    background: rgba(9, 105, 218, 0.08);
+}
+
+/* ===== 코드 블록 스타일 ===== */
+.post-content pre {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+}
+
+.post-content pre code {
+    background: none;
+    padding: 0;
+    border: none;
+    font-family: var(--font-mono);
+}
+
+.post-content code {
+    background: var(--bg-tertiary);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    color: var(--text-primary);
+}
+
+/* Prism.js 테마 오버라이드 */
+.post-content pre[class*="language-"] {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    text-shadow: none;
+}
+
+.post-content pre[class*="language-"] code {
+    color: #d4d4d4;
+}
+
+html.dark-theme .post-content pre[class*="language-"] {
+    background: #0d1117;
+    border-color: var(--border-color);
+}
+
+/* 라인 넘버 스타일 */
+.line-numbers .line-numbers-rows {
+    border-right: 1px solid #3a3a3a;
+}
+
+/* ===== 목록 스타일 ===== */
+.post-content ul,
+.post-content ol {
+    margin: 1.5rem 0;
+    padding-left: 2rem;
+}
+
+.post-content ul {
+    list-style-type: disc;
+}
+
+.post-content ol {
+    list-style-type: decimal;
+}
+
+.post-content li {
+    margin-bottom: 0.5rem;
+    line-height: 1.7;
+}
+
+.post-content li > ul,
+.post-content li > ol {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* ===== 테이블 스타일 ===== */
+.post-content table {
+    width: 100%;
+    margin: 1.5rem 0;
+    border-collapse: collapse;
+    overflow-x: auto;
+    display: block;
+}
+
+.post-content th,
+.post-content td {
+    padding: 0.75rem;
+    text-align: left;
+    border: 1px solid var(--border-color);
+}
+
+.post-content th {
+    background: var(--bg-secondary);
+    font-weight: 600;
+}
+
+.post-content tbody tr:hover {
+    background: var(--bg-tertiary);
+}
+
+/* ===== 이미지 캡션 ===== */
+.post-content figure {
+    margin: 2rem 0;
+    text-align: center;
+}
+
+.post-content figcaption {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-tertiary);
+    font-style: italic;
+}
+
+/* ===== 강조 텍스트 ===== */
+.post-content strong {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.post-content em {
+    font-style: italic;
+}
+
+.post-content mark {
+    background: #fff3cd;
+    color: inherit;
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+}
+
+html.dark-theme .post-content mark {
+    background: rgba(255, 235, 59, 0.3);
+}
+
+/* ===== 구분선 ===== */
+.post-content hr {
+    border: none;
+    border-top: 2px solid var(--border-color);
+    margin: 2rem 0;
+    opacity: 0.5;
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 768px) {
+    .post-content {
+        font-size: 1rem;
+    }
+    
+    .post-content pre {
+        padding: 0.75rem;
+        font-size: 0.85rem;
+    }
+    
+    .post-content ul,
+    .post-content ol {
+        padding-left: 1.5rem;
+    }
+    
+    .post-content table {
+        font-size: 0.9rem;
+    }
+    
+    .post-content th,
+    .post-content td {
+        padding: 0.5rem;
+    }
+}

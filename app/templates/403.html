@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}접근 금지 - 와구센{% endblock %}
+
+{% block head %}
+<style>
+  .error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    padding: 2rem 1rem;
+  }
+  
+  .error-code {
+    font-size: 4rem;
+    font-weight: 800;
+    color: #fb8500;
+    margin-bottom: 1rem;
+    font-family: var(--font-sans);
+    letter-spacing: -0.02em;
+  }
+  
+  .error-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    font-family: var(--font-sans);
+  }
+  
+  .error-description {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    max-width: 500px;
+    line-height: 1.6;
+    font-family: var(--font-sans);
+  }
+  
+  .error-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .error-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-family: var(--font-sans);
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .error-btn-primary {
+    background-color: var(--github-accent);
+    color: white;
+  }
+  
+  .error-btn-primary:hover {
+    background-color: #0860C9;
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: white;
+  }
+  
+  .error-detail {
+    margin-top: 2rem;
+    padding: 1rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: var(--text-tertiary);
+    max-width: 400px;
+    font-family: var(--font-mono);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+  <!-- 403 숫자 -->
+  <div class="error-code">403</div>
+  
+  <!-- 페이지 제목 -->
+  <h1 class="error-title">접근이 금지되었습니다</h1>
+  
+  <!-- 설명 -->
+  <p class="error-description">
+    죄송합니다. 이 페이지에 접근할 권한이 없습니다.<br>
+    올바른 경로로 접근했는지 확인해주세요.
+  </p>
+  
+  {% if error and error.description %}
+  <!-- 에러 상세 정보 -->
+  <div class="error-detail">
+    {{ error.description }}
+  </div>
+  {% endif %}
+  
+  <!-- 액션 버튼들 -->
+  <div class="error-actions">
+    <a href="{{ url_for('main.index') }}" class="error-btn error-btn-primary">
+      <i class="fas fa-home"></i>
+      홈으로 돌아가기
+    </a>
+    
+    <a href="{{ url_for('posts.index') }}" class="error-btn error-btn-primary">
+      <i class="fas fa-blog"></i>
+      블로그 보기
+    </a>
+  </div>
+</div>
+{% endblock %}
