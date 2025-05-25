@@ -238,11 +238,19 @@ def parse_text_file(file_path):
 
 
 def render_content(content, base_url_images='/static/content/media', base_url_videos='/static/content/media', base_url_audios='/static/content/media'):
-    """특수 태그를 HTML로 변환 후 마크다운 처리"""
+    """
+    특수 태그를 HTML로 변환 후 마크다운 처리 및 URL 자동 링크 변환
+    
+    이 함수는 여러 단계로 텍스트를 처리합니다:
+    1. 특수 태그 ([img:], [video:] 등) 처리
+    2. 마크다운 문법을 HTML로 변환
+    3. 일반 URL을 자동으로 클릭 가능한 링크로 변환 (새로 추가된 기능)
+    4. 보안을 위한 HTML 정리
+    """
     if not isinstance(content, str):
         return ""
     
-    # URL 검증
+    # URL 검증 - 보안을 위해 모든 URL이 /로 시작하는지 확인
     if not isinstance(base_url_images, str) or not base_url_images.startswith('/'):
         base_url_images = '/static/content/media'
     if not isinstance(base_url_videos, str) or not base_url_videos.startswith('/'):
@@ -298,7 +306,7 @@ def render_content(content, base_url_images='/static/content/media', base_url_vi
         caption = match.group(2) if match.group(2) else None
         return _create_audio_embed(filename, caption, base_url_audios)
     
-    # 특수 태그 변환
+    # 1단계: 특수 태그 변환 - 사용자 정의 태그를 HTML로 변환
     content = re.sub(r'\[youtube:([^\]]+)\]', youtube_handler, content)
     content = re.sub(r'\[twitch:([^\]]+)\]', twitch_handler, content)
     content = re.sub(r'\[twitter:([^\]]+)\]', twitter_handler, content)
@@ -310,7 +318,7 @@ def render_content(content, base_url_images='/static/content/media', base_url_vi
     content = re.sub(r'\[video:([^\]]+)(?:\|([^\]]+))?\]', video_handler, content)
     content = re.sub(r'\[audio:([^\]]+)(?:\|([^\]]+))?\]', audio_handler, content)
     
-    # 마크다운 처리
+    # 2단계: 마크다운 처리 - 표준 마크다운 문법을 HTML로 변환
     if MARKDOWN_ENABLED:
         try:
             extensions = ['extra', 'nl2br', 'sane_lists']
@@ -322,6 +330,7 @@ def render_content(content, base_url_images='/static/content/media', base_url_vi
             
             md_content = markdown.markdown(content, extensions=extensions, extension_configs=extension_configs)
             
+            # 허용된 HTML 태그 정의 - 보안을 위해 제한적으로 허용
             allowed_tags = [
                 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'hr', 
                 'a', 'strong', 'em', 'code', 'pre', 'blockquote', 'img',
@@ -353,10 +362,73 @@ def render_content(content, base_url_images='/static/content/media', base_url_vi
     else:
         cleaned_content = _process_content_legacy(content)
     
+    # 3단계: URL 자동 링크 변환 추가 - 마크다운 처리 후에 실행
+    # 이 단계에서 일반 URL들이 클릭 가능한 링크로 변환됩니다
+    cleaned_content = _auto_linkify_urls(cleaned_content)
+    
     return Markup(cleaned_content)
 
 
-# ===== 헬퍼 함수들 =====
+def _auto_linkify_urls(text):
+    """
+    텍스트 내의 일반 URL을 자동으로 클릭 가능한 링크로 변환하는 함수
+    
+    이 함수는 정규식의 lookbehind 제한 문제를 해결하기 위해
+    단순하지만 효과적인 접근 방식을 사용합니다.
+    
+    작동 원리:
+    1. 고정 폭 lookbehind만 사용하여 Python 정규식 제한을 우회
+    2. href= 또는 src= 바로 뒤에 오는 URL은 제외 (이미 HTML 속성 안에 있는 URL)
+    3. 찾은 URL을 안전한 <a> 태그로 감싸기
+    4. 보안을 위해 target="_blank"와 rel="noopener noreferrer" 속성 추가
+    """
+    if not isinstance(text, str):
+        return text
+    
+    # 간단하고 안정적인 URL 패턴 사용
+    # 고정 폭 lookbehind만 사용하여 Python 정규식 제한을 피합니다
+    url_pattern = re.compile(
+        r'(?<!href=")(?<!src=")'  # 고정 폭 lookbehind: HTML 속성 안의 URL 제외
+        r'(https?://[^\s<>"\']+)',  # 실제 URL 패턴 매칭
+        re.IGNORECASE
+    )
+    
+    def url_replacer(match):
+        """
+        각각의 URL을 안전한 링크로 변환하는 내부 함수
+        
+        이 함수는 다음 작업을 수행합니다:
+        1. URL 끝의 문장부호 제거 (자연스러운 텍스트 처리)
+        2. 보안을 위한 URL 이스케이핑
+        3. 긴 URL 축약하여 표시
+        4. 안전한 외부 링크 태그 생성
+        """
+        url = match.group(1)
+        
+        # URL 끝의 문장부호 제거 - 자연스러운 텍스트 처리를 위해
+        # 예: "https://example.com." → "https://example.com"
+        url = url.rstrip('.,;:!?')
+        
+        # 보안을 위한 URL 이스케이핑 - XSS 공격 방지
+        safe_url = escape(url)
+        
+        # 표시할 텍스트 생성 - 너무 긴 URL은 축약하여 가독성 향상
+        if len(url) > 60:
+            display_text = url[:57] + "..."
+        else:
+            display_text = url
+        
+        # 안전한 링크 태그 생성
+        # target="_blank": 새 탭에서 열기
+        # rel="noopener noreferrer": 보안을 위한 속성
+        # class="auto-link": CSS 스타일링을 위한 클래스
+        return f'<a href="{safe_url}" target="_blank" rel="noopener noreferrer" class="auto-link">{escape(display_text)}</a>'
+    
+    # URL을 링크로 변환하여 반환
+    return url_pattern.sub(url_replacer, text)
+
+
+# ===== 헬퍼 함수들 - 각 미디어 타입별 HTML 생성 =====
 
 def _create_youtube_embed(youtube_id_or_url):
     """유튜브 임베드 HTML 생성"""
@@ -574,7 +646,13 @@ def _create_quote_box(content, author=None):
     return f'<blockquote class="styled-quote">{content}{author_html}</blockquote>'
 
 def _process_content_legacy(content):
-    """기존 방식으로 텍스트 처리"""
+    """
+    기존 방식으로 텍스트 처리 (마크다운 라이브러리 없을 때 사용)
+    
+    이 함수는 마크다운 라이브러리가 설치되지 않은 환경에서
+    기본적인 텍스트 처리를 담당합니다. 마크다운 처리 후에도
+    URL 자동 링크 변환이 적용되도록 수정되었습니다.
+    """
     lines = content.split('\n')
     processed_lines = []
     in_code_block = False
@@ -585,14 +663,20 @@ def _process_content_legacy(content):
         
         if not line:
             if current_paragraph:
-                processed_lines.append(f'<p class="compact-text">{" ".join(current_paragraph)}</p>')
+                paragraph_text = " ".join(current_paragraph)
+                # URL 자동 링크 변환 적용 - 이 부분이 새로 추가되었습니다
+                paragraph_text = _auto_linkify_urls(paragraph_text)
+                processed_lines.append(f'<p class="compact-text">{paragraph_text}</p>')
                 current_paragraph = []
             processed_lines.append('<br>')
             continue
         
         if line.startswith('```'):
             if current_paragraph:
-                processed_lines.append(f'<p class="compact-text">{" ".join(current_paragraph)}</p>')
+                paragraph_text = " ".join(current_paragraph)
+                # URL 자동 링크 변환 적용
+                paragraph_text = _auto_linkify_urls(paragraph_text)
+                processed_lines.append(f'<p class="compact-text">{paragraph_text}</p>')
                 current_paragraph = []
                 
             if not in_code_block:
@@ -610,7 +694,10 @@ def _process_content_legacy(content):
         
         if line.startswith('#'):
             if current_paragraph:
-                processed_lines.append(f'<p class="compact-text">{" ".join(current_paragraph)}</p>')
+                paragraph_text = " ".join(current_paragraph)
+                # URL 자동 링크 변환 적용
+                paragraph_text = _auto_linkify_urls(paragraph_text)
+                processed_lines.append(f'<p class="compact-text">{paragraph_text}</p>')
                 current_paragraph = []
                 
             header_level = len(re.match(r'^#+', line).group(0))
@@ -622,7 +709,10 @@ def _process_content_legacy(content):
         current_paragraph.append(escape(line))
     
     if current_paragraph:
-        processed_lines.append(f'<p class="compact-text">{" ".join(current_paragraph)}</p>')
+        paragraph_text = " ".join(current_paragraph)
+        # URL 자동 링크 변환 적용
+        paragraph_text = _auto_linkify_urls(paragraph_text)
+        processed_lines.append(f'<p class="compact-text">{paragraph_text}</p>')
     
     return '\n'.join(processed_lines)
 
