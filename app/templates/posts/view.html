@@ -19,18 +19,7 @@
         <!-- 메인 제목 -->
         <h1 class="post-title">{{ post.title }}</h1>
         
-        <!-- 부제목/설명 - 제목 바로 아래 위치 -->
-        {% if post.subtitle %}
-        <div class="post-subtitle">
-            {{ post.subtitle }}
-        </div>
-        {% elif post.description %}
-        <div class="post-description-header">
-            {{ post.description }}
-        </div>
-        {% endif %}
-        
-        <!-- 메타 정보 -->
+        <!-- 기본 메타 정보 (날짜, 작성자만) -->
         <div class="post-meta-container">
             <div class="post-date">
                 <i class="far fa-calendar-alt"></i>
@@ -41,14 +30,22 @@
                 <i class="far fa-user"></i>
                 <span>{{ post.author }}</span>
             </div>
-            
-            <!-- 글자 수 정보 추가 -->
-            <div class="post-word-count">
-                <i class="fas fa-file-alt"></i>
-                약 {{ post.get_word_count() }}단어
-            </div>
-            
-            {% if post.tags %}
+        </div>
+        
+        <!-- 부제목/설명 - 태그 위쪽으로 이동 -->
+        {% if post.subtitle %}
+        <div class="post-subtitle-content">
+            <p class="post-subtitle-text">{{ post.subtitle }}</p>
+        </div>
+        {% elif post.description %}
+        <div class="post-description-content">
+            <p class="post-description-text">{{ post.description }}</p>
+        </div>
+        {% endif %}
+        
+        <!-- 태그 섹션 - 별도로 분리 -->
+        {% if post.tags %}
+        <div class="post-tags-section">
             <div class="post-tags">
                 {% for tag in post.tags %}
                 <a href="{{ url_for('posts.filter_by_tag', tag=tag) }}" class="post-tag">
@@ -56,8 +53,8 @@
                 </a>
                 {% endfor %}
             </div>
-            {% endif %}
         </div>
+        {% endif %}
     </header>
     
     {% if post.series %}
@@ -173,21 +170,21 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. 코드 블록 강조
+    // 1. 코드 블록 강조 - Prism.js를 사용하여 코드에 문법 하이라이팅을 적용합니다
     const codeBlocks = document.querySelectorAll('pre code');
     codeBlocks.forEach(block => {
         block.parentNode.classList.add('line-numbers');
         Prism.highlightElement(block);
     });
     
-    // 2. 외부 링크에 target="_blank" 추가
+    // 2. 외부 링크에 target="_blank" 추가 - 보안을 위해 rel="noopener noreferrer"도 함께 설정
     const externalLinks = document.querySelectorAll('.post-content a[href^="http"]:not([href*="wagusen.com"]):not([href*="localhost"])');
     externalLinks.forEach(link => {
         link.setAttribute('target', '_blank');
         link.setAttribute('rel', 'noopener noreferrer');
     });
     
-    // 3. 미디어 오류 처리
+    // 3. 미디어 오류 처리 - 이미지, 비디오, 오디오 로딩 실패 시 대체 메시지 표시
     function setupMediaErrorHandling() {
         const images = document.querySelectorAll('.post-content img');
         images.forEach(img => {
@@ -232,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 4. 소셜 미디어 위젯 스크립트 로드
+    // 4. 소셜 미디어 위젯 스크립트 로드 - 필요한 경우에만 동적으로 로드하여 성능 최적화
     function loadSocialScripts() {
         if (document.querySelector('.twitter-embed')) {
             const twitterScript = document.createElement('script');
@@ -265,11 +262,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // 5. 실행
+    // 5. 기능들 실행
     setupMediaErrorHandling();
     loadSocialScripts();
     
-    // 6. 스크롤 진행률 표시 (선택사항)
+    // 6. 스크롤 진행률 표시 - 사용자가 글을 얼마나 읽었는지 시각적으로 표시
     const progressBar = document.createElement('div');
     progressBar.style.cssText = `
         position: fixed;
@@ -288,7 +285,7 @@ document.addEventListener('DOMContentLoaded', function() {
         progressBar.style.width = Math.min(scrolled, 100) + '%';
     });
     
-    // 페이지 전체 로드 후 한번 더 확인
+    // 페이지 전체 로드 후 한번 더 확인 - 동적으로 추가된 요소들도 처리
     window.addEventListener('load', function() {
         setupMediaErrorHandling();
     });
