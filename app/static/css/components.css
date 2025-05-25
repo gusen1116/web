@@ -1,253 +1,468 @@
-/* 
- * components.css - GitHub 스타일 컴포넌트, 타이포그래피 유지
- */
+/* content.css - 콘텐츠 렌더링 및 링크 스타일 */
 
-/* ===== 버튼 컴포넌트 - GitHub 스타일 ===== */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px 16px;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  font-family: var(--font-sans);
-}
-
-.btn:hover {
-  background-color: #f3f4f6;
-  text-decoration: none;
-  border-color: var(--neutral-300);
-}
-
-.btn-primary {
-  background-color: var(--github-accent);
-  color: white;
-  border-color: transparent;
-}
-
-.btn-primary:hover {
-  background-color: #0860C9;
-  color: white;
-  text-decoration: none;
-}
-
-.btn-secondary {
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-.btn-secondary:hover {
-  background-color: var(--neutral-200);
-  color: var(--text-primary);
-}
-
-.btn-sm {
-  padding: 3px 12px;
-  font-size: var(--font-size-sm);
-}
-
-/* ===== 카드 컴포넌트 - GitHub 스타일 ===== */
-.card {
-  background-color: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: var(--spacing-5);
-  transition: all 0.25s ease;
-  width: 100%;
+/* ===== 포스트 콘텐츠 스타일 ===== */
+.post-content {
+  font-size: 1.23rem;
+  line-height: 2.03;
+  max-width: var(--paragraph-width);
   margin: 0 auto;
-  box-shadow: var(--shadow-sm);
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  white-space: normal;
+  hyphens: auto;
+  text-align: left;
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  border-color: var(--github-accent);
-  box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
+.post-content p {
+  margin-bottom: 1.5em;
+  line-height: 2.03;
 }
 
-/* 카드 제목 강화 */
-.card-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: var(--spacing-3);
-  color: var(--text-primary);
+.post-content h1, .post-content h2, .post-content h3,
+.post-content h4, .post-content h5, .post-content h6 {
+  margin-top: var(--spacing-4);
+  margin-bottom: var(--spacing-2);
+  border-bottom: none;
+  padding-bottom: 0;
+  text-align: left;
 }
 
-/* 카드 내용 여백 */
-.card-content {
-  color: var(--text-secondary);
-  padding: var(--spacing-4) 0;
-}
-
-/* ===== 태그 클라우드 - GitHub 스타일 ===== */
-.tags-container {
+/* ===== 포스트 메타 정보 ===== */
+.post-meta-container {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
-  gap: var(--spacing-2);
-  margin-bottom: var(--spacing-4);
-  width: 100%;
-  max-width: var(--container-width);
+  gap: 1rem;
+  margin: 1rem 0 0.5rem;
+  width: var(--paragraph-width);
+  max-width: 100%;
   margin-left: auto;
   margin-right: auto;
 }
 
-.tag {
-  background-color: #ddf4ff; /* GitHub 라벨 배경 */
-  color: var(--github-accent);
-  padding: var(--spacing-1) var(--spacing-2);
-  border-radius: var(--radius-full);
-  font-size: var(--font-size-xs);
-  text-decoration: none;
-  transition: all var(--transition-fast);
-  font-family: var(--font-sans);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-}
-
-.tag:hover {
-  background-color: #b6e3ff;
-  color: var(--github-accent);
-  text-decoration: none;
-}
-
-/* Dark mode tag styles */
-html.dark-theme .tag {
-  background-color: rgba(56, 139, 253, 0.15);
-  color: #58a6ff;
-  border-color: rgba(56, 139, 253, 0.4);
-}
-
-html.dark-theme .tag:hover {
-  background-color: rgba(56, 139, 253, 0.25);
-}
-
-/* ===== 테마 토글 버튼 - GitHub 스타일 ===== */
-.theme-toggle {
+.post-date {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  background-color: var(--bg-secondary);
+  padding: 0.35rem 0.8rem;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.post-date i {
+  margin-right: 0.5rem;
+  color: var(--github-accent);
+}
+
+.post-author {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.post-author i {
+  margin-right: 0.5rem;
+  color: var(--github-accent);
+}
+
+/* ===== 태그 스타일 ===== */
+.post-tags-section {
+  margin: 0.5rem 0 1.5rem;
+  width: var(--paragraph-width);
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-left: 0;
+  width: 100%;
+  max-width: var(--paragraph-width);
+}
+
+.post-tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: #ddf4ff;
+  color: var(--github-accent);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0.35rem 0.8rem;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  border: 1px solid rgba(9, 105, 218, 0.2);
+  margin: 2px;
+}
+
+.post-tag i {
+  margin-right: 0.4rem;
+  font-size: 0.8rem;
+}
+
+.post-tag:hover {
+  background-color: #b6e3ff;
+  color: var(--github-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(9, 105, 218, 0.2);
+  text-decoration: none;
+}
+
+html.dark-theme .post-tag {
+  background-color: rgba(88, 166, 255, 0.15);
+  color: #58a6ff;
+  border-color: rgba(88, 166, 255, 0.4);
+}
+
+html.dark-theme .post-tag:hover {
+  background-color: rgba(88, 166, 255, 0.25);
+}
+
+/* ===== 부제목/설명 ===== */
+.post-subtitle-content, .post-description-content {
+  margin: 0.75rem 0 1rem;
+  width: var(--paragraph-width);
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.post-subtitle-text, .post-description-text {
+  margin: 0 auto;
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  font-weight: 400;
+  text-align: left;
+  word-break: keep-all;
+  word-wrap: break-word;
+  color: inherit;
+  width: var(--paragraph-width);
+  max-width: 100%;
+  opacity: 0.75;
+  font-style: italic;
+}
+
+/* ===== 링크 스타일 ===== */
+.post-content a {
+  color: var(--github-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgba(9, 105, 218, 0.4);
+  font-weight: 500;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all 0.25s ease;
+  display: inline;
+  line-height: inherit;
+}
+
+.post-content a:hover {
+  color: white;
+  background: linear-gradient(135deg, var(--github-accent), #1f6feb);
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(9, 105, 218, 0.3);
+}
+
+/* 외부 링크 아이콘 */
+.post-content a[href^="http"]:not([href*="localhost"])::after {
+  content: "↗";
+  font-size: 0.8em;
+  margin-left: 0.3em;
+  opacity: 0.7;
+  font-weight: normal;
+  transition: all 0.2s ease;
+}
+
+.post-content a[href^="http"]:not([href*="localhost"]):hover::after {
+  opacity: 1;
+  transform: translate(2px, -2px);
+}
+
+/* ===== 이미지 및 미디어 ===== */
+.post-image {
+  width: var(--paragraph-width);
+  max-width: 100%;
+  margin: 2rem auto;
+  text-align: center;
+}
+
+.post-image img, .text-post-image {
+  max-width: 100%;
+  height: auto;
   border-radius: 6px;
-  background-color: transparent;
-  color: var(--text-primary);
-  border: none;
-  cursor: pointer;
-  transition: background-color var(--transition-fast);
-  position: relative;
+  border: 1px solid var(--border-color);
+}
+
+.post-image figcaption {
+  margin-top: 0.5rem;
+  color: var(--text-tertiary);
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+/* ===== 비디오/오디오 ===== */
+.video-embed, .audio-embed {
+  width: var(--paragraph-width);
+  max-width: 100%;
+  margin: 2rem auto;
+  border-radius: 6px;
   overflow: hidden;
 }
 
-.theme-toggle:hover {
-  background-color: var(--bg-tertiary);
-}
-
-.theme-toggle .dark-icon,
-.theme-toggle .light-icon {
-  position: absolute;
-  transition: opacity var(--transition-normal), transform var(--transition-normal);
-}
-
-.dark-theme .dark-icon {
-  opacity: 0;
-  transform: rotate(-180deg) scale(0.5);
-}
-
-.dark-theme .light-icon {
-  opacity: 1;
-  transform: rotate(0) scale(1);
-}
-
-:not(.dark-theme) .dark-icon {
-  opacity: 1;
-  transform: rotate(0) scale(1);
-}
-
-:not(.dark-theme) .light-icon {
-  opacity: 0;
-  transform: rotate(180deg) scale(0.5);
-}
-
-/* ===== 관련 포스트 컴포넌트 - GitHub 스타일 ===== */
-.post-navigation {
-  margin-top: var(--spacing-8);
-  padding-top: var(--spacing-4);
-  border-top: 1px solid var(--border-color);
+.video-embed video {
+  display: block;
   width: 100%;
-  max-width: var(--container-width);
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.post-nav-header {
-  margin-bottom: var(--spacing-4);
-  font-family: var(--font-sans);
-}
-
-.related-posts {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: var(--spacing-6);
-  width: 100%;
-}
-
-.related-post-card {
-  background-color: var(--bg-secondary);
-  padding: var(--spacing-5);
   border-radius: 6px;
-  box-shadow: var(--shadow-sm);
-  transition: all 0.25s ease;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+}
+
+.audio-embed {
+  padding: 1rem;
+  background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
 }
 
-.related-post-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
-  text-decoration: none;
-  border-color: var(--github-accent);
-}
-
-.related-post-card h4 {
-  color: var(--text-primary);
-  margin-bottom: var(--spacing-2);
+.audio-embed audio {
   width: 100%;
-  font-family: var(--font-sans);
+  display: block;
 }
 
-.related-post-card .date {
-  font-size: var(--font-size-xs);
+.audio-caption {
+  margin-top: 0.5rem;
   color: var(--text-tertiary);
-  margin-bottom: var(--spacing-2);
-  font-family: var(--font-sans);
+  font-style: italic;
+  font-size: 0.9rem;
+  text-align: center;
 }
 
-.related-post-card .tag-list {
-  margin-top: auto;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-1);
+/* ===== 유튜브 임베드 ===== */
+.youtube-embed {
+  position: relative;
+  width: var(--paragraph-width);
+  max-width: 100%;
+  margin: 2rem auto;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  background-color: #000;
+  border-radius: 6px;
 }
 
-.related-post-card .tag-item {
+.youtube-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* ===== 강조 박스 ===== */
+.highlight-box {
+  width: var(--paragraph-width);
+  max-width: 100%;
+  margin: 1.5rem auto;
+  padding: 1rem 1.5rem;
   background-color: #ddf4ff;
-  color: var(--github-accent);
-  padding: var(--spacing-1) var(--spacing-2);
-  border-radius: var(--radius-full);
-  font-size: var(--font-size-xs);
-  font-family: var(--font-sans);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-left: 4px solid var(--github-accent);
+  border-radius: 6px;
 }
 
-html.dark-theme .related-post-card .tag-item {
+html.dark-theme .highlight-box {
   background-color: rgba(56, 139, 253, 0.15);
-  color: #58a6ff;
-  border-color: rgba(56, 139, 253, 0.4);
+  border-left-color: #58a6ff;
+}
+
+/* ===== 인용문 ===== */
+blockquote.styled-quote {
+  width: var(--paragraph-width);
+  max-width: 100%;
+  margin: 1.5rem auto;
+  padding: 1rem 1.5rem;
+  background-color: var(--bg-secondary);
+  border-left: 4px solid var(--border-color);
+  color: var(--text-tertiary);
+  font-style: italic;
+  position: relative;
+}
+
+blockquote.styled-quote::before {
+  content: "\201C";
+  font-size: 2rem;
+  position: absolute;
+  left: 0.5rem;
+  top: 0.25rem;
+  color: var(--text-tertiary);
+  opacity: 0.6;
+  font-family: serif;
+}
+
+.quote-author {
+  display: block;
+  margin-top: 0.8rem;
+  font-weight: 600;
+  text-align: right;
+  font-style: normal;
+}
+
+/* ===== 에러 메시지 ===== */
+.error-embed {
+  width: var(--paragraph-width);
+  max-width: 100%;
+  margin: 1.5rem auto;
+  padding: 1rem;
+  background-color: #ffebe9;
+  border: 1px solid #cf222e;
+  border-radius: 6px;
+  color: #cf222e;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+html.dark-theme .error-embed {
+  background-color: rgba(207, 34, 46, 0.15);
+  border-color: rgba(207, 34, 46, 0.4);
+  color: #f85149;
+}
+
+/* ===== 네비게이션 ===== */
+.post-nav-simple {
+  width: var(--paragraph-width);
+  max-width: 100%;
+  margin: 3rem auto 1rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1.5rem;
+}
+
+.post-nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.post-nav-link {
+  display: flex;
+  align-items: center;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.post-nav-link:hover {
+  color: var(--github-accent);
+  background-color: var(--bg-secondary);
+  text-decoration: none;
+}
+
+.post-nav-link.disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ===== 모바일 최적화 ===== */
+@media (max-width: 768px) {
+  .post-content {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: none;
+    width: 100%;
+    padding: 0 1rem;
+    margin: 0;
+  }
+  
+  .post-content p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.2em;
+    padding: 0;
+    width: 100%;
+  }
+  
+  .post-meta-container {
+    width: 100%;
+    max-width: none;
+    padding: 0 1rem;
+    margin: 0.75rem 0 0.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .post-tags-section {
+    width: 100%;
+    max-width: none;
+    padding: 0 1rem 0.75rem;
+    margin: 0.25rem 0 1rem;
+  }
+  
+  .post-subtitle-content, .post-description-content {
+    width: 100%;
+    max-width: none;
+    padding: 0 1rem;
+    margin: 0.5rem 0 0.75rem;
+  }
+  
+  .post-subtitle-text, .post-description-text {
+    font-size: 1rem;
+    line-height: 1.5;
+    width: 100%;
+    max-width: none;
+    padding: 0;
+  }
+  
+  .post-image, .video-embed, .audio-embed, .youtube-embed,
+  .highlight-box, blockquote.styled-quote, .error-embed {
+    width: 100%;
+    margin: 1.5rem auto;
+  }
+  
+  .post-nav-simple {
+    width: 100%;
+    max-width: none;
+    padding: 1.5rem 1rem 0;
+    margin: 2rem 0 1rem;
+  }
+  
+  .post-nav-link {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .post-content, .post-content p {
+    font-size: 1.05rem;
+    line-height: 1.55;
+  }
+  
+  .post-subtitle-text, .post-description-text {
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+  
+  .post-tag {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    margin: 3px;
+  }
 }
