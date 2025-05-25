@@ -1,339 +1,145 @@
-/* main.css - 통합된 메인 스타일 */
+/* main.css - 통합 메인 CSS 파일 */
 
-/* ===== 헤더 스타일 ===== */
-.top-header {
-  background-color: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-color);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  height: 60px;
-}
+/* 
+ * CSS 파일 로드 순서:
+ * 1. variables.css - CSS 변수 정의
+ * 2. reset.css - 브라우저 리셋
+ * 3. base.css - 기본 HTML 요소 스타일
+ * 4. layout.css - 레이아웃 시스템
+ * 5. typography.css - 타이포그래피 시스템
+ * 6. components.css - 재사용 가능한 컴포넌트
+ * 7. blog.css - 블로그 특화 스타일
+ * 8. special.css - 특수 컴포넌트
+ * 9. utilities.css - 유틸리티 클래스
+ */
 
-.top-header .container {
-  display: flex;
-  align-items: center;
-  height: 100%;
-}
-
-.logo-area {
-  display: flex;
-  align-items: center;
-  width: 16rem;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-3);
-  text-decoration: none;
-}
-
-.logo img {
-  width: 32px;
-  height: 32px;
-}
-
-.site-name {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-/* ===== 네비게이션 ===== */
-.desktop-nav {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-grow: 1;
-}
-
-.desktop-nav ul {
-  display: flex;
-  list-style: none;
-  gap: var(--spacing-1);
-}
-
-.desktop-nav a {
-  color: var(--text-primary);
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 1.1rem;
-  padding: 0 var(--spacing-4);
-  display: flex;
-  align-items: center;
-  height: 60px;
-  position: relative;
-}
-
-.desktop-nav a:hover {
-  background-color: var(--bg-tertiary);
-}
-
-.desktop-nav a.active::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: var(--github-accent);
-}
-
-/* ===== 헤더 컨트롤 ===== */
-.header-controls {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-4);
-  width: 16rem;
-  justify-content: flex-end;
-}
-
-.theme-toggle {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-primary);
-  font-size: 1.25rem;
-  padding: var(--spacing-2);
-  border-radius: var(--radius-md);
-  transition: background-color var(--transition-fast);
-}
-
-.theme-toggle:hover {
-  background-color: var(--bg-tertiary);
-}
-
-/* ===== 모바일 네비게이션 ===== */
-.mobile-toggle {
-  display: none;
-}
-
-.mobile-nav {
-  position: fixed;
-  top: 0;
-  right: -100%;
-  width: 320px;
-  height: 100vh;
-  background: var(--bg-secondary);
-  z-index: 1001;
-  transition: right 0.4s ease;
-  border-left: 1px solid var(--border-color);
-}
-
-.mobile-nav.active {
-  right: 0;
-}
-
-.mobile-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-  z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-}
-
-.mobile-overlay.active {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* ===== 푸터 ===== */
-footer {
-  padding: var(--spacing-6) 0;
-  background-color: var(--bg-secondary);
-  border-top: 1px solid var(--border-color);
-}
-
-.footer-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.footer-info p {
-  margin: 0;
-  color: var(--text-tertiary);
-  font-size: 0.85rem;
-}
-
-.footer-links {
-  display: flex;
-  gap: var(--spacing-4);
-}
-
-.footer-links a {
-  color: var(--text-tertiary);
-  transition: color var(--transition-fast);
-}
-
-.footer-links a:hover {
-  color: var(--text-accent);
-}
-
-/* ===== 컴포넌트 ===== */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px 16px;
-  font-size: 14px;
-  font-weight: 500;
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.btn:hover {
-  background-color: #f3f4f6;
-  text-decoration: none;
-}
-
-.btn-primary {
-  background-color: var(--github-accent);
-  color: white;
-  border-color: transparent;
-}
-
-.btn-primary:hover {
-  background-color: #0860C9;
-  color: white;
-}
-
-/* ===== 타이포그래피 ===== */
-h1, h2, h3, h4, h5, h6 {
-  margin: 0 auto;
-  display: block;
-  font-family: var(--font-sans);
-  text-align: left;
-  word-break: keep-all;
-  word-wrap: break-word;
-  color: inherit;
-  width: var(--paragraph-width);
-}
-
-h1 {
-  font-size: 2.75rem;
-  line-height: 130%;
-  font-weight: 720;
-}
-
-h2 {
-  font-size: 1.9rem;
-  line-height: 130%;
-  font-weight: 700;
-}
-
-h3 {
-  font-size: 1.23rem;
-  line-height: 203%;
-  font-weight: 600;
-}
-
-p {
-  margin: 0 auto;
-  display: block;
-  font-family: var(--font-sans);
-  font-size: 1.23rem;
-  line-height: 203%;
-  font-weight: 400;
-  text-align: left;
-  word-break: keep-all;
-  word-wrap: break-word;
-  color: inherit;
-  width: var(--paragraph-width);
-}
-
-/* ===== 슬라이드 ===== */
-.slide-container {
-  position: relative;
-  width: 100%;
-  max-width: var(--container-width);
-  height: 300px;
-  overflow: hidden;
-  margin: 0 auto var(--spacing-12);
-  background-color: var(--github-accent);
-  border-radius: var(--radius-md);
-}
-
-.slide {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  color: white;
-  text-align: center;
-  padding: 2rem;
-  opacity: 0;
-  transition: opacity 0.7s ease;
-}
-
-.slide.active {
-  opacity: 1;
-}
-
-.slide h2 {
-  font-size: 2.5rem;
-  margin-bottom: 1.5rem;
-  color: white;
-  width: 100%;
-  text-align: center;
-}
-
-.slide p {
-  font-size: 1.2rem;
-  color: white;
-  width: 100%;
-  text-align: center;
-}
-
-/* ===== 반응형 ===== */
-@media (max-width: 768px) {
-  .desktop-nav, .theme-toggle-area {
-    display: none;
-  }
-  
-  .mobile-toggle {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 8px;
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .hamburger-line {
-    width: 20px;
-    height: 2px;
-    background-color: var(--text-primary);
-    transition: all 0.3s ease;
-  }
-  
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.5rem; }
-  h3 { font-size: 1.2rem; }
-  p { font-size: 1.1rem; }
-  
-  h1, h2, h3, p {
-    width: 100%;
-    padding: 0 1rem;
-  }
-  
-  .footer-content {
-    flex-direction: column;
-    gap: var(--spacing-4);
-    text-align: center;
-  }
-}
+ @import url('./variables.css');
+ @import url('./reset.css');
+ @import url('./base.css');
+ @import url('./layout.css');
+ @import url('./typography.css');
+ @import url('./components.css');
+ @import url('./blog.css');
+ @import url('./special.css');
+ @import url('./utilities.css');
+ 
+ /* ===== 추가 전역 스타일 ===== */
+ 
+ /* 스크롤바 스타일링 */
+ ::-webkit-scrollbar {
+   width: 12px;
+   height: 12px;
+ }
+ 
+ ::-webkit-scrollbar-track {
+   background: var(--bg-secondary);
+ }
+ 
+ ::-webkit-scrollbar-thumb {
+   background: var(--text-tertiary);
+   border-radius: var(--radius-md);
+   border: 3px solid var(--bg-secondary);
+ }
+ 
+ ::-webkit-scrollbar-thumb:hover {
+   background: var(--text-secondary);
+ }
+ 
+ /* 선택 영역 스타일링 */
+ ::selection {
+   background-color: var(--text-accent);
+   color: white;
+ }
+ 
+ ::-moz-selection {
+   background-color: var(--text-accent);
+   color: white;
+ }
+ 
+ /* 포커스 스타일 일관성 */
+ :focus-visible {
+   outline: 2px solid var(--text-accent);
+   outline-offset: 2px;
+ }
+ 
+ /* 프린트 스타일 */
+ @media print {
+   body {
+     background: white;
+     color: black;
+   }
+   
+   .top-header,
+   .footer,
+   .mobile-nav,
+   .mobile-overlay,
+   .post-nav,
+   .tag-navigation,
+   .theme-toggle {
+     display: none !important;
+   }
+   
+   .container {
+     max-width: 100%;
+     padding: 0;
+   }
+   
+   a {
+     text-decoration: underline;
+   }
+   
+   a[href^="http"]:after {
+     content: " (" attr(href) ")";
+     font-size: 0.8em;
+   }
+ }
+ 
+ /* 접근성 개선 */
+ @media (prefers-reduced-motion: reduce) {
+   *,
+   *::before,
+   *::after {
+     animation-duration: 0.01ms !important;
+     animation-iteration-count: 1 !important;
+     transition-duration: 0.01ms !important;
+     scroll-behavior: auto !important;
+   }
+ }
+ 
+ /* 고대비 모드 지원 */
+ @media (prefers-contrast: high) {
+   :root {
+     --text-accent: #0550ae;
+     --border-color: #000;
+   }
+   
+   html.dark-theme {
+     --text-accent: #8bb9ff;
+     --border-color: #fff;
+   }
+   
+   * {
+     border-width: 2px !important;
+   }
+ }
+ 
+ /* 모바일 안전 영역 대응 */
+ @supports (padding: max(0px)) {
+   .container {
+     padding-left: max(var(--spacing-4), env(safe-area-inset-left));
+     padding-right: max(var(--spacing-4), env(safe-area-inset-right));
+   }
+   
+   footer {
+     padding-bottom: max(var(--spacing-6), env(safe-area-inset-bottom));
+   }
+ }
+ 
+ /* 디버그 모드 (개발용) */
+ .debug * {
+   outline: 1px solid rgba(255, 0, 0, 0.3);
+ }
+ 
+ .debug *:hover {
+   outline: 2px solid rgba(255, 0, 0, 0.8);
+ }
