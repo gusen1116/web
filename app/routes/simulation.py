@@ -311,17 +311,19 @@ def internal_error_handler(error):
     return render_template('500.html', error=error), 500
 
 
-# ===== 라우트 등록 검증 (개발 도구) =====
+# ===== 템플릿 검증 함수 (일반 함수로 변경) =====
 
-@simulation_bp.before_app_first_request
-def verify_simulation_templates():
+def verify_simulation_templates(app):
     """
     애플리케이션 시작 시 시뮬레이션 템플릿 존재 여부 확인
     누락된 템플릿이 있으면 경고 로그 출력
+    
+    Args:
+        app: Flask 애플리케이션 인스턴스
     """
     try:
         from pathlib import Path
-        template_dir = Path(current_app.template_folder)
+        template_dir = Path(app.template_folder)
         
         missing_templates = []
         
@@ -331,11 +333,11 @@ def verify_simulation_templates():
                 missing_templates.append(sim_info['template'])
         
         if missing_templates:
-            current_app.logger.warning(
+            app.logger.warning(
                 f'누락된 시뮬레이션 템플릿: {", ".join(missing_templates)}'
             )
         else:
-            current_app.logger.info('모든 시뮬레이션 템플릿 확인 완료')
+            app.logger.info('모든 시뮬레이션 템플릿 확인 완료')
             
     except Exception as e:
-        current_app.logger.error(f'시뮬레이션 템플릿 검증 오류: {e}')
+        app.logger.error(f'시뮬레이션 템플릿 검증 오류: {e}')

@@ -28,7 +28,7 @@ def create_app(config_object: Optional[object] = None) -> Flask:
     # 확장 프로그램 초기화
     _init_extensions(app)
     
-    # 블루프린트 등록
+    # 블루프린트 등록 (수정된 부분)
     _register_blueprints(app)
     
     # 필요한 디렉토리 생성
@@ -61,15 +61,28 @@ def _init_extensions(app: Flask) -> None:
     csrf.init_app(app)
 
 def _register_blueprints(app: Flask) -> None:
-    """블루프린트 등록"""
+    """
+    블루프린트 등록 - Flask 2.2+ 호환성 개선
+    
+    주요 변경사항:
+    - before_app_first_request 제거 대응
+    - 시뮬레이션 템플릿 검증을 직접 호출로 변경
+    """
     try:
         from app.routes.main_routes import main_bp
-        from app.routes.simulation import simulation_bp
+        # 시뮬레이션 블루프린트와 템플릿 검증 함수를 함께 import
+        from app.routes.simulation import simulation_bp, verify_simulation_templates
         from app.routes.posts_routes import posts_bp
         
+        # 각 블루프린트를 애플리케이션에 등록
         app.register_blueprint(main_bp)
         app.register_blueprint(simulation_bp)
         app.register_blueprint(posts_bp)
+        
+        # Flask 2.2+ 호환성: 애플리케이션 초기화 완료 후 템플릿 검증 실행
+        # 이전에는 @before_app_first_request 데코레이터를 사용했지만
+        # 최신 Flask에서는 제거되었으므로 직접 호출
+        verify_simulation_templates(app)
         
         app.logger.info('모든 블루프린트 등록 완료')
     except ImportError as e:
