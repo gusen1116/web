@@ -2,62 +2,55 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>{% block title %}와구센{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}와구센의 홈{% endblock %}</title>
     
-    <!-- 메인 CSS 파일 (모든 스타일 통합) -->
-    <link rel="stylesheet" href="/static/css/main.css">
+    <!-- 메타 태그 -->
+    <meta name="description" content="{% block description %}와구센 웹사이트에 오신 것을 환영합니다.{% endblock %}">
+    <meta name="keywords" content="와구센, wagusen, 블로그, 시뮬레이션">
+    <meta name="author" content="와구센">
     
-    <!-- 페이지별 추가 스타일 -->
+    <!-- 파비콘 -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/wagusen.ico') }}">
+    
+    <!-- Font Awesome 아이콘 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     {% block head %}{% endblock %}
-    
-    <!-- 테마 초기화 스크립트 - 페이지 깜빡임 방지를 위해 head에 배치 -->
-    <script>
-        // 최소한의 테마 초기화 코드만 유지 (FOUC 방지)
-        // 나머지 로직은 main.js에서 처리
-        (function() {
-            const savedTheme = localStorage.getItem('theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            
-            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-                document.documentElement.classList.add('dark-theme');
-                document.body.classList.add('dark-theme');
-            }
-        })();
-    </script>
 </head>
-<body class="{% block body_class %}{% endblock %}">
-    <!-- 통합된 헤더 영역 -->
-    <header class="top-header" id="siteHeader">
+<body>
+    <!-- 헤더 -->
+    <header class="top-header">
         <div class="container">
+            <!-- 로고 영역 -->
             <div class="logo-area">
-                <a href="{{ url_for('main.index') }}" class="logo">
-                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="로고 이미지">
+                <a href="{{ url_for('home') }}" class="logo">
+                    <img src="{{ url_for('static', filename='img/wagusen_logo.png') }}" alt="와구센 로고">
                     <span class="site-name">와구센</span>
                 </a>
             </div>
             
-            <!-- 데스크톱 네비게이션 메뉴 -->
-            <nav class="main-nav desktop-nav" id="desktopNav">
+            <!-- 데스크톱 네비게이션 -->
+            <nav class="desktop-nav" aria-label="주 메뉴">
                 <ul>
-                    <li><a href="{{ url_for('posts.index') }}">블로그</a></li>
-                    <li><a href="{{ url_for('simulation.index') }}">시뮬레이션</a></li>
-                    <li><a href="{{ url_for('main.about') }}">소개</a></li>
+                    <li><a href="{{ url_for('posts.index') }}" {% if request.endpoint and 'posts' in request.endpoint %}class="active"{% endif %}>블로그</a></li>
+                    <li><a href="{{ url_for('simulations.index') }}" {% if request.endpoint and 'simulations' in request.endpoint %}class="active"{% endif %}>시뮬레이션</a></li>
+                    <li><a href="{{ url_for('about') }}" {% if request.endpoint == 'about' %}class="active"{% endif %}>소개</a></li>
                 </ul>
             </nav>
             
+            <!-- 헤더 컨트롤 -->
             <div class="header-controls">
-                <!-- 데스크톱 전용 테마 토글 버튼 -->
-                <div class="theme-toggle-area">
-                    <button class="theme-toggle" id="themeToggle" title="테마 변경" aria-label="테마 전환">
-                        <i class="fas fa-moon dark-icon"></i>
-                        <i class="fas fa-sun light-icon"></i>
-                    </button>
-                </div>
+                <!-- 테마 토글 버튼 -->
+                <button class="theme-toggle" id="theme-toggle" aria-label="테마 변경">
+                    <i class="fas fa-lightbulb light-icon"></i>
+                    <i class="fas fa-lightbulb dark-icon"></i>
+                </button>
                 
-                <!-- 모바일 메뉴 토글 버튼 -->
-                <button class="mobile-toggle" id="mobileToggle" aria-label="메뉴 열기">
+                <!-- 모바일 토글 -->
+                <button class="mobile-toggle" id="mobile-toggle" aria-label="모바일 메뉴 열기">
                     <span class="hamburger-line"></span>
                     <span class="hamburger-line"></span>
                     <span class="hamburger-line"></span>
@@ -65,111 +58,77 @@
             </div>
         </div>
     </header>
-
-    <!-- 모바일 전용 슬라이드 메뉴 -->
-    <nav class="mobile-nav" id="mobileNav">
+    
+    <!-- 모바일 네비게이션 -->
+    <nav class="mobile-nav" id="mobile-nav" aria-label="모바일 메뉴">
         <div class="mobile-nav-header">
-            <div class="mobile-nav-logo">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="로고">
-                <span>와구센</span>
-            </div>
-            <button class="mobile-nav-close" id="mobileNavClose" aria-label="메뉴 닫기">
+            <span class="mobile-nav-title">메뉴</span>
+            <button class="mobile-nav-close" id="mobile-nav-close" aria-label="메뉴 닫기">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        
         <div class="mobile-nav-content">
-            <ul class="mobile-nav-list">
-                <li class="mobile-nav-item">
-                    <a href="{{ url_for('posts.index') }}" class="mobile-nav-link">
-                        <i class="fas fa-blog"></i>
-                        <span>블로그</span>
-                        <i class="fas fa-chevron-right"></i>
-                    </a>
-                </li>
-                <li class="mobile-nav-item">
-                    <a href="{{ url_for('simulation.index') }}" class="mobile-nav-link">
-                        <i class="fas fa-atom"></i>
-                        <span>시뮬레이션</span>
-                        <i class="fas fa-chevron-right"></i>
-                    </a>
-                </li>
-                <li class="mobile-nav-item">
-                    <a href="{{ url_for('main.about') }}" class="mobile-nav-link">
-                        <i class="fas fa-info-circle"></i>
-                        <span>소개</span>
-                        <i class="fas fa-chevron-right"></i>
-                    </a>
-                </li>
-                <li class="mobile-nav-item mobile-theme-item">
-                    <button class="mobile-nav-link mobile-theme-toggle" id="mobileThemeToggle">
-                        <i class="fas fa-palette"></i>
-                        <span class="theme-text">다크모드</span>
-                        <div class="theme-switch">
-                            <div class="theme-switch-slider"></div>
-                        </div>
+            <a href="{{ url_for('posts.index') }}" class="mobile-nav-link">
+                <i class="fas fa-blog"></i>
+                <span>블로그</span>
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            <a href="{{ url_for('simulations.index') }}" class="mobile-nav-link">
+                <i class="fas fa-flask"></i>
+                <span>시뮬레이션</span>
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            <a href="{{ url_for('about') }}" class="mobile-nav-link">
+                <i class="fas fa-user"></i>
+                <span>소개</span>
+                <i class="fas fa-chevron-right"></i>
+            </a>
+            <div class="mobile-theme-item">
+                <div class="mobile-nav-link">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>다크 모드</span>
+                    <button class="theme-switch" id="mobile-theme-toggle">
+                        <span class="theme-switch-slider"></span>
                     </button>
-                </li>
-            </ul>
-        </div>
-        
-        <div class="mobile-nav-footer">
-            <div class="mobile-nav-info">
-                <p>&copy; 2025 와구센</p>
-            </div>
-            <div class="mobile-nav-social">
-                <a href="https://github.com/wagusen" target="_blank" rel="noopener noreferrer">
-                    <i class="fab fa-github"></i>
-                </a>
-                <a href="mailto:gusen@wagusen.com">
-                    <i class="fas fa-envelope"></i>
-                </a>
+                </div>
             </div>
         </div>
     </nav>
-
-    <!-- 모바일 메뉴 배경 오버레이 -->
-    <div class="mobile-overlay" id="mobileOverlay"></div>
-
-    <!-- 메인 콘텐츠 영역 -->
+    
+    <!-- 모바일 메뉴 오버레이 -->
+    <div class="mobile-overlay" id="mobile-overlay"></div>
+    
+    <!-- 메인 콘텐츠 -->
     <main>
-        <div class="container">
-            {% block content %}{% endblock %}
-        </div>
+        {% block content %}{% endblock %}
     </main>
-
-    <!-- 사이트 푸터 -->
+    
+    <!-- 푸터 -->
     <footer>
         <div class="container">
             <div class="footer-content">
                 <div class="footer-info">
-                    <p>&copy; 2025 | 와구센</p>
-                    <!-- 애니메이션 푸터 로고 -->
-                    <a href="#" class="footer-logo">
-                        <img src="{{ url_for('static', filename='img/footer-logo.gif') }}" alt="푸터 로고">
+                    <a href="{{ url_for('home') }}" class="footer-logo">
+                        <img src="{{ url_for('static', filename='img/wagusen_logo.png') }}" alt="와구센">
                     </a>
+                    <p>&copy; 2024 와구센. All rights reserved.</p>
                 </div>
                 <div class="footer-links">
-                    <a href="https://github.com/wagusen" target="_blank" rel="noopener noreferrer">
+                    <a href="https://github.com/wagusen" target="_blank" rel="noopener">
                         <i class="fab fa-github"></i>
                         <span>GitHub</span>
                     </a>
-                    <a href="mailto:gusen@wagusen.com">
+                    <a href="mailto:contact@wagusen.com">
                         <i class="fas fa-envelope"></i>
-                        <span>메일</span>
+                        <span>Email</span>
                     </a>
                 </div>
             </div>
         </div>
     </footer>
-
-    <!-- Font Awesome 아이콘 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
     
-    <!-- 메인 JavaScript - 모든 기능 통합 -->
+    <!-- 스크립트 -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    
-    <!-- 페이지별 추가 스크립트 -->
     {% block scripts %}{% endblock %}
 </body>
 </html>

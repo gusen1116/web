@@ -1,203 +1,110 @@
-/* main.css - 업데이트된 통합 메인 CSS 파일 */
+/* main.css - 새로운 통합 구조 */
 
 /* 
- * CSS 파일 로드 순서 (중복 제거 및 통합 후):
- * 1. variables.css - CSS 변수 정의
- * 2. reset.css - 브라우저 리셋
- * 3. base.css - 기본 HTML 요소 스타일
- * 4. typography.css - 타이포그래피 시스템
- * 5. layout.css - 레이아웃 시스템 (헤더, 푸터, 네비게이션)
- * 6. components.css - 재사용 가능한 컴포넌트
- * 7. blog.css - 통합된 블로그 스타일 (기존 blog.css + blog-grid.css 통합)
- * 8. post-content.css - 통합된 포스트 콘텐츠 스타일 (enhanced-content.css + enhanced-links.css 통합)
- * 9. social-embed.css - 소셜 미디어 임베드 스타일
- * 10. slide.css - 정리된 슬라이드 컴포넌트 (중복 제거)
- * 11. special.css - 정리된 특수 컴포넌트 (슬라이드 중복 제거)
- * 12. utilities.css - 유틸리티 클래스
+ * CSS 파일 로드 순서 (새로운 구조):
+ * 1. core.css - CSS 변수, 리셋, 기본 스타일 통합
+ * 2. layout.css - 레이아웃과 타이포그래피 통합
+ * 3. components.css - 재사용 가능한 모든 UI 컴포넌트
+ * 4. pages.css - 페이지별 스타일 (블로그, 포스트, 특수 컴포넌트)
+ * 5. utilities.css - 유틸리티 클래스 (변경 없음)
  */
 
- @import url('./variables.css');
- @import url('./reset.css');
- @import url('./base.css');
- @import url('./typography.css');
+ @import url('./core.css');
  @import url('./layout.css');
  @import url('./components.css');
- @import url('./blog.css');           /* 통합된 블로그 스타일 (blog.css + blog-grid.css) */
- @import url('./post-content.css');   /* 통합된 포스트 콘텐츠 스타일 (enhanced-content.css + enhanced-links.css) */
- @import url('./social-embed.css');   /* 소셜 미디어 임베드 스타일 */
- @import url('./slide.css');          /* 정리된 슬라이드 컴포넌트 */
- @import url('./special.css');        /* 정리된 특수 컴포넌트 (중복 제거) */
+ @import url('./pages.css');
  @import url('./utilities.css');
  
  /* ===== 추가 전역 스타일 ===== */
  
- /* 스크롤바 스타일링 */
- ::-webkit-scrollbar {
-   width: 12px;
-   height: 12px;
+ /* 페이지 전환 효과 */
+ .page-transition {
+   animation: pageEnter 0.3s ease-out;
  }
  
- ::-webkit-scrollbar-track {
-   background: var(--bg-secondary);
+ @keyframes pageEnter {
+   from {
+     opacity: 0;
+     transform: translateY(20px);
+   }
+   to {
+     opacity: 1;
+     transform: translateY(0);
+   }
  }
  
- ::-webkit-scrollbar-thumb {
-   background: var(--text-tertiary);
-   border-radius: var(--radius-md);
-   border: 3px solid var(--bg-secondary);
+ /* 스크롤 진행률 표시기 */
+ .scroll-progress {
+   position: fixed;
+   top: 0;
+   left: 0;
+   width: 0%;
+   height: 3px;
+   background: linear-gradient(90deg, var(--primary-400), var(--primary-600));
+   z-index: var(--z-tooltip);
+   transition: width 0.3s ease-out;
  }
  
- ::-webkit-scrollbar-thumb:hover {
-   background: var(--text-secondary);
- }
- 
- /* 선택 영역 스타일링 */
- ::selection {
-   background-color: var(--text-accent);
+ /* 백 투 톱 버튼 */
+ .back-to-top {
+   position: fixed;
+   bottom: var(--space-8);
+   right: var(--space-8);
+   width: 48px;
+   height: 48px;
+   background: var(--primary-500);
    color: white;
- }
- 
- ::-moz-selection {
-   background-color: var(--text-accent);
-   color: white;
- }
- 
- /* 포커스 스타일 일관성 */
- :focus-visible {
-   outline: 2px solid var(--text-accent);
-   outline-offset: 2px;
- }
- 
- /* 모바일 테마 스위치 스타일 (base.html에서 사용) */
- .theme-switch {
-   position: relative;
-   width: 40px;
-   height: 20px;
-   background-color: var(--bg-tertiary);
-   border-radius: 10px;
-   border: 1px solid var(--border-color);
-   transition: all 0.3s ease;
- }
- 
- .theme-switch-slider {
-   position: absolute;
-   top: 2px;
-   left: 2px;
-   width: 16px;
-   height: 16px;
-   background-color: var(--text-primary);
-   border-radius: 50%;
-   transition: all 0.3s ease;
- }
- 
- .theme-switch-slider.active {
-   transform: translateX(18px);
-   background-color: #58a6ff;
- }
- 
- html.dark-theme .theme-switch.active {
-   background-color: rgba(88, 166, 255, 0.2);
- }
- 
- /* 모바일 테마 아이템 스타일 */
- .mobile-theme-item {
-   border-top: 1px solid var(--border-color);
-   margin-top: 1rem;
-   padding-top: 1rem;
- }
- 
- .mobile-theme-toggle {
-   justify-content: space-between !important;
+   border-radius: var(--radius-full);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   box-shadow: var(--shadow-lg);
    cursor: pointer;
-   background: none;
-   border: none;
+   opacity: 0;
+   visibility: hidden;
+   transition: all var(--duration-300) var(--ease-out);
+   z-index: var(--z-fixed);
+ }
+ 
+ .back-to-top:hover {
+   background: var(--primary-600);
+   transform: translateY(-4px);
+   box-shadow: var(--shadow-xl);
+ }
+ 
+ .back-to-top.visible {
+   opacity: 1;
+   visibility: visible;
+ }
+ 
+ /* 선택 불가능한 요소 */
+ .no-select {
+   -webkit-user-select: none;
+   -moz-user-select: none;
+   -ms-user-select: none;
+   user-select: none;
+ }
+ 
+ /* 스크롤 잠금 */
+ body.scroll-lock {
+   overflow: hidden;
+   position: fixed;
    width: 100%;
-   text-align: left;
  }
  
- .mobile-theme-toggle:hover {
-   background: rgba(var(--text-accent), 0.05) !important;
+ /* 디버그 모드 (개발용) */
+ .debug * {
+   outline: 1px solid rgba(255, 0, 0, 0.3);
  }
  
- /* 모바일 네비게이션 푸터 */
- .mobile-nav-footer {
-   margin-top: auto;
-   padding: var(--spacing-4) var(--spacing-5);
-   border-top: 1px solid var(--border-color);
-   display: flex;
-   justify-content: space-between;
-   align-items: center;
+ .debug *:hover {
+   outline: 2px solid rgba(255, 0, 0, 0.8);
  }
  
- .mobile-nav-info p {
-   margin: 0;
-   font-size: var(--font-size-sm);
-   color: var(--text-tertiary);
- }
- 
- .mobile-nav-social {
-   display: flex;
-   gap: var(--spacing-3);
- }
- 
- .mobile-nav-social a {
-   color: var(--text-tertiary);
-   font-size: 1.2rem;
-   transition: color var(--transition-fast);
- }
- 
- .mobile-nav-social a:hover {
-   color: var(--text-accent);
- }
- 
- /* 소개 섹션 (index.html용) */
- .intro-section {
-   margin: 3rem 0;
-   padding: 2rem 0;
- }
- 
- .intro-container {
-   display: grid;
-   grid-template-columns: 1fr 2fr;
-   gap: 3rem;
-   align-items: center;
-   max-width: var(--container-width);
-   margin: 0 auto;
- }
- 
- .intro-image-area {
-   text-align: center;
- }
- 
- .intro-image {
-   max-width: 100%;
-   height: auto;
-   border-radius: var(--radius-lg);
-   box-shadow: var(--shadow-sm);
- }
- 
- .intro-content-area {
-   /* 내용이 추가될 영역 */
- }
- 
- /* 공간 채우기용 */
- .spacer {
-   height: 4rem;
- }
- 
- /* 시뮬레이션 섹션 (index.html용) */
- .simulation-section {
-   margin: 4rem 0;
-   text-align: center;
- }
- 
- .simulation-section h2 {
-   margin-bottom: 1rem;
- }
- 
- .simulation-section p {
-   margin-bottom: 2rem;
-   color: var(--text-secondary);
+ /* 접근성 개선 - 키보드 포커스 표시 */
+ .keyboard-focus-visible *:focus {
+   outline: 2px solid var(--primary-500);
+   outline-offset: 2px;
  }
  
  /* 프린트 스타일 */
@@ -208,13 +115,11 @@
    }
    
    .top-header,
-   .footer,
+   footer,
    .mobile-nav,
    .mobile-overlay,
-   .post-nav,
-   .tag-navigation,
-   .theme-toggle,
-   .mobile-toggle {
+   .back-to-top,
+   .scroll-progress {
      display: none !important;
    }
    
@@ -233,64 +138,19 @@
    }
  }
  
- /* 접근성 개선 */
- @media (prefers-reduced-motion: reduce) {
-   *,
-   *::before,
-   *::after {
-     animation-duration: 0.01ms !important;
-     animation-iteration-count: 1 !important;
-     transition-duration: 0.01ms !important;
-     scroll-behavior: auto !important;
-   }
- }
- 
  /* 고대비 모드 지원 */
  @media (prefers-contrast: high) {
    :root {
-     --text-accent: #0550ae;
+     --primary-500: #0550ae;
      --border-color: #000;
    }
    
    html.dark-theme {
-     --text-accent: #8bb9ff;
+     --primary-500: #8bb9ff;
      --border-color: #fff;
    }
    
    * {
      border-width: 2px !important;
    }
- }
- 
- /* 모바일 안전 영역 대응 */
- @supports (padding: max(0px)) {
-   .container {
-     padding-left: max(var(--spacing-4), env(safe-area-inset-left));
-     padding-right: max(var(--spacing-4), env(safe-area-inset-right));
-   }
-   
-   footer {
-     padding-bottom: max(var(--spacing-6), env(safe-area-inset-bottom));
-   }
- }
- 
- /* 반응형 디자인 */
- @media (max-width: 768px) {
-   .intro-container {
-     grid-template-columns: 1fr;
-     gap: 2rem;
-   }
-   
-   .intro-image-area {
-     order: -1;
-   }
- }
- 
- /* 디버그 모드 (개발용) */
- .debug * {
-   outline: 1px solid rgba(255, 0, 0, 0.3);
- }
- 
- .debug *:hover {
-   outline: 2px solid rgba(255, 0, 0, 0.8);
  }
