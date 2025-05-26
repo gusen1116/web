@@ -1,98 +1,4 @@
-/* special.css - 특수 컴포넌트 스타일 */
-
-/* ===== 슬라이드 컨테이너 ===== */
-.slide-container {
-  position: relative;
-  width: 100%;
-  max-width: var(--content-max-width);
-  height: 300px;
-  overflow: hidden;
-  margin: 0 auto 3rem;
-  background-color: var(--text-accent);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border-color);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-html.dark-theme .slide-container {
-  background-color: #1f6feb;
-}
-
-.slide {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  color: white;
-  text-align: center;
-  padding: 2rem;
-  opacity: 0;
-  z-index: 1;
-  transition: opacity 0.7s ease;
-}
-
-.slide.active {
-  opacity: 1;
-  z-index: 2;
-}
-
-.slide h2 {
-  font-size: 2.5rem;
-  margin: 0 auto 1.5rem;
-  color: white;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  letter-spacing: -0.02em;
-  width: 100%;
-  text-align: center;
-  max-width: 700px;
-}
-
-.slide p {
-  font-size: 1.2rem;
-  max-width: 700px;
-  margin: 0 auto 2rem;
-  line-height: 1.5;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  text-align: center;
-  color: white;
-}
-
-.slide-controls {
-  position: absolute;
-  bottom: 25px;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  z-index: 3;
-}
-
-.slide-indicator {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.4);
-  transition: all var(--transition-normal);
-  cursor: pointer;
-  border: 2px solid transparent;
-}
-
-.slide-indicator.active {
-  background-color: white;
-  transform: scale(1.2);
-}
-
-.slide-indicator:hover {
-  background-color: rgba(255, 255, 255, 0.8);
-}
+/* special.css - 정리된 특수 컴포넌트 스타일 (슬라이드 중복 제거) */
 
 /* ===== 시뮬레이션 그리드 ===== */
 .simulation-grid {
@@ -235,7 +141,7 @@ html.dark-theme .slide-container {
   flex: 1;
 }
 
-/* ===== 소셜 미디어 임베드 ===== */
+/* ===== 소셜 미디어 임베드 (social-embed.css와 중복되지 않는 부분만) ===== */
 .social-embed {
   width: 100%;
   max-width: var(--paragraph-width);
@@ -263,7 +169,7 @@ html.dark-theme .social-embed {
   border-radius: 0 !important;
 }
 
-/* 유튜브 임베드 */
+/* ===== 유튜브 임베드 ===== */
 .youtube-embed {
   position: relative;
   width: var(--paragraph-width);
@@ -285,7 +191,7 @@ html.dark-theme .social-embed {
   border: none;
 }
 
-/* 비디오 임베드 */
+/* ===== 비디오 임베드 ===== */
 .video-embed {
   width: var(--paragraph-width);
   max-width: 100%;
@@ -309,7 +215,7 @@ html.dark-theme .social-embed {
   text-align: center;
 }
 
-/* 오디오 임베드 */
+/* ===== 오디오 임베드 ===== */
 .audio-embed {
   width: var(--paragraph-width);
   max-width: 100%;
@@ -333,7 +239,7 @@ html.dark-theme .social-embed {
   text-align: center;
 }
 
-/* 갤러리 */
+/* ===== 갤러리 ===== */
 .gallery {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -399,34 +305,6 @@ html.dark-theme .highlight-box {
   border-left-color: #58a6ff;
 }
 
-/* ===== 시리즈 박스 ===== */
-.series-box {
-  background-color: #ddf4ff;
-  border-radius: var(--radius-md);
-  padding: 1.2rem 1.5rem;
-  margin: 1.5rem auto;
-  width: var(--paragraph-width);
-  max-width: 100%;
-  border: 1px solid rgba(9, 105, 218, 0.1);
-}
-
-html.dark-theme .series-box {
-  background-color: rgba(56, 139, 253, 0.15);
-  border-color: rgba(56, 139, 253, 0.4);
-}
-
-.series-title {
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  font-size: var(--font-size-md);
-  color: var(--text-accent);
-}
-
-.series-info {
-  font-size: 0.95rem;
-  color: var(--text-secondary);
-}
-
 /* ===== 에러 임베드 ===== */
 .error-embed {
   width: var(--paragraph-width);
@@ -450,44 +328,25 @@ html.dark-theme .error-embed {
 /* ===== 반응형 ===== */
 @media (max-width: 1200px) {
   .simulation-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .slide-container {
-    width: calc(100% - 2rem);
-    margin-left: auto;
-    margin-right: auto;
+      grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
   .simulation-grid {
-    grid-template-columns: 1fr;
+      grid-template-columns: 1fr;
   }
   
   .simulation-card {
-    min-height: 350px;
+      min-height: 350px;
   }
   
   .simulation-controls {
-    grid-template-columns: 1fr;
+      grid-template-columns: 1fr;
   }
   
   #simulationCanvas {
-    height: 350px;
-  }
-  
-  .slide-container {
-    width: 100%;
-    height: 250px;
-  }
-  
-  .slide h2 {
-    font-size: 1.8rem;
-  }
-  
-  .slide p {
-    font-size: 1rem;
+      height: 350px;
   }
   
   .social-embed,
@@ -496,26 +355,15 @@ html.dark-theme .error-embed {
   .audio-embed,
   .gallery,
   .highlight-box,
-  .series-box,
   .error-embed {
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 1rem;
-    padding-right: 1rem;
+      width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 1rem;
+      padding-right: 1rem;
   }
   
   .gallery {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  }
-}
-
-@media (max-width: 480px) {
-  .slide h2 {
-    font-size: 1.5rem;
-  }
-  
-  .slide p {
-    font-size: 0.9rem;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
 }

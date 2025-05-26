@@ -1,26 +1,32 @@
-/* main.css - 통합 메인 CSS 파일 */
+/* main.css - 업데이트된 통합 메인 CSS 파일 */
 
 /* 
- * CSS 파일 로드 순서:
+ * CSS 파일 로드 순서 (중복 제거 및 통합 후):
  * 1. variables.css - CSS 변수 정의
  * 2. reset.css - 브라우저 리셋
  * 3. base.css - 기본 HTML 요소 스타일
- * 4. layout.css - 레이아웃 시스템
- * 5. typography.css - 타이포그래피 시스템
+ * 4. typography.css - 타이포그래피 시스템
+ * 5. layout.css - 레이아웃 시스템 (헤더, 푸터, 네비게이션)
  * 6. components.css - 재사용 가능한 컴포넌트
- * 7. blog.css - 블로그 특화 스타일
- * 8. special.css - 특수 컴포넌트
- * 9. utilities.css - 유틸리티 클래스
+ * 7. blog.css - 통합된 블로그 스타일 (기존 blog.css + blog-grid.css 통합)
+ * 8. post-content.css - 통합된 포스트 콘텐츠 스타일 (enhanced-content.css + enhanced-links.css 통합)
+ * 9. social-embed.css - 소셜 미디어 임베드 스타일
+ * 10. slide.css - 정리된 슬라이드 컴포넌트 (중복 제거)
+ * 11. special.css - 정리된 특수 컴포넌트 (슬라이드 중복 제거)
+ * 12. utilities.css - 유틸리티 클래스
  */
 
  @import url('./variables.css');
  @import url('./reset.css');
  @import url('./base.css');
- @import url('./layout.css');
  @import url('./typography.css');
+ @import url('./layout.css');
  @import url('./components.css');
- @import url('./blog.css');
- @import url('./special.css');
+ @import url('./blog.css');           /* 통합된 블로그 스타일 (blog.css + blog-grid.css) */
+ @import url('./post-content.css');   /* 통합된 포스트 콘텐츠 스타일 (enhanced-content.css + enhanced-links.css) */
+ @import url('./social-embed.css');   /* 소셜 미디어 임베드 스타일 */
+ @import url('./slide.css');          /* 정리된 슬라이드 컴포넌트 */
+ @import url('./special.css');        /* 정리된 특수 컴포넌트 (중복 제거) */
  @import url('./utilities.css');
  
  /* ===== 추가 전역 스타일 ===== */
@@ -62,6 +68,138 @@
    outline-offset: 2px;
  }
  
+ /* 모바일 테마 스위치 스타일 (base.html에서 사용) */
+ .theme-switch {
+   position: relative;
+   width: 40px;
+   height: 20px;
+   background-color: var(--bg-tertiary);
+   border-radius: 10px;
+   border: 1px solid var(--border-color);
+   transition: all 0.3s ease;
+ }
+ 
+ .theme-switch-slider {
+   position: absolute;
+   top: 2px;
+   left: 2px;
+   width: 16px;
+   height: 16px;
+   background-color: var(--text-primary);
+   border-radius: 50%;
+   transition: all 0.3s ease;
+ }
+ 
+ .theme-switch-slider.active {
+   transform: translateX(18px);
+   background-color: #58a6ff;
+ }
+ 
+ html.dark-theme .theme-switch.active {
+   background-color: rgba(88, 166, 255, 0.2);
+ }
+ 
+ /* 모바일 테마 아이템 스타일 */
+ .mobile-theme-item {
+   border-top: 1px solid var(--border-color);
+   margin-top: 1rem;
+   padding-top: 1rem;
+ }
+ 
+ .mobile-theme-toggle {
+   justify-content: space-between !important;
+   cursor: pointer;
+   background: none;
+   border: none;
+   width: 100%;
+   text-align: left;
+ }
+ 
+ .mobile-theme-toggle:hover {
+   background: rgba(var(--text-accent), 0.05) !important;
+ }
+ 
+ /* 모바일 네비게이션 푸터 */
+ .mobile-nav-footer {
+   margin-top: auto;
+   padding: var(--spacing-4) var(--spacing-5);
+   border-top: 1px solid var(--border-color);
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+ }
+ 
+ .mobile-nav-info p {
+   margin: 0;
+   font-size: var(--font-size-sm);
+   color: var(--text-tertiary);
+ }
+ 
+ .mobile-nav-social {
+   display: flex;
+   gap: var(--spacing-3);
+ }
+ 
+ .mobile-nav-social a {
+   color: var(--text-tertiary);
+   font-size: 1.2rem;
+   transition: color var(--transition-fast);
+ }
+ 
+ .mobile-nav-social a:hover {
+   color: var(--text-accent);
+ }
+ 
+ /* 소개 섹션 (index.html용) */
+ .intro-section {
+   margin: 3rem 0;
+   padding: 2rem 0;
+ }
+ 
+ .intro-container {
+   display: grid;
+   grid-template-columns: 1fr 2fr;
+   gap: 3rem;
+   align-items: center;
+   max-width: var(--container-width);
+   margin: 0 auto;
+ }
+ 
+ .intro-image-area {
+   text-align: center;
+ }
+ 
+ .intro-image {
+   max-width: 100%;
+   height: auto;
+   border-radius: var(--radius-lg);
+   box-shadow: var(--shadow-sm);
+ }
+ 
+ .intro-content-area {
+   /* 내용이 추가될 영역 */
+ }
+ 
+ /* 공간 채우기용 */
+ .spacer {
+   height: 4rem;
+ }
+ 
+ /* 시뮬레이션 섹션 (index.html용) */
+ .simulation-section {
+   margin: 4rem 0;
+   text-align: center;
+ }
+ 
+ .simulation-section h2 {
+   margin-bottom: 1rem;
+ }
+ 
+ .simulation-section p {
+   margin-bottom: 2rem;
+   color: var(--text-secondary);
+ }
+ 
  /* 프린트 스타일 */
  @media print {
    body {
@@ -75,7 +213,8 @@
    .mobile-overlay,
    .post-nav,
    .tag-navigation,
-   .theme-toggle {
+   .theme-toggle,
+   .mobile-toggle {
      display: none !important;
    }
    
@@ -132,6 +271,18 @@
    
    footer {
      padding-bottom: max(var(--spacing-6), env(safe-area-inset-bottom));
+   }
+ }
+ 
+ /* 반응형 디자인 */
+ @media (max-width: 768px) {
+   .intro-container {
+     grid-template-columns: 1fr;
+     gap: 2rem;
+   }
+   
+   .intro-image-area {
+     order: -1;
    }
  }
  

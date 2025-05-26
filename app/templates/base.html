@@ -6,18 +6,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %}와구센{% endblock %}</title>
     
+    <!-- 메인 CSS 파일 (모든 스타일 통합) -->
     <link rel="stylesheet" href="/static/css/main.css">
+    
     <!-- 페이지별 추가 스타일 -->
     {% block head %}{% endblock %}
     
     <!-- 테마 초기화 스크립트 - 페이지 깜빡임 방지를 위해 head에 배치 -->
     <script>
-        // 로컬 스토리지에서 저장된 테마 설정을 확인하고 즉시 적용
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark-theme');
-            document.body.classList.add('dark-theme');
-        }
+        // 최소한의 테마 초기화 코드만 유지 (FOUC 방지)
+        // 나머지 로직은 main.js에서 처리
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.classList.add('dark-theme');
+                document.body.classList.add('dark-theme');
+            }
+        })();
     </script>
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -156,305 +163,13 @@
         </div>
     </footer>
 
-    <!-- JavaScript 기능들 -->
-    <script>
-        // ===== 공통 테마 토글 함수 =====
-        function toggleTheme() {
-            const isDark = document.documentElement.classList.contains('dark-theme');
-            const themeText = document.querySelector('.theme-text');
-            const themeSwitch = document.querySelector('.theme-switch-slider');
-            
-            if (isDark) {
-                // 라이트 모드로 전환
-                document.documentElement.classList.remove('dark-theme');
-                document.body.classList.remove('dark-theme');
-                localStorage.setItem('theme', 'light');
-                if (themeText) themeText.textContent = '라이트모드';
-                if (themeSwitch) themeSwitch.classList.remove('active');
-            } else {
-                // 다크 모드로 전환
-                document.documentElement.classList.add('dark-theme');
-                document.body.classList.add('dark-theme');
-                localStorage.setItem('theme', 'dark');
-                if (themeText) themeText.textContent = '다크모드';
-                if (themeSwitch) themeSwitch.classList.add('active');
-            }
-            
-            // CSS 변수 재계산을 위한 강제 리플로우
-            document.body.offsetHeight;
-            applyThemeColors();
-            
-            console.log('Theme toggled to:', isDark ? 'light' : 'dark');
-        }
-
-        // 테마 색상 적용 함수
-        function applyThemeColors() {
-            const isDark = document.documentElement.classList.contains('dark-theme');
-            const bgPrimary = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
-            const textPrimary = getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim();
-            
-            document.body.style.backgroundColor = bgPrimary;
-            document.body.style.color = textPrimary;
-        }
-
-        // ===== 완전히 새로운 모바일 메뉴 시스템 =====
-        document.addEventListener('DOMContentLoaded', function() {
-            const mobileToggle = document.getElementById('mobileToggle');
-            const mobileNav = document.getElementById('mobileNav');
-            const mobileNavClose = document.getElementById('mobileNavClose');
-            const overlay = document.getElementById('mobileOverlay');
-            const body = document.body;
-            const desktopThemeToggle = document.getElementById('themeToggle');
-            const mobileThemeToggle = document.getElementById('mobileThemeToggle');
-            
-            let isMenuOpen = false;
-            
-            console.log('모바일 메뉴 시스템 초기화 중...', {
-                mobileToggle: !!mobileToggle,
-                mobileNav: !!mobileNav,
-                mobileNavClose: !!mobileNavClose,
-                overlay: !!overlay
-            });
-
-            // 초기 테마 상태 설정
-            function initThemeState() {
-                const isDark = document.documentElement.classList.contains('dark-theme');
-                const themeText = document.querySelector('.theme-text');
-                const themeSwitch = document.querySelector('.theme-switch-slider');
-                
-                if (themeText) {
-                    themeText.textContent = isDark ? '다크모드' : '라이트모드';
-                }
-                if (themeSwitch) {
-                    themeSwitch.classList.toggle('active', isDark);
-                }
-            }
-            
-            // 메뉴 열기 함수
-            function openMobileMenu() {
-                console.log('모바일 메뉴 열기...');
-                isMenuOpen = true;
-                
-                // 클래스 추가
-                if (mobileNav) mobileNav.classList.add('active');
-                if (mobileToggle) mobileToggle.classList.add('active');
-                if (overlay) overlay.classList.add('active');
-                if (body) body.classList.add('nav-open');
-                
-                // 배경 스크롤 차단
-                const scrollY = window.scrollY;
-                body.style.overflow = 'hidden';
-                body.style.position = 'fixed';
-                body.style.top = `-${scrollY}px`;
-                body.style.width = '100%';
-                body.setAttribute('data-scroll-y', scrollY);
-
-                // 접근성을 위한 포커스 관리
-                setTimeout(() => {
-                    if (mobileNavClose) mobileNavClose.focus();
-                }, 300);
-            }
-            
-            // 메뉴 닫기 함수
-            function closeMobileMenu() {
-                console.log('모바일 메뉴 닫기...');
-                isMenuOpen = false;
-                
-                // 클래스 제거
-                if (mobileNav) mobileNav.classList.remove('active');
-                if (mobileToggle) mobileToggle.classList.remove('active');
-                if (overlay) overlay.classList.remove('active');
-                if (body) body.classList.remove('nav-open');
-                
-                // 스크롤 위치 복원
-                const scrollY = body.getAttribute('data-scroll-y');
-                body.style.overflow = '';
-                body.style.position = '';
-                body.style.top = '';
-                body.style.width = '';
-                
-                if (scrollY) {
-                    window.scrollTo(0, parseInt(scrollY));
-                    body.removeAttribute('data-scroll-y');
-                }
-            }
-            
-            // 메뉴 토글 함수
-            function toggleMobileMenu() {
-                if (isMenuOpen) {
-                    closeMobileMenu();
-                } else {
-                    openMobileMenu();
-                }
-            }
-            
-            // ===== 이벤트 리스너 등록 =====
-            
-            // 햄버거 메뉴 버튼 클릭
-            if (mobileToggle) {
-                mobileToggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleMobileMenu();
-                });
-            }
-            
-            // 모바일 메뉴 닫기 버튼
-            if (mobileNavClose) {
-                mobileNavClose.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    closeMobileMenu();
-                });
-            }
-            
-            // 오버레이 클릭으로 메뉴 닫기
-            if (overlay) {
-                overlay.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    closeMobileMenu();
-                });
-            }
-            
-            // 메뉴 링크 클릭 시 자동으로 메뉴 닫기
-            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link:not(.mobile-theme-toggle)');
-            mobileNavLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    if (isMenuOpen) {
-                        setTimeout(() => closeMobileMenu(), 150);
-                    }
-                });
-            });
-            
-            // ESC 키로 메뉴 닫기
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && isMenuOpen) {
-                    closeMobileMenu();
-                }
-            });
-            
-            // 화면 크기 변경 감지
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 768 && isMenuOpen) {
-                    closeMobileMenu();
-                }
-            });
-            
-            // 스와이프 제스처 지원
-            let touchStartX = 0;
-            let touchStartY = 0;
-            
-            if (mobileNav) {
-                mobileNav.addEventListener('touchstart', function(e) {
-                    touchStartX = e.touches[0].clientX;
-                    touchStartY = e.touches[0].clientY;
-                }, { passive: true });
-                
-                mobileNav.addEventListener('touchend', function(e) {
-                    const touchEndX = e.changedTouches[0].clientX;
-                    const touchEndY = e.changedTouches[0].clientY;
-                    const diffX = touchStartX - touchEndX;
-                    const diffY = Math.abs(touchStartY - touchEndY);
-                    
-                    // 오른쪽으로 스와이프할 때 메뉴 닫기
-                    if (diffX > 50 && diffY < 100) {
-                        closeMobileMenu();
-                    }
-                }, { passive: true });
-            }
-
-            // ===== 테마 토글 이벤트 리스너 =====
-            
-            // 데스크톱 테마 토글
-            if (desktopThemeToggle) {
-                desktopThemeToggle.addEventListener('click', toggleTheme);
-            }
-            
-            // 모바일 테마 토글
-            if (mobileThemeToggle) {
-                mobileThemeToggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleTheme();
-                    
-                    // 시각적 피드백
-                    this.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        this.style.transform = '';
-                    }, 150);
-                });
-            }
-            
-            // 초기화
-            initThemeState();
-            applyThemeColors();
-            
-            console.log('모바일 메뉴 시스템 초기화 완료!');
-        });
-        
-        // ===== 스크롤에 따른 헤더 애니메이션 =====
-        (function() {
-            const header = document.getElementById('siteHeader');
-            let lastScrollTop = 0;
-            let isScrollingUp = false;
-            let scrollTimer = null;
-            
-            window.addEventListener('scroll', function() {
-                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                
-                // 스크롤 방향 감지
-                if (scrollTop > lastScrollTop && scrollTop > 100) {
-                    // 아래로 스크롤 - 헤더 숨기기
-                    if (!header.classList.contains('header-hidden')) {
-                        header.classList.add('header-hidden');
-                    }
-                    isScrollingUp = false;
-                } else {
-                    // 위로 스크롤 - 헤더 보이기
-                    if (header.classList.contains('header-hidden')) {
-                        header.classList.remove('header-hidden');
-                    }
-                    isScrollingUp = true;
-                }
-                
-                // 스크롤 멈춤 감지
-                clearTimeout(scrollTimer);
-                scrollTimer = setTimeout(function() {
-                    if (isScrollingUp || scrollTop < 100) {
-                        header.classList.remove('header-hidden');
-                    }
-                }, 300);
-                
-                lastScrollTop = scrollTop;
-            });
-        })();
-        
-        // ===== 페이지 로드 완료 후 실행되는 기능들 =====
-        document.addEventListener('DOMContentLoaded', function() {
-            // 포스트 카드 링크 기능 활성화
-            const postLinks = document.querySelectorAll('.post-card-link');
-            
-            postLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    const href = this.getAttribute('href');
-                    if (href) {
-                        window.location.href = href;
-                    }
-                });
-                
-                // 태그 클릭 시 이벤트 전파 방지
-                const tagElements = link.querySelectorAll('.post-card-tag');
-                tagElements.forEach(tag => {
-                    tag.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                    });
-                });
-            });
-
-            console.log('모든 페이지 스크립트 로드 및 초기화 완료');
-        });
-    </script>
+    <!-- Font Awesome 아이콘 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    
+    <!-- 메인 JavaScript - 모든 기능 통합 -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <!-- 페이지별 추가 스크립트 -->
     {% block scripts %}{% endblock %}
 </body>
 </html>
