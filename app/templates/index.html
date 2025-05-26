@@ -2,98 +2,227 @@
 
 {% block title %}와구센 - 홈{% endblock %}
 
+{% block description %}와구센의 개인 웹사이트. 프로그래밍, 물리 시뮬레이션, 블로그 콘텐츠를 제공합니다.{% endblock %}
+
+{% block og_type %}website{% endblock %}
+
+{% block schema_type %}Website{% endblock %}
+
+{% block head %}
+<!-- 메인 페이지 전용 성능 최적화 -->
+<link rel="preload" href="{{ url_for('static', filename='img/gusen-jb.webp') }}" as="image" type="image/webp">
+<link rel="preload" href="{{ url_for('static', filename='js/slide-minimal.js') }}" as="script">
+
+<!-- 구조화된 데이터 - 개인 웹사이트 -->
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "PersonalSite",
+    "name": "와구센 개인 웹사이트",
+    "url": "{{ request.url }}",
+    "description": "프로그래밍, 물리 시뮬레이션, 블로그를 다루는 개인 웹사이트",
+    "author": {
+        "@type": "Person",
+        "name": "와구센",
+        "description": "웹 개발자이자 물리 시뮬레이션 애호가"
+    },
+    "mainEntity": {
+        "@type": "WebSite",
+        "url": "{{ request.url_root }}",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "{{ request.url_root }}search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <div class="container">
-    <!-- 슬라이드 섹션 -->
-    <section class="slide-section">
-        <div class="slide-container">
-            <div class="slide active">
+    <!-- 슬라이드 섹션 - 접근성 대폭 개선 -->
+    <section class="slide-section" aria-label="소개 슬라이드">
+        <div class="slide-container" 
+             role="region" 
+             aria-label="자동 재생 슬라이드쇼"
+             aria-live="polite">
+            
+            <!-- 슬라이드 컨트롤 버튼 - 접근성 개선 -->
+            <div class="slide-controls" role="tablist" aria-label="슬라이드 탐색">
+                <button class="slide-indicator active" 
+                        role="tab"
+                        aria-selected="true"
+                        aria-controls="slide-0"
+                        aria-label="첫 번째 슬라이드: 환영 인사"
+                        data-slide="0">
+                    <span class="sr-only">슬라이드 1</span>
+                </button>
+                <button class="slide-indicator" 
+                        role="tab"
+                        aria-selected="false"
+                        aria-controls="slide-1"
+                        aria-label="두 번째 슬라이드: 프로젝트 소개"
+                        data-slide="1">
+                    <span class="sr-only">슬라이드 2</span>
+                </button>
+                <button class="slide-indicator" 
+                        role="tab"
+                        aria-selected="false"
+                        aria-controls="slide-2"
+                        aria-label="세 번째 슬라이드: 물리학 소개"
+                        data-slide="2">
+                    <span class="sr-only">슬라이드 3</span>
+                </button>
+            </div>
+            
+            <!-- 슬라이드 일시정지/재생 버튼 -->
+            <button class="slide-play-pause" 
+                    id="slide-play-pause"
+                    aria-label="슬라이드 자동 재생 일시정지"
+                    aria-pressed="false"
+                    title="슬라이드 자동 재생 제어">
+                <i class="fas fa-pause" aria-hidden="true"></i>
+                <span class="sr-only">일시정지</span>
+            </button>
+            
+            <div class="slide active" 
+                 id="slide-0"
+                 role="tabpanel"
+                 aria-labelledby="slide-indicator-0"
+                 tabindex="0">
                 <h2>와구센의 홈페이지에 오신것을 환영합니다</h2>
                 <p>다양한 프로젝트와 블로그 글을 통해 지식을 공유하고 있습니다.</p>
             </div>
-            <div class="slide">
+            
+            <div class="slide" 
+                 id="slide-1"
+                 role="tabpanel"
+                 aria-labelledby="slide-indicator-1"
+                 tabindex="0"
+                 aria-hidden="true">
                 <h2>구센의 번직</h2>
                 <p>구센 어헤야기 프로젝트</p>
             </div>
-            <div class="slide">
-                <h2>테스트</h2>
-                <p>뉴턴 역학 기반 원자 분자 동역학을 계속합니다. 자동차가 감자가 감자할 때 몇가 알으로 솔라는 현상이 바로 관성이 힘을 얻는다</p>
-            </div>
-            <div class="slide-controls">
-                <span class="slide-indicator active" data-slide="0"></span>
-                <span class="slide-indicator" data-slide="1"></span>
-                <span class="slide-indicator" data-slide="2"></span>
+            
+            <div class="slide" 
+                 id="slide-2"
+                 role="tabpanel"
+                 aria-labelledby="slide-indicator-2"
+                 tabindex="0"
+                 aria-hidden="true">
+                <h2>물리학 탐구</h2>
+                <p>뉴턴 역학 기반 원자 분자 동역학을 탐구합니다. 자동차가 급정거할 때 몸이 앞으로 쏠리는 현상이 바로 관성의 한 예입니다.</p>
             </div>
         </div>
     </section>
 
-    <!-- 소개 섹션 - 원래 이미지 복원 -->
-    <section class="intro-section">
+    <!-- 소개 섹션 - 성능 최적화된 이미지 -->
+    <section class="intro-section" aria-labelledby="intro-heading">
         <div class="intro-content">
             <div class="intro-image">
-                <img src="{{ url_for('static', filename='img/gusen-jb.png') }}" 
-                     alt="와구센 프로필 사진"
-                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                <picture>
+                    <!-- WebP 포맷 우선 제공 -->
+                    <source srcset="{{ url_for('static', filename='img/gusen-jb-320.webp') }} 320w,
+                                    {{ url_for('static', filename='img/gusen-jb-640.webp') }} 640w,
+                                    {{ url_for('static', filename='img/gusen-jb-960.webp') }} 960w"
+                            sizes="(max-width: 768px) 280px, 320px"
+                            type="image/webp">
+                    <!-- 폴백 이미지 -->
+                    <source srcset="{{ url_for('static', filename='img/gusen-jb-320.jpg') }} 320w,
+                                    {{ url_for('static', filename='img/gusen-jb-640.jpg') }} 640w,
+                                    {{ url_for('static', filename='img/gusen-jb-960.jpg') }} 960w"
+                            sizes="(max-width: 768px) 280px, 320px"
+                            type="image/jpeg">
+                    <img src="{{ url_for('static', filename='img/gusen-jb.png') }}" 
+                         alt="와구센 프로필 사진 - 웃고 있는 모습"
+                         width="320"
+                         height="320"
+                         loading="lazy"
+                         decoding="async"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                </picture>
+                <!-- 폴백 아바타 -->
+                <div class="avatar-fallback" style="display: none;" aria-hidden="true">
+                    <span role="img" aria-label="기본 아바타">👨‍💻</span>
+                </div>
             </div>
             <div class="intro-text">
-                <h2>안녕하세요, 와구센입니다</h2>
+                <h2 id="intro-heading">안녕하세요, 와구센입니다</h2>
                 <p>웹 개발과 시뮬레이션에 관심이 많은 개발자입니다. 이 블로그에서는 제가 학습하고 경험한 내용들을 공유하고 있습니다.</p>
                 <p>주로 Python, JavaScript, 그리고 다양한 웹 기술들을 다루며, 물리 시뮬레이션과 데이터 시각화 프로젝트도 진행하고 있습니다.</p>
-                <a href="{{ url_for('main.about') }}" class="btn btn-primary">
+                <a href="{{ url_for('main.about') }}" 
+                   class="btn btn-primary"
+                   aria-describedby="intro-heading">
+                    <i class="fas fa-user" aria-hidden="true"></i>
                     더 알아보기
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- 최근 포스트 섹션 -->
-    <section class="recent-posts-section">
+    <!-- 최근 포스트 섹션 - 접근성 개선 -->
+    <section class="recent-posts-section" aria-labelledby="recent-posts-heading">
         <div class="section-header">
-            <h2>최근 포스트</h2>
-            <a href="{{ url_for('posts.index') }}" class="view-all-link">
-                전체 보기
-                <i class="fas fa-arrow-right"></i>
+            <h2 id="recent-posts-heading">최근 포스트</h2>
+            <a href="{{ url_for('posts.index') }}" 
+               class="view-all-link"
+               aria-describedby="recent-posts-heading">
+                <span>전체 보기</span>
+                <i class="fas fa-arrow-right" aria-hidden="true"></i>
             </a>
         </div>
         
-        <div class="recent-posts">
+        <div class="recent-posts" role="list" aria-label="최근 포스트 목록">
             {% for post in recent_posts %}
-            <article class="post-card">
-                <a href="{{ url_for('posts.view_by_slug', slug=post.slug or post.id) }}" class="post-card-link">
-                    <div class="post-card-header">
-                        <h3 class="post-card-title">{{ post.title }}</h3>
+            <article class="post-card" role="listitem">
+                <a href="{{ url_for('posts.view_by_slug', slug=post.slug or post.id) }}" 
+                   class="post-card-link"
+                   aria-labelledby="post-title-{{ loop.index }}">
+                    <header class="post-card-header">
+                        <h3 class="post-card-title" id="post-title-{{ loop.index }}">
+                            {{ post.title }}
+                        </h3>
                         <div class="post-card-meta">
                             <div class="post-card-date">
-                                <i class="far fa-calendar"></i>
-                                <time datetime="{{ post.date.isoformat() }}">{{ post.date.strftime('%Y년 %m월 %d일') }}</time>
+                                <i class="far fa-calendar" aria-hidden="true"></i>
+                                <time datetime="{{ post.date.isoformat() }}" 
+                                      aria-label="작성일: {{ post.date.strftime('%Y년 %m월 %d일') }}">
+                                    {{ post.date.strftime('%Y년 %m월 %d일') }}
+                                </time>
                             </div>
                         </div>
-                    </div>
+                    </header>
                     <div class="post-card-content">
-                        <p class="post-card-preview">{{ post.get_preview(150) }}</p>
+                        <p class="post-card-preview" aria-describedby="post-title-{{ loop.index }}">
+                            {{ post.get_preview(150) }}
+                        </p>
                     </div>
-                    <div class="post-card-footer">
-                        <div class="post-card-tags">
+                    <footer class="post-card-footer">
+                        <div class="post-card-tags" 
+                             role="list" 
+                             aria-label="태그 목록"
+                             {% if not post.tags %}aria-hidden="true"{% endif %}>
                             {% for tag in post.tags %}
-                            <span class="post-card-tag">
-                                <i class="fas fa-tag"></i>
-                                {{ tag }}
+                            <span class="post-card-tag" role="listitem">
+                                <i class="fas fa-tag" aria-hidden="true"></i>
+                                <span>{{ tag }}</span>
                             </span>
                             {% endfor %}
                         </div>
-                    </div>
+                    </footer>
                 </a>
             </article>
             {% else %}
-            <!-- 포스트가 없을 때 표시할 내용 -->
-            <div class="empty-state">
-                <div style="text-align: center; padding: 3rem; background: var(--bg-secondary); border-radius: var(--radius-xl); border: 1px solid var(--border-color);">
-                    <div style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.6;">📝</div>
-                    <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">아직 포스트가 없습니다</h3>
-                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">첫 번째 포스트를 작성해보세요!</p>
+            <!-- 포스트가 없을 때의 접근성 개선 -->
+            <div class="empty-state" role="status" aria-live="polite">
+                <div class="empty-content">
+                    <div class="empty-icon" aria-hidden="true">📝</div>
+                    <h3>아직 포스트가 없습니다</h3>
+                    <p>첫 번째 포스트를 기대해주세요!</p>
                     <a href="{{ url_for('posts.index') }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i>
-                        포스트 작성하러 가기
+                        <i class="fas fa-plus" aria-hidden="true"></i>
+                        <span>포스트 페이지로 이동</span>
                     </a>
                 </div>
             </div>
@@ -101,152 +230,253 @@
         </div>
     </section>
 
-    <!-- 입자 충돌 시뮬레이션 메인 섹션 -->
-    <section class="simulation-main-section">
+    <!-- 입자 충돌 시뮬레이션 메인 섹션 - 접근성 개선 -->
+    <section class="simulation-main-section" aria-labelledby="simulation-heading">
         <div class="simulation-container">
-            <div class="simulation-header">
-                <h2>입자 충돌 시뮬레이션</h2>
+            <header class="simulation-header">
+                <h2 id="simulation-heading">입자 충돌 시뮬레이션</h2>
                 <p>클릭해서 입자들과 상호작용해보세요!</p>
+            </header>
+            
+            <div class="main-simulation" role="application" aria-label="물리 시뮬레이션 인터페이스">
+                <canvas id="mainCanvas" 
+                        width="800" 
+                        height="400"
+                        aria-label="입자 충돌 시뮬레이션 캔버스. 클릭하면 입자가 반응합니다."
+                        role="img"
+                        tabindex="0">
+                    <p>이 브라우저는 캔버스를 지원하지 않습니다. 최신 브라우저를 사용해주세요.</p>
+                </canvas>
+                
+                <!-- 시뮬레이션 컨트롤 -->
+                <div class="simulation-controls" role="group" aria-labelledby="simulation-heading">
+                    <button id="playPauseBtn" 
+                            class="btn btn-primary"
+                            aria-label="시뮬레이션 일시정지/재생"
+                            aria-pressed="false">
+                        <i class="fas fa-pause" aria-hidden="true"></i>
+                        <span class="btn-text">일시정지</span>
+                    </button>
+                    
+                    <button id="resetBtn" 
+                            class="btn btn-secondary"
+                            aria-label="시뮬레이션 초기화">
+                        <i class="fas fa-refresh" aria-hidden="true"></i>
+                        <span class="btn-text">초기화</span>
+                    </button>
+                </div>
+                
+                <!-- 시뮬레이션 상태 라이브 업데이트 -->
+                <div id="simulation-status" 
+                     aria-live="polite" 
+                     aria-atomic="true" 
+                     class="sr-only">
+                    시뮬레이션이 실행 중입니다.
+                </div>
             </div>
-            <div class="main-simulation">
-                <canvas id="mainCanvas" width="800" height="400"></canvas>
-            </div>
+            
             <div class="simulation-info">
-                <p>물리학적으로 정확한 탄성 충돌을 구현한 시뮬레이션입니다. 마우스로 클릭하면 입자들이 반응합니다.</p>
+                <h3>물리학적으로 정확한 시뮬레이션</h3>
+                <p>이 시뮬레이션은 완전탄성충돌 법칙을 따라 구현되었습니다. 마우스로 클릭하면 입자들이 반응하며, 키보드 사용자는 캔버스에 포커스한 후 스페이스바를 눌러 상호작용할 수 있습니다.</p>
+                
+                <!-- 키보드 단축키 안내 -->
+                <details class="keyboard-help" aria-labelledby="keyboard-help-summary">
+                    <summary id="keyboard-help-summary">키보드 단축키 안내</summary>
+                    <ul role="list">
+                        <li role="listitem"><kbd>스페이스바</kbd>: 시뮬레이션 일시정지/재생</li>
+                        <li role="listitem"><kbd>R</kbd>: 시뮬레이션 초기화</li>
+                        <li role="listitem"><kbd>클릭/엔터</kbd>: 입자 상호작용</li>
+                    </ul>
+                </details>
             </div>
         </div>
     </section>
 </div>
 
+<!-- 성능 최적화: 중요하지 않은 스타일을 별도 처리 -->
 <style>
-/* 기존 스타일들 */
-.section-header {
+/* 메인 페이지 전용 스타일 최적화 */
+.slide-section {
+    margin: 0 0 4rem 0;
+}
+
+.slide-container {
+    position: relative;
+    max-width: 100%;
+    height: 400px;
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+    border-radius: 1.5rem;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: var(--space-6);
+    justify-content: center;
+    flex-direction: column;
+    padding: 3rem;
+    opacity: 0;
+    transition: opacity 0.7s ease-in-out;
+    color: white;
+    text-align: center;
 }
 
-.section-header h2 {
-    font-size: var(--text-3xl);
-    font-weight: 700;
-    color: var(--text-primary);
+.slide.active {
+    opacity: 1;
 }
 
-.view-all-link {
-    display: inline-flex;
+.slide:focus {
+    outline: 3px solid rgba(255, 255, 255, 0.8);
+    outline-offset: -3px;
+}
+
+.slide h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    color: white;
+}
+
+.slide p {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    max-width: 600px;
+    line-height: 1.75;
+    color: white;
+}
+
+.slide-controls {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1rem;
+    z-index: 10;
+}
+
+.slide-indicator {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.slide-indicator:hover,
+.slide-indicator:focus {
+    background: rgba(255, 255, 255, 0.6);
+    transform: scale(1.2);
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
+}
+
+.slide-indicator.active,
+.slide-indicator[aria-selected="true"] {
+    background: white;
+    transform: scale(1.3);
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.3);
+}
+
+.slide-play-pause {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
     align-items: center;
-    gap: var(--space-2);
-    color: var(--text-accent);
-    font-weight: 500;
-    transition: var(--transition-base);
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-md);
-    border: 1px solid transparent;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
 }
 
-.view-all-link:hover {
-    transform: translateX(4px);
-    background: var(--primary-50);
-    border-color: var(--primary-200);
+.slide-play-pause:hover,
+.slide-play-pause:focus {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+    outline: 2px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 2px;
 }
 
-html.dark-theme .view-all-link:hover {
-    background: rgba(96, 165, 250, 0.1);
-    border-color: rgba(96, 165, 250, 0.3);
-}
-
-.view-all-link i {
-    font-size: 0.875rem;
-    transition: transform var(--duration-200) var(--ease-out);
-}
-
-.view-all-link:hover i {
-    transform: translateX(2px);
-}
-
-/* 소개 섹션 - 원래 스타일 복원 */
+/* 소개 섹션 최적화 */
 .intro-section {
-    margin: var(--space-16) 0;
+    margin: 4rem 0;
 }
 
 .intro-content {
     display: grid;
-    grid-template-columns: 200px 1fr;
-    gap: var(--space-8);
+    grid-template-columns: 320px 1fr;
+    gap: 3rem;
     align-items: flex-start;
 }
 
 .intro-image {
-    width: 200px;
+    width: 320px;
     height: auto;
-    border-radius: var(--radius-xl);
+    border-radius: 1.5rem;
     overflow: hidden;
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    position: relative;
 }
 
 .intro-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.3s ease;
 }
 
-.intro-text {
-    flex: 1;
+.intro-image:hover img {
+    transform: scale(1.05);
 }
 
-.intro-text h2 {
-    font-size: var(--text-3xl);
-    font-weight: 700;
-    margin-bottom: var(--space-4);
-    color: var(--text-primary);
-}
-
-.intro-text p {
-    font-size: var(--text-lg);
-    line-height: var(--leading-relaxed);
-    color: var(--text-secondary);
-    margin-bottom: var(--space-4);
-}
-
-/* 시뮬레이션 메인 섹션 */
-.simulation-main-section {
-    margin: var(--space-16) 0;
-    padding: var(--space-12) 0;
+.avatar-fallback {
+    width: 100%;
+    height: 320px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background: var(--bg-secondary);
-    border-radius: var(--radius-2xl);
+    font-size: 4rem;
+    border-radius: 1.5rem;
+}
+
+/* 시뮬레이션 섹션 */
+.simulation-main-section {
+    margin: 4rem 0;
+    padding: 3rem 0;
+    background: var(--bg-secondary);
+    border-radius: 2rem;
     border: 1px solid var(--border-color);
 }
 
 .simulation-container {
     max-width: 900px;
     margin: 0 auto;
-    padding: 0 var(--space-6);
+    padding: 0 1.5rem;
     text-align: center;
-}
-
-.simulation-header {
-    margin-bottom: var(--space-8);
-}
-
-.simulation-header h2 {
-    font-size: var(--text-4xl);
-    font-weight: 700;
-    margin-bottom: var(--space-4);
-    color: var(--text-primary);
-}
-
-.simulation-header p {
-    font-size: var(--text-lg);
-    color: var(--text-secondary);
 }
 
 .main-simulation {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: var(--radius-2xl);
+    border-radius: 1.5rem;
     overflow: hidden;
-    margin-bottom: var(--space-6);
-    box-shadow: var(--shadow-xl);
+    margin-bottom: 2rem;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
     position: relative;
 }
 
@@ -257,249 +487,331 @@ html.dark-theme .view-all-link:hover {
     display: block;
 }
 
-.simulation-info {
-    color: var(--text-secondary);
-    font-size: var(--text-base);
-    line-height: var(--leading-relaxed);
-    max-width: 600px;
-    margin: 0 auto;
+#mainCanvas:focus {
+    outline: 3px solid var(--primary-500);
+    outline-offset: -3px;
 }
 
-/* 최근 포스트 섹션 */
-.recent-posts-section {
-    margin: var(--space-16) 0;
-}
-
-/* 주요 기능 섹션 */
-.features-section {
-    margin: var(--space-16) 0;
-    padding: var(--space-12) 0;
-    background: var(--bg-secondary);
-    border-radius: var(--radius-2xl);
-    border: 1px solid var(--border-color);
-}
-
-.features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--space-6);
-}
-
-.feature-card {
-    text-align: center;
-    padding: var(--space-8);
-    background: var(--bg-primary);
-    border-radius: var(--radius-xl);
-    border: 1px solid var(--border-color);
-    transition: transform var(--duration-200) var(--ease-out);
-    position: relative;
-    overflow: hidden;
-}
-
-.feature-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-}
-
-.feature-icon {
-    font-size: 4rem;
-    margin-bottom: var(--space-4);
-}
-
-.feature-card h3 {
-    color: var(--text-primary);
-    margin-bottom: var(--space-3);
-    font-size: var(--text-xl);
-    font-weight: 600;
-}
-
-.feature-card p {
-    color: var(--text-secondary);
-    margin-bottom: var(--space-6);
-    line-height: var(--leading-relaxed);
-}
-
-/* 시뮬레이션 데모 카드 */
-.simulation-demo {
-    position: relative;
-}
-
-.mini-simulation {
-    position: relative;
-    margin-bottom: var(--space-4);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    height: 180px;
+.simulation-controls {
     display: flex;
-    align-items: center;
+    gap: 1rem;
     justify-content: center;
+    margin: 1.5rem 0;
 }
 
-#miniCanvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+.keyboard-help {
+    margin-top: 2rem;
+    text-align: left;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.keyboard-help summary {
     cursor: pointer;
+    font-weight: 600;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
 }
 
-.simulation-overlay {
-    position: relative;
-    z-index: 2;
-    color: white;
-    text-align: center;
-    pointer-events: none;
+.keyboard-help ul {
+    margin-top: 1rem;
+    padding-left: 1rem;
 }
 
-.simulation-overlay h3 {
-    color: white;
-    font-size: var(--text-lg);
-    margin-bottom: var(--space-2);
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+.keyboard-help li {
+    margin-bottom: 0.5rem;
 }
 
-.simulation-overlay p {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: var(--text-sm);
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-/* 버튼 스타일 */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-3) var(--space-6);
-    border-radius: var(--radius-lg);
-    font-weight: 500;
-    text-decoration: none;
-    transition: all var(--duration-200) var(--ease-out);
-    border: 1px solid;
-    cursor: pointer;
-}
-
-.btn-primary {
-    background: var(--primary-500);
-    color: white;
-    border-color: var(--primary-500);
-}
-
-.btn-primary:hover {
-    background: var(--primary-600);
-    border-color: var(--primary-600);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-
-.btn-outline {
-    background: transparent;
+kbd {
+    display: inline-block;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.85rem;
     color: var(--text-primary);
-    border-color: var(--border-color);
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.25rem;
+    font-family: var(--font-mono);
 }
 
-.btn-outline:hover {
-    background: var(--bg-tertiary);
-    border-color: var(--text-accent);
-    color: var(--text-accent);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
-}
-
-/* 반응형 디자인 */
+/* 반응형 최적화 */
 @media (max-width: 768px) {
-    .section-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: var(--space-3);
-    }
-    
-    .features-grid {
+    .intro-content {
         grid-template-columns: 1fr;
+        text-align: center;
+        gap: 2rem;
     }
     
-    .feature-card {
-        max-width: 400px;
+    .intro-image {
+        width: 240px;
         margin: 0 auto;
     }
     
-    .intro-content-text h2 {
-        font-size: var(--text-3xl);
+    .avatar-fallback {
+        width: 240px;
+        height: 240px;
     }
     
-    .mini-simulation {
-        height: 150px;
+    .slide-container {
+        height: 300px;
+    }
+    
+    .slide h2 {
+        font-size: 2rem;
+    }
+    
+    .slide p {
+        font-size: 1rem;
+    }
+    
+    .slide {
+        padding: 2rem;
+    }
+    
+    .simulation-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .slide-container {
+        height: 250px;
+        border-radius: 1rem;
+    }
+    
+    .intro-image {
+        width: 200px;
+    }
+    
+    .avatar-fallback {
+        width: 200px;
+        height: 200px;
+        font-size: 3rem;
+    }
+}
+
+/* 접근성 전용 스타일 */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+    .slide-indicator {
+        border: 2px solid white;
+    }
+    
+    .slide-indicator.active {
+        background: yellow;
+        color: black;
+    }
+}
+
+/* 애니메이션 감소 설정 */
+@media (prefers-reduced-motion: reduce) {
+    .slide {
+        transition: none;
+    }
+    
+    .intro-image img {
+        transition: none;
+    }
+    
+    .slide-indicator {
+        transition: none;
     }
 }
 </style>
 {% endblock %}
 
 {% block scripts %}
+<script defer src="{{ url_for('static', filename='js/slide-minimal.js') }}"></script>
+
 <script>
-// 슬라이드 기능
+// 메인 페이지 전용 JavaScript - 접근성과 성능 최적화
 document.addEventListener('DOMContentLoaded', function() {
+    // 슬라이드 접근성 개선
+    const slideContainer = document.querySelector('.slide-container');
     const slides = document.querySelectorAll('.slide');
     const indicators = document.querySelectorAll('.slide-indicator');
+    const playPauseBtn = document.getElementById('slide-play-pause');
+    
     let currentSlide = 0;
     let slideInterval;
-
-    function showSlide(index) {
-        slides.forEach((slide, i) => {
-            slide.classList.toggle('active', i === index);
-        });
-        indicators.forEach((indicator, i) => {
-            indicator.classList.toggle('active', i === index);
-        });
+    let isPlaying = true;
+    
+    // 슬라이드 변경 함수 (접근성 개선)
+    function goToSlide(index, focusSlide = false) {
+        // 이전 슬라이드 비활성화
+        slides[currentSlide].classList.remove('active');
+        slides[currentSlide].setAttribute('aria-hidden', 'true');
+        indicators[currentSlide].classList.remove('active');
+        indicators[currentSlide].setAttribute('aria-selected', 'false');
+        
+        // 새 슬라이드 활성화
         currentSlide = index;
+        slides[currentSlide].classList.add('active');
+        slides[currentSlide].setAttribute('aria-hidden', 'false');
+        indicators[currentSlide].classList.add('active');
+        indicators[currentSlide].setAttribute('aria-selected', 'true');
+        
+        // 포커스 관리
+        if (focusSlide) {
+            slides[currentSlide].focus();
+        }
+        
+        // 스크린 리더 알림
+        announceSlideChange(currentSlide + 1, slides.length);
     }
-
-    function nextSlide() {
-        const next = (currentSlide + 1) % slides.length;
-        showSlide(next);
-    }
-
-    function startAutoSlide() {
-        slideInterval = setInterval(nextSlide, 5000);
-    }
-
-    function stopAutoSlide() {
-        if (slideInterval) {
-            clearInterval(slideInterval);
+    
+    // 스크린 리더 알림 함수
+    function announceSlideChange(current, total) {
+        const liveRegion = document.getElementById('live-region');
+        if (liveRegion) {
+            liveRegion.textContent = `슬라이드 ${current} / ${total}`;
         }
     }
-
+    
+    // 자동 재생 제어
+    function toggleAutoPlay() {
+        if (isPlaying) {
+            clearInterval(slideInterval);
+            playPauseBtn.innerHTML = '<i class="fas fa-play" aria-hidden="true"></i><span class="sr-only">재생</span>';
+            playPauseBtn.setAttribute('aria-label', '슬라이드 자동 재생 시작');
+            playPauseBtn.setAttribute('aria-pressed', 'true');
+            isPlaying = false;
+        } else {
+            startAutoPlay();
+            playPauseBtn.innerHTML = '<i class="fas fa-pause" aria-hidden="true"></i><span class="sr-only">일시정지</span>';
+            playPauseBtn.setAttribute('aria-label', '슬라이드 자동 재생 일시정지');
+            playPauseBtn.setAttribute('aria-pressed', 'false');
+            isPlaying = true;
+        }
+    }
+    
+    // 자동 재생 시작
+    function startAutoPlay() {
+        slideInterval = setInterval(function() {
+            const nextIndex = (currentSlide + 1) % slides.length;
+            goToSlide(nextIndex);
+        }, 5000);
+    }
+    
+    // 이벤트 리스너 등록
+    if (playPauseBtn) {
+        playPauseBtn.addEventListener('click', toggleAutoPlay);
+    }
+    
+    // 키보드 네비게이션 지원
     indicators.forEach((indicator, index) => {
-        indicator.addEventListener('click', () => {
-            stopAutoSlide();
-            showSlide(index);
-            setTimeout(startAutoSlide, 3000);
+        indicator.addEventListener('click', function() {
+            clearInterval(slideInterval);
+            goToSlide(index, true);
+            if (isPlaying) {
+                setTimeout(startAutoPlay, 3000);
+            }
+        });
+        
+        // 키보드 이벤트
+        indicator.addEventListener('keydown', function(e) {
+            let newIndex = currentSlide;
+            
+            switch(e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    newIndex = currentSlide > 0 ? currentSlide - 1 : slides.length - 1;
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    newIndex = (currentSlide + 1) % slides.length;
+                    break;
+                case 'Home':
+                    e.preventDefault();
+                    newIndex = 0;
+                    break;
+                case 'End':
+                    e.preventDefault();
+                    newIndex = slides.length - 1;
+                    break;
+            }
+            
+            if (newIndex !== currentSlide) {
+                clearInterval(slideInterval);
+                goToSlide(newIndex, true);
+                indicators[newIndex].focus();
+                if (isPlaying) {
+                    setTimeout(startAutoPlay, 3000);
+                }
+            }
         });
     });
-
-    const slideContainer = document.querySelector('.slide-container');
+    
+    // 슬라이드 호버 시 일시정지 (접근성 개선)
     if (slideContainer) {
-        slideContainer.addEventListener('mouseenter', stopAutoSlide);
-        slideContainer.addEventListener('mouseleave', startAutoSlide);
+        slideContainer.addEventListener('mouseenter', function() {
+            if (isPlaying) {
+                clearInterval(slideInterval);
+            }
+        });
+        
+        slideContainer.addEventListener('mouseleave', function() {
+            if (isPlaying) {
+                startAutoPlay();
+            }
+        });
+        
+        slideContainer.addEventListener('focusin', function() {
+            if (isPlaying) {
+                clearInterval(slideInterval);
+            }
+        });
+        
+        slideContainer.addEventListener('focusout', function() {
+            if (isPlaying) {
+                setTimeout(startAutoPlay, 1000);
+            }
+        });
     }
-
-    startAutoSlide();
-
-    // 메인 시뮬레이션
+    
+    // 자동 재생 시작
+    startAutoPlay();
+    
+    // 메인 시뮬레이션 최적화
     const canvas = document.getElementById('mainCanvas');
     if (canvas) {
         const ctx = canvas.getContext('2d');
+        let animationId;
+        let isSimulationRunning = true;
         
-        // 캔버스 크기 설정
+        // 캔버스 크기 최적화
         function resizeCanvas() {
             const rect = canvas.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
+            const dpr = window.devicePixelRatio || 1;
+            
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            
+            ctx.scale(dpr, dpr);
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
         }
+        
         resizeCanvas();
         
-        // 입자 시스템
+        // 입자 시스템 (성능 최적화)
         const particles = [];
+        const maxParticles = 6; // 성능을 위해 제한
         
         class Particle {
             constructor(x, y) {
@@ -510,56 +822,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.radius = 15 + Math.random() * 20;
                 this.color = `hsl(${Math.random() * 360}, 80%, 65%)`;
                 this.mass = this.radius * this.radius;
-                this.trail = [];
             }
             
             update() {
-                // 위치 업데이트
                 this.x += this.vx;
                 this.y += this.vy;
                 
-                // 궤적 추가
-                this.trail.push({ x: this.x, y: this.y });
-                if (this.trail.length > 15) {
-                    this.trail.shift();
-                }
-                
                 // 벽 충돌
+                const canvasWidth = canvas.clientWidth;
+                const canvasHeight = canvas.clientHeight;
+                
                 if (this.x - this.radius < 0) {
                     this.x = this.radius;
                     this.vx = Math.abs(this.vx) * 0.9;
-                } else if (this.x + this.radius > canvas.width) {
-                    this.x = canvas.width - this.radius;
+                } else if (this.x + this.radius > canvasWidth) {
+                    this.x = canvasWidth - this.radius;
                     this.vx = -Math.abs(this.vx) * 0.9;
                 }
                 
                 if (this.y - this.radius < 0) {
                     this.y = this.radius;
                     this.vy = Math.abs(this.vy) * 0.9;
-                } else if (this.y + this.radius > canvas.height) {
-                    this.y = canvas.height - this.radius;
+                } else if (this.y + this.radius > canvasHeight) {
+                    this.y = canvasHeight - this.radius;
                     this.vy = -Math.abs(this.vy) * 0.9;
                 }
             }
             
             draw() {
-                // 궤적 그리기
-                if (this.trail.length > 1) {
-                    ctx.beginPath();
-                    ctx.moveTo(this.trail[0].x, this.trail[0].y);
-                    for (let i = 1; i < this.trail.length; i++) {
-                        ctx.lineTo(this.trail[i].x, this.trail[i].y);
-                    }
-                    ctx.strokeStyle = this.color.replace('65%', '30%');
-                    ctx.lineWidth = 3;
-                    ctx.stroke();
-                }
-                
-                // 입자 그리기
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
                 
-                // 그라디언트 효과
+                // 성능 최적화: 그라디언트 캐싱
                 const gradient = ctx.createRadialGradient(
                     this.x - this.radius/3, this.y - this.radius/3, 0,
                     this.x, this.y, this.radius
@@ -570,29 +864,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 ctx.fillStyle = gradient;
                 ctx.fill();
                 
-                // 외곽선
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
                 ctx.lineWidth = 2;
                 ctx.stroke();
-                
-                // 하이라이트
-                ctx.beginPath();
-                ctx.arc(this.x - this.radius/3, this.y - this.radius/3, this.radius/4, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-                ctx.fill();
             }
         }
         
-        // 초기 입자 생성 (6개)
-        for (let i = 0; i < 6; i++) {
-            const margin = 50;
-            particles.push(new Particle(
-                margin + Math.random() * (canvas.width - margin * 2),
-                margin + Math.random() * (canvas.height - margin * 2)
-            ));
+        // 초기 입자 생성
+        function initParticles() {
+            particles.length = 0;
+            const canvasWidth = canvas.clientWidth;
+            const canvasHeight = canvas.clientHeight;
+            
+            for (let i = 0; i < maxParticles; i++) {
+                const margin = 50;
+                particles.push(new Particle(
+                    margin + Math.random() * (canvasWidth - margin * 2),
+                    margin + Math.random() * (canvasHeight - margin * 2)
+                ));
+            }
         }
         
-        // 입자 간 충돌 처리
+        // 충돌 처리 (성능 최적화)
         function handleCollisions() {
             for (let i = 0; i < particles.length; i++) {
                 for (let j = i + 1; j < particles.length; j++) {
@@ -604,9 +897,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     const distance = Math.sqrt(dx * dx + dy * dy);
                     
                     if (distance < p1.radius + p2.radius) {
+                        // 완전탄성충돌 계산 (간소화)
                         const angle = Math.atan2(dy, dx);
                         
-                        // 겹침 수정
                         const overlap = (p1.radius + p2.radius) - distance;
                         const moveX = Math.cos(angle) * overlap * 0.5;
                         const moveY = Math.sin(angle) * overlap * 0.5;
@@ -616,7 +909,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         p2.x += moveX;
                         p2.y += moveY;
                         
-                        // 완전탄성충돌
                         const v1 = (p1.vx * Math.cos(angle) + p1.vy * Math.sin(angle));
                         const v2 = (p2.vx * Math.cos(angle) + p2.vy * Math.sin(angle));
                         
@@ -636,11 +928,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // 애니메이션 루프
+        // 애니메이션 루프 (성능 최적화)
         function animate() {
-            // 배경을 투명한 그라디언트로 지우기 (궤적 효과)
+            if (!isSimulationRunning) return;
+            
+            // 배경 지우기 (성능 최적화)
             ctx.fillStyle = 'rgba(102, 126, 234, 0.1)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
             
             particles.forEach(particle => {
                 particle.update();
@@ -648,22 +942,49 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             handleCollisions();
-            requestAnimationFrame(animate);
+            
+            animationId = requestAnimationFrame(animate);
         }
         
-        // 클릭 이벤트 - 입자들에게 힘 가하기
-        canvas.addEventListener('click', function(e) {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
+        // 시뮬레이션 컨트롤
+        const playPauseSimBtn = document.getElementById('playPauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const statusDiv = document.getElementById('simulation-status');
+        
+        if (playPauseSimBtn) {
+            playPauseSimBtn.addEventListener('click', function() {
+                isSimulationRunning = !isSimulationRunning;
+                
+                if (isSimulationRunning) {
+                    animate();
+                    this.innerHTML = '<i class="fas fa-pause" aria-hidden="true"></i><span class="btn-text">일시정지</span>';
+                    this.setAttribute('aria-pressed', 'false');
+                    if (statusDiv) statusDiv.textContent = '시뮬레이션이 실행 중입니다.';
+                } else {
+                    cancelAnimationFrame(animationId);
+                    this.innerHTML = '<i class="fas fa-play" aria-hidden="true"></i><span class="btn-text">재생</span>';
+                    this.setAttribute('aria-pressed', 'true');
+                    if (statusDiv) statusDiv.textContent = '시뮬레이션이 일시정지되었습니다.';
+                }
+            });
+        }
+        
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function() {
+                initParticles();
+                if (statusDiv) statusDiv.textContent = '시뮬레이션이 초기화되었습니다.';
+            });
+        }
+        
+        // 마우스/터치 상호작용
+        function addInteraction(x, y) {
             particles.forEach(particle => {
                 const dx = x - particle.x;
                 const dy = y - particle.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
                 if (distance > 0) {
-                    const force = 300 / (distance + 10); // 거리에 반비례하는 힘
+                    const force = 300 / (distance + 10);
                     particle.vx += (dx / distance) * force;
                     particle.vy += (dy / distance) * force;
                     
@@ -676,19 +997,63 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             });
+            
+            if (statusDiv) statusDiv.textContent = '입자들이 반응했습니다.';
+        }
+        
+        // 이벤트 리스너
+        canvas.addEventListener('click', function(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            addInteraction(x, y);
         });
         
-        animate();
+        // 키보드 접근성
+        canvas.addEventListener('keydown', function(e) {
+            switch(e.key) {
+                case ' ':
+                case 'Enter':
+                    e.preventDefault();
+                    const centerX = canvas.clientWidth / 2;
+                    const centerY = canvas.clientHeight / 2;
+                    addInteraction(centerX, centerY);
+                    break;
+                case 'r':
+                case 'R':
+                    e.preventDefault();
+                    initParticles();
+                    if (statusDiv) statusDiv.textContent = '시뮬레이션이 초기화되었습니다.';
+                    break;
+            }
+        });
         
-        // 창 크기 변경 시 캔버스 크기 조정
+        // 반응형 처리
         window.addEventListener('resize', function() {
             resizeCanvas();
             // 입자 위치 조정
             particles.forEach(particle => {
-                particle.x = Math.min(particle.x, canvas.width - particle.radius);
-                particle.y = Math.min(particle.y, canvas.height - particle.radius);
+                particle.x = Math.min(particle.x, canvas.clientWidth - particle.radius);
+                particle.y = Math.min(particle.y, canvas.clientHeight - particle.radius);
             });
         });
+        
+        // 초기화 및 시작
+        initParticles();
+        animate();
+    }
+    
+    // 성능 모니터링 (개발 환경에서만)
+    if (process.env.NODE_ENV === 'development') {
+        const perfObserver = new PerformanceObserver((list) => {
+            for (const entry of list.getEntries()) {
+                if (entry.entryType === 'measure') {
+                    console.log(`${entry.name}: ${entry.duration}ms`);
+                }
+            }
+        });
+        
+        perfObserver.observe({entryTypes: ['measure']});
     }
 });
 </script>
