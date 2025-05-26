@@ -6,9 +6,6 @@
 <!-- 코드 하이라이팅 추가 -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/line-numbers/prism-line-numbers.min.css">
-<!-- 개선된 링크 스타일 추가 -->
-<link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-links.css') }}">
-
 {% endblock %}
 
 {% block content %}
@@ -17,70 +14,61 @@
         <!-- 메인 제목 -->
         <h1 class="post-title">{{ post.title }}</h1>
         
-        <!-- 기본 메타 정보 (날짜, 작성자만) -->
-        <div class="post-meta-container">
-            <div class="post-date">
-                <i class="far fa-calendar-alt"></i>
-                {{ post.date.strftime('%Y년 %m월 %d일') }}
-            </div>
-            
-            <div class="post-author">
-                <i class="far fa-user"></i>
-                <span>{{ post.author }}</span>
-            </div>
-        </div>
-        
-        <!-- 부제목/설명 - 태그 위쪽으로 이동 -->
+        <!-- 부제목/설명만 제목 바로 아래에 위치 -->
         {% if post.subtitle %}
-        <div class="post-subtitle-content">
-            <p class="post-subtitle-text">{{ post.subtitle }}</p>
+        <div class="post-subtitle">
+            <p>{{ post.subtitle }}</p>
         </div>
         {% elif post.description %}
-        <div class="post-description-content">
-            <p class="post-description-text">{{ post.description }}</p>
+        <div class="post-description">
+            <p>{{ post.description }}</p>
         </div>
         {% endif %}
         
-        <!-- 태그 섹션 - 별도로 분리 -->
-        {% if post.tags %}
-        <div class="post-tags-section">
-            <div class="post-tags">
-                {% for tag in post.tags %}
-                <a href="{{ url_for('posts.filter_by_tag', tag=tag) }}" class="post-tag">
-                    <i class="fas fa-tag"></i>{{ tag }}
-                </a>
-                {% endfor %}
-            </div>
+        <!-- 간단한 메타 정보 -->
+        <div class="post-meta">
+            <span class="post-date">{{ post.date.strftime('%Y년 %m월 %d일') }}</span>
+            <span class="post-separator">•</span>
+            <span class="post-author">{{ post.author }}</span>
         </div>
-        {% endif %}
     </header>
     
     {% if post.series %}
-    <!-- 시리즈 정보 표시 -->
-    <div class="series-box">
-        <div class="series-title">
-            <i class="fas fa-list-ol"></i>
-            {{ post.series }} 
+    <!-- 시리즈 정보 -->
+    <div class="series-notice">
+        <div class="series-content">
+            <strong>{{ post.series }}</strong>
             {% if post.series_part %}(파트 {{ post.series_part }}){% endif %}
-        </div>
-        <div class="series-info">
-            이 글은 <strong>{{ post.series }}</strong> 시리즈의 일부입니다.
             <a href="{{ url_for('posts.view_series', series_name=post.series) }}" class="series-link">
-                시리즈 전체 보기 →
+                시리즈 전체 보기
             </a>
         </div>
     </div>
     {% endif %}
     
     <!-- 본문 내용 -->
-    <div class="post-content compact-text">
+    <div class="post-content">
         {{ rendered_content|safe }}
     </div>
     
+    <!-- 태그 섹션 - 본문 아래로 이동 -->
+    {% if post.tags %}
+    <div class="post-tags-footer">
+        <div class="tags-label">태그</div>
+        <div class="post-tags">
+            {% for tag in post.tags %}
+            <a href="{{ url_for('posts.filter_by_tag', tag=tag) }}" class="post-tag">
+                {{ tag }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
     {% if post.changelog and post.changelog|length > 0 %}
-    <!-- 수정 이력 표시 -->
-    <div class="changelog-box">
-        <h4><i class="fas fa-history"></i> 수정 이력</h4>
+    <!-- 수정 이력 -->
+    <div class="changelog-section">
+        <h4>수정 이력</h4>
         <ul class="changelog-list">
             {% for change in post.changelog %}
             <li>{{ change }}</li>
@@ -90,21 +78,18 @@
     {% endif %}
 </article>
 
-<!-- 관련 포스트 (같은 시리즈 또는 태그) -->
+<!-- 관련 포스트 (같은 시리즈) -->
 {% if series_posts %}
 <section class="related-posts-section">
-    <h3 class="related-posts-title">
-        <i class="fas fa-list-alt"></i>
-        같은 시리즈의 다른 글
-    </h3>
+    <h3 class="related-posts-title">같은 시리즈의 다른 글</h3>
     <div class="related-posts-grid">
         {% for related_post in series_posts[:3] %}
         <a href="{{ url_for('posts.view_by_slug', slug=related_post.id) }}" class="related-post-card">
             <h4>{{ related_post.title }}</h4>
             <div class="related-post-meta">
-                <span class="date">{{ related_post.date.strftime('%Y.%m.%d') }}</span>
+                <span>{{ related_post.date.strftime('%Y.%m.%d') }}</span>
                 {% if related_post.series_part %}
-                <span class="part">파트 {{ related_post.series_part }}</span>
+                <span>파트 {{ related_post.series_part }}</span>
                 {% endif %}
             </div>
             <div class="related-post-preview">{{ related_post.get_preview(80) }}</div>
@@ -114,52 +99,447 @@
 </section>
 {% endif %}
 
-<!-- 간결한 이전글/다음글 네비게이션 -->
-<nav class="post-nav-simple">
-    <div class="post-nav-container">
+<!-- 이전글/다음글 네비게이션 -->
+<nav class="post-navigation">
+    <div class="nav-container">
         {% if prev_post %}
-        <a href="{{ url_for('posts.view_by_slug', slug=prev_post.id) }}" class="post-nav-link prev">
-            <span class="post-nav-icon"><i class="fas fa-chevron-left"></i></span>
-            <div class="post-nav-info">
-                <span class="post-nav-label">이전 글</span>
-                <span class="post-nav-title">{{ prev_post.title[:30] }}{% if prev_post.title|length > 30 %}...{% endif %}</span>
-            </div>
+        <a href="{{ url_for('posts.view_by_slug', slug=prev_post.id) }}" class="nav-link prev">
+            <div class="nav-direction">이전 글</div>
+            <div class="nav-title">{{ prev_post.title[:40] }}{% if prev_post.title|length > 40 %}...{% endif %}</div>
         </a>
         {% else %}
-        <div class="post-nav-link prev disabled">
-            <span class="post-nav-icon"><i class="fas fa-chevron-left"></i></span>
-            <div class="post-nav-info">
-                <span class="post-nav-label">이전 글이 없습니다</span>
-            </div>
+        <div class="nav-link prev disabled">
+            <div class="nav-direction">이전 글이 없습니다</div>
         </div>
         {% endif %}
 
         {% if next_post %}
-        <a href="{{ url_for('posts.view_by_slug', slug=next_post.id) }}" class="post-nav-link next">
-            <div class="post-nav-info">
-                <span class="post-nav-label">다음 글</span>
-                <span class="post-nav-title">{{ next_post.title[:30] }}{% if next_post.title|length > 30 %}...{% endif %}</span>
-            </div>
-            <span class="post-nav-icon"><i class="fas fa-chevron-right"></i></span>
+        <a href="{{ url_for('posts.view_by_slug', slug=next_post.id) }}" class="nav-link next">
+            <div class="nav-direction">다음 글</div>
+            <div class="nav-title">{{ next_post.title[:40] }}{% if next_post.title|length > 40 %}...{% endif %}</div>
         </a>
         {% else %}
-        <div class="post-nav-link next disabled">
-            <div class="post-nav-info">
-                <span class="post-nav-label">다음 글이 없습니다</span>
-            </div>
-            <span class="post-nav-icon"><i class="fas fa-chevron-right"></i></span>
+        <div class="nav-link next disabled">
+            <div class="nav-direction">다음 글이 없습니다</div>
         </div>
         {% endif %}
     </div>
 </nav>
 
-<!-- 블로그 홈으로 돌아가기 버튼 -->
+<!-- 블로그 홈으로 돌아가기 -->
 <div class="post-actions">
-    <a href="{{ url_for('posts.index') }}" class="btn-link back-to-blog">
-        <i class="fas fa-arrow-left"></i>
+    <a href="{{ url_for('posts.index') }}" class="back-to-blog">
         블로그 홈으로 돌아가기
     </a>
 </div>
+
+<style>
+/* 포스트 상세 페이지 스타일 개선 */
+.post-detail {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 var(--space-6);
+}
+
+.post-header {
+    text-align: center;
+    margin-bottom: var(--space-8);
+    padding-bottom: var(--space-6);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.post-title {
+    font-size: var(--text-5xl);
+    font-weight: 800;
+    line-height: var(--leading-tight);
+    margin-bottom: var(--space-4);
+    color: var(--text-primary);
+}
+
+.post-subtitle, 
+.post-description {
+    margin-bottom: var(--space-4);
+}
+
+.post-subtitle p, 
+.post-description p {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    font-style: italic;
+    line-height: var(--leading-relaxed);
+}
+
+.post-meta {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--text-tertiary);
+    margin-top: var(--space-4);
+}
+
+.post-separator {
+    color: var(--text-tertiary);
+}
+
+/* 시리즈 알림 */
+.series-notice {
+    background: var(--primary-50);
+    border: 1px solid var(--primary-200);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    margin-bottom: var(--space-6);
+    text-align: center;
+}
+
+html.dark-theme .series-notice {
+    background: rgba(96, 165, 250, 0.1);
+    border-color: rgba(96, 165, 250, 0.3);
+}
+
+.series-content {
+    color: var(--primary-700);
+    font-weight: 500;
+}
+
+html.dark-theme .series-content {
+    color: var(--primary-400);
+}
+
+.series-link {
+    color: var(--primary-600);
+    text-decoration: none;
+    margin-left: var(--space-3);
+    font-weight: 500;
+}
+
+.series-link:hover {
+    text-decoration: underline;
+}
+
+/* 본문 스타일 */
+.post-content {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: var(--text-primary);
+    margin-bottom: var(--space-12);
+}
+
+.post-content > * {
+    margin-bottom: var(--space-6);
+}
+
+.post-content h1,
+.post-content h2,
+.post-content h3,
+.post-content h4,
+.post-content h5,
+.post-content h6 {
+    margin-top: var(--space-10);
+    margin-bottom: var(--space-4);
+    font-weight: 700;
+    line-height: var(--leading-tight);
+    color: var(--text-primary);
+}
+
+.post-content h2 {
+    font-size: var(--text-3xl);
+    padding-bottom: var(--space-3);
+    border-bottom: 2px solid var(--border-color);
+}
+
+.post-content h3 {
+    font-size: var(--text-2xl);
+}
+
+.post-content a {
+    color: var(--text-accent);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--duration-200) var(--ease-out);
+}
+
+.post-content a:hover {
+    border-bottom-color: var(--text-accent);
+}
+
+.post-content pre {
+    background: var(--gray-900);
+    color: var(--gray-100);
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    overflow-x: auto;
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    margin: var(--space-8) 0;
+}
+
+.post-content code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    padding: var(--space-1) var(--space-2);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    color: var(--text-accent);
+}
+
+.post-content pre code {
+    padding: 0;
+    background: transparent;
+    color: inherit;
+}
+
+/* 태그 섹션 - 본문 아래 */
+.post-tags-footer {
+    padding: var(--space-6) 0;
+    border-top: 1px solid var(--border-color);
+    margin-bottom: var(--space-8);
+}
+
+.tags-label {
+    font-size: var(--text-sm);
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-3);
+    font-weight: 500;
+}
+
+.post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.post-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-2) var(--space-3);
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-decoration: none;
+    transition: all var(--duration-200) var(--ease-out);
+    border: 1px solid var(--border-color);
+}
+
+.post-tag:hover {
+    background: var(--primary-100);
+    color: var(--primary-700);
+    border-color: var(--primary-200);
+    transform: translateY(-1px);
+}
+
+html.dark-theme .post-tag:hover {
+    background: rgba(96, 165, 250, 0.2);
+    color: var(--primary-400);
+    border-color: rgba(96, 165, 250, 0.3);
+}
+
+/* 수정 이력 */
+.changelog-section {
+    margin: var(--space-8) 0;
+    padding: var(--space-6);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+}
+
+.changelog-section h4 {
+    color: var(--text-primary);
+    margin-bottom: var(--space-4);
+    font-size: var(--text-lg);
+}
+
+.changelog-list {
+    list-style: none;
+    padding: 0;
+}
+
+.changelog-list li {
+    padding: var(--space-2) 0;
+    color: var(--text-secondary);
+    position: relative;
+    padding-left: var(--space-4);
+}
+
+.changelog-list li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--primary-500);
+}
+
+/* 관련 포스트 */
+.related-posts-section {
+    margin: var(--space-12) 0;
+    padding: var(--space-8);
+    background: var(--bg-secondary);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-color);
+}
+
+.related-posts-title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-6);
+    text-align: center;
+}
+
+.related-posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-4);
+}
+
+.related-post-card {
+    padding: var(--space-4);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition: all var(--duration-200) var(--ease-out);
+}
+
+.related-post-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-200);
+}
+
+.related-post-card h4 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+    line-height: var(--leading-tight);
+}
+
+.related-post-meta {
+    display: flex;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-3);
+}
+
+.related-post-preview {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+}
+
+/* 포스트 네비게이션 */
+.post-navigation {
+    margin: var(--space-12) 0;
+}
+
+.nav-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.nav-link {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-6);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition: all var(--duration-200) var(--ease-out);
+    min-height: 80px;
+}
+
+.nav-link:not(.disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary-200);
+}
+
+.nav-link.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.nav-link.next {
+    text-align: right;
+}
+
+.nav-direction {
+    font-size: var(--text-sm);
+    color: var(--text-tertiary);
+    font-weight: 500;
+    margin-bottom: var(--space-2);
+}
+
+.nav-title {
+    font-size: var(--text-base);
+    color: var(--text-primary);
+    font-weight: 600;
+    line-height: var(--leading-tight);
+}
+
+/* 블로그 홈 버튼 */
+.post-actions {
+    text-align: center;
+    margin: var(--space-12) 0;
+}
+
+.back-to-blog {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-6);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all var(--duration-200) var(--ease-out);
+}
+
+.back-to-blog:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--text-accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .post-detail {
+        padding: 0 var(--space-4);
+    }
+    
+    .post-title {
+        font-size: var(--text-3xl);
+    }
+    
+    .post-content {
+        font-size: 1rem;
+    }
+    
+    .nav-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .nav-link.next {
+        text-align: left;
+    }
+    
+    .related-posts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 {% endblock %}
 
 {% block scripts %}
@@ -168,21 +548,21 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. 코드 블록 강조 - Prism.js를 사용하여 코드에 문법 하이라이팅을 적용합니다
+    // 코드 블록 강조
     const codeBlocks = document.querySelectorAll('pre code');
     codeBlocks.forEach(block => {
         block.parentNode.classList.add('line-numbers');
         Prism.highlightElement(block);
     });
     
-    // 2. 외부 링크에 target="_blank" 추가 - 보안을 위해 rel="noopener noreferrer"도 함께 설정
+    // 외부 링크 처리
     const externalLinks = document.querySelectorAll('.post-content a[href^="http"]:not([href*="wagusen.com"]):not([href*="localhost"])');
     externalLinks.forEach(link => {
         link.setAttribute('target', '_blank');
         link.setAttribute('rel', 'noopener noreferrer');
     });
     
-    // 3. 미디어 오류 처리 - 이미지, 비디오, 오디오 로딩 실패 시 대체 메시지 표시
+    // 미디어 오류 처리
     function setupMediaErrorHandling() {
         const images = document.querySelectorAll('.post-content img');
         images.forEach(img => {
@@ -197,74 +577,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             };
         });
-        
-        const videos = document.querySelectorAll('.post-content video');
-        videos.forEach(video => {
-            video.onerror = function() {
-                if (!this.hasAttribute('data-error-handled')) {
-                    this.style.display = 'none';
-                    const errorMsg = document.createElement('div');
-                    errorMsg.className = 'error-embed';
-                    errorMsg.innerText = '비디오를 불러올 수 없습니다';
-                    this.parentNode.appendChild(errorMsg);
-                    this.setAttribute('data-error-handled', 'true');
-                }
-            };
-        });
-        
-        const audios = document.querySelectorAll('.post-content audio');
-        audios.forEach(audio => {
-            audio.onerror = function() {
-                if (!this.hasAttribute('data-error-handled') ) {
-                    this.style.display = 'none';
-                    const errorMsg = document.createElement('div');
-                    errorMsg.className = 'error-embed';
-                    errorMsg.innerText = '오디오를 불러올 수 없습니다';
-                    this.parentNode.appendChild(errorMsg);
-                    this.setAttribute('data-error-handled', 'true');
-                }
-            };
-        });
     }
     
-    // 4. 소셜 미디어 위젯 스크립트 로드 - 필요한 경우에만 동적으로 로드하여 성능 최적화
-    function loadSocialScripts() {
-        if (document.querySelector('.twitter-embed')) {
-            const twitterScript = document.createElement('script');
-            twitterScript.src = 'https://platform.twitter.com/widgets.js';
-            twitterScript.async = true;
-            twitterScript.charset = 'utf-8';
-            document.body.appendChild(twitterScript);
-        }
-        
-        if (document.querySelector('.instagram-embed')) {
-            const instaScript = document.createElement('script');
-            instaScript.src = '//www.instagram.com/embed.js';
-            instaScript.async = true;
-            document.body.appendChild(instaScript);
-        }
-        
-        if (document.querySelector('.facebook-embed')) {
-            if (!document.getElementById('fb-root')) {
-                const fbRoot = document.createElement('div');
-                fbRoot.id = 'fb-root';
-                document.body.appendChild(fbRoot);
-            }
-            
-            const fbScript = document.createElement('script');
-            fbScript.src = 'https://connect.facebook.net/ko_KR/sdk.js#xfbml=1&version=v16.0';
-            fbScript.async = true;
-            fbScript.defer = true;
-            fbScript.crossOrigin = 'anonymous';
-            document.body.appendChild(fbScript);
-        }
-    }
-    
-    // 5. 기능들 실행
     setupMediaErrorHandling();
-    loadSocialScripts();
     
-    // 6. 스크롤 진행률 표시 - 사용자가 글을 얼마나 읽었는지 시각적으로 표시
+    // 스크롤 진행률 표시
     const progressBar = document.createElement('div');
     progressBar.style.cssText = `
         position: fixed;
@@ -272,7 +589,7 @@ document.addEventListener('DOMContentLoaded', function() {
         left: 0;
         width: 0%;
         height: 3px;
-        background: linear-gradient(90deg, var(--github-accent), #1f6feb);
+        background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
         z-index: 1000;
         transition: width 0.3s ease;
     `;
@@ -281,11 +598,6 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('scroll', () => {
         const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
         progressBar.style.width = Math.min(scrolled, 100) + '%';
-    });
-    
-    // 페이지 전체 로드 후 한번 더 확인 - 동적으로 추가된 요소들도 처리
-    window.addEventListener('load', function() {
-        setupMediaErrorHandling();
     });
 });
 </script>

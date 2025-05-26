@@ -1,389 +1,273 @@
+<!-- 현재 posts/index.html의 문제점 분석 -->
+
+<!-- 
+현재 상황 분석:
+1. 이미지에서 6개 포스트가 모두 표시되고 있음
+2. 반응형 그리드가 작동하지 않는 것 같음
+3. "더 보기" 버튼이 보이지 않음
+
+가능한 원인들:
+1. HTML 템플릿이 업데이트되지 않았을 수 있음
+2. CSS의 .posts-grid 클래스가 실제로 반응형이 아닐 수 있음
+3. JavaScript가 로드되지 않았을 수 있음
+4. Python 백엔드에서 잘못된 데이터를 전달하고 있을 수 있음
+-->
+
 {% extends "base.html" %}
 
-{% block title %}와구센 - 홈{% endblock %}
+{% block title %}블로그 - 와구센{% endblock %}
+
+{% block head %}
+<!-- 현재 어떤 CSS가 로드되는지 확인용 주석 -->
+<!-- main.css -> core.css, layout.css, components.css, pages.css, utilities.css -->
+{% endblock %}
 
 {% block content %}
-<div class="container">
-    <!-- 슬라이드 섹션 -->
-    <section class="slide-section">
-        <div class="slide-container">
-            <div class="slide active">
-                <h2>와구센의 홈페이지에 오신것을 환영합니다</h2>
-                <p>다양한 프로젝트와 블로그 글을 통해 지식을 공유하고 있습니다.</p>
-            </div>
-            <div class="slide">
-                <h2>구센의 번직</h2>
-                <p>구센 어헤야기 프로젝트</p>
-            </div>
-            <div class="slide">
-                <h2>테스트</h2>
-                <p>뉴턴 역학 기반 원자 분자 동역학을 계속합니다. 자동차가 감자가 감자할 때 몇가 알으로 솔라는 현상이 바로 관성이 힘을 얻는다</p>
-            </div>
-            <div class="slide-controls">
-                <span class="slide-indicator active" data-slide="0"></span>
-                <span class="slide-indicator" data-slide="1"></span>
-                <span class="slide-indicator" data-slide="2"></span>
-            </div>
-        </div>
-    </section>
+<!-- 블로그 헤더 -->
+<div class="blog-header">
+    <h1>블로그</h1>
+</div>
 
-    <!-- 소개 섹션 - 실제 파일명으로 수정 -->
-    <section class="intro-section">
-        <div class="intro-content">
-            <div class="intro-image">
-                <!-- 실제 존재하는 gusen-jb.png 파일 사용 -->
-                <img src="{{ url_for('static', filename='img/gusen-jb.png') }}" 
-                     alt="와구센 프로필 사진"
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block'; console.log('프로필 이미지 로드 실패:', this.src);"
-                     onload="console.log('✓ 프로필 이미지 로드 성공:', this.src);">
-                <!-- 이미지 로드 실패 시 대체 요소 -->
-                <div style="display: none; width: 200px; height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 4rem;">
-                    👤
-                </div>
-            </div>
-            <div class="intro-text">
-                <h2>안녕하세요, 와구센입니다</h2>
-                <p>웹 개발과 시뮬레이션에 관심이 많은 개발자입니다. 이 블로그에서는 제가 학습하고 경험한 내용들을 공유하고 있습니다.</p>
-                <p>주로 Python, JavaScript, 그리고 다양한 웹 기술들을 다루며, 물리 시뮬레이션과 데이터 시각화 프로젝트도 진행하고 있습니다.</p>
-                <!-- URL 라우팅도 올바르게 수정됨 -->
-                <a href="{{ url_for('main.about') }}" class="btn btn-primary">
-                    <i class="fas fa-user"></i>
-                    더 알아보기
+<!-- 상단 태그 네비게이션 영역 -->
+<div class="top-tag-navigation">
+    {% for tag in tags %}
+        <div class="tag-item" data-tag="{{ tag.name }}">{{ tag.name }}</div>
+    {% endfor %}
+</div>
+
+<!-- 포스트 컨테이너 -->
+<div class="posts-container">
+    <!-- 
+    문제 분석: 현재 이 부분에서 모든 포스트를 한번에 표시하고 있을 가능성
+    기존 코드에서는 posts[:6]으로 6개를 표시하고 있었음
+    -->
+    
+    <!-- 초기 포스트 그리드 (처음 3개만 표시되어야 함) -->
+    <div class="posts-grid" id="initialPosts">
+        {% if posts %}
+            <!-- 문제: 여기서 실제로 3개만 표시되고 있는지 확인 필요 -->
+            {% for post in posts[:3] %}
+                <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}" class="post-card-link" data-tags="{{ ','.join(post.tags) }}">
+                    <article class="post-card fade-in">
+                        <div class="post-card-header">
+                            <h2 class="post-card-title">{{ post.title }}</h2>
+                            <div class="post-card-meta">
+                                <div class="post-card-date">
+                                    {{ post.date.strftime('%Y년 %m월 %d일') }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="post-card-content">
+                            <div class="post-card-preview">{{ post.get_preview(150) }}</div>
+                        </div>
+                        <div class="post-card-footer">
+                            <div class="post-card-tags">
+                                {% for tag in post.tags[:2] %}
+                                    <span class="post-card-tag">{{ tag }}</span>
+                                {% endfor %}
+                                {% if post.tags|length > 2 %}
+                                    <span class="post-card-tag">+{{ post.tags|length - 2 }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </article>
                 </a>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <p>아직 게시글이 없습니다.</p>
             </div>
-        </div>
-    </section>
-
-    <!-- 최근 포스트 섹션 -->
-    <section class="recent-posts-section">
-        <div class="section-header">
-            <h2>최근 포스트</h2>
-            <a href="{{ url_for('posts.index') }}" class="view-all-link">
-                전체 보기
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
-        
-        <div class="recent-posts">
-            {% for post in recent_posts %}
-            <article class="post-card">
-                <!-- 포스트 URL 라우팅도 실제 라우트명에 맞게 수정 -->
-                <a href="{{ url_for('posts.view_by_slug', slug=post.slug or post.id) }}" class="post-card-link">
+        {% endif %}
+    </div>
+    
+    <!-- 추가 포스트 (더보기 누를 때 표시됨) -->
+    <!-- 문제: 이 부분이 hidden 클래스로 숨겨져야 하는데 제대로 작동하지 않을 수 있음 -->
+    <div class="posts-grid hidden" id="additionalPosts">
+        {% for post in posts[3:] %}
+            <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}" class="post-card-link" data-tags="{{ ','.join(post.tags) }}">
+                <article class="post-card fade-in">
                     <div class="post-card-header">
-                        <h3 class="post-card-title">{{ post.title }}</h3>
+                        <h2 class="post-card-title">{{ post.title }}</h2>
                         <div class="post-card-meta">
                             <div class="post-card-date">
-                                <i class="far fa-calendar"></i>
-                                <time datetime="{{ post.date.isoformat() }}">{{ post.date.strftime('%Y년 %m월 %d일') }}</time>
+                                {{ post.date.strftime('%Y년 %m월 %d일') }}
                             </div>
                         </div>
                     </div>
                     <div class="post-card-content">
-                        <p class="post-card-preview">{{ post.get_preview(150) }}</p>
+                        <div class="post-card-preview">{{ post.get_preview(150) }}</div>
                     </div>
                     <div class="post-card-footer">
                         <div class="post-card-tags">
-                            {% for tag in post.tags %}
-                            <span class="post-card-tag">
-                                <i class="fas fa-tag"></i>
-                                {{ tag }}
-                            </span>
+                            {% for tag in post.tags[:2] %}
+                                <span class="post-card-tag">{{ tag }}</span>
                             {% endfor %}
+                            {% if post.tags|length > 2 %}
+                                <span class="post-card-tag">+{{ post.tags|length - 2 }}</span>
+                            {% endif %}
                         </div>
                     </div>
-                </a>
-            </article>
-            {% else %}
-            <!-- 포스트가 없을 때 표시할 내용 -->
-            <div class="empty-state">
-                <div style="text-align: center; padding: 3rem; background: var(--bg-secondary); border-radius: var(--radius-xl); border: 1px solid var(--border-color);">
-                    <div style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.6;">📝</div>
-                    <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">아직 포스트가 없습니다</h3>
-                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">첫 번째 포스트를 작성해보세요!</p>
-                    <a href="{{ url_for('posts.index') }}" class="btn btn-primary">
-                        <i class="fas fa-plus"></i>
-                        포스트 작성하러 가기
-                    </a>
-                </div>
-            </div>
-            {% endfor %}
+                </article>
+            </a>
+        {% endfor %}
+    </div>
+    
+    <!-- 더보기/접기 버튼 -->
+    <!-- 문제: 이 버튼이 표시되지 않고 있음 -->
+    {% if posts and posts|length > 3 %}
+        <div class="toggle-button-container">
+            <button id="toggleButton" class="toggle-button">
+                <span>더 많은 포스트 보기 ({{ posts|length - 3 }}개)</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
         </div>
-    </section>
-
-    <!-- 추가: 간단한 기능 소개 섹션 -->
-    <section class="features-section" style="margin: 4rem 0; padding: 3rem 0; background: var(--bg-secondary); border-radius: var(--radius-2xl); border: 1px solid var(--border-color);">
-        <div class="container">
-            <h2 style="text-align: center; margin-bottom: 3rem; color: var(--text-primary);">주요 기능</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
-                <!-- 블로그 기능 -->
-                <div class="feature-card" style="text-align: center; padding: 2rem; background: var(--bg-primary); border-radius: var(--radius-xl); border: 1px solid var(--border-color); transition: transform 0.2s ease;">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">📝</div>
-                    <h3 style="color: var(--text-primary); margin-bottom: 1rem;">블로그</h3>
-                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">개발 경험과 학습한 내용을 공유합니다.</p>
-                    <a href="{{ url_for('posts.index') }}" class="btn btn-outline">
-                        블로그 보기
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-                
-                <!-- 시뮬레이션 기능 -->
-                <div class="feature-card" style="text-align: center; padding: 2rem; background: var(--bg-primary); border-radius: var(--radius-xl); border: 1px solid var(--border-color); transition: transform 0.2s ease;">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">🧪</div>
-                    <h3 style="color: var(--text-primary); margin-bottom: 1rem;">시뮬레이션</h3>
-                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">물리학과 수학의 개념을 시각적으로 탐험해보세요.</p>
-                    <a href="{{ url_for('simulation.index') }}" class="btn btn-outline">
-                        시뮬레이션 체험
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-                
-                <!-- 소개 기능 -->
-                <div class="feature-card" style="text-align: center; padding: 2rem; background: var(--bg-primary); border-radius: var(--radius-xl); border: 1px solid var(--border-color); transition: transform 0.2s ease;">
-                    <div style="font-size: 3rem; margin-bottom: 1rem;">👤</div>
-                    <h3 style="color: var(--text-primary); margin-bottom: 1rem;">소개</h3>
-                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">와구센에 대해 더 자세히 알아보세요.</p>
-                    <a href="{{ url_for('main.about') }}" class="btn btn-outline">
-                        더 알아보기
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
+    {% endif %}
 </div>
 
-<!-- 인라인 스타일 - 페이지별 추가 스타일링 -->
-<style>
-/* 섹션 헤더 스타일 */
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-6);
-}
-
-.section-header h2 {
-    font-size: var(--text-3xl);
-    font-weight: 700;
-    color: var(--text-primary);
-}
-
-.view-all-link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    color: var(--text-accent);
-    font-weight: 500;
-    transition: var(--transition-base);
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-md);
-    border: 1px solid transparent;
-}
-
-.view-all-link:hover {
-    transform: translateX(4px);
-    background: var(--primary-50);
-    border-color: var(--primary-200);
-}
-
-html.dark-theme .view-all-link:hover {
-    background: rgba(96, 165, 250, 0.1);
-    border-color: rgba(96, 165, 250, 0.3);
-}
-
-.view-all-link i {
-    font-size: 0.875rem;
-    transition: transform var(--duration-200) var(--ease-out);
-}
-
-.view-all-link:hover i {
-    transform: translateX(2px);
-}
-
-/* 최근 포스트 섹션 */
-.recent-posts-section {
-    margin: var(--space-16) 0;
-}
-
-/* 기능 카드 호버 효과 */
-.feature-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-}
-
-/* 버튼 스타일 개선 */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-3) var(--space-6);
-    border-radius: var(--radius-lg);
-    font-weight: 500;
-    text-decoration: none;
-    transition: all var(--duration-200) var(--ease-out);
-    border: 1px solid;
-    cursor: pointer;
-}
-
-.btn-primary {
-    background: var(--primary-500);
-    color: white;
-    border-color: var(--primary-500);
-}
-
-.btn-primary:hover {
-    background: var(--primary-600);
-    border-color: var(--primary-600);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-
-.btn-outline {
-    background: transparent;
-    color: var(--text-primary);
-    border-color: var(--border-color);
-}
-
-.btn-outline:hover {
-    background: var(--bg-tertiary);
-    border-color: var(--text-accent);
-    color: var(--text-accent);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
-}
-
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-    .section-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: var(--space-3);
-    }
-    
-    .features-section .container > div {
-        grid-template-columns: 1fr;
-    }
-    
-    .feature-card {
-        max-width: 400px;
-        margin: 0 auto;
-    }
-}
-</style>
+<!-- 디버깅을 위한 정보 표시 -->
+<div style="position: fixed; top: 10px; left: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; font-size: 12px; z-index: 9999;">
+    <div>총 포스트 수: {{ posts|length if posts else 0 }}</div>
+    <div>초기 표시: {{ posts[:3]|length if posts else 0 }}개</div>
+    <div>추가 포스트: {{ posts[3:]|length if posts else 0 }}개</div>
+    <div>더보기 버튼: {% if posts and posts|length > 3 %}표시됨{% else %}숨김{% endif %}</div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-// 슬라이드 기능 구현
 document.addEventListener('DOMContentLoaded', function() {
-    const slides = document.querySelectorAll('.slide');
-    const indicators = document.querySelectorAll('.slide-indicator');
-    let currentSlide = 0;
-    let slideInterval;
-
-    // 슬라이드 표시 함수
-    function showSlide(index) {
-        // 모든 슬라이드와 인디케이터에서 active 클래스 제거
-        slides.forEach((slide, i) => {
-            slide.classList.toggle('active', i === index);
-        });
-        indicators.forEach((indicator, i) => {
-            indicator.classList.toggle('active', i === index);
-        });
-        currentSlide = index;
-        
-        console.log(`슬라이드 ${index + 1}번으로 전환됨`);
-    }
-
-    // 다음 슬라이드로 이동
-    function nextSlide() {
-        const next = (currentSlide + 1) % slides.length;
-        showSlide(next);
-    }
-
-    // 자동 슬라이드 시작
-    function startAutoSlide() {
-        slideInterval = setInterval(nextSlide, 5000); // 5초마다 전환
-        console.log('자동 슬라이드 시작됨 (5초 간격)');
-    }
-
-    // 자동 슬라이드 중지
-    function stopAutoSlide() {
-        if (slideInterval) {
-            clearInterval(slideInterval);
-            console.log('자동 슬라이드 일시 중지됨');
-        }
-    }
-
-    // 인디케이터 클릭 이벤트
-    indicators.forEach((indicator, index) => {
-        indicator.addEventListener('click', () => {
-            stopAutoSlide(); // 수동 조작 시 자동 슬라이드 중지
-            showSlide(index);
-            // 3초 후 자동 슬라이드 재시작
-            setTimeout(startAutoSlide, 3000);
-        });
-    });
-
-    // 슬라이드 컨테이너에 마우스 호버 시 자동 슬라이드 일시 중지
-    const slideContainer = document.querySelector('.slide-container');
-    if (slideContainer) {
-        slideContainer.addEventListener('mouseenter', stopAutoSlide);
-        slideContainer.addEventListener('mouseleave', startAutoSlide);
-    }
-
-    // 자동 슬라이드 시작
-    startAutoSlide();
-
-    // 키보드 네비게이션 (선택사항)
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'ArrowLeft') {
-            stopAutoSlide();
-            const prev = (currentSlide - 1 + slides.length) % slides.length;
-            showSlide(prev);
-            setTimeout(startAutoSlide, 3000);
-        } else if (e.key === 'ArrowRight') {
-            stopAutoSlide();
-            nextSlide();
-            setTimeout(startAutoSlide, 3000);
-        }
-    });
-
-    console.log('슬라이드 시스템 초기화 완료');
-});
-
-// 이미지 로드 모니터링 (개발용)
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('=== 메인 페이지 이미지 로드 모니터링 ===');
+    // 디버깅 정보 출력
+    console.log('=== 포스트 페이지 디버깅 정보 ===');
+    console.log('initialPosts 요소:', document.getElementById('initialPosts'));
+    console.log('additionalPosts 요소:', document.getElementById('additionalPosts'));
+    console.log('toggleButton 요소:', document.getElementById('toggleButton'));
     
-    const profileImg = document.querySelector('.intro-image img');
-    if (profileImg) {
-        console.log('프로필 이미지 URL:', profileImg.src);
-        
-        if (profileImg.complete && profileImg.naturalHeight !== 0) {
-            console.log('✅ 프로필 이미지 이미 로드됨');
-        }
+    const initialPosts = document.getElementById('initialPosts');
+    const additionalPosts = document.getElementById('additionalPosts');
+    const toggleButton = document.getElementById('toggleButton');
+    
+    if (initialPosts) {
+        console.log('초기 포스트 개수:', initialPosts.querySelectorAll('.post-card').length);
     }
     
-    // 3초 후 최종 상태 확인
-    setTimeout(() => {
-        const allImages = document.querySelectorAll('img');
-        let loadedImages = 0;
+    if (additionalPosts) {
+        console.log('추가 포스트 개수:', additionalPosts.querySelectorAll('.post-card').length);
+        console.log('추가 포스트 숨김 상태:', additionalPosts.classList.contains('hidden'));
+    }
+    
+    // 현재 CSS 그리드 상태 확인
+    const postsGrid = document.querySelector('.posts-grid');
+    if (postsGrid) {
+        const computedStyle = window.getComputedStyle(postsGrid);
+        console.log('그리드 템플릿 컬럼:', computedStyle.gridTemplateColumns);
+        console.log('현재 화면 너비:', window.innerWidth);
+    }
+    
+    // 더보기/접기 토글 기능
+    if (toggleButton && additionalPosts) {
+        const hiddenCount = additionalPosts.querySelectorAll('.post-card-link').length;
+        console.log('더보기 버튼 작동 준비됨, 숨겨진 포스트 수:', hiddenCount);
         
-        allImages.forEach(img => {
-            if (img.complete && img.naturalHeight !== 0) {
-                loadedImages++;
+        toggleButton.addEventListener('click', function() {
+            const isHidden = additionalPosts.classList.contains('hidden');
+            console.log('더보기 버튼 클릭됨, 현재 숨김 상태:', isHidden);
+            
+            if (isHidden) {
+                additionalPosts.classList.remove('hidden');
+                toggleButton.innerHTML = '<span>포스트 접기</span><i class="fas fa-chevron-up"></i>';
+                console.log('추가 포스트 표시됨');
+            } else {
+                additionalPosts.classList.add('hidden');
+                toggleButton.innerHTML = `<span>더 많은 포스트 보기 (${hiddenCount}개)</span><i class="fas fa-chevron-down"></i>`;
+                console.log('추가 포스트 숨겨짐');
             }
         });
-        
-        console.log(`최종 결과: ${loadedImages}/${allImages.length} 이미지 로드 완료`);
-        
-        if (loadedImages === allImages.length) {
-            console.log('🎉 모든 이미지가 정상적으로 로드되었습니다!');
-        } else {
-            console.log('⚠️ 일부 이미지 로드에 문제가 있습니다.');
-        }
-    }, 3000);
+    } else {
+        console.log('더보기 버튼 또는 추가 포스트 요소를 찾을 수 없음');
+        console.log('toggleButton:', toggleButton);
+        console.log('additionalPosts:', additionalPosts);
+    }
+    
+    // 태그 필터링 기능
+    const tagItems = document.querySelectorAll('.tag-item');
+    const postCards = document.querySelectorAll('.post-card-link');
+    let activeTag = null;
+    
+    console.log('태그 아이템 수:', tagItems.length);
+    console.log('포스트 카드 수:', postCards.length);
+    
+    tagItems.forEach(tag => {
+        tag.addEventListener('click', function() {
+            const selectedTag = this.textContent.trim();
+            console.log('선택된 태그:', selectedTag);
+            
+            if (activeTag === selectedTag) {
+                // 태그 필터 해제
+                activeTag = null;
+                tagItems.forEach(t => t.classList.remove('active'));
+                postCards.forEach(post => post.style.display = '');
+                
+                // 원래 상태 복원
+                if (additionalPosts && !additionalPosts.classList.contains('hidden')) {
+                    additionalPosts.classList.add('hidden');
+                    if (toggleButton) {
+                        toggleButton.innerHTML = `<span>더 많은 포스트 보기 (${hiddenCount}개)</span><i class="fas fa-chevron-down"></i>`;
+                        toggleButton.style.display = '';
+                    }
+                }
+                console.log('태그 필터 해제됨');
+                return;
+            }
+            
+            // 태그 활성화
+            activeTag = selectedTag;
+            tagItems.forEach(t => {
+                if (t.textContent.trim() === selectedTag) {
+                    t.classList.add('active');
+                } else {
+                    t.classList.remove('active');
+                }
+            });
+            
+            // 포스트 필터링
+            let visibleCount = 0;
+            postCards.forEach(post => {
+                const postTags = post.getAttribute('data-tags').split(',');
+                if (postTags.includes(selectedTag)) {
+                    post.style.display = '';
+                    visibleCount++;
+                } else {
+                    post.style.display = 'none';
+                }
+            });
+            
+            console.log('필터링된 포스트 수:', visibleCount);
+            
+            // 필터링 시 모든 포스트 표시
+            if (additionalPosts) {
+                additionalPosts.classList.remove('hidden');
+                if (toggleButton) {
+                    toggleButton.style.display = 'none';
+                }
+            }
+            
+            if (visibleCount === 0) {
+                alert('선택한 태그의 게시물이 없습니다.');
+                // 필터 초기화
+                activeTag = null;
+                tagItems.forEach(t => t.classList.remove('active'));
+                postCards.forEach(post => post.style.display = '');
+                
+                if (additionalPosts) {
+                    additionalPosts.classList.add('hidden');
+                    if (toggleButton) {
+                        toggleButton.style.display = '';
+                        toggleButton.innerHTML = `<span>더 많은 포스트 보기 (${hiddenCount}개)</span><i class="fas fa-chevron-down"></i>`;
+                    }
+                }
+            }
+        });
+    });
 });
 </script>
 {% endblock %}

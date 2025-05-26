@@ -10,29 +10,17 @@
     <meta name="keywords" content="와구센, wagusen, 블로그, 시뮬레이션">
     <meta name="author" content="와구센">
     
-    <!-- 파비콘 - 실제 파일명으로 수정: favicon.png -->
+    <!-- 파비콘 -->
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
-    <!-- 추가 파비콘 형식들 -->
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.png') }}">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/favicon.png') }}">
     
-    <!-- 디버깅: 생성된 URL 콘솔에 출력 -->
-    <script>
-        console.log('=== 정적 파일 URL 디버깅 (수정된 파일명) ===');
-        console.log('로고 URL:', '{{ url_for("static", filename="img/logo.png") }}');
-        console.log('프로필 이미지 URL:', '{{ url_for("static", filename="img/gusen-jb.png") }}');
-        console.log('파비콘 URL:', '{{ url_for("static", filename="img/favicon.png") }}');
-        console.log('푸터 로고 URL:', '{{ url_for("static", filename="img/footer-logo.gif") }}');
-        console.log('===============================================');
-    </script>
-    
-    <!-- 아이콘 폰트 - 다중 CDN 백업 전략 -->
+    <!-- 아이콘 폰트 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
     
-    <!-- 아이콘 로드 확인 및 백업 스크립트 -->
+    <!-- 아이콘 로드 확인 및 백업 -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Font Awesome 로드 확인 함수
             function checkFontAwesome() {
                 const testElement = document.createElement('i');
                 testElement.className = 'fas fa-home';
@@ -47,87 +35,22 @@
                 return isLoaded;
             }
             
-            // 1초 후에 Font Awesome 로드 상태 확인
             setTimeout(function() {
                 if (!checkFontAwesome()) {
-                    console.log('주 Font Awesome CDN 실패, 백업 CDN 로드 중...');
                     loadBackupFontAwesome();
-                } else {
-                    console.log('✓ Font Awesome 정상 로드됨');
                 }
             }, 1000);
             
-            // 백업 CDN 로드 함수
             function loadBackupFontAwesome() {
-                const backup1 = document.createElement('link');
-                backup1.rel = 'stylesheet';
-                backup1.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css';
-                backup1.onload = function() {
-                    console.log('✓ 백업 CDN 1 로드 성공');
+                const backup = document.createElement('link');
+                backup.rel = 'stylesheet';
+                backup.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css';
+                backup.onload = function() {
+                    console.log('백업 Font Awesome 로드됨');
                 };
-                backup1.onerror = function() {
-                    console.log('백업 CDN 1 실패, 백업 CDN 2 시도 중...');
-                    loadSecondBackup();
-                };
-                document.head.appendChild(backup1);
-            }
-            
-            function loadSecondBackup() {
-                const backup2 = document.createElement('link');
-                backup2.rel = 'stylesheet';
-                backup2.href = 'https://unpkg.com/@fortawesome/fontawesome-free@6.5.1/css/all.min.css';
-                backup2.onload = function() {
-                    console.log('✓ 백업 CDN 2 로드 성공');
-                };
-                backup2.onerror = function() {
-                    console.log('모든 Font Awesome CDN 실패, 대체 아이콘 사용');
-                    loadFallbackIcons();
-                };
-                document.head.appendChild(backup2);
+                document.head.appendChild(backup);
             }
         });
-        
-        // 대체 아이콘 로드 함수 (모든 CDN 실패 시)
-        function loadFallbackIcons() {
-            const fallbackCSS = `
-                <style id="fallback-icons">
-                    /* 유니코드 기반 대체 아이콘들 */
-                    .fas.fa-home::before, .fa-home::before { content: "🏠"; }
-                    .fas.fa-blog::before, .fa-blog::before { content: "📝"; }
-                    .fas.fa-flask::before, .fa-flask::before { content: "🧪"; }
-                    .fas.fa-user::before, .fa-user::before { content: "👤"; }
-                    .fas.fa-lightbulb::before, .fa-lightbulb::before { content: "💡"; }
-                    .fas.fa-times::before, .fa-times::before { content: "✕"; }
-                    .fas.fa-chevron-right::before, .fa-chevron-right::before { content: "›"; }
-                    .fas.fa-chevron-left::before, .fa-chevron-left::before { content: "‹"; }
-                    .far.fa-calendar::before, .fa-calendar::before { content: "📅"; }
-                    .fas.fa-tag::before, .fa-tag::before { content: "🏷️"; }
-                    .fas.fa-envelope::before, .fa-envelope::before { content: "✉️"; }
-                    .fab.fa-github::before, .fa-github::before { content: "🔗"; }
-                    .fas.fa-arrow-left::before, .fa-arrow-left::before { content: "←"; }
-                    .fas.fa-arrow-right::before, .fa-arrow-right::before { content: "→"; }
-                    
-                    /* 대체 아이콘 기본 스타일 */
-                    .fas, .far, .fab {
-                        font-style: normal;
-                        font-variant: normal;
-                        text-rendering: auto;
-                        line-height: 1;
-                        display: inline-block;
-                        font-size: inherit;
-                    }
-                    
-                    .fas::before, .far::before, .fab::before {
-                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-                        font-style: normal;
-                        font-weight: normal;
-                        line-height: 1;
-                        text-decoration: none;
-                    }
-                </style>
-            `;
-            document.head.insertAdjacentHTML('beforeend', fallbackCSS);
-        }
     </script>
     
     <!-- CSS -->
@@ -135,47 +58,31 @@
     {% block head %}{% endblock %}
 </head>
 <body>
-    <!-- 디버깅 정보 표시 (개발 환경에서만) -->
-    {% if config.DEBUG %}
-    <div id="debug-info" style="position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.9); color: white; padding: 12px; border-radius: 8px; font-size: 11px; z-index: 9999; max-width: 320px; font-family: monospace;">
-        <div style="font-weight: bold; margin-bottom: 8px; color: #4ade80;">🐛 디버깅 정보</div>
-        <div>📷 로고: {{ url_for('static', filename='img/logo.png') }}</div>
-        <div>👤 프로필: {{ url_for('static', filename='img/gusen-jb.png') }}</div>
-        <div>⭐ 파비콘: {{ url_for('static', filename='img/favicon.png') }}</div>
-        <div>🔗 푸터 로고: {{ url_for('static', filename='img/footer-logo.gif') }}</div>
-        <button onclick="document.getElementById('debug-info').style.display='none'" 
-                style="margin-top: 8px; padding: 4px 8px; font-size: 10px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer;">닫기</button>
-    </div>
-    {% endif %}
-    
     <!-- 헤더 -->
     <header class="top-header">
         <div class="container">
-            <!-- 로고 영역 - 실제 파일명 logo.png 사용 -->
+            <!-- 로고 영역 -->
             <div class="logo-area">
                 <a href="{{ url_for('main.index') }}" class="logo">
-                    <!-- 실제 존재하는 logo.png 파일 사용 -->
                     <img src="{{ url_for('static', filename='img/logo.png') }}" 
                          alt="와구센 로고"
-                         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'; console.log('로고 이미지 로드 실패:', this.src);"
-                         onload="console.log('✓ 로고 이미지 로드 성공:', this.src);">
-                    <!-- 이미지 로드 실패 시 대체 아이콘 -->
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
                     <span style="display: none; font-size: 24px;">🏠</span>
                     <span class="site-name">와구센</span>
                 </a>
             </div>
             
-            <!-- 데스크톱 네비게이션 -->
+            <!-- 데스크톱 네비게이션 - 아이콘 제거 -->
             <nav class="desktop-nav" aria-label="주 메뉴">
                 <ul>
                     <li><a href="{{ url_for('posts.index') }}" {% if request.endpoint and 'posts' in request.endpoint %}class="active"{% endif %}>
-                        <i class="fas fa-blog" aria-hidden="true"></i> 블로그
+                        블로그
                     </a></li>
                     <li><a href="{{ url_for('simulation.index') }}" {% if request.endpoint and 'simulation' in request.endpoint %}class="active"{% endif %}>
-                        <i class="fas fa-flask" aria-hidden="true"></i> 시뮬레이션
+                        시뮬레이션
                     </a></li>
                     <li><a href="{{ url_for('main.about') }}" {% if request.endpoint == 'main.about' %}class="active"{% endif %}>
-                        <i class="fas fa-user" aria-hidden="true"></i> 소개
+                        소개
                     </a></li>
                 </ul>
             </nav>
@@ -198,7 +105,7 @@
         </div>
     </header>
     
-    <!-- 모바일 네비게이션 -->
+    <!-- 모바일 네비게이션 - 아이콘 제거 -->
     <nav class="mobile-nav" id="mobile-nav" aria-label="모바일 메뉴">
         <div class="mobile-nav-header">
             <span class="mobile-nav-title">메뉴</span>
@@ -208,23 +115,19 @@
         </div>
         <div class="mobile-nav-content">
             <a href="{{ url_for('posts.index') }}" class="mobile-nav-link">
-                <i class="fas fa-blog" aria-hidden="true"></i>
                 <span>블로그</span>
                 <i class="fas fa-chevron-right" aria-hidden="true"></i>
             </a>
             <a href="{{ url_for('simulation.index') }}" class="mobile-nav-link">
-                <i class="fas fa-flask" aria-hidden="true"></i>
                 <span>시뮬레이션</span>
                 <i class="fas fa-chevron-right" aria-hidden="true"></i>
             </a>
             <a href="{{ url_for('main.about') }}" class="mobile-nav-link">
-                <i class="fas fa-user" aria-hidden="true"></i>
                 <span>소개</span>
                 <i class="fas fa-chevron-right" aria-hidden="true"></i>
             </a>
             <div class="mobile-theme-item">
                 <div class="mobile-nav-link">
-                    <i class="fas fa-lightbulb" aria-hidden="true"></i>
                     <span>다크 모드</span>
                     <button class="theme-switch" id="mobile-theme-toggle">
                         <span class="theme-switch-slider"></span>
@@ -248,12 +151,9 @@
             <div class="footer-content">
                 <div class="footer-info">
                     <a href="{{ url_for('main.index') }}" class="footer-logo">
-                        <!-- 푸터에서는 footer-logo.gif 파일 사용 (실제 존재하는 파일) -->
                         <img src="{{ url_for('static', filename='img/footer-logo.gif') }}" 
                              alt="와구센"
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='inline'; console.log('푸터 로고 로드 실패:', this.src);"
-                             onload="console.log('✓ 푸터 로고 로드 성공:', this.src);">
-                        <!-- 이미지 로드 실패 시 대체 아이콘 -->
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
                         <span style="display: none; font-size: 20px;">🏠</span>
                     </a>
                     <p>&copy; 2024 와구센. All rights reserved.</p>
@@ -275,59 +175,5 @@
     <!-- 스크립트 -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block scripts %}{% endblock %}
-    
-    <!-- 이미지 로드 상태 종합 확인 스크립트 -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('=== 이미지 로드 상태 종합 확인 ===');
-            
-            // 모든 이미지 요소 찾기
-            const images = document.querySelectorAll('img');
-            let loadedCount = 0;
-            let totalCount = images.length;
-            
-            console.log(`총 ${totalCount}개의 이미지를 확인 중...`);
-            
-            images.forEach((img, index) => {
-                const imageName = img.src.split('/').pop();
-                console.log(`📷 이미지 ${index + 1}: ${imageName}`);
-                console.log(`   URL: ${img.src}`);
-                
-                // 로드 성공 이벤트
-                img.onload = function() {
-                    loadedCount++;
-                    console.log(`✅ ${imageName} 로드 성공 (${loadedCount}/${totalCount})`);
-                };
-                
-                // 로드 실패 이벤트
-                img.onerror = function() {
-                    console.log(`❌ ${imageName} 로드 실패`);
-                    console.log(`   실패한 URL: ${this.src}`);
-                };
-                
-                // 이미 로드된 이미지 확인
-                if (img.complete) {
-                    if (img.naturalHeight !== 0) {
-                        loadedCount++;
-                        console.log(`✅ ${imageName} 이미 로드됨 (${loadedCount}/${totalCount})`);
-                    } else {
-                        console.log(`❌ ${imageName} 로드 실패 (이미 시도됨)`);
-                    }
-                }
-            });
-            
-            // 3초 후 최종 결과 출력
-            setTimeout(() => {
-                console.log('=================================');
-                console.log(`최종 결과: ${loadedCount}/${totalCount} 이미지 로드 성공`);
-                if (loadedCount === totalCount) {
-                    console.log('🎉 모든 이미지가 성공적으로 로드되었습니다!');
-                } else {
-                    console.log('⚠️  일부 이미지 로드에 실패했습니다. 파일명과 경로를 확인하세요.');
-                }
-                console.log('=================================');
-            }, 3000);
-        });
-    </script>
 </body>
 </html>
