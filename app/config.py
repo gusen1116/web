@@ -95,11 +95,6 @@ class ProductionConfig(Config):
     SESSION_COOKIE_SAMESITE = 'Lax'
     PREFERRED_URL_SCHEME = 'https'
     
-    # 프로덕션에서는 환경 변수에서 시크릿 키 필수
-    SECRET_KEY = os.environ.get('SECRET_KEY')
-    if not SECRET_KEY:
-        raise ValueError("SECRET_KEY 환경 변수가 설정되지 않았습니다!")
-    
     # 정적 파일 캐싱
     SEND_FILE_MAX_AGE_DEFAULT = 31536000  # 1년
     
@@ -108,6 +103,14 @@ class ProductionConfig(Config):
     
     # 프로덕션 데이터베이스 설정 (필요시)
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+    
+    @property
+    def SECRET_KEY(self):
+        """프로덕션에서는 환경 변수에서 시크릿 키 필수"""
+        secret_key = os.environ.get('SECRET_KEY')
+        if not secret_key:
+            raise ValueError("프로덕션 환경에서는 SECRET_KEY 환경 변수가 필요합니다!")
+        return secret_key
 
 
 class TestingConfig(Config):
