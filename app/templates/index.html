@@ -1,215 +1,695 @@
 {% extends "base.html" %}
 
-{% block title %}블로그 - 와구센{% endblock %}
-
-{% block head %}
-
-{% endblock %}
+{% block title %}와구센 - 홈{% endblock %}
 
 {% block content %}
-<!-- 블로그 헤더 -->
-<div class="blog-header">
-    <h1>블로그</h1>
-</div>
-
-<!-- 상단 태그 네비게이션 영역 -->
-<div class="top-tag-navigation">
-    {% for tag in tags %}
-        <div class="tag-item" data-tag="{{ tag.name }}">{{ tag.name }}</div>
-    {% endfor %}
-</div>
-
-<!-- 포스트 컨테이너 -->
-<div class="posts-container">
-    <!-- 초기 포스트 그리드 (3개만 표시) -->
-    <div class="posts-grid" id="initialPosts">
-        {% if posts %}
-            {% for post in posts[:3] %}
-                <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}" class="post-card-link" data-tags="{{ ','.join(post.tags) }}">
-                    <article class="post-card fade-in">
-                        <div class="post-card-header">
-                            <h2 class="post-card-title">{{ post.title }}</h2>
-                            <div class="post-card-meta">
-                                <div class="post-card-date">
-                                    {{ post.date.strftime('%Y년 %m월 %d일') }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="post-card-content">
-                            <div class="post-card-preview">{{ post.get_preview(150) }}</div>
-                        </div>
-                        <div class="post-card-footer">
-                            <div class="post-card-tags">
-                                {% for tag in post.tags[:2] %}
-                                    <span class="post-card-tag">{{ tag }}</span>
-                                {% endfor %}
-                                {% if post.tags|length > 2 %}
-                                    <span class="post-card-tag">+{{ post.tags|length - 2 }}</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </article>
-                </a>
-            {% endfor %}
-        {% else %}
-            <div class="empty-state">
-                <p>아직 게시글이 없습니다.</p>
+<div class="container">
+    <!-- 슬라이드 섹션 -->
+    <section class="slide-section">
+        <div class="slide-container">
+            <div class="slide active">
+                <h2>와구센의 홈페이지에 오신것을 환영합니다</h2>
+                <p>다양한 프로젝트와 블로그 글을 통해 지식을 공유하고 있습니다.</p>
             </div>
-        {% endif %}
-    </div>
-    
-    <!-- 추가 포스트 (더보기 누를 때 표시됨) -->
-    <div class="posts-grid hidden" id="additionalPosts">
-        {% for post in posts[3:] %}
-            <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}" class="post-card-link" data-tags="{{ ','.join(post.tags) }}">
-                <article class="post-card fade-in">
+            <div class="slide">
+                <h2>구센의 번직</h2>
+                <p>구센 어헤야기 프로젝트</p>
+            </div>
+            <div class="slide">
+                <h2>테스트</h2>
+                <p>뉴턴 역학 기반 원자 분자 동역학을 계속합니다. 자동차가 감자가 감자할 때 몇가 알으로 솔라는 현상이 바로 관성이 힘을 얻는다</p>
+            </div>
+            <div class="slide-controls">
+                <span class="slide-indicator active" data-slide="0"></span>
+                <span class="slide-indicator" data-slide="1"></span>
+                <span class="slide-indicator" data-slide="2"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 소개 섹션 - 원래 이미지 복원 -->
+    <section class="intro-section">
+        <div class="intro-content">
+            <div class="intro-image">
+                <img src="{{ url_for('static', filename='img/gusen-jb.png') }}" 
+                     alt="와구센 프로필 사진"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            </div>
+            <div class="intro-text">
+                <h2>안녕하세요, 와구센입니다</h2>
+                <p>웹 개발과 시뮬레이션에 관심이 많은 개발자입니다. 이 블로그에서는 제가 학습하고 경험한 내용들을 공유하고 있습니다.</p>
+                <p>주로 Python, JavaScript, 그리고 다양한 웹 기술들을 다루며, 물리 시뮬레이션과 데이터 시각화 프로젝트도 진행하고 있습니다.</p>
+                <a href="{{ url_for('main.about') }}" class="btn btn-primary">
+                    더 알아보기
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 최근 포스트 섹션 -->
+    <section class="recent-posts-section">
+        <div class="section-header">
+            <h2>최근 포스트</h2>
+            <a href="{{ url_for('posts.index') }}" class="view-all-link">
+                전체 보기
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        
+        <div class="recent-posts">
+            {% for post in recent_posts %}
+            <article class="post-card">
+                <a href="{{ url_for('posts.view_by_slug', slug=post.slug or post.id) }}" class="post-card-link">
                     <div class="post-card-header">
-                        <h2 class="post-card-title">{{ post.title }}</h2>
+                        <h3 class="post-card-title">{{ post.title }}</h3>
                         <div class="post-card-meta">
                             <div class="post-card-date">
-                                {{ post.date.strftime('%Y년 %m월 %d일') }}
+                                <i class="far fa-calendar"></i>
+                                <time datetime="{{ post.date.isoformat() }}">{{ post.date.strftime('%Y년 %m월 %d일') }}</time>
                             </div>
                         </div>
                     </div>
                     <div class="post-card-content">
-                        <div class="post-card-preview">{{ post.get_preview(150) }}</div>
+                        <p class="post-card-preview">{{ post.get_preview(150) }}</p>
                     </div>
                     <div class="post-card-footer">
                         <div class="post-card-tags">
-                            {% for tag in post.tags[:2] %}
-                                <span class="post-card-tag">{{ tag }}</span>
+                            {% for tag in post.tags %}
+                            <span class="post-card-tag">
+                                <i class="fas fa-tag"></i>
+                                {{ tag }}
+                            </span>
                             {% endfor %}
-                            {% if post.tags|length > 2 %}
-                                <span class="post-card-tag">+{{ post.tags|length - 2 }}</span>
-                            {% endif %}
                         </div>
                     </div>
-                </article>
-            </a>
-        {% endfor %}
-    </div>
-    
-    <!-- 더보기/접기 버튼 - 3개 기준으로 수정 -->
-    {% if posts and posts|length > 3 %}
-        <div class="toggle-button-container">
-            <button id="toggleButton" class="toggle-button">
-                <span>더 많은 포스트 보기 ({{ posts|length - 3 }}개)</span>
-                <i class="fas fa-chevron-down"></i>
-            </button>
+                </a>
+            </article>
+            {% else %}
+            <!-- 포스트가 없을 때 표시할 내용 -->
+            <div class="empty-state">
+                <div style="text-align: center; padding: 3rem; background: var(--bg-secondary); border-radius: var(--radius-xl); border: 1px solid var(--border-color);">
+                    <div style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.6;">📝</div>
+                    <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">아직 포스트가 없습니다</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">첫 번째 포스트를 작성해보세요!</p>
+                    <a href="{{ url_for('posts.index') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        포스트 작성하러 가기
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
         </div>
-    {% endif %}
+    </section>
+
+    <!-- 입자 충돌 시뮬레이션 메인 섹션 -->
+    <section class="simulation-main-section">
+        <div class="simulation-container">
+            <div class="simulation-header">
+                <h2>입자 충돌 시뮬레이션</h2>
+                <p>클릭해서 입자들과 상호작용해보세요!</p>
+            </div>
+            <div class="main-simulation">
+                <canvas id="mainCanvas" width="800" height="400"></canvas>
+            </div>
+            <div class="simulation-info">
+                <p>물리학적으로 정확한 탄성 충돌을 구현한 시뮬레이션입니다. 마우스로 클릭하면 입자들이 반응합니다.</p>
+            </div>
+        </div>
+    </section>
 </div>
+
+<style>
+/* 기존 스타일들 */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-6);
+}
+
+.section-header h2 {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.view-all-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-accent);
+    font-weight: 500;
+    transition: var(--transition-base);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+}
+
+.view-all-link:hover {
+    transform: translateX(4px);
+    background: var(--primary-50);
+    border-color: var(--primary-200);
+}
+
+html.dark-theme .view-all-link:hover {
+    background: rgba(96, 165, 250, 0.1);
+    border-color: rgba(96, 165, 250, 0.3);
+}
+
+.view-all-link i {
+    font-size: 0.875rem;
+    transition: transform var(--duration-200) var(--ease-out);
+}
+
+.view-all-link:hover i {
+    transform: translateX(2px);
+}
+
+/* 소개 섹션 - 원래 스타일 복원 */
+.intro-section {
+    margin: var(--space-16) 0;
+}
+
+.intro-content {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: var(--space-8);
+    align-items: flex-start;
+}
+
+.intro-image {
+    width: 200px;
+    height: auto;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+
+.intro-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.intro-text {
+    flex: 1;
+}
+
+.intro-text h2 {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    margin-bottom: var(--space-4);
+    color: var(--text-primary);
+}
+
+.intro-text p {
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-4);
+}
+
+/* 시뮬레이션 메인 섹션 */
+.simulation-main-section {
+    margin: var(--space-16) 0;
+    padding: var(--space-12) 0;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-2xl);
+    border: 1px solid var(--border-color);
+}
+
+.simulation-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 var(--space-6);
+    text-align: center;
+}
+
+.simulation-header {
+    margin-bottom: var(--space-8);
+}
+
+.simulation-header h2 {
+    font-size: var(--text-4xl);
+    font-weight: 700;
+    margin-bottom: var(--space-4);
+    color: var(--text-primary);
+}
+
+.simulation-header p {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+}
+
+.main-simulation {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    margin-bottom: var(--space-6);
+    box-shadow: var(--shadow-xl);
+    position: relative;
+}
+
+#mainCanvas {
+    width: 100%;
+    height: 400px;
+    cursor: pointer;
+    display: block;
+}
+
+.simulation-info {
+    color: var(--text-secondary);
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* 최근 포스트 섹션 */
+.recent-posts-section {
+    margin: var(--space-16) 0;
+}
+
+/* 주요 기능 섹션 */
+.features-section {
+    margin: var(--space-16) 0;
+    padding: var(--space-12) 0;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-2xl);
+    border: 1px solid var(--border-color);
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-6);
+}
+
+.feature-card {
+    text-align: center;
+    padding: var(--space-8);
+    background: var(--bg-primary);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-color);
+    transition: transform var(--duration-200) var(--ease-out);
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.feature-icon {
+    font-size: 4rem;
+    margin-bottom: var(--space-4);
+}
+
+.feature-card h3 {
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+    font-size: var(--text-xl);
+    font-weight: 600;
+}
+
+.feature-card p {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-6);
+    line-height: var(--leading-relaxed);
+}
+
+/* 시뮬레이션 데모 카드 */
+.simulation-demo {
+    position: relative;
+}
+
+.mini-simulation {
+    position: relative;
+    margin-bottom: var(--space-4);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#miniCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.simulation-overlay {
+    position: relative;
+    z-index: 2;
+    color: white;
+    text-align: center;
+    pointer-events: none;
+}
+
+.simulation-overlay h3 {
+    color: white;
+    font-size: var(--text-lg);
+    margin-bottom: var(--space-2);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.simulation-overlay p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: var(--text-sm);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* 버튼 스타일 */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-lg);
+    font-weight: 500;
+    text-decoration: none;
+    transition: all var(--duration-200) var(--ease-out);
+    border: 1px solid;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: var(--primary-500);
+    color: white;
+    border-color: var(--primary-500);
+}
+
+.btn-primary:hover {
+    background: var(--primary-600);
+    border-color: var(--primary-600);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.btn-outline:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--text-accent);
+    color: var(--text-accent);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-3);
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .feature-card {
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    .intro-content-text h2 {
+        font-size: var(--text-3xl);
+    }
+    
+    .mini-simulation {
+        height: 150px;
+    }
+}
+</style>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // 더보기/접기 토글 기능
-        const toggleButton = document.getElementById('toggleButton');
-        const additionalPosts = document.getElementById('additionalPosts');
+// 슬라이드 기능
+document.addEventListener('DOMContentLoaded', function() {
+    const slides = document.querySelectorAll('.slide');
+    const indicators = document.querySelectorAll('.slide-indicator');
+    let currentSlide = 0;
+    let slideInterval;
+
+    function showSlide(index) {
+        slides.forEach((slide, i) => {
+            slide.classList.toggle('active', i === index);
+        });
+        indicators.forEach((indicator, i) => {
+            indicator.classList.toggle('active', i === index);
+        });
+        currentSlide = index;
+    }
+
+    function nextSlide() {
+        const next = (currentSlide + 1) % slides.length;
+        showSlide(next);
+    }
+
+    function startAutoSlide() {
+        slideInterval = setInterval(nextSlide, 5000);
+    }
+
+    function stopAutoSlide() {
+        if (slideInterval) {
+            clearInterval(slideInterval);
+        }
+    }
+
+    indicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', () => {
+            stopAutoSlide();
+            showSlide(index);
+            setTimeout(startAutoSlide, 3000);
+        });
+    });
+
+    const slideContainer = document.querySelector('.slide-container');
+    if (slideContainer) {
+        slideContainer.addEventListener('mouseenter', stopAutoSlide);
+        slideContainer.addEventListener('mouseleave', startAutoSlide);
+    }
+
+    startAutoSlide();
+
+    // 메인 시뮬레이션
+    const canvas = document.getElementById('mainCanvas');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
         
-        if (toggleButton && additionalPosts) {
-            // 숨겨진 포스트 개수 계산
-            const hiddenCount = additionalPosts.querySelectorAll('.post-card-link').length;
+        // 캔버스 크기 설정
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        resizeCanvas();
+        
+        // 입자 시스템
+        const particles = [];
+        
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 4;
+                this.vy = (Math.random() - 0.5) * 4;
+                this.radius = 15 + Math.random() * 20;
+                this.color = `hsl(${Math.random() * 360}, 80%, 65%)`;
+                this.mass = this.radius * this.radius;
+                this.trail = [];
+            }
             
-            toggleButton.addEventListener('click', function() {
-                const isHidden = additionalPosts.classList.contains('hidden');
+            update() {
+                // 위치 업데이트
+                this.x += this.vx;
+                this.y += this.vy;
                 
-                if (isHidden) {
-                    // 더보기 클릭: 추가 포스트 표시
-                    additionalPosts.classList.remove('hidden');
-                    toggleButton.innerHTML = '<span>포스트 접기</span><i class="fas fa-chevron-up"></i>';
-                } else {
-                    // 접기 클릭: 추가 포스트 숨기기
-                    additionalPosts.classList.add('hidden');
-                    toggleButton.innerHTML = `<span>더 많은 포스트 보기 (${hiddenCount}개)</span><i class="fas fa-chevron-down"></i>`;
+                // 궤적 추가
+                this.trail.push({ x: this.x, y: this.y });
+                if (this.trail.length > 15) {
+                    this.trail.shift();
                 }
-            });
+                
+                // 벽 충돌
+                if (this.x - this.radius < 0) {
+                    this.x = this.radius;
+                    this.vx = Math.abs(this.vx) * 0.9;
+                } else if (this.x + this.radius > canvas.width) {
+                    this.x = canvas.width - this.radius;
+                    this.vx = -Math.abs(this.vx) * 0.9;
+                }
+                
+                if (this.y - this.radius < 0) {
+                    this.y = this.radius;
+                    this.vy = Math.abs(this.vy) * 0.9;
+                } else if (this.y + this.radius > canvas.height) {
+                    this.y = canvas.height - this.radius;
+                    this.vy = -Math.abs(this.vy) * 0.9;
+                }
+            }
+            
+            draw() {
+                // 궤적 그리기
+                if (this.trail.length > 1) {
+                    ctx.beginPath();
+                    ctx.moveTo(this.trail[0].x, this.trail[0].y);
+                    for (let i = 1; i < this.trail.length; i++) {
+                        ctx.lineTo(this.trail[i].x, this.trail[i].y);
+                    }
+                    ctx.strokeStyle = this.color.replace('65%', '30%');
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                }
+                
+                // 입자 그리기
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                
+                // 그라디언트 효과
+                const gradient = ctx.createRadialGradient(
+                    this.x - this.radius/3, this.y - this.radius/3, 0,
+                    this.x, this.y, this.radius
+                );
+                gradient.addColorStop(0, this.color.replace('65%', '80%'));
+                gradient.addColorStop(1, this.color.replace('65%', '45%'));
+                
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                
+                // 외곽선
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // 하이라이트
+                ctx.beginPath();
+                ctx.arc(this.x - this.radius/3, this.y - this.radius/3, this.radius/4, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                ctx.fill();
+            }
         }
         
-        // 태그 필터링 기능
-        const tagItems = document.querySelectorAll('.tag-item');
-        const postCards = document.querySelectorAll('.post-card-link');
-        let activeTag = null;
+        // 초기 입자 생성 (6개)
+        for (let i = 0; i < 6; i++) {
+            const margin = 50;
+            particles.push(new Particle(
+                margin + Math.random() * (canvas.width - margin * 2),
+                margin + Math.random() * (canvas.height - margin * 2)
+            ));
+        }
         
-        tagItems.forEach(tag => {
-            tag.addEventListener('click', function() {
-                const selectedTag = this.textContent.trim();
-                
-                // 같은 태그 재클릭 시 필터 해제
-                if (activeTag === selectedTag) {
-                    activeTag = null;
-                    tagItems.forEach(t => t.classList.remove('active'));
+        // 입자 간 충돌 처리
+        function handleCollisions() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const p1 = particles[i];
+                    const p2 = particles[j];
                     
-                    // 모든 포스트 표시
-                    postCards.forEach(post => {
-                        post.style.display = '';
-                    });
+                    const dx = p2.x - p1.x;
+                    const dy = p2.y - p1.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
                     
-                    // 원래 상태로 복원 (첫 3개만 표시)
-                    if (additionalPosts && !additionalPosts.classList.contains('hidden')) {
-                        additionalPosts.classList.add('hidden');
-                        if (toggleButton) {
-                            const hiddenCount = additionalPosts.querySelectorAll('.post-card-link').length;
-                            toggleButton.innerHTML = `<span>더 많은 포스트 보기 (${hiddenCount}개)</span><i class="fas fa-chevron-down"></i>`;
-                            toggleButton.style.display = '';
-                        }
-                    }
-                    return;
-                }
-                
-                // 태그 활성화
-                activeTag = selectedTag;
-                tagItems.forEach(t => {
-                    if (t.textContent.trim() === selectedTag) {
-                        t.classList.add('active');
-                    } else {
-                        t.classList.remove('active');
-                    }
-                });
-                
-                // 포스트 필터링
-                let visibleCount = 0;
-                postCards.forEach(post => {
-                    const postTags = post.getAttribute('data-tags').split(',');
-                    
-                    if (postTags.includes(selectedTag)) {
-                        post.style.display = '';
-                        visibleCount++;
-                    } else {
-                        post.style.display = 'none';
-                    }
-                });
-                
-                // 태그 필터링 시 모든 포스트 영역 표시
-                if (additionalPosts) {
-                    additionalPosts.classList.remove('hidden');
-                    if (toggleButton) {
-                        toggleButton.style.display = 'none'; // 필터링 중에는 더보기 버튼 숨김
+                    if (distance < p1.radius + p2.radius) {
+                        const angle = Math.atan2(dy, dx);
+                        
+                        // 겹침 수정
+                        const overlap = (p1.radius + p2.radius) - distance;
+                        const moveX = Math.cos(angle) * overlap * 0.5;
+                        const moveY = Math.sin(angle) * overlap * 0.5;
+                        
+                        p1.x -= moveX;
+                        p1.y -= moveY;
+                        p2.x += moveX;
+                        p2.y += moveY;
+                        
+                        // 완전탄성충돌
+                        const v1 = (p1.vx * Math.cos(angle) + p1.vy * Math.sin(angle));
+                        const v2 = (p2.vx * Math.cos(angle) + p2.vy * Math.sin(angle));
+                        
+                        const v1Perpendicular = -p1.vx * Math.sin(angle) + p1.vy * Math.cos(angle);
+                        const v2Perpendicular = -p2.vx * Math.sin(angle) + p2.vy * Math.cos(angle);
+                        
+                        const totalMass = p1.mass + p2.mass;
+                        const v1Final = ((p1.mass - p2.mass) * v1 + 2 * p2.mass * v2) / totalMass;
+                        const v2Final = ((p2.mass - p1.mass) * v2 + 2 * p1.mass * v1) / totalMass;
+                        
+                        p1.vx = Math.cos(angle) * v1Final - Math.sin(angle) * v1Perpendicular;
+                        p1.vy = Math.sin(angle) * v1Final + Math.cos(angle) * v1Perpendicular;
+                        p2.vx = Math.cos(angle) * v2Final - Math.sin(angle) * v2Perpendicular;
+                        p2.vy = Math.sin(angle) * v2Final + Math.cos(angle) * v2Perpendicular;
                     }
                 }
+            }
+        }
+        
+        // 애니메이션 루프
+        function animate() {
+            // 배경을 투명한 그라디언트로 지우기 (궤적 효과)
+            ctx.fillStyle = 'rgba(102, 126, 234, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            handleCollisions();
+            requestAnimationFrame(animate);
+        }
+        
+        // 클릭 이벤트 - 입자들에게 힘 가하기
+        canvas.addEventListener('click', function(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            particles.forEach(particle => {
+                const dx = x - particle.x;
+                const dy = y - particle.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                // 일치하는 포스트가 없으면 알림 및 필터 초기화
-                if (visibleCount === 0) {
-                    alert('선택한 태그의 게시물이 없습니다.');
+                if (distance > 0) {
+                    const force = 300 / (distance + 10); // 거리에 반비례하는 힘
+                    particle.vx += (dx / distance) * force;
+                    particle.vy += (dy / distance) * force;
                     
-                    // 필터 초기화
-                    activeTag = null;
-                    tagItems.forEach(t => t.classList.remove('active'));
-                    postCards.forEach(post => post.style.display = '');
-                    
-                    // 원래 상태로 복원
-                    if (additionalPosts) {
-                        additionalPosts.classList.add('hidden');
-                        if (toggleButton) {
-                            const hiddenCount = additionalPosts.querySelectorAll('.post-card-link').length;
-                            toggleButton.innerHTML = `<span>더 많은 포스트 보기 (${hiddenCount}개)</span><i class="fas fa-chevron-down"></i>`;
-                            toggleButton.style.display = '';
-                        }
+                    // 속도 제한
+                    const maxSpeed = 8;
+                    const speed = Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy);
+                    if (speed > maxSpeed) {
+                        particle.vx = (particle.vx / speed) * maxSpeed;
+                        particle.vy = (particle.vy / speed) * maxSpeed;
                     }
                 }
             });
         });
-    });
+        
+        animate();
+        
+        // 창 크기 변경 시 캔버스 크기 조정
+        window.addEventListener('resize', function() {
+            resizeCanvas();
+            // 입자 위치 조정
+            particles.forEach(particle => {
+                particle.x = Math.min(particle.x, canvas.width - particle.radius);
+                particle.y = Math.min(particle.y, canvas.height - particle.radius);
+            });
+        });
+    }
+});
 </script>
 {% endblock %}
