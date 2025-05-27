@@ -25,8 +25,8 @@
     <meta name="robots" content="index, follow">
     
     <!-- Open Graph 메타 태그 -->
-    <meta property="og:title" content="{% block og_title %}{% block title %}와구센의 홈{% endblock %}{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}{% block description %}와구센 웹사이트에 오신 것을 환영합니다.{% endblock %}{% endblock %}">
+    <meta property="og:title" content="{% block og_title %}와구센의 홈{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}와구센 웹사이트에 오신 것을 환영합니다.{% endblock %}">
     <meta property="og:type" content="{% block og_type %}website{% endblock %}">
     <meta property="og:url" content="{{ request.url }}">
     <meta property="og:site_name" content="와구센">
@@ -34,14 +34,13 @@
     
     <!-- Twitter Card 메타 태그 -->
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="{% block twitter_title %}{% block title %}와구센의 홈{% endblock %}{% endblock %}">
-    <meta name="twitter:description" content="{% block twitter_description %}{% block description %}와구센 웹사이트에 오신 것을 환영합니다.{% endblock %}{% endblock %}">
+    <meta name="twitter:title" content="{% block twitter_title %}와구센의 홈{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}와구센 웹사이트에 오신 것을 환영합니다.{% endblock %}">
     
-    <!-- 파비콘 최적화 -->
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='img/favicon-32x32.png') }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='img/favicon-16x16.png') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
-    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+    <!-- 파비콘 - 실제 파일에 맞게 수정 -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/favicon.png') }}">
     <meta name="theme-color" content="#3b82f6">
     
     <!-- 아이콘 폰트 최적화 -->
@@ -142,18 +141,15 @@
     <!-- 헤더 -->
     <header class="top-header" role="banner">
         <div class="container">
-            <!-- 로고 영역 -->
+            <!-- 로고 영역 - 실제 파일에 맞게 수정 -->
             <div class="logo-area">
                 <a href="{{ url_for('main.index') }}" class="logo" aria-label="와구센 홈페이지로 이동">
-                    <picture>
-                        <source srcset="{{ url_for('static', filename='img/logo.webp') }}" type="image/webp">
-                        <img src="{{ url_for('static', filename='img/logo.png') }}" 
-                             alt="와구센 로고"
-                             width="36"
-                             height="36"
-                             loading="eager"
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                    </picture>
+                    <img src="{{ url_for('static', filename='img/logo.png') }}" 
+                         alt="와구센 로고"
+                         width="36"
+                         height="36"
+                         loading="eager"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
                     <span style="display: none; font-size: 24px;" aria-hidden="true">🏠</span>
                     <span class="site-name">와구센</span>
                 </a>
@@ -291,7 +287,7 @@
         {% block content %}{% endblock %}
     </main>
     
-    <!-- 푸터 - 접근성 개선 -->
+    <!-- 푸터 - 실제 파일에 맞게 수정 -->
     <footer role="contentinfo" aria-label="사이트 정보">
         <div class="container">
             <div class="footer-content">
@@ -299,28 +295,25 @@
                     <a href="{{ url_for('main.index') }}" 
                        class="footer-logo"
                        aria-label="와구센 홈페이지로 이동">
-                        <picture>
-                            <source srcset="{{ url_for('static', filename='img/footer-logo.webp') }}" type="image/webp">
-                            <img src="{{ url_for('static', filename='img/footer-logo.gif') }}" 
-                                 alt="와구센 로고"
-                                 width="40"
-                                 height="40"
-                                 loading="lazy"
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                        </picture>
+                        <img src="{{ url_for('static', filename='img/footer-logo.gif') }}" 
+                             alt="와구센 로고"
+                             width="40"
+                             height="40"
+                             loading="lazy"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
                         <span style="display: none; font-size: 20px;" aria-hidden="true">🏠</span>
                     </a>
                     <p>&copy; <span id="current-year">2024</span> 와구센. All rights reserved.</p>
                 </div>
                 <nav class="footer-links" aria-label="소셜 미디어 링크">
-                    <a href="https://github.com/wagusen" 
+                    <a href="https://github.com/gusen1116" 
                        target="_blank" 
                        rel="noopener noreferrer"
                        aria-label="GitHub 프로필 보기 (새 창에서 열림)">
                         <i class="fab fa-github" aria-hidden="true"></i>
                         <span>GitHub</span>
                     </a>
-                    <a href="mailto:contact@wagusen.com"
+                    <a href="mailto:gusen@wagusen.com"
                        aria-label="이메일 보내기">
                         <i class="fas fa-envelope" aria-hidden="true"></i>
                         <span>Email</span>
