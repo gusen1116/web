@@ -1,35 +1,81 @@
-/* =================================================================
-   OPTIMIZED COMPONENTS CSS - Reusable UI Components
-   ================================================================= */
+/* components.css - GitHub 스타일 UI 컴포넌트 */
 
-/* ===== ADVANCED BUTTON SYSTEM ===== */
-/* 성능 최적화: will-change와 transform 사용으로 GPU 가속 */
-.btn-group {
-  display: flex;
+/* ===== 버튼 시스템 - GitHub 스타일 ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: var(--font-sans);
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
   gap: var(--space-2);
-  flex-wrap: wrap;
+}
+
+.btn:hover {
+  background-color: #f3f4f6;
+  text-decoration: none;
+  border-color: var(--gray-300);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--github-accent);
+  color: white;
+  border-color: transparent;
+}
+
+.btn-primary:hover {
+  background-color: #0860C9;
+  color: white;
+  text-decoration: none;
+}
+
+.btn-secondary {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+  background-color: var(--gray-200);
+  color: var(--text-primary);
 }
 
 .btn-sm {
-  padding: var(--space-2) var(--space-4);
+  padding: 3px 12px;
   font-size: var(--text-sm);
 }
 
 .btn-lg {
-  padding: var(--space-4) var(--space-8);
-  font-size: var(--text-lg);
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-base);
 }
 
 .btn-outline {
   background: transparent;
   border-color: currentColor;
-  color: var(--text-primary);
 }
 
-.btn-outline:hover:not(:disabled) {
-  background: currentColor;
-  color: var(--bg-primary);
-  transform: translateY(-1px);
+.btn-outline:hover {
+  background: var(--bg-tertiary);
 }
 
 .btn-ghost {
@@ -38,40 +84,199 @@
   color: var(--text-accent);
 }
 
-.btn-ghost:hover:not(:disabled) {
-  background: var(--primary-light);
-  color: var(--primary-dark);
-  transform: translateY(-1px);
+.btn-ghost:hover {
+  background: var(--primary-50);
+  color: var(--primary-700);
 }
 
-/* Loading state for buttons */
-.btn-loading {
+/* ===== 카드 컴포넌트 - GitHub 스타일 ===== */
+.card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: var(--space-5);
+  transition: all 0.25s ease;
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: var(--shadow-sm);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--github-accent);
+  box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: var(--space-3);
+  color: var(--text-primary);
+}
+
+.card-content {
+  color: var(--text-secondary);
+  padding: var(--space-4) 0;
+}
+
+/* ===== 태그 시스템 - GitHub 라벨 스타일 ===== */
+.tag, .post-tag, .post-card-tag {
+  background-color: #ddf4ff;
+  color: var(--github-accent);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  font-family: var(--font-sans);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.tag:hover, .post-tag:hover, .post-card-tag:hover {
+  background-color: #b6e3ff;
+  color: var(--github-accent);
+  text-decoration: none;
+}
+
+/* 다크 모드 태그 */
+html.dark-theme .tag,
+html.dark-theme .post-tag,
+html.dark-theme .post-card-tag {
+  background-color: rgba(56, 139, 253, 0.15);
+  color: #58a6ff;
+  border-color: rgba(56, 139, 253, 0.4);
+}
+
+html.dark-theme .tag:hover,
+html.dark-theme .post-tag:hover,
+html.dark-theme .post-card-tag:hover {
+  background-color: rgba(56, 139, 253, 0.25);
+}
+
+/* ===== 포스트 카드 - GitHub 스타일 최적화 ===== */
+.post-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: all 0.25s cubic-bezier(0.1, 0.7, 0.1, 1);
+  height: 100%;
+  min-height: 380px; /* 최적화: 높이 줄임 */
+  display: flex;
+  flex-direction: column;
   position: relative;
-  color: transparent !important;
-  pointer-events: none;
+  overflow: hidden;
+  cursor: pointer;
 }
 
-.btn-loading::after {
-  content: '';
+.post-card:hover {
+  border-color: var(--github-accent);
+  box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
+  transform: translateY(-4px);
+}
+
+.post-card::after {
+  content: '자세히 보기 →';
   position: absolute;
-  width: 16px;
-  height: 16px;
-  top: 50%;
-  left: 50%;
-  margin-left: -8px;
-  margin-top: -8px;
-  border: 2px solid currentColor;
-  border-radius: 50%;
-  border-right-color: transparent;
-  animation: btn-spin 0.75s linear infinite;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-lg);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  font-family: var(--font-sans);
 }
 
-@keyframes btn-spin {
-  to { transform: rotate(360deg); }
+.post-card:hover::after {
+  opacity: 1;
 }
 
-/* ===== FORM COMPONENTS ===== */
-/* 접근성과 사용성을 고려한 폼 시스템 */
+.post-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+  width: 100%;
+}
+
+.post-card-header {
+  padding: 0.8rem 1.25rem 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  flex: 0 0 auto;
+}
+
+.post-card-title {
+  font-size: 1.6rem;
+  line-height: 1.3;
+  font-weight: 700;
+  margin-top: 0.5rem;
+  margin-bottom: 0.6rem;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  width: 100%;
+}
+
+.post-card-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: calc(var(--text-xs) * 1.2);
+  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+}
+
+.post-card-date {
+  display: inline-block;
+  color: var(--text-tertiary);
+  font-size: 0.85rem;
+  padding: 0.2rem 0.6rem;
+  background-color: var(--bg-tertiary);
+  border-radius: 20px;
+  margin-bottom: var(--space-3);
+}
+
+.post-card-content {
+  padding: var(--space-3) var(--space-5) var(--space-5);
+  flex: 1;
+}
+
+.post-card-preview {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4; /* 최적화: 5에서 4로 줄임 */
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  flex: 1 1 auto;
+  font-family: var(--font-sans);
+}
+
+.post-card-footer {
+  padding: 0 var(--space-5) var(--space-5);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.post-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* ===== 폼 컴포넌트 - GitHub 스타일 ===== */
 .form-group {
   margin-bottom: var(--space-6);
 }
@@ -93,31 +298,23 @@
 .form-textarea,
 .form-select {
   width: 100%;
-  padding: var(--space-3) var(--space-4);
+  padding: var(--space-2) var(--space-3);
   font-size: var(--text-base);
   font-family: inherit;
   background: var(--bg-primary);
-  border: 2px solid var(--border);
-  border-radius: var(--radius);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
   transition: all var(--transition-fast);
-  /* 성능 최적화 */
-  will-change: border-color, box-shadow;
 }
 
 .form-input:focus,
 .form-textarea:focus,
 .form-select:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.1);
 }
 
-.form-input::placeholder,
-.form-textarea::placeholder {
-  color: var(--text-tertiary);
-}
-
-/* Form validation states */
 .form-input.error,
 .form-textarea.error,
 .form-select.error {
@@ -127,48 +324,19 @@
 .form-input.error:focus,
 .form-textarea.error:focus,
 .form-select.error:focus {
-  box-shadow: 0 0 0 3px rgb(239 68 68 / 0.1);
+  box-shadow: 0 0 0 3px rgba(207, 34, 46, 0.1);
 }
 
-.form-error {
-  display: block;
-  margin-top: var(--space-2);
-  font-size: var(--text-sm);
-  color: var(--error);
-}
-
-.form-help {
-  display: block;
-  margin-top: var(--space-2);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-}
-
-/* Custom Select with better UX */
-.form-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
-  background-position: right var(--space-3) center;
-  background-repeat: no-repeat;
-  background-size: 16px;
-  padding-right: var(--space-12);
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-/* ===== MODAL SYSTEM ===== */
-/* 성능 최적화된 모달 시스템 */
+/* ===== 모달 시스템 - GitHub 스타일 ===== */
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgb(0 0 0 / 0.5);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   z-index: var(--z-modal);
   opacity: 0;
   visibility: hidden;
   transition: all var(--transition-base);
-  /* 성능 최적화 */
-  will-change: opacity, visibility;
 }
 
 .modal-backdrop.active {
@@ -182,7 +350,7 @@
   left: 50%;
   transform: translate(-50%, -50%) scale(0.9);
   background: var(--bg-primary);
-  border-radius: var(--radius-xl);
+  border-radius: 6px;
   box-shadow: var(--shadow-xl);
   max-width: 500px;
   width: 90%;
@@ -192,8 +360,7 @@
   opacity: 0;
   visibility: hidden;
   transition: all var(--transition-base);
-  /* 성능 최적화 */
-  will-change: transform, opacity, visibility;
+  border: 1px solid var(--border-color);
 }
 
 .modal.active {
@@ -204,7 +371,7 @@
 
 .modal-header {
   padding: var(--space-6);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -221,7 +388,7 @@
   height: 32px;
   border: none;
   background: transparent;
-  border-radius: var(--radius);
+  border-radius: 6px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -243,15 +410,14 @@
 
 .modal-footer {
   padding: var(--space-4) var(--space-6);
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border-color);
   background: var(--bg-secondary);
   display: flex;
   gap: var(--space-3);
   justify-content: flex-end;
 }
 
-/* ===== DROPDOWN SYSTEM ===== */
-/* 접근성을 고려한 드롭다운 */
+/* ===== 드롭다운 - GitHub 스타일 ===== */
 .dropdown {
   position: relative;
   display: inline-block;
@@ -259,9 +425,9 @@
 
 .dropdown-trigger {
   background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: var(--space-2) var(--space-4);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -276,7 +442,7 @@
 
 .dropdown-trigger[aria-expanded="true"] {
   background: var(--bg-tertiary);
-  border-color: var(--primary);
+  border-color: var(--primary-500);
 }
 
 .dropdown-menu {
@@ -285,8 +451,8 @@
   left: 0;
   min-width: 200px;
   background: var(--bg-primary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
   box-shadow: var(--shadow-lg);
   opacity: 0;
   visibility: hidden;
@@ -294,8 +460,6 @@
   transition: all var(--transition-base);
   z-index: var(--z-dropdown);
   padding: var(--space-2);
-  /* 성능 최적화 */
-  will-change: transform, opacity, visibility;
 }
 
 .dropdown-menu[aria-hidden="false"] {
@@ -307,35 +471,26 @@
 .dropdown-item {
   display: block;
   width: 100%;
-  padding: var(--space-3);
+  padding: var(--space-2) var(--space-3);
   color: var(--text-primary);
   text-decoration: none;
   border: none;
   background: transparent;
   text-align: left;
-  border-radius: var(--radius);
+  border-radius: 6px;
   cursor: pointer;
   transition: all var(--transition-fast);
-  /* 성능 최적화 */
-  will-change: background-color, transform;
 }
 
 .dropdown-item:hover,
 .dropdown-item:focus {
   background: var(--bg-secondary);
   color: var(--text-accent);
-  transform: translateX(4px);
+  transform: translateX(2px);
   outline: none;
 }
 
-.dropdown-divider {
-  height: 1px;
-  background: var(--border);
-  margin: var(--space-2) 0;
-}
-
-/* ===== TOOLTIP SYSTEM ===== */
-/* CSS-only 툴팁 시스템 */
+/* ===== 툴팁 - GitHub 스타일 ===== */
 .tooltip {
   position: relative;
   display: inline-block;
@@ -347,8 +502,6 @@
   visibility: hidden;
   transition: all var(--transition-base);
   pointer-events: none;
-  /* 성능 최적화 */
-  will-change: opacity, visibility, transform;
 }
 
 .tooltip::before {
@@ -358,9 +511,9 @@
   left: 50%;
   transform: translateX(-50%);
   background: var(--gray-900);
-  color: var(--white);
+  color: white;
   padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius);
+  border-radius: 6px;
   font-size: var(--text-sm);
   white-space: nowrap;
   z-index: var(--z-tooltip);
@@ -385,45 +538,74 @@
   visibility: visible;
 }
 
-/* Tooltip positions */
-.tooltip-top::before { bottom: calc(100% + 8px); }
-.tooltip-bottom::before { top: calc(100% + 8px); bottom: auto; }
-.tooltip-left::before { right: calc(100% + 8px); bottom: auto; top: 50%; transform: translateY(-50%); }
-.tooltip-right::before { left: calc(100% + 8px); bottom: auto; top: 50%; transform: translateY(-50%); }
-
-/* ===== BADGE SYSTEM ===== */
+/* ===== 배지 - GitHub 스타일 ===== */
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: var(--space-1) var(--space-2);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  line-height: 1;
-  border-radius: var(--radius);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  padding: 0 7px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  border-radius: 2em;
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid transparent;
 }
 
-.badge-primary { background: var(--primary); color: var(--white); }
-.badge-success { background: var(--success); color: var(--white); }
-.badge-warning { background: var(--warning); color: var(--white); }
-.badge-error { background: var(--error); color: var(--white); }
-
-.badge-outline {
-  background: transparent;
-  border: 1px solid currentColor;
+.badge-primary {
+  background: var(--primary-50);
+  color: var(--primary-700);
+  border-color: var(--primary-200);
 }
 
-/* Pill-shaped badges */
-.badge-pill {
-  border-radius: var(--radius-full);
+.badge-success {
+  background: #dafbe1;
+  color: #1a7f37;
+  border-color: #aceebb;
 }
 
-/* ===== ALERT SYSTEM ===== */
+.badge-warning {
+  background: #fff8c5;
+  color: #9a6700;
+  border-color: #f7df98;
+}
+
+.badge-error {
+  background: #ffebe9;
+  color: #cf222e;
+  border-color: #ffcecb;
+}
+
+html.dark-theme .badge-primary {
+  background: rgba(56, 139, 253, 0.15);
+  color: #58a6ff;
+  border-color: rgba(56, 139, 253, 0.4);
+}
+
+/* ===== 진행률 표시기 - GitHub 스타일 ===== */
+.progress {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--primary-500);
+  border-radius: 6px;
+  transition: width var(--transition-slow);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===== 알림 - GitHub 스타일 ===== */
 .alert {
   position: relative;
-  padding: var(--space-4) var(--space-5);
-  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  border-radius: 6px;
   margin-bottom: var(--space-4);
   display: flex;
   align-items: flex-start;
@@ -433,8 +615,8 @@
 
 .alert-icon {
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
 }
 
 .alert-content {
@@ -449,249 +631,41 @@
 
 .alert-message {
   margin: 0;
+  color: inherit;
 }
 
-.alert-close {
-  position: absolute;
-  top: var(--space-3);
-  right: var(--space-3);
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  border-radius: var(--radius);
-  cursor: pointer;
-  color: currentColor;
-  opacity: 0.7;
-  transition: all var(--transition-fast);
-}
-
-.alert-close:hover {
-  opacity: 1;
-  background: rgb(0 0 0 / 0.1);
-}
-
-/* Alert variants */
 .alert-info {
-  background: var(--primary-light);
-  color: var(--primary-dark);
-  border-color: var(--primary);
+  background: var(--primary-50);
+  color: var(--primary-900);
+  border-color: var(--primary-200);
 }
 
 .alert-success {
-  background: rgb(16 185 129 / 0.1);
-  color: rgb(6 95 70);
-  border-color: var(--success);
+  background: #dafbe1;
+  color: #1a7f37;
+  border-color: #aceebb;
 }
 
 .alert-warning {
-  background: rgb(245 158 11 / 0.1);
-  color: rgb(146 64 14);
-  border-color: var(--warning);
+  background: #fff8c5;
+  color: #9a6700;
+  border-color: #f7df98;
 }
 
 .alert-error {
-  background: rgb(239 68 68 / 0.1);
-  color: rgb(127 29 29);
-  border-color: var(--error);
+  background: #ffebe9;
+  color: #cf222e;
+  border-color: #ffcecb;
 }
 
-/* ===== PROGRESS INDICATORS ===== */
-.progress {
-  width: 100%;
-  height: 8px;
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  position: relative;
-}
-
-.progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--primary-hover));
-  border-radius: var(--radius-full);
-  transition: width var(--transition-slow);
-  position: relative;
-  overflow: hidden;
-  /* 성능 최적화 */
-  will-change: width;
-}
-
-.progress-bar::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
-  animation: progress-shine 2s ease-in-out infinite;
-}
-
-@keyframes progress-shine {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-/* Circular progress */
-.progress-circle {
-  position: relative;
-  width: 120px;
-  height: 120px;
-}
-
-.progress-circle svg {
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-}
-
-.progress-circle-bg {
-  fill: none;
-  stroke: var(--bg-tertiary);
-  stroke-width: 8;
-}
-
-.progress-circle-fill {
-  fill: none;
-  stroke: var(--primary);
-  stroke-width: 8;
-  stroke-linecap: round;
-  stroke-dasharray: 283;
-  stroke-dashoffset: 283;
-  transition: stroke-dashoffset var(--transition-slow);
-}
-
-.progress-circle-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: var(--text-lg);
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-/* ===== SKELETON LOADERS ===== */
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--bg-secondary) 25%,
-    var(--bg-tertiary) 50%,
-    var(--bg-secondary) 75%
-  );
-  background-size: 200% 100%;
-  animation: skeleton-loading 1.5s ease-in-out infinite;
-  border-radius: var(--radius);
-}
-
-.skeleton-text {
-  height: 1em;
-  margin-bottom: var(--space-2);
-}
-
-.skeleton-title {
-  height: 2em;
-  margin-bottom: var(--space-3);
-  width: 60%;
-}
-
-.skeleton-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-full);
-}
-
-.skeleton-button {
-  height: 40px;
-  width: 120px;
-  border-radius: var(--radius);
-}
-
-@keyframes skeleton-loading {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-/* ===== AVATAR SYSTEM ===== */
-.avatar {
-  display: inline-block;
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-full);
-  background: var(--bg-tertiary);
-  flex-shrink: 0;
-  /* 성능 최적화 */
-  will-change: transform;
-}
-
-.avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform var(--transition-fast);
-}
-
-.avatar:hover img {
-  transform: scale(1.1);
-}
-
-.avatar-xs { width: 24px; height: 24px; }
-.avatar-sm { width: 32px; height: 32px; }
-.avatar-md { width: 48px; height: 48px; }
-.avatar-lg { width: 64px; height: 64px; }
-.avatar-xl { width: 96px; height: 96px; }
-
-.avatar-group {
-  display: flex;
-  flex-direction: row-reverse;
-  justify-content: flex-end;
-}
-
-.avatar-group .avatar {
-  margin-left: -12px;
-  border: 2px solid var(--bg-primary);
-  transition: all var(--transition-fast);
-  /* 성능 최적화 */
-  will-change: transform, z-index;
-}
-
-.avatar-group .avatar:hover {
-  z-index: 1;
-  transform: scale(1.1);
-}
-
-/* Status indicators */
-.avatar-status {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 25%;
-  height: 25%;
-  border: 2px solid var(--bg-primary);
-  border-radius: var(--radius-full);
-}
-
-.avatar-status.online { background: var(--success); }
-.avatar-status.away { background: var(--warning); }
-.avatar-status.offline { background: var(--text-tertiary); }
-
-/* ===== TABS SYSTEM ===== */
+/* ===== 탭 시스템 - GitHub 스타일 ===== */
 .tabs {
   width: 100%;
 }
 
 .tabs-list {
   display: flex;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-color);
   margin-bottom: var(--space-6);
   overflow-x: auto;
   scrollbar-width: none;
@@ -713,8 +687,6 @@
   border-bottom: 2px solid transparent;
   cursor: pointer;
   transition: all var(--transition-fast);
-  /* 성능 최적화 */
-  will-change: color, border-color;
 }
 
 .tabs-trigger:hover {
@@ -722,8 +694,9 @@
 }
 
 .tabs-trigger[aria-selected="true"] {
-  color: var(--primary);
-  border-bottom-color: var(--primary);
+  color: var(--text-primary);
+  border-bottom-color: var(--primary-500);
+  font-weight: 600;
 }
 
 .tabs-content {
@@ -734,43 +707,7 @@
   display: none;
 }
 
-/* ===== BREADCRUMB ===== */
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  margin-bottom: var(--space-6);
-}
-
-.breadcrumb-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.breadcrumb-link {
-  color: var(--text-secondary);
-  text-decoration: none;
-  transition: color var(--transition-fast);
-}
-
-.breadcrumb-link:hover {
-  color: var(--text-primary);
-}
-
-.breadcrumb-separator {
-  color: var(--text-tertiary);
-  user-select: none;
-}
-
-.breadcrumb-current {
-  color: var(--text-primary);
-  font-weight: 500;
-}
-
-/* ===== PAGINATION ===== */
+/* ===== 페이지네이션 - GitHub 스타일 ===== */
 .pagination {
   display: flex;
   gap: var(--space-2);
@@ -780,35 +717,33 @@
 }
 
 .pagination-item {
-  min-width: 40px;
-  height: 40px;
+  min-width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 var(--space-3);
-  border-radius: var(--radius);
+  border-radius: 6px;
   font-size: var(--text-sm);
   font-weight: 500;
   color: var(--text-primary);
   background: var(--bg-primary);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-color);
   transition: all var(--transition-fast);
   text-decoration: none;
   cursor: pointer;
-  /* 성능 최적화 */
-  will-change: background-color, border-color, transform;
 }
 
 .pagination-item:hover:not(.disabled):not(.active) {
   background: var(--bg-secondary);
   border-color: var(--border-hover);
-  transform: translateY(-1px);
+  text-decoration: none;
 }
 
 .pagination-item.active {
-  background: var(--primary);
-  color: var(--white);
-  border-color: var(--primary);
+  background: var(--primary-500);
+  color: white;
+  border-color: var(--primary-500);
 }
 
 .pagination-item.disabled {
@@ -816,40 +751,37 @@
   cursor: not-allowed;
 }
 
-.pagination-ellipsis {
-  padding: 0 var(--space-2);
-  color: var(--text-tertiary);
-  cursor: default;
+/* ===== 스켈레톤 로더 ===== */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary) 25%,
+    var(--bg-tertiary) 50%,
+    var(--bg-secondary) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  border-radius: var(--radius);
 }
 
-/* ===== RESPONSIVE COMPONENTS ===== */
-/* 모바일에서 터치 친화적인 크기 조정 */
-@media (max-width: 47.9375rem) {
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ===== 반응형 컴포넌트 ===== */
+@media (max-width: 768px) {
   .btn,
   .form-input,
   .form-select,
   .dropdown-trigger,
   .pagination-item {
-    min-height: 44px;
+    min-height: 44px; /* 터치 타겟 최적화 */
   }
   
   .modal {
     width: 95%;
     margin: var(--space-4);
-  }
-  
-  .dropdown-menu {
-    position: fixed;
-    top: auto !important;
-    bottom: var(--space-4);
-    left: var(--space-4);
-    right: var(--space-4);
-    width: auto;
-    transform: translateY(100%);
-  }
-  
-  .dropdown-menu[aria-hidden="false"] {
-    transform: translateY(0);
   }
   
   .tabs-list {
@@ -860,8 +792,16 @@
     gap: var(--space-1);
   }
   
-  .pagination-item {
-    min-width: 36px;
-    height: 36px;
+  .post-card {
+    min-height: 350px; /* 모바일에서 높이 더 줄임 */
+  }
+  
+  .post-card-title {
+    font-size: 1.4rem;
+  }
+  
+  .post-card-preview {
+    -webkit-line-clamp: 3; /* 모바일에서 3줄로 줄임 */
+    line-clamp: 3;
   }
 }

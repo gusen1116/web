@@ -1,776 +1,644 @@
-/**
- * 최적화된 메인 JavaScript 파일
- * - 메모리 누수 방지
- * - 성능 최적화
- * - 모듈 패턴 적용
- * - 리소스 정리 메커니즘
- */
+// main.js - GitHub 스타일 최적화된 JavaScript
 
 (function() {
     'use strict';
+
+    // ===== 유틸리티 함수 =====
+    const $ = (selector, context = document) => context.querySelector(selector);
+    const $$ = (selector, context = document) => context.querySelectorAll(selector);
     
-    // ===== 설정 상수 정의 =====
-    const CONFIG = {
-        THEME: {
-            LOCAL_STORAGE_KEY: 'theme',
-            DARK_CLASS: 'dark-theme',
-            ANIMATION_DURATION: 200
-        },
-        SCROLL: {
-            HEADER_HIDE_THRESHOLD: 100,
-            HEADER_SHADOW_THRESHOLD: 10,
-            BACK_TO_TOP_THRESHOLD: 300,
-            THROTTLE_DELAY: 16, // ~60fps
-            SMOOTH_BEHAVIOR: 'smooth'
-        },
-        INTERSECTION: {
-            ROOT_MARGIN: '50px 0px',
-            THRESHOLD: 0.1
-        },
-        PERFORMANCE: {
-            IDLE_CALLBACK_TIMEOUT: 2000,
-            DEBOUNCE_DELAY: 300,
-            RESIZE_THROTTLE: 100
-        },
-        ANIMATION: {
-            RIPPLE_DURATION: 600,
-            SCALE_ANIMATION_DURATION: 200,
-            ROTATION_ANGLE: 360
-        }
+    // 디바운스 함수 (성능 최적화)
+    const debounce = (func, wait) => {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
     };
 
-    // ===== 성능 유틸리티 클래스 =====
-    class PerformanceUtils {
-        static debounce(func, wait, immediate = false) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    timeout = null;
-                    if (!immediate) func.apply(this, args);
-                };
-                const callNow = immediate && !timeout;
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-                if (callNow) func.apply(this, args);
-            };
-        }
+    // 스로틀 함수 (성능 최적화)
+    const throttle = (func, limit) => {
+        let inThrottle;
+        return function(...args) {
+            if (!inThrottle) {
+                func.apply(this, args);
+                inThrottle = true;
+                setTimeout(() => inThrottle = false, limit);
+            }
+        };
+    };
 
-        static throttle(func, limit) {
-            let inThrottle;
-            return function(...args) {
-                if (!inThrottle) {
-                    func.apply(this, args);
-                    inThrottle = true;
-                    setTimeout(() => inThrottle = false, limit);
-                }
-            };
-        }
-
-        static batchDOMUpdates(updates) {
-            return new Promise(resolve => {
-                requestAnimationFrame(() => {
-                    updates.forEach(update => update());
-                    resolve();
-                });
-            });
-        }
-
-        static measurePerformance(name, fn) {
-            const start = performance.now();
-            const result = fn();
-            const end = performance.now();
-            console.log(`${name}: ${end - start} milliseconds`);
-            return result;
-        }
-    }
-
-    // ===== 메모리 관리 클래스 =====
-    class MemoryManager {
+    // ===== 테마 관리 시스템 =====
+    class ThemeManager {
         constructor() {
-            this.eventListeners = new Map();
-            this.observers = new Set();
-            this.intervals = new Set();
-            this.timeouts = new Set();
-            this.animationFrames = new Set();
-        }
-
-        addEventListener(element, event, handler, options = {}) {
-            const key = `${element.constructor.name}-${event}`;
-            if (!this.eventListeners.has(key)) {
-                this.eventListeners.set(key, []);
-            }
-            
-            element.addEventListener(event, handler, options);
-            this.eventListeners.get(key).push({ element, event, handler, options });
-        }
-
-        addObserver(observer) {
-            this.observers.add(observer);
-        }
-
-        addInterval(id) {
-            this.intervals.add(id);
-        }
-
-        addTimeout(id) {
-            this.timeouts.add(id);
-        }
-
-        addAnimationFrame(id) {
-            this.animationFrames.add(id);
-        }
-
-        cleanup() {
-            // 이벤트 리스너 정리
-            this.eventListeners.forEach(listeners => {
-                listeners.forEach(({ element, event, handler, options }) => {
-                    element.removeEventListener(event, handler, options);
-                });
-            });
-            this.eventListeners.clear();
-
-            // Observer 정리
-            this.observers.forEach(observer => {
-                if (observer && typeof observer.disconnect === 'function') {
-                    observer.disconnect();
-                }
-            });
-            this.observers.clear();
-
-            // 타이머 정리
-            this.intervals.forEach(id => clearInterval(id));
-            this.intervals.clear();
-
-            this.timeouts.forEach(id => clearTimeout(id));
-            this.timeouts.clear();
-
-            // 애니메이션 프레임 정리
-            this.animationFrames.forEach(id => cancelAnimationFrame(id));
-            this.animationFrames.clear();
-        }
-    }
-
-    // ===== DOM 캐시 관리 클래스 =====
-    class DOMCache {
-        constructor() {
-            this.cache = new Map();
-            this.computedCache = new Map();
-        }
-
-        get(selector) {
-            if (!this.cache.has(selector)) {
-                const element = document.querySelector(selector);
-                if (element) {
-                    this.cache.set(selector, element);
-                }
-            }
-            return this.cache.get(selector);
-        }
-
-        getAll(selector) {
-            const cacheKey = `all-${selector}`;
-            if (!this.cache.has(cacheKey)) {
-                const elements = document.querySelectorAll(selector);
-                this.cache.set(cacheKey, elements);
-            }
-            return this.cache.get(cacheKey);
-        }
-
-        getComputedStyle(element, property) {
-            const cacheKey = `${element.tagName}-${property}`;
-            if (!this.computedCache.has(cacheKey)) {
-                const style = window.getComputedStyle(element);
-                this.computedCache.set(cacheKey, style[property]);
-            }
-            return this.computedCache.get(cacheKey);
-        }
-
-        invalidate(selector = null) {
-            if (selector) {
-                this.cache.delete(selector);
-                this.cache.delete(`all-${selector}`);
-            } else {
-                this.cache.clear();
-            }
-            this.computedCache.clear();
-        }
-    }
-
-    // ===== 메인 애플리케이션 클래스 =====
-    class MainApplication {
-        constructor() {
-            this.memoryManager = new MemoryManager();
-            this.domCache = new DOMCache();
-            this.isInitialized = false;
-            this.scrollState = {
-                lastScrollY: 0,
-                ticking: false,
-                headerHeight: 0
-            };
-            
-            // 바인드된 메서드들 (메모리 효율성을 위해)
-            this.boundHandlers = {
-                scroll: PerformanceUtils.throttle(this.handleScroll.bind(this), CONFIG.SCROLL.THROTTLE_DELAY),
-                resize: PerformanceUtils.throttle(this.handleResize.bind(this), CONFIG.PERFORMANCE.RESIZE_THROTTLE),
-                beforeUnload: this.handleBeforeUnload.bind(this),
-                visibilityChange: this.handleVisibilityChange.bind(this)
-            };
+            this.theme = localStorage.getItem('theme') || 'light';
+            this.init();
         }
 
         init() {
-            if (this.isInitialized) {
-                console.warn('Application already initialized');
-                return;
-            }
-
-            try {
-                this.cacheInitialElements();
-                this.initializeTheme();
-                this.initializeMobileMenu();
-                this.initializeScrollEffects();
-                this.initializeAccessibility();
-                this.initializeOptimizations();
-                this.setupEventListeners();
-                this.setupPageTransitions();
-                
-                this.isInitialized = true;
-                console.log('Main application initialized successfully');
-            } catch (error) {
-                console.error('Failed to initialize main application:', error);
-            }
-        }
-
-        cacheInitialElements() {
-            // 자주 사용되는 DOM 요소들을 미리 캐시
-            const selectors = [
-                '.top-header',
-                '#theme-toggle',
-                '#mobile-theme-toggle',
-                '#mobile-toggle',
-                '#mobile-nav',
-                '#mobile-nav-close',
-                '#mobile-overlay',
-                '.mobile-nav-link'
-            ];
-
-            selectors.forEach(selector => this.domCache.get(selector));
+            // 초기 테마 적용
+            this.applyTheme(this.theme);
             
-            // 헤더 높이 캐시
-            const header = this.domCache.get('.top-header');
-            if (header) {
-                this.scrollState.headerHeight = header.offsetHeight;
-            }
-        }
-
-        initializeTheme() {
-            const themeToggle = this.domCache.get('#theme-toggle');
-            const mobileThemeToggle = this.domCache.get('#mobile-theme-toggle');
-            const htmlElement = document.documentElement;
-            
-            // 현재 테마 상태 확인 및 적용
-            const currentTheme = this.getCurrentTheme();
-            this.applyTheme(currentTheme, false);
-            
-            // 테마 토글 이벤트
-            if (themeToggle) {
-                this.memoryManager.addEventListener(
-                    themeToggle, 
-                    'click', 
-                    this.createThemeToggleHandler(themeToggle)
-                );
-            }
-            
-            if (mobileThemeToggle) {
-                this.memoryManager.addEventListener(
-                    mobileThemeToggle, 
-                    'click', 
-                    this.createThemeToggleHandler()
-                );
-            }
-        }
-
-        getCurrentTheme() {
-            try {
-                return localStorage.getItem(CONFIG.THEME.LOCAL_STORAGE_KEY) || 'light';
-            } catch (e) {
-                console.warn('LocalStorage not available, using default theme');
-                return 'light';
-            }
-        }
-
-        applyTheme(theme, animate = true) {
-            const htmlElement = document.documentElement;
-            const mobileThemeToggle = this.domCache.get('#mobile-theme-toggle');
-            
-            // DOM 업데이트를 배치로 처리
-            const updates = [
-                () => {
-                    if (theme === 'dark') {
-                        htmlElement.classList.add(CONFIG.THEME.DARK_CLASS);
-                    } else {
-                        htmlElement.classList.remove(CONFIG.THEME.DARK_CLASS);
+            // 시스템 테마 변경 감지
+            if (window.matchMedia) {
+                const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+                darkModeQuery.addEventListener('change', (e) => {
+                    if (!localStorage.getItem('theme')) {
+                        this.applyTheme(e.matches ? 'dark' : 'light');
                     }
-                },
-                () => {
-                    if (mobileThemeToggle) {
-                        const slider = mobileThemeToggle.querySelector('.theme-switch-slider');
-                        if (slider) {
-                            slider.classList.toggle('active', theme === 'dark');
-                        }
-                    }
-                }
-            ];
-            
-            PerformanceUtils.batchDOMUpdates(updates);
+                });
+            }
         }
 
-        createThemeToggleHandler(buttonElement = null) {
-            return () => {
-                const currentTheme = this.getCurrentTheme();
-                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-                
-                try {
-                    localStorage.setItem(CONFIG.THEME.LOCAL_STORAGE_KEY, newTheme);
-                } catch (e) {
-                    console.warn('Failed to save theme preference');
+        applyTheme(theme) {
+            this.theme = theme;
+            const isDark = theme === 'dark';
+            
+            document.documentElement.classList.toggle('dark-theme', isDark);
+            document.body.classList.toggle('dark-theme', isDark);
+            
+            // 메타 테마 색상 업데이트
+            const metaThemeColor = $('meta[name="theme-color"]');
+            if (metaThemeColor) {
+                metaThemeColor.content = isDark ? '#0d1117' : '#ffffff';
+            }
+            
+            // 테마 스위치 상태 업데이트
+            this.updateThemeSwitches(isDark);
+        }
+
+        updateThemeSwitches(isDark) {
+            // 데스크톱 테마 토글 업데이트
+            const desktopToggle = $('#theme-toggle');
+            if (desktopToggle) {
+                desktopToggle.setAttribute('aria-pressed', isDark);
+                const statusText = $('#theme-status');
+                if (statusText) {
+                    statusText.textContent = `현재 ${isDark ? '다크' : '라이트'} 모드`;
                 }
+            }
+            
+            // 모바일 테마 토글 업데이트
+            const mobileToggle = $('#mobile-theme-toggle');
+            if (mobileToggle) {
+                mobileToggle.setAttribute('aria-checked', isDark);
+                const themeSlider = $('.theme-switch-slider', mobileToggle);
+                if (themeSlider) {
+                    themeSlider.classList.toggle('active', isDark);
+                }
+            }
+        }
+
+        toggle() {
+            const newTheme = this.theme === 'dark' ? 'light' : 'dark';
+            this.applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // 애니메이션 피드백
+            document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+            setTimeout(() => {
+                document.body.style.transition = '';
+            }, 300);
+        }
+    }
+
+    // ===== 모바일 네비게이션 시스템 =====
+    class MobileNavigation {
+        constructor() {
+            this.isOpen = false;
+            this.toggle = $('#mobile-toggle');
+            this.nav = $('#mobile-nav');
+            this.close = $('#mobile-nav-close');
+            this.overlay = $('#mobile-overlay');
+            this.navLinks = $$('.mobile-nav-link:not(.mobile-theme-toggle)');
+            
+            this.init();
+        }
+
+        init() {
+            if (!this.toggle || !this.nav) return;
+
+            // 이벤트 리스너
+            this.toggle.addEventListener('click', () => this.toggleMenu());
+            this.close?.addEventListener('click', () => this.closeMenu());
+            this.overlay?.addEventListener('click', () => this.closeMenu());
+            
+            // 네비게이션 링크 클릭시 메뉴 닫기
+            this.navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    setTimeout(() => this.closeMenu(), 150);
+                });
+            });
+            
+            // ESC 키로 닫기
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && this.isOpen) {
+                    this.closeMenu();
+                }
+            });
+            
+            // 윈도우 리사이즈시 메뉴 닫기
+            window.addEventListener('resize', debounce(() => {
+                if (window.innerWidth > 768 && this.isOpen) {
+                    this.closeMenu();
+                }
+            }, 250));
+            
+            // 스와이프 제스처
+            this.initSwipeGesture();
+        }
+
+        toggleMenu() {
+            this.isOpen ? this.closeMenu() : this.openMenu();
+        }
+
+        openMenu() {
+            this.isOpen = true;
+            
+            // 스크롤 위치 저장 및 고정
+            const scrollY = window.scrollY;
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.width = '100%';
+            document.body.setAttribute('data-scroll-y', scrollY);
+            
+            // 클래스 추가
+            this.nav.classList.add('active');
+            this.toggle.classList.add('active');
+            this.overlay?.classList.add('active');
+            document.body.classList.add('nav-open');
+            
+            // ARIA 속성 업데이트
+            this.toggle.setAttribute('aria-expanded', 'true');
+            this.nav.setAttribute('aria-hidden', 'false');
+            
+            // 포커스 관리
+            setTimeout(() => {
+                this.close?.focus();
+            }, 300);
+            
+            // 포커스 트랩 설정
+            this.trapFocus();
+        }
+
+        closeMenu() {
+            this.isOpen = false;
+            
+            // 클래스 제거
+            this.nav.classList.remove('active');
+            this.toggle.classList.remove('active');
+            this.overlay?.classList.remove('active');
+            document.body.classList.remove('nav-open');
+            
+            // 스크롤 위치 복원
+            const scrollY = document.body.getAttribute('data-scroll-y');
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            
+            if (scrollY) {
+                window.scrollTo(0, parseInt(scrollY));
+                document.body.removeAttribute('data-scroll-y');
+            }
+            
+            // ARIA 속성 업데이트
+            this.toggle.setAttribute('aria-expanded', 'false');
+            this.nav.setAttribute('aria-hidden', 'true');
+            
+            // 포커스 복원
+            this.toggle.focus();
+            
+            // 포커스 트랩 해제
+            this.releaseFocus();
+        }
+
+        initSwipeGesture() {
+            let touchStartX = 0;
+            let touchStartY = 0;
+            
+            this.nav.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            this.nav.addEventListener('touchend', (e) => {
+                const touchEndX = e.changedTouches[0].clientX;
+                const touchEndY = e.changedTouches[0].clientY;
+                const diffX = touchStartX - touchEndX;
+                const diffY = Math.abs(touchStartY - touchEndY);
                 
-                this.applyTheme(newTheme);
+                // 오른쪽으로 스와이프시 메뉴 닫기
+                if (diffX < -50 && diffY < 100) {
+                    this.closeMenu();
+                }
+            }, { passive: true });
+        }
+
+        trapFocus() {
+            const focusableElements = this.nav.querySelectorAll(
+                'a, button, input, textarea, select, [tabindex]:not([tabindex="-1"])'
+            );
+            
+            if (focusableElements.length === 0) return;
+            
+            const firstElement = focusableElements[0];
+            const lastElement = focusableElements[focusableElements.length - 1];
+            
+            this.handleTabKey = (e) => {
+                if (e.key !== 'Tab') return;
                 
-                // 시각적 피드백 (애니메이션)
-                if (buttonElement) {
-                    this.animateThemeButton(buttonElement);
+                if (e.shiftKey) {
+                    if (document.activeElement === firstElement) {
+                        e.preventDefault();
+                        lastElement.focus();
+                    }
+                } else {
+                    if (document.activeElement === lastElement) {
+                        e.preventDefault();
+                        firstElement.focus();
+                    }
                 }
             };
+            
+            document.addEventListener('keydown', this.handleTabKey);
         }
 
-        animateThemeButton(button) {
-            const originalTransform = button.style.transform;
-            button.style.transform = 'scale(0.8) rotate(180deg)';
+        releaseFocus() {
+            if (this.handleTabKey) {
+                document.removeEventListener('keydown', this.handleTabKey);
+            }
+        }
+    }
+
+    // ===== 헤더 스크롤 효과 =====
+    class HeaderScroll {
+        constructor() {
+            this.header = $('.top-header');
+            this.lastScrollTop = 0;
+            this.scrollTimer = null;
             
-            const timeoutId = setTimeout(() => {
-                button.style.transform = originalTransform;
-                this.memoryManager.timeouts.delete(timeoutId);
-            }, CONFIG.THEME.ANIMATION_DURATION);
-            
-            this.memoryManager.addTimeout(timeoutId);
+            this.init();
         }
 
-        initializeMobileMenu() {
-            const mobileToggle = this.domCache.get('#mobile-toggle');
-            const mobileNav = this.domCache.get('#mobile-nav');
-            const mobileNavClose = this.domCache.get('#mobile-nav-close');
-            const mobileOverlay = this.domCache.get('#mobile-overlay');
-            const mobileNavLinks = this.domCache.getAll('.mobile-nav-link');
-            
-            if (!mobileToggle || !mobileNav) return;
-            
-            const openMenu = () => this.setMobileMenuState(true);
-            const closeMenu = () => this.setMobileMenuState(false);
-            
-            // 이벤트 리스너 등록
-            this.memoryManager.addEventListener(mobileToggle, 'click', openMenu);
-            
-            if (mobileNavClose) {
-                this.memoryManager.addEventListener(mobileNavClose, 'click', closeMenu);
-            }
-            
-            if (mobileOverlay) {
-                this.memoryManager.addEventListener(mobileOverlay, 'click', closeMenu);
-            }
-            
-            // 네비게이션 링크 클릭시 메뉴 닫기 (테마 토글 제외)
-            if (mobileNavLinks) {
-                Array.from(mobileNavLinks).forEach(link => {
-                    if (!link.querySelector('.theme-switch')) {
-                        this.memoryManager.addEventListener(link, 'click', closeMenu);
+        init() {
+            if (!this.header) return;
+
+            const handleScroll = throttle(() => {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                
+                // 스크롤 방향 감지
+                if (scrollTop > this.lastScrollTop && scrollTop > 100) {
+                    // 아래로 스크롤 - 헤더 숨기기
+                    this.header.classList.add('header-hidden');
+                } else {
+                    // 위로 스크롤 - 헤더 보이기
+                    this.header.classList.remove('header-hidden');
+                }
+                
+                // 스크롤 멈춤 감지
+                clearTimeout(this.scrollTimer);
+                this.scrollTimer = setTimeout(() => {
+                    if (scrollTop < 100) {
+                        this.header.classList.remove('header-hidden');
                     }
-                });
-            }
-            
-            // ESC 키로 메뉴 닫기
-            this.memoryManager.addEventListener(document, 'keydown', (e) => {
-                if (e.key === 'Escape' && mobileNav.classList.contains('active')) {
-                    closeMenu();
-                }
-            });
-        }
-
-        setMobileMenuState(isOpen) {
-            const mobileNav = this.domCache.get('#mobile-nav');
-            const mobileOverlay = this.domCache.get('#mobile-overlay');
-            const mobileToggle = this.domCache.get('#mobile-toggle');
-            
-            const updates = [
-                () => {
-                    if (mobileNav) mobileNav.classList.toggle('active', isOpen);
-                    if (mobileOverlay) mobileOverlay.classList.toggle('active', isOpen);
-                    if (mobileToggle) mobileToggle.classList.toggle('active', isOpen);
-                    document.body.classList.toggle('nav-open', isOpen);
-                }
-            ];
-            
-            PerformanceUtils.batchDOMUpdates(updates);
-        }
-
-        initializeScrollEffects() {
-            // 스크롤 진행률 표시기 생성
-            this.createScrollProgress();
-            
-            // Back to top 버튼 생성
-            this.createBackToTopButton();
-            
-            // 메인 스크롤 이벤트 등록
-            this.memoryManager.addEventListener(window, 'scroll', this.boundHandlers.scroll, { passive: true });
-        }
-
-        handleScroll() {
-            if (this.scrollState.ticking) return;
-            
-            this.scrollState.ticking = true;
-            
-            const frameId = requestAnimationFrame(() => {
-                this.updateScrollEffects();
-                this.scrollState.ticking = false;
-                this.memoryManager.animationFrames.delete(frameId);
-            });
-            
-            this.memoryManager.addAnimationFrame(frameId);
-        }
-
-        updateScrollEffects() {
-            const currentScrollY = window.pageYOffset;
-            const header = this.domCache.get('.top-header');
-            const backToTopButton = this.domCache.get('.back-to-top');
-            const scrollProgress = this.domCache.get('.scroll-progress');
-            
-            // 헤더 효과 업데이트
-            if (header) {
-                const updates = [];
+                }, 300);
                 
-                // 헤더 숨김/표시
-                if (currentScrollY > this.scrollState.lastScrollY && currentScrollY > CONFIG.SCROLL.HEADER_HIDE_THRESHOLD) {
-                    updates.push(() => header.classList.add('header-hidden'));
-                } else {
-                    updates.push(() => header.classList.remove('header-hidden'));
-                }
-                
-                // 헤더 그림자
-                if (currentScrollY > CONFIG.SCROLL.HEADER_SHADOW_THRESHOLD) {
-                    updates.push(() => header.classList.add('header-shadow'));
-                } else {
-                    updates.push(() => header.classList.remove('header-shadow'));
-                }
-                
-                PerformanceUtils.batchDOMUpdates(updates);
-            }
-            
-            // Back to top 버튼
-            if (backToTopButton) {
-                const isVisible = currentScrollY > CONFIG.SCROLL.BACK_TO_TOP_THRESHOLD;
-                backToTopButton.classList.toggle('visible', isVisible);
-            }
-            
-            // 스크롤 진행률
-            if (scrollProgress) {
-                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-                const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
-                scrollProgress.style.width = Math.min(scrolled, 100) + '%';
-            }
-            
-            this.scrollState.lastScrollY = currentScrollY;
+                this.lastScrollTop = scrollTop;
+            }, 100);
+
+            window.addEventListener('scroll', handleScroll, { passive: true });
+        }
+    }
+
+    // ===== 스크롤 진행률 표시기 =====
+    class ScrollProgress {
+        constructor() {
+            this.progressBar = null;
+            this.init();
         }
 
-        createScrollProgress() {
-            const scrollProgress = document.createElement('div');
-            scrollProgress.className = 'scroll-progress';
-            scrollProgress.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 0%;
-                height: 3px;
-                background: linear-gradient(90deg, var(--primary-400), var(--primary-600));
-                z-index: var(--z-tooltip);
-                transition: width 0.3s ease;
-                pointer-events: none;
-            `;
-            document.body.appendChild(scrollProgress);
-            this.domCache.cache.set('.scroll-progress', scrollProgress);
+        init() {
+            // 진행률 바 생성
+            this.progressBar = document.createElement('div');
+            this.progressBar.className = 'scroll-progress';
+            document.body.appendChild(this.progressBar);
+
+            // 스크롤 이벤트
+            const updateProgress = throttle(() => {
+                const scrolled = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+                this.progressBar.style.width = Math.min(scrolled, 100) + '%';
+            }, 50);
+
+            window.addEventListener('scroll', updateProgress, { passive: true });
+        }
+    }
+
+    // ===== Back to Top 버튼 =====
+    class BackToTop {
+        constructor() {
+            this.button = null;
+            this.init();
         }
 
-        createBackToTopButton() {
-            const backToTopButton = document.createElement('button');
-            backToTopButton.className = 'back-to-top';
-            backToTopButton.innerHTML = '<i class="fas fa-arrow-up"></i>';
-            backToTopButton.setAttribute('aria-label', '맨 위로 이동');
-            backToTopButton.style.cssText = `
-                position: fixed;
-                bottom: var(--space-8);
-                right: var(--space-8);
-                width: 48px;
-                height: 48px;
-                background: var(--primary-500);
-                color: white;
-                border: none;
-                border-radius: var(--radius-full);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                box-shadow: var(--shadow-lg);
-                cursor: pointer;
-                opacity: 0;
-                visibility: hidden;
-                transition: all var(--duration-300) var(--ease-out);
-                z-index: var(--z-fixed);
-            `;
-            
+        init() {
+            // 버튼 생성
+            this.button = document.createElement('button');
+            this.button.className = 'back-to-top';
+            this.button.innerHTML = '<i class="fas fa-arrow-up" aria-hidden="true"></i>';
+            this.button.setAttribute('aria-label', '맨 위로 이동');
+            this.button.setAttribute('title', '맨 위로 이동');
+            document.body.appendChild(this.button);
+
             // 클릭 이벤트
-            this.memoryManager.addEventListener(backToTopButton, 'click', () => {
+            this.button.addEventListener('click', () => {
                 window.scrollTo({
                     top: 0,
-                    behavior: CONFIG.SCROLL.SMOOTH_BEHAVIOR
+                    behavior: 'smooth'
                 });
             });
-            
-            document.body.appendChild(backToTopButton);
-            this.domCache.cache.set('.back-to-top', backToTopButton);
-        }
 
-        initializeAccessibility() {
-            let isTabbing = false;
-            
-            // 키보드 포커스 감지
-            this.memoryManager.addEventListener(window, 'keydown', (e) => {
-                if (e.key === 'Tab') {
-                    isTabbing = true;
-                    document.body.classList.add('keyboard-focus-visible');
+            // 스크롤시 표시/숨김
+            const toggleVisibility = throttle(() => {
+                if (window.scrollY > 300) {
+                    this.button.classList.add('visible');
+                } else {
+                    this.button.classList.remove('visible');
                 }
-            });
-            
-            this.memoryManager.addEventListener(window, 'mousedown', () => {
-                isTabbing = false;
-                document.body.classList.remove('keyboard-focus-visible');
-            });
-            
-            // 부드러운 스크롤 앵커 링크 처리
-            const anchorLinks = this.domCache.getAll('a[href^="#"]');
-            if (anchorLinks) {
-                Array.from(anchorLinks).forEach(anchor => {
-                    this.memoryManager.addEventListener(anchor, 'click', (e) => {
-                        e.preventDefault();
-                        const targetId = anchor.getAttribute('href');
-                        const targetElement = document.querySelector(targetId);
-                        
-                        if (targetElement) {
-                            const targetPosition = targetElement.offsetTop - this.scrollState.headerHeight - 20;
-                            window.scrollTo({
-                                top: targetPosition,
-                                behavior: CONFIG.SCROLL.SMOOTH_BEHAVIOR
-                            });
-                        }
-                    });
-                });
-            }
+            }, 200);
+
+            window.addEventListener('scroll', toggleVisibility, { passive: true });
+        }
+    }
+
+    // ===== 이미지 레이지 로딩 =====
+    class LazyImageLoader {
+        constructor() {
+            this.images = $$('img[data-src]');
+            this.init();
         }
 
-        initializeOptimizations() {
-            // 이미지 지연 로딩 최적화
-            this.setupLazyLoading();
-            
-            // 외부 링크 처리
-            this.setupExternalLinks();
-            
-            // 리사이즈 이벤트 최적화
-            this.memoryManager.addEventListener(window, 'resize', this.boundHandlers.resize, { passive: true });
-            
-            // 페이지 언로드 시 정리
-            this.memoryManager.addEventListener(window, 'beforeunload', this.boundHandlers.beforeUnload);
-            
-            // 페이지 가시성 변경 감지
-            this.memoryManager.addEventListener(document, 'visibilitychange', this.boundHandlers.visibilityChange);
-        }
-
-        setupLazyLoading() {
-            const lazyImages = this.domCache.getAll('img[data-src]');
-            if (!lazyImages || lazyImages.length === 0) return;
-            
+        init() {
             if ('IntersectionObserver' in window) {
                 const imageObserver = new IntersectionObserver((entries, observer) => {
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
                             const img = entry.target;
-                            img.src = img.dataset.src;
-                            img.removeAttribute('data-src');
-                            img.classList.add('fade-in');
+                            this.loadImage(img);
                             observer.unobserve(img);
                         }
                     });
                 }, {
-                    rootMargin: CONFIG.INTERSECTION.ROOT_MARGIN
+                    rootMargin: '50px 0px',
+                    threshold: 0.01
                 });
-                
-                Array.from(lazyImages).forEach(img => imageObserver.observe(img));
-                this.memoryManager.addObserver(imageObserver);
+
+                this.images.forEach(img => imageObserver.observe(img));
             } else {
-                // 폴백: IntersectionObserver 미지원 브라우저
-                Array.from(lazyImages).forEach(img => {
-                    img.src = img.dataset.src;
-                    img.removeAttribute('data-src');
-                });
+                // 폴백: 모든 이미지 즉시 로드
+                this.images.forEach(img => this.loadImage(img));
             }
         }
 
-        setupExternalLinks() {
-            const externalLinks = this.domCache.getAll('a[href^="http"]');
-            if (!externalLinks) return;
-            
-            Array.from(externalLinks).forEach(link => {
-                if (!link.href.includes(window.location.hostname)) {
-                    link.setAttribute('target', '_blank');
-                    link.setAttribute('rel', 'noopener noreferrer');
+        loadImage(img) {
+            const src = img.dataset.src;
+            if (!src) return;
+
+            // 이미지 프리로드
+            const tempImg = new Image();
+            tempImg.onload = () => {
+                img.src = src;
+                img.removeAttribute('data-src');
+                img.classList.add('fade-in');
+            };
+            tempImg.onerror = () => {
+                img.alt = '이미지를 불러올 수 없습니다';
+                img.classList.add('error');
+            };
+            tempImg.src = src;
+        }
+    }
+
+    // ===== 포스트 카드 향상 =====
+    class PostCardEnhancer {
+        constructor() {
+            this.cards = $$('.post-card');
+            this.init();
+        }
+
+        init() {
+            this.cards.forEach(card => {
+                // 터치 디바이스에서 호버 효과 개선
+                card.addEventListener('touchstart', () => {
+                    card.classList.add('touch-hover');
+                }, { passive: true });
+
+                card.addEventListener('touchend', () => {
+                    setTimeout(() => {
+                        card.classList.remove('touch-hover');
+                    }, 300);
+                }, { passive: true });
+
+                // 링크 전체 영역 클릭 가능하게
+                const link = card.querySelector('.post-card-link');
+                if (link) {
+                    card.style.cursor = 'pointer';
+                    card.addEventListener('click', (e) => {
+                        if (e.target.tagName !== 'A') {
+                            link.click();
+                        }
+                    });
                 }
             });
         }
-
-        handleResize() {
-            // DOM 캐시 무효화 (크기 관련)
-            this.domCache.invalidate();
-            
-            // 헤더 높이 재계산
-            const header = this.domCache.get('.top-header');
-            if (header) {
-                this.scrollState.headerHeight = header.offsetHeight;
-            }
-        }
-
-        handleBeforeUnload() {
-            // 메모리 정리
-            this.cleanup();
-        }
-
-        handleVisibilityChange() {
-            // 페이지가 숨겨지면 불필요한 작업 중지
-            if (document.hidden) {
-                // 애니메이션 일시 중지 등의 작업 수행 가능
-                console.log('Page hidden, reducing activity');
-            } else {
-                console.log('Page visible, resuming activity');
-            }
-        }
-
-        setupEventListeners() {
-            // 전역 에러 핸들링
-            this.memoryManager.addEventListener(window, 'error', (e) => {
-                console.error('Global error:', e.error);
-            });
-            
-            // Promise rejection 핸들링
-            this.memoryManager.addEventListener(window, 'unhandledrejection', (e) => {
-                console.error('Unhandled promise rejection:', e.reason);
-            });
-        }
-
-        setupPageTransitions() {
-            const pageContent = this.domCache.get('main');
-            if (pageContent) {
-                pageContent.classList.add('page-transition', 'fade-in');
-            }
-            
-            // Idle callback으로 무거운 작업 지연
-            if ('requestIdleCallback' in window) {
-                requestIdleCallback(() => {
-                    this.performIdleOptimizations();
-                }, { timeout: CONFIG.PERFORMANCE.IDLE_CALLBACK_TIMEOUT });
-            }
-        }
-
-        performIdleOptimizations() {
-            // 브라우저가 한가할 때 수행할 최적화 작업들
-            console.log('Performing idle optimizations');
-            
-            // 예: 프리로드할 이미지나 리소스 준비
-            // 예: 사용자 행동 분석 데이터 전송
-            // 예: 캐시 최적화
-        }
-
-        cleanup() {
-            console.log('Cleaning up main application');
-            this.memoryManager.cleanup();
-            this.domCache.cache.clear();
-            this.domCache.computedCache.clear();
-            this.isInitialized = false;
-        }
-
-        // 공개 API 메서드들
-        getTheme() {
-            return this.getCurrentTheme();
-        }
-
-        toggleTheme() {
-            const themeToggle = this.domCache.get('#theme-toggle');
-            if (themeToggle) {
-                themeToggle.click();
-            }
-        }
-
-        scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: CONFIG.SCROLL.SMOOTH_BEHAVIOR
-            });
-        }
     }
 
-    // ===== 전역 유틸리티 함수들 (이전 버전과의 호환성) =====
-    const utils = {
-        debounce: PerformanceUtils.debounce,
-        throttle: PerformanceUtils.throttle,
-        safeLocalStorage: () => {
-            try {
-                const testKey = '__test__';
-                localStorage.setItem(testKey, 'test');
-                localStorage.removeItem(testKey);
-                return true;
-            } catch (e) {
+    // ===== 폼 검증 =====
+    class FormValidator {
+        constructor() {
+            this.forms = $$('form[data-validate]');
+            this.init();
+        }
+
+        init() {
+            this.forms.forEach(form => {
+                form.addEventListener('submit', (e) => {
+                    if (!this.validateForm(form)) {
+                        e.preventDefault();
+                    }
+                });
+
+                // 실시간 검증
+                const inputs = form.querySelectorAll('input[required], textarea[required]');
+                inputs.forEach(input => {
+                    input.addEventListener('blur', () => {
+                        this.validateField(input);
+                    });
+                });
+            });
+        }
+
+        validateForm(form) {
+            const inputs = form.querySelectorAll('input[required], textarea[required]');
+            let isValid = true;
+
+            inputs.forEach(input => {
+                if (!this.validateField(input)) {
+                    isValid = false;
+                }
+            });
+
+            return isValid;
+        }
+
+        validateField(field) {
+            const value = field.value.trim();
+            const type = field.type;
+            let isValid = true;
+
+            // 빈 값 체크
+            if (!value) {
+                this.showError(field, '이 필드는 필수입니다.');
                 return false;
             }
+
+            // 이메일 검증
+            if (type === 'email' && !this.isValidEmail(value)) {
+                this.showError(field, '올바른 이메일 주소를 입력해주세요.');
+                return false;
+            }
+
+            // 전화번호 검증
+            if (type === 'tel' && !this.isValidPhone(value)) {
+                this.showError(field, '올바른 전화번호를 입력해주세요.');
+                return false;
+            }
+
+            if (isValid) {
+                this.clearError(field);
+            }
+
+            return isValid;
         }
+
+        isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        isValidPhone(phone) {
+            return /^[\d\s\-\+\(\)]+$/.test(phone);
+        }
+
+        showError(field, message) {
+            field.classList.add('error');
+            
+            let errorEl = field.nextElementSibling;
+            if (!errorEl || !errorEl.classList.contains('form-error')) {
+                errorEl = document.createElement('span');
+                errorEl.className = 'form-error';
+                field.parentNode.insertBefore(errorEl, field.nextSibling);
+            }
+            errorEl.textContent = message;
+        }
+
+        clearError(field) {
+            field.classList.remove('error');
+            
+            const errorEl = field.nextElementSibling;
+            if (errorEl && errorEl.classList.contains('form-error')) {
+                errorEl.remove();
+            }
+        }
+    }
+
+    // ===== 성능 모니터링 (개발용) =====
+    class PerformanceMonitor {
+        constructor() {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                this.init();
+            }
+        }
+
+        init() {
+            // 페이지 로드 시간
+            window.addEventListener('load', () => {
+                const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+                console.log(`Page load time: ${loadTime}ms`);
+            });
+
+            // FPS 모니터링
+            let lastTime = performance.now();
+            let frames = 0;
+            
+            const measureFPS = () => {
+                frames++;
+                const currentTime = performance.now();
+                
+                if (currentTime >= lastTime + 1000) {
+                    const fps = Math.round((frames * 1000) / (currentTime - lastTime));
+                    if (fps < 30) {
+                        console.warn(`Low FPS detected: ${fps}`);
+                    }
+                    frames = 0;
+                    lastTime = currentTime;
+                }
+                
+                requestAnimationFrame(measureFPS);
+            };
+            
+            // requestAnimationFrame(measureFPS);
+        }
+    }
+
+    // ===== 초기화 =====
+    document.addEventListener('DOMContentLoaded', () => {
+        // 핵심 기능 초기화
+        const themeManager = new ThemeManager();
+        const mobileNav = new MobileNavigation();
+        const headerScroll = new HeaderScroll();
+        
+        // 부가 기능 초기화 (지연 로드)
+        requestIdleCallback(() => {
+            new ScrollProgress();
+            new BackToTop();
+            new LazyImageLoader();
+            new PostCardEnhancer();
+            new FormValidator();
+            new PerformanceMonitor();
+        }, { timeout: 2000 });
+
+        // 테마 토글 이벤트
+        const themeToggle = $('#theme-toggle');
+        const mobileThemeToggle = $('#mobile-theme-toggle');
+        
+        themeToggle?.addEventListener('click', () => themeManager.toggle());
+        mobileThemeToggle?.addEventListener('click', () => themeManager.toggle());
+
+        // 전역 에러 핸들링
+        window.addEventListener('error', (e) => {
+            console.error('Global error:', e.error);
+        });
+
+        // 서비스 워커 등록 (PWA)
+        if ('serviceWorker' in navigator && window.location.protocol === 'https:') {
+            navigator.serviceWorker.register('/sw.js').catch(err => {
+                console.error('Service Worker registration failed:', err);
+            });
+        }
+    });
+
+    // requestIdleCallback 폴리필
+    window.requestIdleCallback = window.requestIdleCallback || function(handler) {
+        const startTime = Date.now();
+        return setTimeout(() => {
+            handler({
+                didTimeout: false,
+                timeRemaining: () => Math.max(0, 50.0 - (Date.now() - startTime))
+            });
+        }, 1);
     };
-
-    // ===== 애플리케이션 초기화 =====
-    let app = null;
-    
-    function initializeApplication() {
-        if (app) {
-            console.warn('Application already exists');
-            return app;
-        }
-        
-        app = new MainApplication();
-        app.init();
-        
-        // 전역 객체에 앱 인스턴스 노출 (디버깅용)
-        if (typeof window !== 'undefined') {
-            window.WagusenApp = app;
-            window.WagusenUtils = utils;
-        }
-        
-        return app;
-    }
-
-    // DOM 준비 완료 시 초기화
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeApplication);
-    } else {
-        // DOM이 이미 로드된 경우
-        initializeApplication();
-    }
-
-    // 모듈 시스템 지원
-    if (typeof module !== 'undefined' && module.exports) {
-        module.exports = { MainApplication, PerformanceUtils, MemoryManager, DOMCache };
-    }
 
 })();

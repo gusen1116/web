@@ -1,4 +1,4 @@
-/* utilities.css - 유틸리티 클래스 */
+/* utilities.css - GitHub 스타일 유틸리티 클래스 */
 
 /* ===== 디스플레이 ===== */
 .d-none { display: none !important; }
@@ -336,4 +336,80 @@
   .print-break-before { page-break-before: always !important; }
   .print-break-after { page-break-after: always !important; }
   .print-no-break { page-break-inside: avoid !important; }
+}
+
+/* ===== GitHub 스타일 추가 유틸리티 ===== */
+/* 라벨 스타일 */
+.label {
+  display: inline-block;
+  padding: 0 7px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  border-radius: 2em;
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+}
+
+.label-primary {
+  background: var(--primary-50);
+  color: var(--primary-700);
+  border-color: var(--primary-200);
+}
+
+/* 카운터 뱃지 */
+.counter {
+  display: inline-block;
+  min-width: 20px;
+  padding: 0 6px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  text-align: center;
+  background-color: var(--gray-300);
+  border: 1px solid transparent;
+  border-radius: 2em;
+}
+
+/* 아바타 */
+.avatar {
+  display: inline-block;
+  overflow: hidden;
+  line-height: 1;
+  vertical-align: middle;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.avatar-small { width: 24px; height: 24px; }
+.avatar-medium { width: 32px; height: 32px; }
+.avatar-large { width: 48px; height: 48px; }
+
+/* 상태 표시 */
+.state {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  text-align: center;
+  white-space: nowrap;
+  border-radius: 2em;
+}
+
+.state-open {
+  background-color: #2da44e;
+  color: white;
+}
+
+.state-closed {
+  background-color: #cf222e;
+  color: white;
+}
+
+.state-merged {
+  background-color: #8250df;
+  color: white;
 }
