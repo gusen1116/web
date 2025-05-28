@@ -53,8 +53,8 @@
   <!-- 중앙 정렬된 포스트 그리드 - 3개 포스트로 수정 -->
   <div class="posts-grid-center">
     {% if recent_posts %}
-      {% for post in recent_posts[:3] %}
-        <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}" class="post-card-link">
+      {% for post in recent_posts %}
+        <a href="{{ url_for('posts.view_by_slug', slug=post.slug or post.id) }}" class="post-card-link">
           <article class="post-card">
             <div class="post-card-header">
               <h2 class="post-card-title">{{ post.title }}</h2>
@@ -84,6 +84,9 @@
     {% else %}
       <div class="empty-state">
         <p>아직 게시글이 없습니다.</p>
+        {% if error_message %}
+        <p class="error-message">{{ error_message }}</p>
+        {% endif %}
       </div>
     {% endif %}
   </div>

@@ -22,8 +22,8 @@ def index():
         # 캐시된 데이터 가져오기 (성능 최적화)
         all_posts = CacheService.get_posts_with_cache()
         
-        # 최근 포스트 선별 (메인 페이지용 - 상위 3개)
-        recent_posts = _get_recent_posts(all_posts, limit=3)
+        # 최근 포스트 선별 (메인 페이지용 - 상위 3개) - 실제 객체 반환
+        recent_posts = all_posts[:3] if all_posts else []
         
         # 인기 태그 가져오기 (상위 10개)
         popular_tags = _get_popular_tags(limit=10)
@@ -32,7 +32,7 @@ def index():
         return render_template(
             'index.html',
             posts=all_posts,  # 템플릿 호환성을 위해 유지
-            recent_posts=recent_posts,
+            recent_posts=recent_posts,  # 실제 TextPost 객체들
             popular_tags=popular_tags
         )
         
@@ -158,42 +158,6 @@ def api_search():
         return jsonify({
             'error': '검색 중 오류가 발생했습니다'
         }), 500
-
-
-def _get_recent_posts(posts: List[TextPost], limit: int = 3) -> List[Dict[str, Any]]:
-    """
-    최근 포스트 가져오기 - 템플릿용 데이터 변환
-    
-    Args:
-        posts: 전체 포스트 리스트
-        limit: 반환할 포스트 수
-    
-    Returns:
-        List[Dict]: 템플릿용 포스트 데이터
-    """
-    try:
-        recent = posts[:limit] if posts else []
-        
-        # 템플릿에서 사용하기 쉬운 형태로 변환
-        result = []
-        for post in recent:
-            result.append({
-                'id': post.id,
-                'title': str(post.title),
-                'slug': post.slug,
-                'date': post.date,
-                'author': str(post.author),
-                'tags': post.tags[:3],  # 최대 3개 태그만
-                'preview': post.get_preview(150),
-                'url': post.get_url(),
-                'word_count': post.get_word_count()
-            })
-        
-        return result
-        
-    except Exception as e:
-        current_app.logger.error(f'최근 포스트 처리 오류: {e}')
-        return []
 
 
 def _get_popular_tags(limit: int = 10) -> List[Dict[str, Any]]:
