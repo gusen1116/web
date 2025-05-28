@@ -1,5 +1,6 @@
 /* 
- * blog-grid.css - GitHub 스타일 블로그 그리드, 타이포그래피 유지
+ * blog-grid.css - 완전한 모바일 최적화 블로그 그리드 시스템
+ * GitHub 스타일 + 모바일 터치 최적화
  */
 
 /* ===== 블로그 그리드 레이아웃 ===== */
@@ -30,8 +31,8 @@
 /* ===== 슬라이드 스타일 - GitHub 스타일 ===== */
 .slide-container {
   margin-top: var(--spacing-8);
-  background-color: #0969da; /* GitHub 파란색 */
-  border-radius: 6px; /* GitHub 라운딩 */
+  background-color: #0969da;
+  border-radius: 6px;
   overflow: hidden;
   width: 100%;
   max-width: var(--content-max-width);
@@ -44,7 +45,6 @@
   border: 1px solid var(--border-color);
 }
 
-/* ===== 슬라이드 내용 - 기존 유지 ===== */
 .slide {
   color: white;
   text-align: center;
@@ -55,7 +55,7 @@
 }
 
 .slide h2 {
-  font-size: 2.5rem; /* 슬라이드 제목 크기 */
+  font-size: 2.5rem;
   margin-bottom: var(--spacing-6);
   color: white;
   font-family: var(--font-sans);
@@ -64,7 +64,7 @@
 }
 
 .slide p {
-  font-size: 1.2rem; /* 슬라이드 본문 크기 */
+  font-size: 1.2rem;
   max-width: 90%;
   margin: 0 auto;
   color: white;
@@ -89,7 +89,7 @@
   align-items: center;
   gap: var(--spacing-8);
   background-color: var(--bg-secondary);
-  border-radius: 6px; /* GitHub 스타일 라운딩 */
+  border-radius: 6px;
   padding: var(--spacing-6);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
@@ -126,7 +126,6 @@
   min-height: 180px;
 }
 
-/* 콘텐츠 영역 스타일 예시 - 필요에 따라 사용 */
 .intro-content-area h2 {
   font-size: 1.9rem;
   line-height: 130%;
@@ -181,13 +180,13 @@
   transform: translateY(-2px);
 }
 
-/* ===== 포스트 카드 스타일 - GitHub 스타일 ===== */
+/* ===== 포스트 카드 스타일 - 모바일 최적화 ===== */
 .post-card {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 6px; /* GitHub 라운딩 */
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  transition: all 0.25s cubic-bezier(0.1, 0.7, 0.1, 1);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: all 0.3s cubic-bezier(0.1, 0.7, 0.1, 1);
   height: 100%;
   min-height: 450px;
   display: flex;
@@ -203,14 +202,18 @@
   transform: translateY(-4px);
 }
 
+.post-card:active {
+  transform: translateY(-2px);
+}
+
 .post-card::after {
-  content: '자세히 보기 →'; /* 더 자연스러운 텍스트 */
+  content: '자세히 보기 →';
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.7);
   color: white;
   display: flex;
   align-items: center;
@@ -219,35 +222,37 @@
   opacity: 0;
   transition: opacity 0.3s ease;
   font-family: var(--font-sans);
+  font-weight: 500;
 }
 
 .post-card:hover::after {
   opacity: 1;
 }
 
-/* ===== 포스트 카드 헤더 - GitHub 스타일 ===== */
+/* ===== 포스트 카드 헤더 ===== */
 .post-card-header {
-  padding: 0.8rem 1.25rem 0.75rem; /* 상하 패딩 축소 */
+  padding: 1rem;
   border-bottom: 1px solid var(--border-color);
   flex: 0 0 auto;
 }
 
 .post-card-title {
-  font-size: 1.6rem; /* 제목 크기 약간 키움 */
+  font-size: 1.6rem;
   line-height: 1.3;
-  font-weight: 700; /* 더 두껍게 */
-  margin-top: 0.5rem; /* 상단 마진 축소 (64px → 0.5rem) */
-  margin-bottom: 0.6rem; /* 제목과 날짜 사이 간격 */
+  font-weight: 700;
+  margin: 0 0 0.8rem;
   color: var(--text-primary);
   font-family: var(--font-sans);
   width: 100%;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .post-card-meta {
   display: flex;
   align-items: center;
   gap: var(--spacing-2);
-  font-size: calc(var(--font-size-xs) * 1.2);
+  font-size: 0.85rem;
   color: var(--text-tertiary);
   font-family: var(--font-sans);
 }
@@ -256,15 +261,15 @@
   display: inline-block;
   color: var(--text-tertiary);
   font-size: 0.85rem;
-  padding: 0.2rem 0.6rem;
+  padding: 0.25rem 0.7rem;
   background-color: var(--bg-tertiary);
-  border-radius: 20px;
-  margin-bottom: var(--spacing-3);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
 }
 
-/* ===== 포스트 카드 내용 - 기존 유지 ===== */
+/* ===== 포스트 카드 내용 ===== */
 .post-card-content {
-  padding: var(--spacing-3) var(--spacing-5) var(--spacing-5);
+  padding: 1rem;
   flex: 1;
 }
 
@@ -281,9 +286,9 @@
   font-family: var(--font-sans);
 }
 
-/* ===== 포스트 카드 푸터 - GitHub 스타일 ===== */
+/* ===== 포스트 카드 푸터 ===== */
 .post-card-footer {
-  padding: 0 var(--spacing-5) var(--spacing-5);
+  padding: 0 1rem 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -293,25 +298,26 @@
 .post-card-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-2);
+  gap: 0.4rem;
 }
 
 .post-card-tag {
   font-size: 0.85rem;
   color: var(--github-accent);
   background-color: #ddf4ff;
-  padding: 0.2rem 0.6rem;
-  border-radius: var(--radius-full);
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
   transition: all 0.2s ease;
   font-family: var(--font-sans);
   border: 1px solid rgba(0, 0, 0, 0.06);
+  white-space: nowrap;
 }
 
 .post-card-tag:hover {
   background-color: #b6e3ff;
+  transform: translateY(-1px);
 }
 
-/* 아무소리 버튼 스타일 개선 */
 .post-card-action {
   display: inline-block;
   margin-top: var(--spacing-3);
@@ -345,7 +351,7 @@ html.dark-theme .post-card-tag:hover {
   background-color: rgba(56, 139, 253, 0.25);
 }
 
-/* ===== 포스트 카드 링크 스타일 - 기존 유지 ===== */
+/* ===== 포스트 카드 링크 스타일 ===== */
 .post-card-link {
   display: block;
   text-decoration: none;
@@ -354,7 +360,7 @@ html.dark-theme .post-card-tag:hover {
   width: 100%;
 }
 
-/* ===== 섹션 스타일 - GitHub 스타일 ===== */
+/* ===== 섹션 스타일 ===== */
 .section-title {
   font-size: 2rem;
   font-weight: 600;
@@ -381,27 +387,16 @@ html.dark-theme .post-card-tag:hover {
   padding: 0 var(--spacing-4);
 }
 
-/* ===== 태그 섹션 스타일 - GitHub 스타일 ===== */
-.fixed-bottom-sections {
-  display: none; /* 태그 영역 숨김 처리 */
-}
-
-.tag-section {
-  display: block;
-  margin: 0;
-  width: 100%;
-}
-
-/* ===== 상단 태그 네비게이션 영역 - GitHub 스타일 ===== */
+/* ===== 상단 태그 네비게이션 - 모바일 최적화 ===== */
 .top-tag-navigation {
   background-color: var(--bg-secondary);
-  border-radius: 6px;
-  padding: 0.8rem;
+  border-radius: 8px;
+  padding: 1rem;
   margin-bottom: 2rem;
   display: flex;
   flex-wrap: nowrap;
   overflow-x: auto;
-  gap: 0.5rem;
+  gap: 0.6rem;
   scrollbar-width: none;
   -ms-overflow-style: none;
   box-shadow: var(--shadow-sm);
@@ -413,23 +408,26 @@ html.dark-theme .post-card-tag:hover {
   display: none;
 }
 
-/* GitHub 스타일 태그 */
 .top-tag-navigation .tag-item {
   background-color: #ddf4ff;
   color: var(--github-accent);
-  padding: 0.35rem 0.8rem;
-  border-radius: var(--radius-full);
-  font-size: 0.85rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
   border: 1px solid rgba(0, 0, 0, 0.06);
+  min-height: 36px;
+  display: flex;
+  align-items: center;
 }
 
 .top-tag-navigation .tag-item:hover {
   background-color: #b6e3ff;
+  transform: translateY(-1px);
 }
 
 .top-tag-navigation .tag-item.active {
@@ -455,7 +453,7 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   border-color: transparent;
 }
 
-/* ===== 블로그 헤더 스타일 - GitHub 스타일 ===== */
+/* ===== 블로그 헤더 스타일 ===== */
 .blog-header {
   margin-bottom: 2rem;
   text-align: left;
@@ -488,19 +486,13 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   border-radius: var(--radius-full);
 }
 
-/* ===== 공간 채우기용 스타일 ===== */
-.spacer {
-  flex-grow: 1;
-  min-height: 100px;
-}
-
 /* ===== 포스트 컨테이너 스타일 ===== */
 .posts-container {
   width: 100%;
   max-width: var(--content-max-width);
   margin: 0 auto;
   position: relative;
-  padding-bottom: calc(var(--spacing-16) + 50px); /* 버튼 공간 확보 */
+  padding-bottom: calc(var(--spacing-16) + 50px);
 }
 
 /* ===== 접기/더보기 버튼 컨테이너 ===== */
@@ -512,7 +504,6 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   position: relative;
 }
 
-/* ===== 접기/더보기 버튼 스타일 - GitHub 스타일 ===== */
 .toggle-button {
   display: inline-flex;
   align-items: center;
@@ -521,20 +512,25 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   background-color: var(--github-accent);
   color: white;
   border: none;
-  border-radius: 6px;
-  padding: var(--spacing-2) var(--spacing-8);
+  border-radius: 8px;
+  padding: 0.75rem 2rem;
   font-size: var(--font-size-md);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: var(--shadow-sm);
   font-family: var(--font-sans);
+  min-height: 44px;
 }
 
 .toggle-button:hover {
   background-color: #0860C9;
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+}
+
+.toggle-button:active {
+  transform: translateY(0);
 }
 
 .toggle-button span {
@@ -556,18 +552,19 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   text-align: center;
   padding: var(--spacing-12);
   background-color: var(--bg-secondary);
-  border-radius: 6px;
+  border-radius: 8px;
   color: var(--text-tertiary);
   font-size: var(--font-size-lg);
   font-family: var(--font-sans);
   border: 1px solid var(--border-color);
 }
 
-/* ===== 반응형 설정 ===== */
+/* ===== 태블릿 최적화 (1200px 이하) ===== */
 @media (max-width: 1200px) {
   .posts-grid,
   .posts-grid-center {
-    grid-template-columns: repeat(2, 1fr); /* 중간 화면에서는 2개 */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
   }
   
   .intro-container {
@@ -579,72 +576,108 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   }
 }
 
+/* ===== 모바일 최적화 (768px 이하) ===== */
 @media (max-width: 768px) {
-  .posts-grid-center,
-  .posts-grid {
-    grid-template-columns: 1fr; /* 모바일에서는 1개 */
-    gap: var(--spacing-8); /* 모바일에서 그리드 간격 */
+  /* 그리드를 1열로 변경 */
+  .posts-grid,
+  .posts-grid-center {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0 1rem;
   }
   
+  /* 포스트 카드 모바일 최적화 */
   .post-card {
-    min-height: 380px; /* 모바일에서 카드 높이 최적화 */
+    min-height: 380px;
+    border-radius: 12px;
+    margin-bottom: 0.5rem;
+  }
+  
+  .post-card-header {
+    padding: 1.2rem 1rem 1rem;
   }
   
   .post-card-title {
     font-size: 1.4rem;
+    line-height: 1.25;
+    margin-bottom: 0.8rem;
+  }
+  
+  .post-card-content {
+    padding: 0.8rem 1rem;
   }
   
   .post-card-preview {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
   }
   
+  .post-card-footer {
+    padding: 0 1rem 1.2rem;
+  }
+  
+  .post-card-date {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.8rem;
+  }
+  
+  .post-card-tag {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.7rem;
+    min-height: 28px;
+  }
+  
+  /* 상단 태그 네비게이션 모바일 최적화 */
   .top-tag-navigation {
-    padding: 0.6rem 1rem;
-    overflow-x: auto;
-    white-space: nowrap;
+    padding: 0.8rem 1rem;
+    margin: 0 1rem 2rem;
+    gap: 0.5rem;
   }
   
   .top-tag-navigation .tag-item {
-    padding: 8px 12px; /* 터치 영역 확대 */
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    min-height: 40px;
   }
   
-  /* 헤더 간소화 */
+  /* 헤더 모바일 최적화 */
+  .blog-header {
+    padding: 0 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
   .blog-header h1 {
     font-size: 2rem;
   }
   
-  /* 슬라이드 컨테이너 높이 최적화 */
-  .slide-container {
-    height: 250px;
+  /* 섹션 제목 모바일 최적화 */
+  .section-title {
+    font-size: 1.6rem;
+    padding: 0 1rem;
+    margin-bottom: 1.5rem;
   }
   
-  /* 슬라이드 글자 크기 최적화 */
-  .slide h2 {
-    font-size: 1.8rem;
-  }
-  
-  /* 모바일에서 터치 영역 최적화 */
-  .post-card-tag {
-    padding: 8px 12px;
-  }
-  
-  /* 아무소리 버튼 모바일 최적화 */
-  .post-card-action {
-    padding: 8px 16px;
-    font-size: 1rem;
+  /* 버튼 모바일 최적화 */
+  .toggle-button {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.95rem;
+    min-width: 200px;
   }
   
   /* 소개 섹션 모바일 최적화 */
   .intro-section {
     margin-top: var(--spacing-6);
     margin-bottom: var(--spacing-8);
+    padding: 0 1rem;
   }
   
   .intro-container {
     flex-direction: column;
     text-align: center;
     gap: var(--spacing-5);
-    padding: var(--spacing-5);
+    padding: 1.5rem;
   }
   
   .intro-image-area {
@@ -666,5 +699,141 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   
   .intro-content-area .intro-links {
     justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .intro-content-area .intro-link {
+    min-height: 44px;
+    padding: 0.6rem 1.2rem;
+  }
+  
+  /* 슬라이드 모바일 최적화 */
+  .slide-container {
+    height: 250px;
+    margin: 0 1rem var(--spacing-8);
+    border-radius: 12px;
+  }
+  
+  .slide h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .slide p {
+    font-size: 1rem;
+  }
+  
+  /* 빈 상태 모바일 최적화 */
+  .empty-state {
+    padding: 2rem 1rem;
+    margin: 0 1rem;
+    font-size: 1rem;
+  }
+}
+
+/* ===== 작은 모바일 (480px 이하) ===== */
+@media (max-width: 480px) {
+  .posts-grid,
+  .posts-grid-center {
+    padding: 0 0.5rem;
+    gap: 1.2rem;
+  }
+  
+  .post-card {
+    min-height: 350px;
+    border-radius: 16px;
+  }
+  
+  .post-card-title {
+    font-size: 1.2rem;
+    line-height: 1.3;
+  }
+  
+  .post-card-preview {
+    font-size: 0.9rem;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+  
+  .top-tag-navigation {
+    margin: 0 0.5rem 1.5rem;
+    padding: 0.6rem 0.8rem;
+  }
+  
+  .blog-header {
+    padding: 0 0.5rem;
+  }
+  
+  .blog-header h1 {
+    font-size: 1.7rem;
+  }
+  
+  .section-title {
+    padding: 0 0.5rem;
+    font-size: 1.4rem;
+  }
+  
+  .intro-section {
+    padding: 0 0.5rem;
+  }
+  
+  .intro-container {
+    padding: 1.2rem;
+  }
+  
+  .intro-image-area {
+    width: 140px;
+  }
+  
+  .slide-container {
+    margin: 0 0.5rem var(--spacing-6);
+    height: 200px;
+  }
+  
+  .slide h2 {
+    font-size: 1.5rem;
+  }
+  
+  .slide p {
+    font-size: 0.9rem;
+  }
+  
+  .toggle-button {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.9rem;
+    min-width: 180px;
+  }
+}
+
+/* ===== 터치 디바이스 최적화 ===== */
+@media (hover: none) and (pointer: coarse) {
+  .post-card:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-color: var(--border-color);
+  }
+  
+  .post-card:hover::after {
+    opacity: 0;
+  }
+  
+  .post-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+  
+  .post-card-tag:hover {
+    background-color: #ddf4ff;
+    transform: none;
+  }
+  
+  .intro-container:hover {
+    transform: none;
+    box-shadow: var(--shadow-sm);
+    border-color: var(--border-color);
+  }
+  
+  .intro-image:hover {
+    transform: none;
   }
 }

@@ -1,8 +1,9 @@
 /* 
- * layout.css - 혁신적인 모바일 네비게이션 시스템
+ * layout.css - 완전한 모바일 최적화 레이아웃 시스템
+ * 혁신적인 모바일 네비게이션 + 터치 최적화
  */
 
-/* ===== 헤더 스타일 - GitHub 스타일 ===== */
+/* ===== 헤더 스타일 - 모바일 최적화 ===== */
 .top-header {
   background-color: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
@@ -14,10 +15,11 @@
   display: flex;
   align-items: center;
   width: 100%;
-  height: 60px;
+  height: 64px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-/* 헤더 컨테이너 */
 .top-header .container {
   display: flex;
   align-items: center;
@@ -65,7 +67,7 @@ h1, h2, h3, h4, h5, h6 {
   transform: translateY(-100%);
 }
 
-/* ===== 로고 영역 (GitHub 스타일) ===== */
+/* ===== 로고 영역 - 모바일 최적화 ===== */
 .logo-area {
   display: flex;
   align-items: center;
@@ -225,10 +227,15 @@ html.dark-theme .dark-icon {
   justify-content: center;
   flex-direction: column;
   gap: 4px;
+  touch-action: manipulation;
 }
 
 .mobile-toggle:hover {
   background-color: var(--bg-tertiary);
+}
+
+.mobile-toggle:active {
+  transform: scale(0.95);
 }
 
 .hamburger-line {
@@ -271,6 +278,7 @@ html.dark-theme .dark-icon {
   border-left: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
+  -webkit-overflow-scrolling: touch;
 }
 
 .mobile-nav.active {
@@ -319,11 +327,16 @@ html.dark-theme .dark-icon {
   display: flex;
   align-items: center;
   justify-content: center;
+  touch-action: manipulation;
 }
 
 .mobile-nav-close:hover {
   background-color: var(--bg-tertiary);
   transform: rotate(90deg);
+}
+
+.mobile-nav-close:active {
+  transform: scale(0.9);
 }
 
 /* 모바일 네비게이션 콘텐츠 */
@@ -364,6 +377,8 @@ html.dark-theme .dark-icon {
   cursor: pointer;
   width: 100%;
   justify-content: space-between;
+  min-height: 56px;
+  touch-action: manipulation;
 }
 
 .mobile-nav-link::before {
@@ -387,6 +402,10 @@ html.dark-theme .dark-icon {
 .mobile-nav-link:focus {
   background: linear-gradient(90deg, rgba(var(--github-accent), 0.05) 0%, transparent 100%);
   transform: translateX(8px);
+}
+
+.mobile-nav-link:active {
+  transform: translateX(4px) scale(0.98);
 }
 
 .mobile-nav-link i:first-child {
@@ -490,6 +509,7 @@ html.dark-theme .theme-switch {
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   border: 1px solid var(--border-color);
+  touch-action: manipulation;
 }
 
 .mobile-nav-social a:hover {
@@ -497,6 +517,10 @@ html.dark-theme .theme-switch {
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(var(--github-accent), 0.4);
+}
+
+.mobile-nav-social a:active {
+  transform: scale(0.95);
 }
 
 /* ===== 모바일 오버레이 ===== */
@@ -609,6 +633,15 @@ body.nav-open {
     width: 100%;
   }
 
+  /* 헤더 높이 및 패딩 조정 */
+  .top-header {
+    height: 56px;
+  }
+
+  .top-header .container {
+    padding: 0 1rem;
+  }
+
   /* 데스크톱 네비게이션 숨기기 */
   .desktop-nav {
     display: none;
@@ -628,15 +661,31 @@ body.nav-open {
   .logo-area {
     flex: 1;
     min-width: 0;
+    width: auto;
+  }
+
+  .logo {
+    gap: 0.5rem;
+  }
+
+  .logo img {
+    width: 28px;
+    height: 28px;
   }
 
   .site-name {
-    font-size: 16px;
+    font-size: 1rem;
   }
 
   /* 헤더 컨트롤 조정 */
   .header-controls {
-    gap: var(--spacing-2);
+    gap: 0.5rem;
+    width: auto;
+  }
+
+  /* 모바일 네비게이션 너비 조정 */
+  .mobile-nav {
+    width: 280px;
   }
 
   /* 모바일 푸터 최적화 */
@@ -670,6 +719,9 @@ body.nav-open {
     min-height: 44px;
     display: flex;
     align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    touch-action: manipulation;
   }
 
   /* 모바일에서 섹션 간격 최적화 */
@@ -682,20 +734,65 @@ body.nav-open {
   main .container {
     padding: var(--spacing-6) var(--spacing-4);
   }
+}
 
-  /* 작은 화면에서 모바일 메뉴 너비 조정 */
-  @media (max-width: 400px) {
-    .mobile-nav {
-      width: 100%;
-      right: -100%;
-    }
+/* ===== 작은 모바일 (480px 이하) ===== */
+@media (max-width: 480px) {
+  .top-header .container {
+    padding: 0 0.75rem;
+  }
+
+  .mobile-nav {
+    width: 100%;
+    right: -100%;
+  }
+
+  .mobile-nav-header,
+  .mobile-nav-content,
+  .mobile-nav-footer {
+    padding-left: calc(var(--spacing-5) + env(safe-area-inset-left));
+    padding-right: calc(var(--spacing-5) + env(safe-area-inset-right));
+  }
+
+  .site-name {
+    font-size: 0.95rem;
+  }
+
+  .logo img {
+    width: 26px;
+    height: 26px;
+  }
+
+  main .container {
+    padding: var(--spacing-4) var(--spacing-3);
+  }
+
+  .blog-section, 
+  .simulation-section,
+  .content-section {
+    padding: 0 var(--spacing-3);
+  }
+
+  .footer-content {
+    padding: 0 var(--spacing-3);
+  }
+
+  .footer-links {
+    gap: var(--spacing-2);
+  }
+
+  .footer-links a {
+    padding: 0.5rem;
+    font-size: 0.8rem;
   }
 }
 
 /* ===== 접근성 개선 ===== */
 .mobile-nav-link:focus-visible,
 .mobile-toggle:focus-visible,
-.mobile-nav-close:focus-visible {
+.mobile-nav-close:focus-visible,
+.theme-toggle:focus-visible,
+.footer-links a:focus-visible {
   outline: 2px solid var(--github-accent);
   outline-offset: 2px;
 }
@@ -707,8 +804,15 @@ body.nav-open {
   .mobile-toggle,
   .hamburger-line,
   .theme-switch-slider,
-  .mobile-nav-link {
+  .mobile-nav-link,
+  .mobile-nav-social a,
+  .footer-links a {
     transition: none;
+  }
+  
+  .mobile-nav-link:hover,
+  .mobile-nav-link:active {
+    transform: none;
   }
 }
 
@@ -724,6 +828,132 @@ html.dark-theme .mobile-nav-header {
 
 html.dark-theme .mobile-nav-footer {
   background-color: var(--bg-secondary);
+}
+
+/* ===== 성능 최적화 ===== */
+.mobile-nav,
+.mobile-overlay,
+.hamburger-line,
+.theme-switch-slider {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* ===== 안전 영역 (노치 대응) ===== */
+@supports (padding: max(0px)) {
+  @media (max-width: 768px) {
+    .top-header {
+      padding-top: max(0px, env(safe-area-inset-top));
+    }
+    
+    .mobile-nav {
+      padding-top: max(0px, env(safe-area-inset-top));
+      padding-bottom: max(0px, env(safe-area-inset-bottom));
+    }
+    
+    .mobile-nav-header,
+    .mobile-nav-content,
+    .mobile-nav-footer {
+      padding-left: max(var(--spacing-5), calc(var(--spacing-5) + env(safe-area-inset-left)));
+      padding-right: max(var(--spacing-5), calc(var(--spacing-5) + env(safe-area-inset-right)));
+    }
+  }
+}
+
+/* ===== 가로 모드 최적화 ===== */
+@media (max-width: 768px) and (orientation: landscape) {
+  .mobile-nav {
+    width: 260px;
+  }
+  
+  .mobile-nav-content {
+    padding: var(--spacing-2) 0;
+  }
+  
+  .mobile-nav-link {
+    padding: var(--spacing-3) var(--spacing-4);
+    font-size: 1rem;
+    min-height: 48px;
+  }
+  
+  .mobile-nav-header {
+    padding: var(--spacing-3) var(--spacing-4);
+    min-height: 52px;
+  }
+  
+  .mobile-nav-footer {
+    padding: var(--spacing-3) var(--spacing-4);
+  }
+}
+
+/* ===== 터치 디바이스 최적화 ===== */
+@media (hover: none) and (pointer: coarse) {
+  .mobile-nav-link:hover {
+    background: none;
+    transform: none;
+  }
+  
+  .mobile-nav-link:active {
+    background: rgba(9, 105, 218, 0.1);
+    transform: scale(0.98);
+  }
+  
+  .mobile-nav-social a:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .mobile-nav-social a:active {
+    background-color: var(--github-accent);
+    color: white;
+    transform: scale(0.95);
+  }
+  
+  .footer-links a:hover {
+    color: var(--text-tertiary);
+    background-color: transparent;
+  }
+  
+  .footer-links a:active {
+    color: var(--text-accent);
+    background-color: var(--bg-tertiary);
+  }
+}
+
+/* ===== 고대비 모드 지원 ===== */
+@media (prefers-contrast: high) {
+  .mobile-nav {
+    border-left-width: 3px;
+  }
+  
+  .mobile-nav-link {
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .mobile-nav-link::before {
+    width: 6px;
+  }
+  
+  .mobile-toggle:focus-visible,
+  .mobile-nav-close:focus-visible,
+  .theme-toggle:focus-visible {
+    outline-width: 3px;
+  }
+}
+
+/* ===== 디버그 모드 (개발용) ===== */
+.mobile-debug .mobile-nav {
+  border: 2px dashed red;
+}
+
+.mobile-debug .mobile-nav-item {
+  border: 1px dashed blue;
+}
+
+.mobile-debug .mobile-overlay {
+  background-color: rgba(255, 0, 0, 0.2);
 }
 
 /* ===== 반응형 레이아웃 ===== */

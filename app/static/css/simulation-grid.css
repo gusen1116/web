@@ -1,30 +1,34 @@
 /* 
- * simulation-grid.css - GitHub 스타일 시뮬레이션 그리드
+ * simulation-grid.css - 완전한 모바일 최적화 시뮬레이션 그리드
+ * GitHub 스타일 + 터치 인터랙션 최적화
  */
 
 /* ===== 시뮬레이션 그리드 컨테이너 ===== */
 .simulation-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-4);
+  gap: 1.5rem;
   margin-bottom: var(--spacing-12);
   width: 100%;
   max-width: var(--container-width);
   margin-left: auto;
   margin-right: auto;
+  padding: 0 1rem;
 }
 
-/* ===== 시뮬레이션 카드 스타일 - GitHub 스타일 ===== */
+/* ===== 시뮬레이션 카드 스타일 - 모바일 최적화 ===== */
 .simulation-card {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: 12px;
   transition: border-color var(--transition-normal), transform var(--transition-normal), box-shadow var(--transition-normal);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 400px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
 }
 
 .simulation-card:hover {
@@ -33,11 +37,16 @@
   border-color: var(--github-accent);
 }
 
+.simulation-card:active {
+  transform: translateY(-2px);
+}
+
 /* ===== 시뮬레이션 카드 헤더 ===== */
 .simulation-card-header {
-  padding: var(--spacing-4);
+  padding: 1.2rem 1rem;
   border-bottom: 1px solid var(--border-color);
   background-color: var(--bg-primary);
+  flex-shrink: 0;
 }
 
 .simulation-card-header h2 {
@@ -47,6 +56,8 @@
   color: var(--text-primary);
   width: 100%;
   text-align: center;
+  word-break: keep-all;
+  font-family: var(--font-sans);
 }
 
 /* ===== 시뮬레이션 미리보기 영역 ===== */
@@ -57,18 +68,42 @@
   position: relative;
   overflow: hidden;
   border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
 }
 
 .simulation-card-preview canvas {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+}
+
+.simulation-card-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 미리보기 플레이스홀더 */
+.simulation-card-preview .preview-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  font-size: 0.9rem;
+  font-family: var(--font-sans);
 }
 
 /* ===== 시뮬레이션 설명 영역 ===== */
 .simulation-card-description {
-  padding: var(--spacing-4);
+  padding: 1rem;
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .simulation-card-description p {
@@ -77,27 +112,72 @@
   line-height: 1.5;
   color: var(--text-secondary);
   width: 100%;
+  font-family: var(--font-sans);
+  flex-grow: 1;
+}
+
+/* ===== 시뮬레이션 메타 정보 ===== */
+.simulation-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+}
+
+.simulation-card-meta .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.simulation-card-meta i {
+  font-size: 0.8rem;
 }
 
 /* ===== 시뮬레이션 카드 푸터 ===== */
 .simulation-card-footer {
-  padding: var(--spacing-4);
+  padding: 1rem;
   display: flex;
   justify-content: center;
   border-top: 1px solid var(--border-color);
   background-color: var(--bg-primary);
+  flex-shrink: 0;
 }
 
 .simulation-card-footer .btn {
   width: 100%;
   text-align: center;
+  min-height: 44px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  font-family: var(--font-sans);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.simulation-card-footer .btn:hover {
+  transform: translateY(-1px);
+}
+
+.simulation-card-footer .btn:active {
+  transform: scale(0.98);
 }
 
 /* ===== 시뮬레이션 정보 섹션 ===== */
 .simulation-info {
   background-color: var(--bg-secondary);
-  border-radius: 6px;
-  padding: var(--spacing-6);
+  border-radius: 12px;
+  padding: 1.5rem;
   margin-top: var(--spacing-8);
   margin-bottom: var(--spacing-16);
   box-shadow: var(--shadow-md);
@@ -115,6 +195,7 @@
   font-weight: 600;
   color: var(--text-primary);
   width: 100%;
+  font-family: var(--font-sans);
 }
 
 .simulation-info p {
@@ -123,21 +204,371 @@
   line-height: 1.6;
   color: var(--text-secondary);
   width: 100%;
+  font-family: var(--font-sans);
 }
 
-/* ===== 반응형 레이아웃 ===== */
-@media (max-width: 1200px) {
-  .simulation-grid {
-    grid-template-columns: repeat(2, 1fr); /* 태블릿에서는 2개 열 */
+.simulation-info ul {
+  margin: var(--spacing-3) 0;
+  padding-left: var(--spacing-6);
+  width: 100%;
+}
+
+.simulation-info li {
+  margin-bottom: var(--spacing-2);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+}
+
+/* ===== 시뮬레이션 컨트롤 패널 ===== */
+.simulation-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+  padding: var(--spacing-4);
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.control-group {
+  margin-bottom: var(--spacing-3);
+}
+
+.control-group label {
+  display: block;
+  margin-bottom: var(--spacing-2);
+  font-weight: 500;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+/* ===== 특별한 시뮬레이션 카드 타입들 ===== */
+.simulation-card.physics-sim {
+  border-left: 4px solid #4caf50;
+}
+
+.simulation-card.math-sim {
+  border-left: 4px solid #2196f3;
+}
+
+.simulation-card.interactive-sim {
+  border-left: 4px solid #ff9800;
+}
+
+.simulation-card.experiment-sim {
+  border-left: 4px solid #9c27b0;
+}
+
+/* 카드 타입별 헤더 색상 */
+.simulation-card.physics-sim .simulation-card-header {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, transparent 100%);
+}
+
+.simulation-card.math-sim .simulation-card-header {
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, transparent 100%);
+}
+
+.simulation-card.interactive-sim .simulation-card-header {
+  background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, transparent 100%);
+}
+
+.simulation-card.experiment-sim .simulation-card-header {
+  background: linear-gradient(135deg, rgba(156, 39, 176, 0.1) 0%, transparent 100%);
+}
+
+/* ===== 로딩 상태 ===== */
+.simulation-card.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.simulation-card.loading .simulation-card-preview::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  margin: -16px 0 0 -16px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--github-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-@media (max-width: 768px) {
+/* ===== 시뮬레이션 상태 표시 ===== */
+.simulation-status {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #4caf50;
+  box-shadow: 0 0 0 2px white;
+}
+
+.simulation-status.paused {
+  background-color: #ff9800;
+}
+
+.simulation-status.error {
+  background-color: #f44336;
+}
+
+/* ===== 태블릿 최적화 (1200px 이하) ===== */
+@media (max-width: 1200px) {
   .simulation-grid {
-    grid-template-columns: 1fr; /* 모바일에서는 1개 열 */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.2rem;
   }
   
   .simulation-card {
-    min-height: 350px; /* 모바일에서는 높이 줄임 */
+    min-height: 380px;
+  }
+  
+  .simulation-card-header h2 {
+    font-size: 1.4rem;
+  }
+  
+  .simulation-controls {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-3);
+  }
+}
+
+/* ===== 모바일 최적화 (768px 이하) ===== */
+@media (max-width: 768px) {
+  .simulation-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
+  
+  .simulation-card {
+    min-height: 350px;
+    border-radius: 16px;
+    margin-bottom: 0.5rem;
+  }
+  
+  .simulation-card-header {
+    padding: 1rem;
+  }
+  
+  .simulation-card-header h2 {
+    font-size: 1.3rem;
+  }
+  
+  .simulation-card-preview {
+    height: 160px;
+  }
+  
+  .simulation-card-description {
+    padding: 1rem;
+  }
+  
+  .simulation-card-description p {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  
+  .simulation-card-footer {
+    padding: 1rem;
+  }
+  
+  .simulation-card-footer .btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.95rem;
+    min-height: 48px;
+  }
+  
+  .simulation-info {
+    margin: 0 1rem var(--spacing-12);
+    padding: 1.2rem;
+  }
+  
+  .simulation-info h3 {
+    font-size: 1.3rem;
+  }
+  
+  .simulation-info p {
+    font-size: 1rem;
+  }
+  
+  .simulation-info li {
+    font-size: 0.95rem;
+  }
+  
+  .simulation-controls {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+    gap: var(--spacing-3);
+  }
+  
+  .control-group {
+    margin-bottom: var(--spacing-2);
+  }
+}
+
+/* ===== 작은 모바일 (480px 이하) ===== */
+@media (max-width: 480px) {
+  .simulation-grid {
+    padding: 0 0.5rem;
+    gap: 1.2rem;
+  }
+  
+  .simulation-card {
+    min-height: 320px;
+    border-radius: 20px;
+  }
+  
+  .simulation-card-header {
+    padding: 0.8rem;
+  }
+  
+  .simulation-card-header h2 {
+    font-size: 1.2rem;
+  }
+  
+  .simulation-card-preview {
+    height: 140px;
+  }
+  
+  .simulation-card-description {
+    padding: 0.8rem;
+  }
+  
+  .simulation-card-description p {
+    font-size: 0.9rem;
+  }
+  
+  .simulation-card-footer {
+    padding: 0.8rem;
+  }
+  
+  .simulation-card-footer .btn {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.9rem;
+    min-height: 44px;
+  }
+  
+  .simulation-info {
+    margin: 0 0.5rem var(--spacing-8);
+    padding: 1rem;
+  }
+  
+  .simulation-info h3 {
+    font-size: 1.2rem;
+  }
+  
+  .simulation-info p {
+    font-size: 0.95rem;
+  }
+  
+  .simulation-info li {
+    font-size: 0.9rem;
+  }
+  
+  .simulation-controls {
+    padding: 0.8rem;
+  }
+}
+
+/* ===== 터치 디바이스 최적화 ===== */
+@media (hover: none) and (pointer: coarse) {
+  .simulation-card:hover {
+    transform: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border-color: var(--border-color);
+  }
+  
+  .simulation-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+  
+  .simulation-card-footer .btn:hover {
+    transform: none;
+  }
+  
+  .simulation-card-footer .btn:active {
+    transform: scale(0.96);
+    transition: transform 0.1s ease;
+  }
+}
+
+/* ===== 접근성 개선 ===== */
+.simulation-card:focus-visible {
+  outline: 2px solid var(--github-accent);
+  outline-offset: 2px;
+}
+
+.simulation-card-footer .btn:focus-visible {
+  outline: 2px solid var(--github-accent);
+  outline-offset: 2px;
+}
+
+/* ===== 다크모드 호환성 ===== */
+html.dark-theme .simulation-card {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+html.dark-theme .simulation-card-preview .preview-placeholder {
+  background-color: var(--bg-tertiary);
+  color: var(--text-tertiary);
+}
+
+html.dark-theme .simulation-status {
+  box-shadow: 0 0 0 2px var(--bg-secondary);
+}
+
+/* ===== 모션 감소 설정 대응 ===== */
+@media (prefers-reduced-motion: reduce) {
+  .simulation-card,
+  .simulation-card-footer .btn,
+  .simulation-status {
+    transition: none;
+  }
+  
+  .simulation-card:hover,
+  .simulation-card:active {
+    transform: none;
+  }
+  
+  .simulation-card-footer .btn:hover,
+  .simulation-card-footer .btn:active {
+    transform: none;
+  }
+  
+  .simulation-card.loading .simulation-card-preview::after {
+    animation: none;
+  }
+}
+
+/* ===== 고대비 모드 지원 ===== */
+@media (prefers-contrast: high) {
+  .simulation-card {
+    border-width: 2px;
+  }
+  
+  .simulation-card:hover,
+  .simulation-card:focus {
+    border-color: var(--github-accent);
+    box-shadow: 0 0 0 2px var(--github-accent);
+  }
+  
+  .simulation-card-footer .btn {
+    border: 2px solid var(--github-accent);
   }
 }

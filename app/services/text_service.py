@@ -532,7 +532,7 @@ def get_series_posts(posts_dir: Union[str, Path], series_name: str) -> List[Text
 
 
 def get_adjacent_posts(posts_dir: Union[str, Path], current_post: TextPost) -> Tuple[Optional[TextPost], Optional[TextPost]]:
-    """현재 포스트의 이전/다음 포스트 반환 - 성능 최적화"""
+    """현재 포스트의 이전/다음 포스트 반환 - 시간순 정렬 기준"""
     if not isinstance(current_post, TextPost):
         return None, None
     
@@ -549,9 +549,11 @@ def get_adjacent_posts(posts_dir: Union[str, Path], current_post: TextPost) -> T
         if current_index is None:
             return None, None
         
-        # 이전/다음 포스트 반환
-        prev_post = all_posts[current_index - 1] if current_index > 0 else None
-        next_post = all_posts[current_index + 1] if current_index < len(all_posts) - 1 else None
+        # 포스트가 최신순으로 정렬되어 있으므로:
+        # - 이전 글 (시간상 더 이전) = 인덱스가 더 큰 것 (더 오래된 글)
+        # - 다음 글 (시간상 더 최신) = 인덱스가 더 작은 것 (더 최신 글)
+        prev_post = all_posts[current_index + 1] if current_index < len(all_posts) - 1 else None
+        next_post = all_posts[current_index - 1] if current_index > 0 else None
         
         return prev_post, next_post
         
@@ -582,19 +584,16 @@ def render_content(content: str,
         # 특수 태그 처리
         processed_content = _process_special_tags(content, base_url_images, base_url_videos, base_url_audios)
         
-        # 마크다운 처리 전에 URL 링크 변환 먼저 시도
-        linkified_content = _auto_linkify_urls(processed_content)
-        
         # 마크다운 처리
         if MARKDOWN_ENABLED:
-            html_content = _process_markdown(linkified_content)
+            html_content = _process_markdown(processed_content)
         else:
-            html_content = _process_content_fallback(linkified_content)
+            html_content = _process_content_fallback(processed_content)
         
-        # HTML 정제 및 보안 검사 (링크는 보존)
+        # HTML 정제 및 보안 검사
         clean_content = _sanitize_html_preserve_links(html_content)
         
-        # 마크다운 처리 후에도 누락된 URL이 있으면 한번 더 시도
+        # URL 링크 변환 (한 번만 실행)
         final_content = _auto_linkify_urls(clean_content)
         
         return Markup(final_content)
@@ -756,25 +755,33 @@ def _create_code_block(code_text: str, language: Optional[str]) -> str:
 
 
 def _auto_linkify_urls(text: str) -> str:
-    """URL 자동 링크 변환 - 문제 해결 및 개선"""
+    """URL 자동 링크 변환 - 중복 방지 강화"""
     if not isinstance(text, str):
         return text
     
-    # URL 패턴을 더 관대하게 수정
+    # 간단한 URL 패턴 - look-behind 제거
     url_pattern = re.compile(
-        r'(?<!href=["\'])(?<!src=["\'])'  # 이미 링크 속성 안에 있는 URL 제외
-        r'(https?://[^\s<>"\'`]+)',  # 공백이나 HTML 태그 문자까지 매칭
+        r'\b(https?://[^\s<>"\'`\)]+)',  # URL 패턴
         re.IGNORECASE
     )
     
     def url_replacer(match):
         url = match.group(1)
         original_url = url
+        full_match = match.group(0)
         
-        # URL 끝의 문장부호 제거 (더 관대하게)
+        # 이미 HTML 속성 안에 있는 URL인지 체크
+        match_start = match.start()
+        if match_start > 0:
+            # 앞의 20글자 정도를 확인해서 href= 또는 src= 안에 있는지 체크
+            prefix = text[max(0, match_start - 20):match_start]
+            if 'href="' in prefix or "href='" in prefix or 'src="' in prefix or "src='" in prefix:
+                return original_url
+        
+        # URL 끝의 문장부호 제거
         url = url.rstrip('.,;:!?)]')
         
-        # URL 길이 제한 (더 관대하게)
+        # URL 길이 제한
         if len(url) > 1000:
             current_app.logger.warning(f"URL too long, skipping: {url[:100]}...")
             return original_url
@@ -808,24 +815,53 @@ def _auto_linkify_urls(text: str) -> str:
         if len(url) > 60:
             display_text = url[:57] + "..."
         
-        # 링크 생성 (클래스 추가로 CSS 적용 보장)
+        # 링크 생성
         return (f'<a href="{safe_url}" '
                 f'target="_blank" '
                 f'rel="noopener noreferrer nofollow" '
                 f'class="auto-link post-link"'
                 f'title="{escape(url)}">{escape(display_text)}</a>')
     
-    # 로깅 추가로 디버깅
-    matches = url_pattern.findall(text)
-    if matches:
-        current_app.logger.info(f"Found {len(matches)} URLs to convert: {matches}")
-    
-    result = url_pattern.sub(url_replacer, text)
-    
-    if matches and result == text:
-        current_app.logger.warning("URL pattern matched but no replacement occurred")
-    
-    return result
+    # 이미 HTML로 변환된 부분은 건드리지 않도록 체크
+    if '<a href=' in text and '</a>' in text:
+        # 이미 링크가 있는 경우 더 신중하게 처리
+        # 링크 태그 사이의 내용은 변환하지 않도록 분할 처리
+        parts = []
+        in_link = False
+        current_part = ""
+        
+        i = 0
+        while i < len(text):
+            if text[i:i+8] == '<a href=' and not in_link:
+                # 링크 태그 시작
+                if current_part:
+                    # 이전 부분 처리
+                    parts.append(url_pattern.sub(url_replacer, current_part))
+                    current_part = ""
+                in_link = True
+                current_part += text[i]
+            elif text[i:i+4] == '</a>' and in_link:
+                # 링크 태그 끝
+                current_part += text[i:i+4]
+                parts.append(current_part)  # 링크 부분은 그대로 유지
+                current_part = ""
+                in_link = False
+                i += 3  # </a>의 나머지 부분 건너뛰기
+            else:
+                current_part += text[i]
+            i += 1
+        
+        # 마지막 부분 처리
+        if current_part:
+            if in_link:
+                parts.append(current_part)  # 링크 안의 내용은 그대로
+            else:
+                parts.append(url_pattern.sub(url_replacer, current_part))  # 일반 텍스트는 변환
+        
+        return ''.join(parts)
+    else:
+        # 링크가 없는 경우 일반적인 변환
+        return url_pattern.sub(url_replacer, text)
 
 
 def _is_safe_url(url: str) -> bool:
@@ -969,7 +1005,7 @@ def _sanitize_html_preserve_links(html_content: str) -> str:
 
 
 def _process_content_fallback(content: str) -> str:
-    """마크다운 라이브러리 없을 때 기본 처리 - URL 링크 변환 포함"""
+    """마크다운 라이브러리 없을 때 기본 처리 - URL 링크 변환 제거"""
     lines = content.split('\n')
     processed_lines = []
     in_code_block = False
@@ -982,8 +1018,7 @@ def _process_content_fallback(content: str) -> str:
         if not line_stripped:
             if current_paragraph:
                 paragraph_text = " ".join(current_paragraph)
-                # URL 링크 변환 적용
-                paragraph_text = _auto_linkify_urls(paragraph_text)
+                # URL 링크 변환은 마지막에 한 번만 수행
                 processed_lines.append(f'<p class="compact-text">{paragraph_text}</p>')
                 current_paragraph = []
             processed_lines.append('<br>')
@@ -993,7 +1028,6 @@ def _process_content_fallback(content: str) -> str:
         if line_stripped.startswith('```'):
             if current_paragraph:
                 paragraph_text = " ".join(current_paragraph)
-                paragraph_text = _auto_linkify_urls(paragraph_text)
                 processed_lines.append(f'<p class="compact-text">{paragraph_text}</p>')
                 current_paragraph = []
             
@@ -1016,7 +1050,6 @@ def _process_content_fallback(content: str) -> str:
         if line_stripped.startswith('#'):
             if current_paragraph:
                 paragraph_text = " ".join(current_paragraph)
-                paragraph_text = _auto_linkify_urls(paragraph_text)
                 processed_lines.append(f'<p class="compact-text">{paragraph_text}</p>')
                 current_paragraph = []
             
@@ -1034,7 +1067,6 @@ def _process_content_fallback(content: str) -> str:
     # 마지막 단락 처리
     if current_paragraph:
         paragraph_text = " ".join(current_paragraph)
-        paragraph_text = _auto_linkify_urls(paragraph_text)
         processed_lines.append(f'<p class="compact-text">{paragraph_text}</p>')
     
     return '\n'.join(processed_lines)
