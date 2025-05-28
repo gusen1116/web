@@ -567,16 +567,7 @@ def render_content(content: str,
                   base_url_videos: str = '/posts/videos', 
                   base_url_audios: str = '/posts/audios') -> Markup:
     """
-    특수 태그를 HTML로 변환 후 마크다운 처리 - 보안 강화
-    
-    Args:
-        content: 원본 콘텐츠
-        base_url_images: 이미지 기본 URL
-        base_url_videos: 비디오 기본 URL  
-        base_url_audios: 오디오 기본 URL
-    
-    Returns:
-        Markup: 안전한 HTML 마크업
+    특수 태그를 HTML로 변환 후 마크다운 처리 - URL 링크 변환 개선
     """
     if not isinstance(content, str) or not content.strip():
         return Markup("")
@@ -591,23 +582,31 @@ def render_content(content: str,
         # 특수 태그 처리
         processed_content = _process_special_tags(content, base_url_images, base_url_videos, base_url_audios)
         
+        # 마크다운 처리 전에 URL 링크 변환 먼저 시도
+        linkified_content = _auto_linkify_urls(processed_content)
+        
         # 마크다운 처리
         if MARKDOWN_ENABLED:
-            html_content = _process_markdown(processed_content)
+            html_content = _process_markdown(linkified_content)
         else:
-            html_content = _process_content_fallback(processed_content)
+            html_content = _process_content_fallback(linkified_content)
         
-        # HTML 정제 및 보안 검사
-        clean_content = _sanitize_html(html_content)
+        # HTML 정제 및 보안 검사 (링크는 보존)
+        clean_content = _sanitize_html_preserve_links(html_content)
         
-        # 자동 링크 변환
+        # 마크다운 처리 후에도 누락된 URL이 있으면 한번 더 시도
         final_content = _auto_linkify_urls(clean_content)
         
         return Markup(final_content)
         
     except Exception as e:
         current_app.logger.error(f"콘텐츠 렌더링 오류: {e}")
-        return Markup(f"<div class='error-embed'>콘텐츠 렌더링 오류가 발생했습니다.</div>")
+        # 오류 발생시에도 기본 URL 링크 변환은 시도
+        try:
+            simple_linkified = _auto_linkify_urls(content)
+            return Markup(f'<div class="content-error">일부 기능이 제한되었습니다.</div><div class="post-content">{simple_linkified}</div>')
+        except:
+            return Markup(f"<div class='error-embed'>콘텐츠 렌더링 오류가 발생했습니다: {str(e)}</div>")
 
 
 def _process_special_tags(content: str, base_url_images: str, base_url_videos: str, base_url_audios: str) -> str:
@@ -756,6 +755,134 @@ def _create_code_block(code_text: str, language: Optional[str]) -> str:
     return f'<pre><code class="language-{safe_language}">{safe_code}</code></pre>'
 
 
+def _auto_linkify_urls(text: str) -> str:
+    """URL 자동 링크 변환 - 문제 해결 및 개선"""
+    if not isinstance(text, str):
+        return text
+    
+    # URL 패턴을 더 관대하게 수정
+    url_pattern = re.compile(
+        r'(?<!href=["\'])(?<!src=["\'])'  # 이미 링크 속성 안에 있는 URL 제외
+        r'(https?://[^\s<>"\'`]+)',  # 공백이나 HTML 태그 문자까지 매칭
+        re.IGNORECASE
+    )
+    
+    def url_replacer(match):
+        url = match.group(1)
+        original_url = url
+        
+        # URL 끝의 문장부호 제거 (더 관대하게)
+        url = url.rstrip('.,;:!?)]')
+        
+        # URL 길이 제한 (더 관대하게)
+        if len(url) > 1000:
+            current_app.logger.warning(f"URL too long, skipping: {url[:100]}...")
+            return original_url
+        
+        # URL 안전성 검증
+        if not _is_safe_url(url):
+            current_app.logger.debug(f"URL failed safety check: {url}")
+            return escape(original_url)
+        
+        # 도메인 허용 목록 확인
+        allowed_domains = current_app.config.get('ALLOWED_EXTERNAL_DOMAINS', set())
+        
+        # 도메인 허용 목록이 비어있으면 모든 도메인 허용
+        if allowed_domains and not _is_allowed_domain(url, allowed_domains):
+            current_app.logger.debug(f"URL not in allowed domains: {url}")
+            # 허용되지 않은 도메인이어도 링크로 만들되 경고 표시
+            safe_url = escape(url)
+            display_text = url if len(url) <= 60 else url[:57] + "..."
+            
+            return (f'<a href="{safe_url}" '
+                   f'target="_blank" '
+                   f'rel="noopener noreferrer nofollow" '
+                   f'class="auto-link external-link"'
+                   f'title="외부 링크: {escape(url)}">{escape(display_text)}</a>')
+        
+        # 안전한 URL로 이스케이프
+        safe_url = escape(url)
+        
+        # 표시 텍스트 생성
+        display_text = url
+        if len(url) > 60:
+            display_text = url[:57] + "..."
+        
+        # 링크 생성 (클래스 추가로 CSS 적용 보장)
+        return (f'<a href="{safe_url}" '
+                f'target="_blank" '
+                f'rel="noopener noreferrer nofollow" '
+                f'class="auto-link post-link"'
+                f'title="{escape(url)}">{escape(display_text)}</a>')
+    
+    # 로깅 추가로 디버깅
+    matches = url_pattern.findall(text)
+    if matches:
+        current_app.logger.info(f"Found {len(matches)} URLs to convert: {matches}")
+    
+    result = url_pattern.sub(url_replacer, text)
+    
+    if matches and result == text:
+        current_app.logger.warning("URL pattern matched but no replacement occurred")
+    
+    return result
+
+
+def _is_safe_url(url: str) -> bool:
+    """URL 안전성 검증"""
+    if not url or not isinstance(url, str):
+        return False
+    
+    # 위험한 프로토콜 차단
+    dangerous_protocols = ['javascript:', 'data:', 'vbscript:', 'file:']
+    url_lower = url.lower()
+    
+    if any(url_lower.startswith(proto) for proto in dangerous_protocols):
+        return False
+    
+    # HTTPS/HTTP만 허용
+    if not url_lower.startswith(('http://', 'https://')):
+        return False
+    
+    # 기본적인 URL 구조 확인
+    try:
+        from urllib.parse import urlparse
+        parsed = urlparse(url)
+        return bool(parsed.netloc)  # 도메인이 있는지만 확인
+    except Exception:
+        return False
+
+
+def _is_allowed_domain(url: str, allowed_domains: Set[str]) -> bool:
+    """허용된 도메인인지 확인"""
+    try:
+        from urllib.parse import urlparse
+        parsed = urlparse(url)
+        domain = parsed.netloc.lower()
+        
+        # 일반적인 도메인들은 기본 허용
+        common_safe_domains = {
+            'youtube.com', 'youtu.be', 'google.com', 'github.com',
+            'stackoverflow.com', 'wikipedia.org', 'amazon.com',
+            'bookhouse.co.kr', 'kyobobook.co.kr', 'yes24.com'
+        }
+        
+        # 일반적으로 안전한 도메인 확인
+        for safe_domain in common_safe_domains:
+            if domain == safe_domain or domain.endswith(f'.{safe_domain}'):
+                return True
+        
+        # 설정된 허용 도메인 확인
+        for allowed in allowed_domains:
+            if domain == allowed or domain.endswith(f'.{allowed}'):
+                return True
+        
+        return False
+        
+    except Exception:
+        return False
+
+
 def _process_markdown(content: str) -> str:
     """마크다운 처리 - 보안 설정 강화"""
     try:
@@ -792,13 +919,13 @@ def _process_markdown(content: str) -> str:
         return _process_content_fallback(content)
 
 
-def _sanitize_html(html_content: str) -> str:
-    """HTML 정제 및 XSS 방지"""
+def _sanitize_html_preserve_links(html_content: str) -> str:
+    """HTML 정제 - 링크 보존"""
     if not MARKDOWN_ENABLED:
         return html_content
     
     try:
-        # 허용된 태그와 속성 가져오기
+        # 허용된 태그에 링크 관련 태그 추가
         allowed_tags = current_app.config.get('ALLOWED_HTML_TAGS', [
             'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
             'p', 'br', 'hr', 'a', 'strong', 'em',
@@ -807,6 +934,7 @@ def _sanitize_html(html_content: str) -> str:
             'figure', 'figcaption', 'iframe'
         ])
         
+        # 링크 속성도 보다 관대하게 허용
         allowed_attrs = current_app.config.get('ALLOWED_HTML_ATTRIBUTES', {
             'a': ['href', 'title', 'target', 'rel', 'class'],
             'img': ['src', 'alt', 'title', 'width', 'height', 'class', 'loading', 'decoding'],
@@ -823,7 +951,7 @@ def _sanitize_html(html_content: str) -> str:
             'h4': ['id'], 'h5': ['id'], 'h6': ['id']
         })
         
-        # HTML 정제
+        # HTML 정제 - 링크는 보존
         clean_html = bleach.clean(
             html_content,
             tags=allowed_tags,
@@ -836,95 +964,12 @@ def _sanitize_html(html_content: str) -> str:
         
     except Exception as e:
         current_app.logger.error(f"HTML 정제 오류: {e}")
-        return escape(html_content)
-
-
-def _auto_linkify_urls(text: str) -> str:
-    """URL 자동 링크 변환 - 보안 강화"""
-    if not isinstance(text, str):
-        return text
-    
-    # 이미 링크된 URL은 제외하고 처리
-    url_pattern = re.compile(
-        r'(?<!href=")(?<!src=")'
-        r'(https?://[a-zA-Z0-9\-._~:/?#[\]@!$\'()*+,;=%]+)',
-        re.IGNORECASE
-    )
-    
-    def url_replacer(match):
-        url = match.group(1)
-        
-        # URL 끝의 문장부호 제거
-        url = url.rstrip('.,;:!?')
-        
-        # URL 길이 제한
-        if len(url) > 500:
-            return url
-        
-        # URL 안전성 검증
-        if not _is_safe_url(url):
-            return escape(url)
-        
-        # 도메인 허용 목록 확인
-        allowed_domains = current_app.config.get('ALLOWED_EXTERNAL_DOMAINS', set())
-        if allowed_domains and not _is_allowed_domain(url, allowed_domains):
-            return escape(url)
-        
-        # 안전한 URL로 이스케이프
-        safe_url = escape(url)
-        
-        # 표시 텍스트 생성
-        display_text = url
-        if len(url) > 60:
-            display_text = url[:57] + "..."
-        
-        return (f'<a href="{safe_url}" '
-                f'target="_blank" '
-                f'rel="noopener noreferrer nofollow" '
-                f'class="auto-link">{escape(display_text)}</a>')
-    
-    return url_pattern.sub(url_replacer, text)
-
-
-def _is_safe_url(url: str) -> bool:
-    """URL 안전성 검증"""
-    if not url or not isinstance(url, str):
-        return False
-    
-    # 위험한 프로토콜 차단
-    dangerous_protocols = ['javascript:', 'data:', 'vbscript:', 'file:', 'ftp:']
-    url_lower = url.lower()
-    
-    if any(url_lower.startswith(proto) for proto in dangerous_protocols):
-        return False
-    
-    # HTTPS/HTTP만 허용
-    if not url_lower.startswith(('http://', 'https://')):
-        return False
-    
-    return True
-
-
-def _is_allowed_domain(url: str, allowed_domains: Set[str]) -> bool:
-    """허용된 도메인인지 확인"""
-    try:
-        from urllib.parse import urlparse
-        parsed = urlparse(url)
-        domain = parsed.netloc.lower()
-        
-        # 서브도메인 포함 검사
-        for allowed in allowed_domains:
-            if domain == allowed or domain.endswith(f'.{allowed}'):
-                return True
-        
-        return False
-        
-    except Exception:
-        return False
+        # 정제 실패시 URL 변환만이라도 시도
+        return _auto_linkify_urls(html_content)
 
 
 def _process_content_fallback(content: str) -> str:
-    """마크다운 라이브러리 없을 때 기본 처리"""
+    """마크다운 라이브러리 없을 때 기본 처리 - URL 링크 변환 포함"""
     lines = content.split('\n')
     processed_lines = []
     in_code_block = False
@@ -937,6 +982,7 @@ def _process_content_fallback(content: str) -> str:
         if not line_stripped:
             if current_paragraph:
                 paragraph_text = " ".join(current_paragraph)
+                # URL 링크 변환 적용
                 paragraph_text = _auto_linkify_urls(paragraph_text)
                 processed_lines.append(f'<p class="compact-text">{paragraph_text}</p>')
                 current_paragraph = []
@@ -961,7 +1007,7 @@ def _process_content_fallback(content: str) -> str:
                 processed_lines.append('</code></pre>')
             continue
         
-        # 코드 블록 내부
+        # 코드 블록 내부 - URL 변환 안함
         if in_code_block:
             processed_lines.append(escape(line))
             continue
