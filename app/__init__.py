@@ -37,7 +37,7 @@ def create_app(config_object: Optional[object] = None) -> Flask:
     # 에러 핸들러 등록
     _register_error_handlers(app)
     
-    # 보안 헤더 설정
+    # 보안 헤더 설정 (CSP 완화)
     _configure_security_headers(app)
     
     # 로깅 설정
@@ -129,7 +129,7 @@ def _register_error_handlers(app: Flask) -> None:
         return render_template('500.html'), 500
 
 def _configure_security_headers(app: Flask) -> None:
-    """보안 헤더 설정 - 항상 프로덕션 수준으로 적용"""
+    """보안 헤더 설정 - CSP 완화"""
     
     @app.after_request
     def set_security_headers(response):
@@ -138,17 +138,20 @@ def _configure_security_headers(app: Flask) -> None:
         for header, value in security_headers.items():
             response.headers[header] = value
         
-        # CSP 헤더 - 엄격한 보안 정책
+        # CSP 헤더 - 개발 친화적으로 완화
         response.headers['Content-Security-Policy'] = (
-            "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; "
-            "img-src 'self' data: https:; "
-            "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; "
-            "connect-src 'self'; "
-            "media-src 'self'; "
+            "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; "
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data:; "
+            "style-src 'self' 'unsafe-inline' https: data:; "
+            "img-src 'self' 'unsafe-inline' data: https: blob:; "
+            "font-src 'self' 'unsafe-inline' data: https:; "
+            "connect-src 'self' https: wss:; "
+            "media-src 'self' data: https: blob:; "
             "object-src 'none'; "
-            "frame-ancestors 'self'"
+            "frame-src 'self' https:; "
+            "worker-src 'self' blob:; "
+            "child-src 'self' https:; "
+            "manifest-src 'self';"
         )
         
         return response

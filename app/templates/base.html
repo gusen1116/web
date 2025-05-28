@@ -35,6 +35,54 @@
             document.body.classList.add('dark-theme');
         }
     </script>
+    
+    <!-- 테마 토글 아이콘 CSS -->
+    <style>
+        /* 테마 토글 버튼 아이콘 표시 로직 강화 */
+        .theme-toggle {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .theme-toggle .theme-icon {
+            position: absolute;
+            font-size: 1.25rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 라이트 모드일 때 - 달 아이콘 보이기 (다크모드로 전환하는 버튼) */
+        html:not(.dark-theme) .theme-toggle .fa-moon {
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+            visibility: visible;
+        }
+        
+        html:not(.dark-theme) .theme-toggle .fa-sun {
+            opacity: 0;
+            transform: rotate(-90deg) scale(0.5);
+            visibility: hidden;
+        }
+        
+        /* 다크 모드일 때 - 해 아이콘 보이기 (라이트모드로 전환하는 버튼) */
+        html.dark-theme .theme-toggle .fa-moon {
+            opacity: 0;
+            transform: rotate(90deg) scale(0.5);
+            visibility: hidden;
+        }
+        
+        html.dark-theme .theme-toggle .fa-sun {
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+            visibility: visible;
+        }
+    </style>
 </head>
 <body class="{% block body_class %}{% endblock %}">
     <!-- 통합된 헤더 영역 -->
@@ -60,8 +108,8 @@
                 <!-- 데스크톱 전용 테마 토글 버튼 -->
                 <div class="theme-toggle-area">
                     <button class="theme-toggle" id="themeToggle" title="테마 변경" aria-label="테마 전환">
-                        <i class="fas fa-moon dark-icon"></i>
-                        <i class="fas fa-sun light-icon"></i>
+                        <i class="fas fa-moon theme-icon"></i>
+                        <i class="fas fa-sun theme-icon"></i>
                     </button>
                 </div>
                 
@@ -180,6 +228,8 @@
             const themeText = document.querySelector('.theme-text');
             const themeSwitch = document.querySelector('.theme-switch-slider');
             
+            console.log('테마 토글 실행, 현재 상태:', isDark ? 'dark' : 'light');
+            
             if (isDark) {
                 // 라이트 모드로 전환
                 document.documentElement.classList.remove('dark-theme');
@@ -187,6 +237,7 @@
                 localStorage.setItem('theme', 'light');
                 if (themeText) themeText.textContent = '라이트모드';
                 if (themeSwitch) themeSwitch.classList.remove('active');
+                console.log('라이트 모드로 전환 완료');
             } else {
                 // 다크 모드로 전환
                 document.documentElement.classList.add('dark-theme');
@@ -194,13 +245,12 @@
                 localStorage.setItem('theme', 'dark');
                 if (themeText) themeText.textContent = '다크모드';
                 if (themeSwitch) themeSwitch.classList.add('active');
+                console.log('다크 모드로 전환 완료');
             }
             
             // CSS 변수 재계산을 위한 강제 리플로우
             document.body.offsetHeight;
             applyThemeColors();
-            
-            console.log('Theme toggled to:', isDark ? 'light' : 'dark');
         }
 
         // 테마 색상 적용 함수
@@ -229,7 +279,9 @@
                 mobileToggle: !!mobileToggle,
                 mobileNav: !!mobileNav,
                 mobileNavClose: !!mobileNavClose,
-                overlay: !!overlay
+                overlay: !!overlay,
+                desktopThemeToggle: !!desktopThemeToggle,
+                mobileThemeToggle: !!mobileThemeToggle
             });
 
             // 초기 테마 상태 설정
@@ -237,6 +289,8 @@
                 const isDark = document.documentElement.classList.contains('dark-theme');
                 const themeText = document.querySelector('.theme-text');
                 const themeSwitch = document.querySelector('.theme-switch-slider');
+                
+                console.log('초기 테마 상태 설정:', isDark ? 'dark' : 'light');
                 
                 if (themeText) {
                     themeText.textContent = isDark ? '다크모드' : '라이트모드';
@@ -384,7 +438,10 @@
             
             // 데스크톱 테마 토글
             if (desktopThemeToggle) {
-                desktopThemeToggle.addEventListener('click', toggleTheme);
+                desktopThemeToggle.addEventListener('click', function() {
+                    console.log('데스크톱 테마 토글 클릭');
+                    toggleTheme();
+                });
             }
             
             // 모바일 테마 토글
@@ -392,6 +449,7 @@
                 mobileThemeToggle.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
+                    console.log('모바일 테마 토글 클릭');
                     toggleTheme();
                     
                     // 시각적 피드백
