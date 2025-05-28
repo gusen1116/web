@@ -1,0 +1,532 @@
+/* 
+ * enhanced-content.css - 통합 콘텐츠 및 미디어 스타일
+ */
+
+/* ===== 1. 강조 박스 ===== */
+.highlight-box {
+  width: 55rem;
+  max-width: 100%;
+  margin: 1.5rem auto;
+  padding: 1rem 1.5rem;
+  background-color: #ddf4ff;
+  border-left: 4px solid #0969da;
+  border-radius: 6px;
+}
+
+html.dark-theme .highlight-box {
+  background-color: rgba(56, 139, 253, 0.15);
+  border-left-color: #58a6ff;
+}
+
+.highlight-box p {
+  margin-bottom: 0.5em;
+}
+
+.highlight-box p:last-child {
+  margin-bottom: 0;
+}
+
+/* ===== 2. 인용문 ===== */
+blockquote.styled-quote {
+  width: 55rem;
+  max-width: 100%;
+  margin: 1.5rem auto;
+  padding: 1rem 1.5rem;
+  background-color: #f6f8fa;
+  border-left: 4px solid #d0d7de;
+  color: #57606a;
+  font-style: italic;
+  position: relative;
+}
+
+blockquote.styled-quote::before {
+  content: "\201C";
+  font-size: 2rem;
+  position: absolute;
+  left: 0.5rem;
+  top: 0.25rem;
+  color: var(--text-tertiary);
+  opacity: 0.6;
+  font-family: serif;
+}
+
+html.dark-theme blockquote.styled-quote {
+  background-color: #161b22;
+  border-left-color: #30363d;
+  color: #8b949e;
+}
+
+.blockquote-author {
+  display: block;
+  margin-top: 0.8rem;
+  font-weight: 600;
+  text-align: right;
+  font-style: normal;
+}
+
+/* ===== 3. 큰 인용구 ===== */
+.pullquote {
+  font-size: 1.5rem;
+  line-height: 1.4;
+  font-weight: 300;
+  width: 55rem;
+  max-width: 100%;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  text-align: center;
+  color: #0969da;
+  border-top: 1px solid #d0d7de;
+  border-bottom: 1px solid #d0d7de;
+}
+
+.pullquote.align-left {
+  float: left;
+  width: 40%;
+  margin: 1rem 1.5rem 1rem 0;
+  text-align: left;
+}
+
+.pullquote.align-right {
+  float: right;
+  width: 40%;
+  margin: 1rem 0 1rem 1.5rem;
+  text-align: right;
+}
+
+/* ===== 4. 이미지 및 미디어 ===== */
+/* 이미지 컨테이너 */
+figure.post-image {
+  width: 55rem;
+  max-width: 100%;
+  margin: 2rem auto;
+  text-align: center;
+}
+
+figure.post-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid #d0d7de;
+}
+
+figure.post-image figcaption {
+  margin-top: 0.5rem;
+  color: #57606a;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+figure.post-image.align-left {
+  float: left;
+  margin-right: 1.5rem;
+  margin-bottom: 1rem;
+  width: auto;
+  max-width: 50%;
+}
+
+figure.post-image.align-right {
+  float: right;
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+  width: auto;
+  max-width: 50%;
+}
+
+figure.post-image.size-small img {
+  max-width: 300px;
+}
+
+figure.post-image.size-medium img {
+  max-width: 500px;
+}
+
+figure.post-image.size-large img {
+  max-width: 700px;
+}
+
+figure.post-image.size-full img {
+  max-width: 100%;
+}
+
+/* 갤러리 */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  margin: 2rem auto;
+  width: 55rem;
+  max-width: 100%;
+}
+
+.gallery-item {
+  overflow: hidden;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  position: relative;
+  border: 1px solid #d0d7de;
+}
+
+.gallery-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #0969da;
+}
+
+.gallery-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.gallery-item:hover .gallery-caption {
+  opacity: 1;
+}
+
+/* 비디오 컨테이너 */
+.video-embed {
+  width: 55rem;
+  max-width: 100%;
+  margin: 2rem auto;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #000;
+}
+
+.video-embed video {
+  display: block;
+  width: 100%;
+  border-radius: 6px;
+}
+
+.video-embed figcaption {
+  margin-top: 0.5rem;
+  color: #57606a;
+  font-style: italic;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* 오디오 컨테이너 */
+.audio-embed {
+  width: 55rem;
+  max-width: 100%;
+  margin: 2rem auto;
+  padding: 1rem;
+  background-color: #f6f8fa;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+}
+
+.audio-embed audio {
+  width: 100%;
+  display: block;
+}
+
+.audio-caption {
+  margin-top: 0.5rem;
+  color: #57606a;
+  font-style: italic;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* ===== 5. 소셜 미디어 임베드 ===== */
+/* 소셜 미디어 임베드 공통 스타일 */
+.social-embed {
+  width: 55rem;
+  max-width: 100%;
+  margin: 2rem auto;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #d0d7de;
+  background-color: #ffffff;
+}
+
+html.dark-theme .social-embed {
+  background-color: #161b22;
+  border-color: #30363d;
+}
+
+/* 코드 블록과 충돌 방지를 위한 스타일 */
+.social-embed pre,
+.social-embed code {
+  background: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+/* 유튜브 임베드 */
+.youtube-embed {
+  position: relative;
+  width: 55rem;
+  max-width: 100%;
+  margin: 2rem auto;
+  padding-bottom: 56.25%; /* 16:9 비율 */
+  height: 0;
+  overflow: hidden;
+  background-color: #f0f0f0;
+  border-radius: 6px;
+}
+
+.youtube-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* 트위치 임베드 */
+.twitch-embed {
+  position: relative;
+  width: 55rem;
+  max-width: 100%;
+  margin: 2rem auto;
+  padding-bottom: 56.25%; /* 16:9 비율 */
+  height: 0;
+  overflow: hidden;
+  background-color: #6441a5;
+  border-radius: 6px;
+}
+
+.twitch-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* 트위터 임베드 */
+.twitter-embed {
+  width: 55rem;
+  max-width: 100%;
+  margin: 2rem auto;
+}
+
+/* 인스타그램 임베드 */
+.instagram-embed {
+  width: 55rem;
+  max-width: 100%;
+  margin: 2rem auto;
+}
+
+/* 페이스북 임베드 */
+.facebook-embed {
+  width: 55rem;
+  max-width: 100%;
+  margin: 2rem auto;
+}
+
+/* 에러 메시지 */
+.error-embed {
+  width: 55rem;
+  max-width: 100%;
+  margin: 1.5rem auto;
+  padding: 1rem;
+  background-color: #ffebe9;
+  border: 1px solid #cf222e;
+  border-radius: 6px;
+  color: #cf222e;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+html.dark-theme .error-embed {
+  background-color: rgba(207, 34, 46, 0.15);
+  border-color: rgba(207, 34, 46, 0.4);
+  color: #f85149;
+}
+
+/* ===== 6. 기타 콘텐츠 요소 ===== */
+/* 관련 글 섹션 */
+.related-posts-box {
+  background-color: #f6f8fa;
+  border-radius: 6px;
+  padding: 1.2rem 1.5rem;
+  margin: 1.5rem auto;
+  width: 55rem;
+  max-width: 100%;
+  border: 1px solid #d0d7de;
+}
+
+.related-posts-box h4 {
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  width: 100%;
+}
+
+.related-posts-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  width: 100%;
+}
+
+.related-posts-list li {
+  margin-bottom: 0.5rem;
+}
+
+.related-posts-list a {
+  color: #0969da;
+  text-decoration: none;
+}
+
+.related-posts-list a:hover {
+  text-decoration: underline;
+}
+
+/* 시리즈 박스 */
+.series-box {
+  background-color: #ddf4ff;
+  border-radius: 6px;
+  padding: 1.2rem 1.5rem;
+  margin: 1.5rem auto;
+  width: 55rem;
+  max-width: 100%;
+  border: 1px solid rgba(9, 105, 218, 0.1);
+}
+
+html.dark-theme .series-box {
+  background-color: rgba(56, 139, 253, 0.15);
+  border-color: rgba(56, 139, 253, 0.4);
+}
+
+.series-title {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  color: #0969da;
+}
+
+html.dark-theme .series-title {
+  color: #58a6ff;
+}
+
+.series-info {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+/* 수정 이력 */
+.changelog-box {
+  background-color: #f6f8fa;
+  border-radius: 6px;
+  padding: 1.2rem 1.5rem;
+  margin: 1.5rem auto;
+  width: 55rem;
+  max-width: 100%;
+  border: 1px solid #d0d7de;
+}
+
+.changelog-box h4 {
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  width: 100%;
+}
+
+.changelog-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  width: 100%;
+}
+
+.changelog-list li {
+  margin-bottom: 0.4rem;
+  position: relative;
+}
+
+.changelog-list li::before {
+  content: "\2022";
+  position: absolute;
+  left: -1rem;
+  color: #0969da;
+}
+
+html.dark-theme .changelog-list li::before {
+  color: #58a6ff;
+}
+
+/* ===== 7. 모바일 최적화 ===== */
+@media screen and (max-width: 1024px) {
+  .post-image, .video-embed, .audio-embed, .youtube-embed,
+  .twitch-embed, .twitter-embed, .instagram-embed, .facebook-embed,
+  .error-embed, .highlight-box, blockquote.styled-quote, 
+  .pullquote, .gallery, .related-posts-box, .series-box, .changelog-box {
+    width: 90%;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .pullquote.align-left,
+  .pullquote.align-right {
+    float: none;
+    width: 100%;
+    margin: 1.5rem auto;
+    text-align: center;
+  }
+  
+  figure.post-image.align-left,
+  figure.post-image.align-right {
+    float: none;
+    margin: 1.5rem auto;
+    max-width: 100%;
+  }
+  
+  .gallery {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .post-image, .video-embed, .audio-embed, .youtube-embed,
+  .twitch-embed, .twitter-embed, .instagram-embed, .facebook-embed,
+  .error-embed, .highlight-box, blockquote.styled-quote, 
+  .pullquote, .gallery, .related-posts-box, .series-box, .changelog-box {
+    width: 100%;
+    margin: 1.5rem auto;
+  }
+  
+  .post-image figcaption,
+  .video-embed figcaption,
+  .audio-caption {
+    font-size: 0.8rem;
+  }
+  
+  .highlight-box,
+  blockquote.styled-quote {
+    padding: 0.8rem 1rem;
+  }
+  
+  .pullquote {
+    font-size: 1.25rem;
+    padding: 1rem;
+  }
+}

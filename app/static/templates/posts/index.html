@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}블로그 - 와구센{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/blog-grid.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- 블로그 헤더 -->
+<div class="blog-header">
+    <h1>블로그</h1>
+</div>
+
+<!-- 상단 태그 네비게이션 영역 - 동적 태그 적용 -->
+<div class="top-tag-navigation">
+    {% for tag in tags %}
+        <div class="tag-item" data-tag="{{ tag.name }}">{{ tag.name }}</div>
+    {% endfor %}
+</div>
+
+<!-- 포스트 컨테이너 -->
+<div class="posts-container">
+    <!-- 포스트 그리드 -->
+    <div class="posts-grid" id="initialPosts">
+        {% if posts %}
+            {% for post in posts[:6] %}
+                <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}" class="post-card-link" data-tags="{{ ','.join(post.tags) }}">
+                    <article class="post-card fade-in">
+                        <div class="post-card-header">
+                            <h2 class="post-card-title">{{ post.title }}</h2>
+                            <div class="post-card-meta">
+                                <div class="post-card-date">
+                                    {{ post.date.strftime('%Y년 %m월 %d일') }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="post-card-content">
+                            <div class="post-card-preview">{{ post.get_preview(150) }}</div>
+                        </div>
+                        <div class="post-card-footer">
+                            <div class="post-card-tags">
+                                {% for tag in post.tags[:2] %}
+                                    <span class="post-card-tag">{{ tag }}</span>
+                                {% endfor %}
+                                {% if post.tags|length > 2 %}
+                                    <span class="post-card-tag">+{{ post.tags|length - 2 }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </article>
+                </a>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <p>아직 게시글이 없습니다.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- 추가 포스트 (더보기 누를 때 표시됨) -->
+    <div class="posts-grid hidden" id="additionalPosts">
+        {% for post in posts[6:] %}
+            <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}" class="post-card-link" data-tags="{{ ','.join(post.tags) }}">
+                <article class="post-card fade-in">
+                    <div class="post-card-header">
+                        <h2 class="post-card-title">{{ post.title }}</h2>
+                        <div class="post-card-meta">
+                            <div class="post-card-date">
+                                {{ post.date.strftime('%Y년 %m월 %d일') }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-card-content">
+                        <div class="post-card-preview">{{ post.get_preview(150) }}</div>
+                    </div>
+                    <div class="post-card-footer">
+                        <div class="post-card-tags">
+                            {% for tag in post.tags[:2] %}
+                                <span class="post-card-tag">{{ tag }}</span>
+                            {% endfor %}
+                            {% if post.tags|length > 2 %}
+                                <span class="post-card-tag">+{{ post.tags|length - 2 }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+            </a>
+        {% endfor %}
+    </div>
+    
+    <!-- 더보기/접기 버튼 -->
+    {% if posts and posts|length > 6 %}
+        <div class="toggle-button-container">
+            <button id="toggleButton" class="toggle-button">
+                <span>더 많은 포스트 보기</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 더보기/접기 토글 기능
+        const toggleButton = document.getElementById('toggleButton');
+        const additionalPosts = document.getElementById('additionalPosts');
+        
+        if (toggleButton && additionalPosts) {
+            toggleButton.addEventListener('click', function() {
+                additionalPosts.classList.toggle('hidden');
+                
+                if (additionalPosts.classList.contains('hidden')) {
+                    toggleButton.innerHTML = '<span>더 많은 포스트 보기</span><i class="fas fa-chevron-down"></i>';
+                } else {
+                    toggleButton.innerHTML = '<span>포스트 접기</span><i class="fas fa-chevron-up"></i>';
+                }
+            });
+        }
+        
+        // 태그 필터링 기능
+        const tagItems = document.querySelectorAll('.tag-item');
+        const postCards = document.querySelectorAll('.post-card-link');
+        let activeTag = null;
+        
+        tagItems.forEach(tag => {
+            tag.addEventListener('click', function() {
+                const selectedTag = this.textContent.trim();
+                
+                // 같은 태그 재클릭 시 필터 해제 (전체 태그 표시)
+                if (activeTag === selectedTag) {
+                    activeTag = null;
+                    tagItems.forEach(t => t.classList.remove('active'));
+                    
+                    postCards.forEach(post => {
+                        post.style.display = '';
+                    });
+                    return;
+                }
+                
+                // 태그 활성화 상태 업데이트
+                activeTag = selectedTag;
+                tagItems.forEach(t => {
+                    if (t.textContent.trim() === selectedTag) {
+                        t.classList.add('active');
+                    } else {
+                        t.classList.remove('active');
+                    }
+                });
+                
+                // 포스트 필터링
+                let visibleCount = 0;
+                postCards.forEach(post => {
+                    const postTags = post.getAttribute('data-tags').split(',');
+                    
+                    if (postTags.includes(selectedTag)) {
+                        post.style.display = '';
+                        visibleCount++;
+                    } else {
+                        post.style.display = 'none';
+                    }
+                });
+                
+                // 태그 필터링 시 추가 포스트도 보이게 함
+                if (additionalPosts) {
+                    additionalPosts.classList.remove('hidden');
+                    
+                    if (toggleButton) {
+                        toggleButton.innerHTML = '<span>포스트 접기</span><i class="fas fa-chevron-up"></i>';
+                    }
+                }
+                
+                // 일치하는 포스트가 없으면 알림
+                if (visibleCount === 0) {
+                    alert('선택한 태그의 게시물이 없습니다.');
+                    // 필터 초기화
+                    activeTag = null;
+                    tagItems.forEach(t => t.classList.remove('active'));
+                    
+                    postCards.forEach(post => {
+                        post.style.display = '';
+                    });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

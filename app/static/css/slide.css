@@ -1,0 +1,120 @@
+/* 
+ * slide.css - GitHub 스타일 슬라이드 컨테이너
+ */
+
+/* ===== 슬라이드 컨테이너 ===== */
+.slide-container {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+  margin-bottom: 3rem;
+  background-color: var(--github-accent);
+  border-radius: 6px;
+  box-shadow: var(--shadow-sm);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 880px;
+  border: 1px solid var(--border-color);
+}
+
+html.dark-theme .slide-container {
+  background-color: #1f6feb;
+}
+
+/* ===== 슬라이드 ===== */
+.slide {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  color: white;
+  text-align: center;
+  padding: 2rem;
+  opacity: 0;
+  z-index: 1;
+  transition: opacity 0.7s ease;
+}
+
+.slide.active {
+  opacity: 1;
+  z-index: 2;
+}
+
+/* ===== 슬라이드 내용 ===== */
+.slide h2 {
+  font-size: 2.5rem;
+  margin: 0 auto 1.5rem;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: -0.02em;
+  font-family: var(--font-sans);
+  width: 100%;
+  text-align: center;
+  max-width: 700px;
+}
+
+.slide p {
+  font-size: 1.2rem;
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  line-height: 1.5;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  font-family: var(--font-sans);
+  width: 100%;
+  text-align: center;
+  color: white;
+}
+
+/* ===== 슬라이드 인디케이터 ===== */
+.slide-controls {
+  position: absolute;
+  bottom: 25px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  z-index: 3;
+}
+
+.slide-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.4);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.slide-indicator.active {
+  background-color: white;
+  transform: scale(1.2);
+}
+
+.slide-indicator:hover {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* 반응형 설정 */
+@media (max-width: 880px) {
+  .slide-container {
+    width: calc(100% - 2rem);
+  }
+  
+  .slide h2 {
+    font-size: 2rem;
+  }
+  
+  .slide p {
+    font-size: 1rem;
+  }
+}

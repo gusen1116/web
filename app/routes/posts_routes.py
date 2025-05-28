@@ -53,29 +53,80 @@ def validate_filename(filename):
 
 @posts_bp.route('/')
 def index():
-    """텍스트 파일 목록 페이지"""
+    """텍스트 파일 목록 페이지 - 디버깅 강화"""
     try:
+        # 디버깅: 로그 출력
+        current_app.logger.info("포스트 인덱스 페이지 로드 시작")
+        
         # 캐시 서비스 사용
         posts = CacheService.get_posts_with_cache()
         tags_count = CacheService.get_tags_with_cache()
         
+        # 디버깅: 데이터 확인
+        current_app.logger.info(f"로드된 포스트 수: {len(posts) if posts else 0}")
+        current_app.logger.info(f"로드된 태그 수: {len(tags_count) if tags_count else 0}")
+        
+        # 포스트가 없는 경우 직접 로드 시도
+        if not posts:
+            current_app.logger.warning("캐시에서 포스트를 찾을 수 없음, 직접 로드 시도")
+            posts_dir = current_app.config.get('POSTS_DIR')
+            current_app.logger.info(f"포스트 디렉토리: {posts_dir}")
+            
+            if posts_dir and os.path.exists(posts_dir):
+                posts = get_all_text_posts(posts_dir)
+                current_app.logger.info(f"직접 로드한 포스트 수: {len(posts) if posts else 0}")
+            else:
+                current_app.logger.error(f"포스트 디렉토리가 존재하지 않음: {posts_dir}")
+        
+        # 태그가 없는 경우 직접 로드 시도
+        if not tags_count:
+            current_app.logger.warning("캐시에서 태그를 찾을 수 없음, 직접 로드 시도")
+            posts_dir = current_app.config.get('POSTS_DIR')
+            if posts_dir and os.path.exists(posts_dir):
+                tags_count = get_tags_count(posts_dir)
+                current_app.logger.info(f"직접 로드한 태그 수: {len(tags_count) if tags_count else 0}")
+        
         # 태그 정렬 및 제한
-        tags = [{"name": escape(tag), "count": count} 
-                for tag, count in sorted(tags_count.items(), 
-                key=lambda x: x[1], reverse=True)[:20]]
+        tags = []
+        if tags_count:
+            tags = [{"name": escape(tag), "count": count} 
+                    for tag, count in sorted(tags_count.items(), 
+                    key=lambda x: x[1], reverse=True)[:20]]
         
         # 최신 포스트 목록 (사이드바용)
-        recent_posts = posts[:5] if len(posts) > 5 else posts
+        recent_posts = []
+        if posts:
+            recent_posts = posts[:5] if len(posts) > 5 else posts
+        
+        # 디버깅: 최종 데이터 확인
+        current_app.logger.info(f"템플릿에 전달할 포스트 수: {len(posts) if posts else 0}")
+        current_app.logger.info(f"템플릿에 전달할 태그 수: {len(tags) if tags else 0}")
+        current_app.logger.info(f"최근 포스트 수: {len(recent_posts) if recent_posts else 0}")
+        
+        # 포스트 샘플 로그 (첫 번째 포스트)
+        if posts:
+            first_post = posts[0]
+            current_app.logger.info(f"첫 번째 포스트 제목: {first_post.title}")
+            current_app.logger.info(f"첫 번째 포스트 태그: {first_post.tags}")
         
         return render_template(
             'posts/index.html', 
-            posts=posts, 
-            tags=tags,
-            recent_posts=recent_posts
+            posts=posts or [], 
+            tags=tags or [],
+            recent_posts=recent_posts or []
         )
+        
     except Exception as e:
-        current_app.logger.error(f'포스트 목록 로드 오류: {str(e)}')
-        abort(500)
+        current_app.logger.error(f'포스트 목록 로드 오류: {str(e)}', exc_info=True)
+        
+        # 오류 발생 시에도 빈 페이지라도 표시
+        return render_template(
+            'posts/index.html', 
+            posts=[], 
+            tags=[],
+            recent_posts=[],
+            error_message=f"포스트를 로드하는 중 오류가 발생했습니다: {str(e)}"
+        )
 
 @posts_bp.route('/<slug>')
 def view_by_slug(slug):

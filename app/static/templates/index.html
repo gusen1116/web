@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}홈 - 와구센{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/slide.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/blog-grid.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-content.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- 슬라이드 섹션 -->
+<div class="slide-container">
+  <div class="slide active">
+    <h2>구센의 법칙</h2>
+    <p>구센 이해하기 프로젝트</p>
+  </div>
+  <div class="slide">
+    <h2>구센의 작품들</h2>
+    <p>구센이 만들어 본 것들</p>
+  </div>
+  <div class="slide">
+    <h2>뭔가 더 있을듯</h2>
+    <p>더 적을 게 있으면 적을게요</p>
+  </div>
+  
+  <div class="slide-controls">
+    <div class="slide-indicator active" data-index="0"></div>
+    <div class="slide-indicator" data-index="1"></div>
+    <div class="slide-indicator" data-index="2"></div>
+  </div>
+</div>
+
+<!-- 소개 섹션 -->
+<section class="intro-section">
+  <div class="intro-container">
+    <!-- 왼쪽: 이미지 영역 -->
+    <div class="intro-image-area">
+      <img src="{{ url_for('static', filename='img/gusen-jb.png') }}" alt="마스코트 이미지" class="intro-image">
+    </div>
+    
+    <!-- 오른쪽: 텍스트 콘텐츠 영역 -->
+    <div class="intro-content-area">
+      <!-- 여기에 소개 내용을 추가하세요 -->
+    </div>
+  </div>
+</section>
+
+<!-- 블로그 섹션 - 중앙 정렬된 포스트 -->
+<section class="blog-section">
+  <h2 class="section-title">블로그</h2>
+  
+  <!-- 중앙 정렬된 포스트 그리드 - 3개 포스트로 수정 -->
+  <div class="posts-grid-center">
+    {% if recent_posts %}
+      {% for post in recent_posts[:3] %}
+        <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}" class="post-card-link">
+          <article class="post-card">
+            <div class="post-card-header">
+              <h2 class="post-card-title">{{ post.title }}</h2>
+              <div class="post-card-meta">
+                <div class="post-card-date">
+                  <i class="far fa-calendar-alt"></i>
+                  <span>{{ post.date.strftime('%Y년 %m월 %d일') }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="post-card-content">
+              <div class="post-card-preview">{{ post.get_preview(300) }}</div>
+            </div>
+            <div class="post-card-footer">
+              <div class="post-card-tags">
+                {% for tag in post.tags[:2] %}
+                  <span class="post-card-tag">{{ tag }}</span>
+                {% endfor %}
+                {% if post.tags|length > 2 %}
+                  <span class="post-card-tag">+{{ post.tags|length - 2 }}</span>
+                {% endif %}
+              </div>
+            </div>
+          </article>
+        </a>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        <p>아직 게시글이 없습니다.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- 물리 시뮬레이션 섹션 -->
+<section class="simulation-section">
+  <h2 class="section-title">팅팅 탱탱</h2>
+  <p>팅팅탱탱 중력과 함께하기기</p>
+  
+  <div class="simulation-container">
+    <canvas id="simulationCanvas"></canvas>
+  </div>
+</section>
+
+<!-- 공간 채우기용 div -->
+<div class="spacer"></div>
+{% endblock %}
+
+{% block scripts %}
+<!-- 슬라이드 스크립트 -->
+<script src="{{ url_for('static', filename='js/slide-minimal.js') }}"></script>
+<!-- 단순화된 시뮬레이션 스크립트 -->
+<script src="{{ url_for('static', filename='js/simulation.js') }}"></script>
+{% endblock %}

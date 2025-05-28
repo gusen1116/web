@@ -1,0 +1,299 @@
+/* 
+ * base.css - GitHub 스타일로 변수 업데이트, 타이포그래피 유지
+ */
+
+/* Import Pretendard font - 유지 */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
+
+/* ===== GitHub 스타일 변수 ===== */
+:root {
+  /* 기본 텍스트 색상 유지 */
+  --text-color-primary: rgb(6, 7, 39);
+  
+  /* GitHub 색상 팔레트 */
+  --github-bg: #f6f8fa;
+  --github-card: #ffffff;
+  --github-border: #d0d7de;
+  --github-accent: #0969da;
+  --github-text: var(--text-color-primary); /* 기존 텍스트 색상 유지 */
+  --github-secondary-text: #57606a;
+  
+  /* 색상 팔레트 - 기존 유지하되 일부 GitHub 색상으로 업데이트 */
+  --primary-50: #f3f6fc;
+  --primary-100: #daeafe;
+  --primary-200: #b6e0fe;
+  --primary-300: #7cc0ff;
+  --primary-400: #54aeff;
+  --primary-500: #0969da; /* GitHub 메인 파란색 */
+  --primary-600: #0550ae;
+  --primary-700: #033d8a;
+  
+  --neutral-50: #f6f8fa; /* GitHub 배경색 */
+  --neutral-100: #eaeef2;
+  --neutral-200: #d0d7de; /* GitHub 테두리 */
+  --neutral-300: #afb8c1;
+  --neutral-400: #8c959f;
+  --neutral-500: #6e7781;
+  --neutral-600: #57606a; /* GitHub 보조 텍스트 */
+  --neutral-700: #424a53;
+  --neutral-800: #32383f;
+  --neutral-900: #24292f;
+  
+  --success: #2da44e; /* GitHub 초록색 */
+  --warning: #bf8700; /* GitHub 노란색 */
+  --danger: #cf222e;  /* GitHub 빨간색 */
+  
+  /* 테마 변수 - GitHub 스타일 */
+  --bg-primary: var(--github-bg);
+  --bg-secondary: var(--github-card);
+  --bg-tertiary: var(--neutral-100);
+  --bg-accent: var(--github-accent);
+  
+  --text-primary: var(--text-color-primary); /* 기존 유지 */
+  --text-secondary: var(--text-color-primary); /* 기존 유지 */
+  --text-tertiary: var(--github-secondary-text);
+  --text-accent: var(--github-accent);
+  
+  --border-color: var(--github-border);
+  
+  /* 타이포그래피 - 기존 유지 */
+  --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+  
+  /* 글꼴 크기 - 기존 유지 */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  
+  /* 간격 - 기존 유지 */
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+  
+  /* GitHub 스타일 테두리 반경 */
+  --radius-sm: 0.125rem;
+  --radius-md: 0.25rem;
+  --radius-lg: 0.375rem; /* GitHub 카드 라운딩 */
+  --radius-xl: 0.5rem;
+  --radius-full: 9999px;
+  
+  /* GitHub 스타일 그림자 */
+  --shadow-sm: 0 1px 0 rgba(27, 31, 36, 0.04);
+  --shadow-md: 0 3px 6px rgba(140, 149, 159, 0.15);
+  --shadow-lg: 0 8px 24px rgba(140, 149, 159, 0.2);
+  
+  /* 전환 - 기존 유지 */
+  --transition-fast: 150ms;
+  --transition-normal: 300ms;
+  
+  /* 레이아웃 변수 - 기존 유지 */
+  --paragraph-width: 55rem;
+  --container-width: 88rem;
+  --header-width: var(--container-width);
+  --content-max-width: var(--container-width);
+}
+
+/* ===== GitHub 다크 테마 설정 ===== */
+html.dark-theme {
+  --bg-primary: #0d1117; /* GitHub 다크 배경 */
+  --bg-secondary: #161b22; /* GitHub 다크 카드 */
+  --bg-tertiary: #21262d; /* GitHub 다크 버튼 배경 */
+  --bg-accent: #1f6feb; /* GitHub 다크 액센트 */
+  
+  /* 텍스트 색상 - 다크 모드 */
+  --text-primary: #c9d1d9; /* GitHub 다크 텍스트 */
+  --text-secondary: #c9d1d9; /* GitHub 다크 텍스트 */
+  --text-tertiary: #8b949e; /* GitHub 다크 보조 텍스트 */
+  --text-accent: #58a6ff; /* GitHub 다크 링크 */
+  
+  --border-color: #30363d; /* GitHub 다크 테두리 */
+  
+  /* 다크 모드 그림자 조정 */
+  --shadow-sm: 0 0 transparent;
+  --shadow-md: 0 3px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* ===== 기본 스타일 리셋 ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: var(--text-primary);
+}
+
+/* ===== 푸터 고정 및 기본 레이아웃 ===== */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  width: 100%;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+main {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+footer {
+  flex-shrink: 0;
+  margin-top: auto;
+  position: relative;
+  width: 100%;
+  padding: var(--spacing-6) 0;
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+}
+
+/* ===== 푸터 위에 위치하는 섹션 ===== */
+.fixed-bottom-sections {
+  width: 100%;
+  padding: var(--spacing-8) 0;
+  background-color: var(--bg-primary);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 링크 스타일 - GitHub 스타일 */
+a {
+  color: var(--text-accent);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--text-accent);
+  text-decoration: underline;
+}
+
+/* ===== 기본 컨테이너 ===== */
+.container {
+  width: 100%;
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-4);
+}
+
+/* ===== 애니메이션 ===== */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 요청한 타이포그래피 스타일 적용 - 기존 유지 */
+h1 {
+  margin: 0 auto;
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 2.75rem;
+  line-height: 130%;
+  font-weight: 720;
+  text-align: left;
+  word-break: keep-all;
+  word-wrap: break-word;
+  color: inherit;
+  width: var(--paragraph-width);
+}
+
+h2 {
+  margin: 0 auto;
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 1.9rem;
+  line-height: 130%;
+  font-weight: 700;
+  text-align: left;
+  word-break: keep-all;
+  word-wrap: break-word;
+  color: inherit;
+  width: var(--paragraph-width);
+}
+
+h3 {
+  margin: 0 auto;
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 1.23rem;
+  line-height: 203%;
+  font-weight: 600;
+  text-align: left;
+  word-break: keep-all;
+  word-wrap: break-word;
+  color: inherit;
+  width: var(--paragraph-width);
+}
+
+p {
+  margin: 0 auto;
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 1.23rem;
+  line-height: 203%;
+  font-weight: 400;
+  text-align: left;
+  word-break: keep-all;
+  word-wrap: break-word;
+  color: inherit;
+  width: var(--paragraph-width);
+}
+
+/* 시각적 계층구조 강화를 위한 섹션 제목 스타일 */
+.section-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-6);
+  color: var(--text-primary);
+  position: relative;
+  padding-bottom: var(--spacing-4);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 80px;
+  height: 3px;
+  background-color: var(--github-accent);
+  border-radius: 3px;
+}
+
+/* 키보드 접근성 강화를 위한 포커스 스타일 */
+:focus-visible {
+  outline: 2px solid var(--github-accent);
+  outline-offset: 2px;
+}
