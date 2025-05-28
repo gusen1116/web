@@ -36,7 +36,7 @@
         }
     </script>
     
-    <!-- 테마 토글 아이콘 CSS -->
+    <!-- 테마 토글 전구 아이콘 CSS -->
     <style>
         /* 테마 토글 버튼 아이콘 표시 로직 강화 */
         .theme-toggle {
@@ -57,30 +57,78 @@
             justify-content: center;
         }
         
-        /* 라이트 모드일 때 - 달 아이콘 보이기 (다크모드로 전환하는 버튼) */
-        html:not(.dark-theme) .theme-toggle .fa-moon {
+        /* 라이트 모드일 때 - 전구 꺼진 아이콘 보이기 (다크모드로 전환하는 버튼) */
+        html:not(.dark-theme) .theme-toggle .far.fa-lightbulb {
             opacity: 1;
             transform: rotate(0deg) scale(1);
             visibility: visible;
+            color: var(--text-primary);
         }
         
-        html:not(.dark-theme) .theme-toggle .fa-sun {
+        html:not(.dark-theme) .theme-toggle .fas.fa-lightbulb {
             opacity: 0;
             transform: rotate(-90deg) scale(0.5);
             visibility: hidden;
         }
         
-        /* 다크 모드일 때 - 해 아이콘 보이기 (라이트모드로 전환하는 버튼) */
-        html.dark-theme .theme-toggle .fa-moon {
+        /* 다크 모드일 때 - 전구 켜진 아이콘 보이기 (라이트모드로 전환하는 버튼) */
+        html.dark-theme .theme-toggle .far.fa-lightbulb {
             opacity: 0;
             transform: rotate(90deg) scale(0.5);
             visibility: hidden;
         }
         
-        html.dark-theme .theme-toggle .fa-sun {
+        html.dark-theme .theme-toggle .fas.fa-lightbulb {
             opacity: 1;
             transform: rotate(0deg) scale(1);
             visibility: visible;
+            color: #fbbf24;
+            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.4));
+        }
+        
+        /* 호버 효과 */
+        .theme-toggle:hover .fas.fa-lightbulb {
+            color: #f59e0b;
+            filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.6));
+        }
+        
+        .theme-toggle:hover .far.fa-lightbulb {
+            color: var(--github-accent);
+        }
+        
+        /* 모바일 테마 토글 전구 아이콘 스타일 */
+        .mobile-theme-toggle i {
+            transition: all 0.3s ease;
+        }
+
+        /* 라이트 모드에서 꺼진 전구 */
+        html:not(.dark-theme) .mobile-theme-toggle .far.fa-lightbulb {
+            color: var(--text-primary);
+        }
+
+        /* 다크 모드에서 켜진 전구 */
+        html.dark-theme .mobile-theme-toggle .fas.fa-lightbulb {
+            color: #fbbf24;
+            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.4));
+            text-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
+        }
+
+        /* 모바일 테마 토글 호버 효과 */
+        .mobile-theme-toggle:hover i.fas.fa-lightbulb {
+            color: #f59e0b;
+            filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.6));
+            text-shadow: 0 0 16px rgba(245, 158, 11, 0.8);
+            transform: scale(1.1);
+        }
+
+        .mobile-theme-toggle:hover i.far.fa-lightbulb {
+            color: var(--github-accent);
+            transform: scale(1.1);
+        }
+
+        /* 모바일 테마 토글 클릭 효과 */
+        .mobile-theme-toggle:active i {
+            transform: scale(0.95);
         }
     </style>
 </head>
@@ -108,8 +156,8 @@
                 <!-- 데스크톱 전용 테마 토글 버튼 -->
                 <div class="theme-toggle-area">
                     <button class="theme-toggle" id="themeToggle" title="테마 변경" aria-label="테마 전환">
-                        <i class="fas fa-moon theme-icon"></i>
-                        <i class="fas fa-sun theme-icon"></i>
+                        <i class="far fa-lightbulb theme-icon"></i>
+                        <i class="fas fa-lightbulb theme-icon"></i>
                     </button>
                 </div>
                 
@@ -160,8 +208,8 @@
                 </li>
                 <li class="mobile-nav-item mobile-theme-item">
                     <button class="mobile-nav-link mobile-theme-toggle" id="mobileThemeToggle">
-                        <i class="fas fa-palette"></i>
-                        <span class="theme-text">다크모드</span>
+                        <i class="far fa-lightbulb"></i>
+                        <span class="theme-text">라이트모드</span>
                         <div class="theme-switch">
                             <div class="theme-switch-slider"></div>
                         </div>
@@ -227,6 +275,7 @@
             const isDark = document.documentElement.classList.contains('dark-theme');
             const themeText = document.querySelector('.theme-text');
             const themeSwitch = document.querySelector('.theme-switch-slider');
+            const mobileIcon = document.querySelector('.mobile-theme-toggle i');
             
             console.log('테마 토글 실행, 현재 상태:', isDark ? 'dark' : 'light');
             
@@ -235,16 +284,30 @@
                 document.documentElement.classList.remove('dark-theme');
                 document.body.classList.remove('dark-theme');
                 localStorage.setItem('theme', 'light');
+                
                 if (themeText) themeText.textContent = '라이트모드';
                 if (themeSwitch) themeSwitch.classList.remove('active');
+                
+                // 모바일 전구 아이콘 변경 (꺼진 전구)
+                if (mobileIcon) {
+                    mobileIcon.className = 'far fa-lightbulb';
+                }
+                
                 console.log('라이트 모드로 전환 완료');
             } else {
                 // 다크 모드로 전환
                 document.documentElement.classList.add('dark-theme');
                 document.body.classList.add('dark-theme');
                 localStorage.setItem('theme', 'dark');
+                
                 if (themeText) themeText.textContent = '다크모드';
                 if (themeSwitch) themeSwitch.classList.add('active');
+                
+                // 모바일 전구 아이콘 변경 (켜진 전구)
+                if (mobileIcon) {
+                    mobileIcon.className = 'fas fa-lightbulb';
+                }
+                
                 console.log('다크 모드로 전환 완료');
             }
             
@@ -289,6 +352,7 @@
                 const isDark = document.documentElement.classList.contains('dark-theme');
                 const themeText = document.querySelector('.theme-text');
                 const themeSwitch = document.querySelector('.theme-switch-slider');
+                const mobileIcon = document.querySelector('.mobile-theme-toggle i');
                 
                 console.log('초기 테마 상태 설정:', isDark ? 'dark' : 'light');
                 
@@ -297,6 +361,11 @@
                 }
                 if (themeSwitch) {
                     themeSwitch.classList.toggle('active', isDark);
+                }
+                
+                // 모바일 전구 아이콘 초기 설정
+                if (mobileIcon) {
+                    mobileIcon.className = isDark ? 'fas fa-lightbulb' : 'far fa-lightbulb';
                 }
             }
             

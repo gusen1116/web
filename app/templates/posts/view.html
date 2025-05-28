@@ -11,6 +11,289 @@
 <!-- 미디어 요소 스타일 -->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-content.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/social-embed.css') }}">
+
+<style>
+/* 포스트 헤더 영역 최적화 */
+.post-header {
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 10;
+    background-color: var(--bg-primary);
+}
+
+/* 메인 제목 스타일 */
+.post-title {
+    width: 55rem;
+    max-width: 100%;
+    margin: 0 auto 1rem;
+    font-size: 2.75rem;
+    line-height: 130%;
+    font-weight: 720;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    word-break: keep-all;
+    word-wrap: break-word;
+}
+
+/* 부제목/설명 스타일 - 기존 스타일 유지, 위치만 제목 아래로 */
+.post-subtitle,
+.post-description-header {
+    width: 55rem;
+    max-width: 100%;
+    margin: 0 auto 1.5rem;
+    font-size: 1.23rem; /* 기존 본문 크기와 동일 */
+    line-height: 203%; /* 기존 본문 line-height와 동일 */
+    font-weight: 400;
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+    font-style: italic;
+    word-break: keep-all;
+    word-wrap: break-word;
+    text-align: left;
+}
+
+/* 메타 정보 컨테이너 */
+.post-meta-container {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin: 0 auto 2rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border-color);
+    width: 55rem;
+    max-width: 100%;
+}
+
+/* 날짜 스타일 */
+.post-date {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    background-color: var(--bg-secondary);
+    padding: 0.35rem 0.8rem;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+.post-date i {
+    margin-right: 0.5rem;
+    color: var(--primary-500);
+    font-size: 0.85em;
+}
+
+.post-date:hover {
+    background-color: var(--primary-50);
+    border-color: var(--github-accent);
+}
+
+/* 작성자 스타일 */
+.post-author {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    background-color: var(--bg-secondary);
+    padding: 0.35rem 0.8rem;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.post-author i {
+    margin-right: 0.5rem;
+    color: var(--primary-500);
+    font-size: 0.85em;
+}
+
+/* 글자 수 정보 */
+.post-word-count {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--text-tertiary);
+    background-color: var(--bg-tertiary);
+    padding: 0.35rem 0.8rem;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.post-word-count i {
+    margin-right: 0.5rem;
+    color: var(--text-tertiary);
+    font-size: 0.85em;
+}
+
+/* 태그 스타일 */
+.post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.post-tag {
+    display: inline-flex;
+    align-items: center;
+    background-color: #ddf4ff;
+    color: var(--github-accent);
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.35rem 0.8rem;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    border: 1px solid rgba(9, 105, 218, 0.2);
+}
+
+.post-tag i {
+    margin-right: 0.4rem;
+    font-size: 0.8rem;
+}
+
+.post-tag:hover {
+    background-color: #b6e3ff;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(9, 105, 218, 0.2);
+    text-decoration: none;
+    color: var(--github-accent);
+}
+
+/* 시리즈 박스 스타일 개선 */
+.series-box {
+    background-color: #ddf4ff;
+    border: 1px solid rgba(9, 105, 218, 0.2);
+    border-radius: 6px;
+    padding: 1.2rem 1.5rem;
+    margin: 0 auto 2rem;
+    width: 55rem;
+    max-width: 100%;
+    position: relative;
+}
+
+.series-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    color: #0969da;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.series-info {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.series-link {
+    color: var(--github-accent);
+    font-weight: 500;
+    text-decoration: none;
+    margin-left: 0.5rem;
+}
+
+.series-link:hover {
+    text-decoration: underline;
+}
+
+/* 다크모드 대응 - 부제목/설명 단순화 */
+html.dark-theme .series-box {
+    background-color: rgba(88, 166, 255, 0.15);
+    border-color: rgba(88, 166, 255, 0.4);
+}
+
+html.dark-theme .series-title {
+    color: #58a6ff;
+}
+
+html.dark-theme .post-tag {
+    background-color: rgba(88, 166, 255, 0.15);
+    color: #58a6ff;
+    border-color: rgba(88, 166, 255, 0.4);
+}
+
+html.dark-theme .post-tag:hover {
+    background-color: rgba(88, 166, 255, 0.25);
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+    .post-title {
+        font-size: 2rem;
+        line-height: 1.2;
+        width: 100%;
+        padding: 0 1rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .post-subtitle,
+    .post-description-header {
+        font-size: 1.1rem;
+        width: 100%;
+        margin: 0 1rem 1.25rem;
+        padding: 0.8rem 1rem;
+    }
+    
+    .post-meta-container {
+        width: 100%;
+        padding: 0.8rem 1rem 1rem;
+        margin-bottom: 1.5rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .post-tags {
+        width: 100%;
+        margin-top: 0;
+    }
+    
+    .post-tag {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.75rem;
+        min-height: 32px;
+    }
+    
+    .series-box {
+        width: 100%;
+        margin: 0 1rem 1.5rem;
+        padding: 1rem;
+    }
+    
+    .series-title {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .post-title {
+        font-size: 1.75rem;
+        padding: 0 0.75rem;
+    }
+    
+    .post-subtitle,
+    .post-description-header {
+        font-size: 1rem;
+        margin: 0 0.75rem 1rem;
+        padding: 0.7rem 0.8rem;
+    }
+    
+    .post-meta-container {
+        padding: 0.6rem 0.75rem 0.8rem;
+        gap: 0.5rem;
+    }
+    
+    .series-box {
+        margin: 0 0.75rem 1.25rem;
+        padding: 0.8rem;
+    }
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -19,7 +302,7 @@
         <!-- 메인 제목 -->
         <h1 class="post-title">{{ post.title }}</h1>
         
-        <!-- 부제목/설명 - 제목 바로 아래 위치 -->
+        <!-- 부제목/설명 - 제목 바로 아래, 메타 정보 위에 위치 -->
         {% if post.subtitle %}
         <div class="post-subtitle">
             {{ post.subtitle }}
@@ -187,7 +470,54 @@ document.addEventListener('DOMContentLoaded', function() {
         link.setAttribute('rel', 'noopener noreferrer');
     });
     
-    // 3. 미디어 오류 처리
+    // 3. 헤딩 앵커 링크 제거 (¶ 아이콘 완전 제거)
+    function removeHeadingAnchors() {
+        // 모든 헤딩에서 앵커 링크 제거
+        const headings = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+        headings.forEach(heading => {
+            // 앵커 링크 요소 제거
+            const anchors = heading.querySelectorAll('.anchor-link, a[href^="#"]');
+            anchors.forEach(anchor => {
+                if (anchor.textContent.includes('¶') || anchor.textContent.includes('#')) {
+                    anchor.remove();
+                }
+            });
+            
+            // 텍스트에서 ¶ 문자 제거
+            if (heading.textContent.includes('¶')) {
+                heading.textContent = heading.textContent.replace(/¶/g, '').trim();
+            }
+        });
+        
+        // 스타일로도 숨김 처리
+        const style = document.createElement('style');
+        style.textContent = `
+            .anchor-link,
+            h1 .anchor-link,
+            h2 .anchor-link,
+            h3 .anchor-link,
+            h4 .anchor-link,
+            h5 .anchor-link,
+            h6 .anchor-link {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+            }
+            
+            h1::after,
+            h2::after,
+            h3::after,
+            h4::after,
+            h5::after,
+            h6::after {
+                content: none !important;
+                display: none !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // 4. 미디어 오류 처리
     function setupMediaErrorHandling() {
         const images = document.querySelectorAll('.post-content img');
         images.forEach(img => {
@@ -232,7 +562,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 4. 소셜 미디어 위젯 스크립트 로드
+    // 5. 소셜 미디어 위젯 스크립트 로드
     function loadSocialScripts() {
         if (document.querySelector('.twitter-embed')) {
             const twitterScript = document.createElement('script');
@@ -265,11 +595,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // 5. 실행
+    // 6. 실행
+    removeHeadingAnchors(); // ¶ 아이콘 제거를 먼저 실행
     setupMediaErrorHandling();
     loadSocialScripts();
     
-    // 6. 스크롤 진행률 표시 (선택사항)
+    // 7. 스크롤 진행률 표시 (선택사항)
     const progressBar = document.createElement('div');
     progressBar.style.cssText = `
         position: fixed;
@@ -290,8 +621,36 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 페이지 전체 로드 후 한번 더 확인
     window.addEventListener('load', function() {
+        removeHeadingAnchors(); // 로드 후에도 한번 더 실행
         setupMediaErrorHandling();
     });
+    
+    // DOM 변경 감지하여 동적으로 추가되는 앵커 링크도 제거
+    if (window.MutationObserver) {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1) { // Element node
+                            const anchors = node.querySelectorAll && node.querySelectorAll('.anchor-link, a[href^="#"]');
+                            if (anchors) {
+                                anchors.forEach(anchor => {
+                                    if (anchor.textContent.includes('¶') || anchor.textContent.includes('#')) {
+                                        anchor.remove();
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+    }
 });
 </script>
 {% endblock %}
