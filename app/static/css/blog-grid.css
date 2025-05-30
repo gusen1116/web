@@ -536,24 +536,60 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   border: 1px solid var(--border-color);
 }
 
-/* ===== 태블릿 최적화 (1200px 이하) ===== */
+/* ===== 태블릿 이상 데스크톱 스타일 ===== */
+@media (min-width: 769px) {
+  .slide-container {
+    height: 300px;
+    margin: var(--spacing-8) auto;
+    border-radius: 12px;
+    max-width: min(88rem, calc(100vw - 4rem));
+  }
+  
+  .slide {
+    padding: 2rem;
+  }
+  
+  .slide h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    max-width: 700px;
+  }
+  
+  .slide p {
+    font-size: 1.2rem;
+    max-width: 700px;
+    margin-bottom: 2rem;
+  }
+  
+  .blog-header h1 {
+    font-size: 2.5rem;
+    text-align: left;
+  }
+  
+  .blog-header h1::after {
+    left: 0;
+    transform: none;
+  }
+  
+  .section-title {
+    font-size: 2rem;
+    text-align: left;
+  }
+}
+
+/* ===== 반응형 설정 ===== */
 @media (max-width: 1200px) and (min-width: 769px) {
   .posts-grid,
   .posts-grid-center {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
+    grid-template-columns: repeat(2, 1fr); /* 중간 화면에서는 2개 */
   }
   
   .intro-container {
-    gap: var(--spacing-5);
+    gap: var(--spacing-6);
   }
   
   .intro-image-area {
-    flex: 0 0 160px;
-  }
-  
-  .intro-image {
-    max-width: 160px;
+    flex: 0 0 180px;
   }
 }
 

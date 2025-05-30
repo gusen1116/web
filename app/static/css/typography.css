@@ -220,6 +220,36 @@ h6:hover::after {
     width: 55rem; /* 고정 너비 55rem으로 지정 */
     max-width: 100%;
   }
+
+  /* 데스크톱 메타 정보 스타일 */
+  .post-meta-container {
+    width: 55rem; /* 고정 너비 55rem으로 지정 */
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .post-title {
+    width: 55rem; /* 고정 너비 55rem으로 지정 */
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .post-subtitle,
+  .post-description-header {
+    width: 55rem;
+    max-width: 100%;
+  }
+
+  .post-tags {
+    max-width: 55rem; /* 고정 너비 55rem으로 지정 */
+  }
+
+  .post-nav-simple {
+    width: 55rem; /* 고정 너비 55rem으로 지정 */
+    max-width: 100%;
+  }
 }
 
 /* ===== 모바일 제목 시스템 - 획기적 개선 ===== */

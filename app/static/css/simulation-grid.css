@@ -1,5 +1,5 @@
 /* 
- * simulation-grid.css - 완전한 모바일 최적화 시뮬레이션 그리드
+ * simulation-grid.css - 완전한 모바일 최적화 시뮬레이션 그리드, PC 55rem 폭 통일
  * GitHub 스타일 + 터치 인터랙션 최적화
  */
 
@@ -10,7 +10,7 @@
   gap: 1.5rem;
   margin-bottom: var(--spacing-12);
   width: 100%;
-  max-width: var(--container-width);
+  max-width: var(--container-width); /* PC에서 55rem */
   margin-left: auto;
   margin-right: auto;
   padding: 0 1rem;
@@ -182,7 +182,7 @@
   margin-bottom: var(--spacing-16);
   box-shadow: var(--shadow-md);
   width: 100%;
-  max-width: var(--container-width);
+  max-width: var(--container-width); /* PC에서 55rem */
   margin-left: auto;
   margin-right: auto;
   border: 1px solid var(--border-color);
@@ -231,6 +231,10 @@
   background-color: var(--bg-primary);
   border-radius: 8px;
   border: 1px solid var(--border-color);
+  width: 100%;
+  max-width: var(--container-width); /* PC에서 55rem */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .control-group {
@@ -326,8 +330,51 @@
   background-color: #f44336;
 }
 
+/* ===== PC 전용 최적화 (769px 이상) ===== */
+@media (min-width: 769px) {
+  /* PC에서 시뮬레이션 카드 개선 */
+  .simulation-card {
+    min-height: 480px; /* PC에서 더 높게 */
+  }
+  
+  .simulation-card-header h2 {
+    font-size: 1.6rem; /* PC에서 더 크게 */
+  }
+  
+  .simulation-card-preview {
+    height: 200px; /* PC에서 더 높게 */
+  }
+  
+  .simulation-card-description p {
+    font-size: 1.125rem; /* PC에서 더 크게 */
+  }
+  
+  /* PC에서 시뮬레이션 정보 개선 */
+  .simulation-info {
+    padding: 2rem; /* PC에서 더 넓은 패딩 */
+  }
+  
+  .simulation-info h3 {
+    font-size: 1.75rem; /* PC에서 더 크게 */
+  }
+  
+  .simulation-info p {
+    font-size: 1.2rem; /* PC에서 더 크게 */
+  }
+  
+  .simulation-info li {
+    font-size: 1.1rem; /* PC에서 더 크게 */
+  }
+  
+  /* PC에서 컨트롤 패널 개선 */
+  .simulation-controls {
+    padding: var(--spacing-6);
+    gap: var(--spacing-6);
+  }
+}
+
 /* ===== 태블릿 최적화 (1200px 이하) ===== */
-@media (max-width: 1200px) {
+@media (max-width: 1200px) and (min-width: 769px) {
   .simulation-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 1.2rem;
@@ -413,6 +460,7 @@
     grid-template-columns: 1fr;
     padding: 1rem;
     gap: var(--spacing-3);
+    margin: 0 1rem var(--spacing-4);
   }
   
   .control-group {
@@ -481,6 +529,7 @@
   
   .simulation-controls {
     padding: 0.8rem;
+    margin: 0 0.5rem var(--spacing-4);
   }
 }
 

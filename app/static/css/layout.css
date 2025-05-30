@@ -1,9 +1,9 @@
 /* 
- * layout.css - 완전한 모바일 최적화 레이아웃 시스템
+ * layout.css - 완전한 모바일 최적화 레이아웃 시스템, PC 버전 75rem 헤더 폭
  * 혁신적인 모바일 네비게이션 + 터치 최적화
  */
 
-/* ===== 헤더 스타일 - 모바일 최적화 ===== */
+/* ===== 헤더 스타일 - 모바일 최적화, PC 버전 폭 조정 ===== */
 .top-header {
   background-color: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
@@ -24,7 +24,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: var(--header-width) !important;
+  max-width: var(--header-width); /* PC에서 75rem */
   margin: 0 auto;
   padding: 0 var(--spacing-4);
   height: 100%;
@@ -43,7 +43,7 @@ main {
 main .container {
   padding-top: var(--spacing-8); 
   padding-bottom: var(--spacing-8);
-  max-width: var(--content-max-width);
+  max-width: var(--content-max-width); /* PC에서 55rem */
   position: relative;
   z-index: 5;
 }
@@ -60,18 +60,18 @@ h1, h2, h3, h4, h5, h6 {
 .section-title {
   margin-top: var(--spacing-8);
   margin-bottom: var(--spacing-8);
-  max-width: var(--content-max-width);
+  max-width: var(--content-max-width); /* PC에서 55rem */
 }
 
 .header-hidden {
   transform: translateY(-100%);
 }
 
-/* ===== 로고 영역 - 모바일 최적화 ===== */
+/* ===== 로고 영역 - PC 버전 최적화 ===== */
 .logo-area {
   display: flex;
   align-items: center;
-  width: 16rem; /* PC에서 고정 너비로 원래대로 복원 */
+  width: 18rem; /* PC에서 더 넓게 */
   height: 100%;
 }
 
@@ -96,19 +96,19 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-sans);
 }
 
-/* ===== 데스크톱 내비게이션 스타일 - 원래대로 중앙 정렬 ===== */
+/* ===== 데스크톱 내비게이션 스타일 - 중앙 정렬 유지 ===== */
 .desktop-nav {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-grow: 1; /* 중앙에 위치하도록 flex-grow 유지 */
+  flex-grow: 1;
   height: 100%;
 }
 
 .desktop-nav ul {
   display: flex;
   list-style: none;
-  gap: var(--spacing-1);
+  gap: var(--spacing-2);
   padding: 0;
   margin: 0 auto;
   height: 100%;
@@ -129,7 +129,7 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 500;
   font-size: 1.1rem;
   transition: color var(--transition-fast), background-color var(--transition-fast);
-  padding: 0 var(--spacing-4);
+  padding: 0 var(--spacing-5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -167,7 +167,7 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: flex-end;
   gap: var(--spacing-4);
   height: 100%;
-  width: 16rem; /* PC에서 로고 영역과 동일한 너비로 균형 맞춤 */
+  width: 18rem; /* 로고 영역과 동일한 너비로 균형 맞춤 */
 }
 
 /* ===== 데스크톱 테마 토글 버튼 ===== */
@@ -543,12 +543,12 @@ html.dark-theme .theme-switch {
   visibility: visible;
 }
 
-/* ===== 푸터 스타일 - GitHub 스타일 ===== */
+/* ===== 푸터 스타일 - GitHub 스타일, PC 버전 폭 조정 ===== */
 .footer-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: var(--header-width);
+  max-width: var(--header-width); /* PC에서 75rem */
   width: 100%;
   margin: 0 auto;
   padding: 0 var(--spacing-4);
@@ -640,6 +640,7 @@ body.nav-open {
 
   .top-header .container {
     padding: 0 1rem;
+    max-width: 100%; /* 모바일에서는 전체 폭 사용 */
   }
 
   /* 데스크톱 네비게이션 숨기기 */
@@ -693,6 +694,7 @@ body.nav-open {
     flex-direction: column;
     gap: var(--spacing-4);
     text-align: center;
+    max-width: 100%; /* 모바일에서는 전체 폭 사용 */
   }
 
   .footer-links {
@@ -733,6 +735,7 @@ body.nav-open {
 
   main .container {
     padding: var(--spacing-6) var(--spacing-4);
+    max-width: 100%; /* 모바일에서는 전체 폭 사용 */
   }
 }
 
@@ -784,6 +787,62 @@ body.nav-open {
   .footer-links a {
     padding: 0.5rem;
     font-size: 0.8rem;
+  }
+}
+
+/* ===== PC 전용 헤더 최적화 (769px 이상) ===== */
+@media (min-width: 769px) {
+  .top-header .container {
+    max-width: var(--header-width); /* 75rem으로 고정 */
+    padding: 0 var(--spacing-6); /* PC에서 더 넓은 패딩 */
+  }
+  
+  .footer-content {
+    max-width: var(--header-width); /* 75rem으로 고정 */
+    padding: 0 var(--spacing-6);
+  }
+  
+  main .container {
+    max-width: var(--content-max-width); /* 55rem으로 고정 */
+  }
+  
+  .section-title {
+    max-width: var(--content-max-width); /* 55rem으로 고정 */
+  }
+  
+  /* 네비게이션 아이템 간격 확대 */
+  .desktop-nav ul {
+    gap: var(--spacing-3);
+  }
+  
+  .desktop-nav a {
+    padding: 0 var(--spacing-6);
+    font-size: 1.125rem;
+  }
+  
+  /* 로고 영역 확대 */
+  .logo-area {
+    width: 20rem;
+  }
+  
+  .header-controls {
+    width: 20rem;
+  }
+  
+  .site-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+  }
+}
+
+/* ===== 대형 데스크톱 최적화 (1200px 이상) ===== */
+@media (min-width: 1200px) {
+  .top-header .container {
+    padding: 0 var(--spacing-8);
+  }
+  
+  .footer-content {
+    padding: 0 var(--spacing-8);
   }
 }
 
@@ -940,29 +999,5 @@ html.dark-theme .mobile-nav-footer {
   .mobile-nav-close:focus-visible,
   .theme-toggle:focus-visible {
     outline-width: 3px;
-  }
-}
-
-/* ===== 디버그 모드 (개발용) ===== */
-.mobile-debug .mobile-nav {
-  border: 2px dashed red;
-}
-
-.mobile-debug .mobile-nav-item {
-  border: 1px dashed blue;
-}
-
-.mobile-debug .mobile-overlay {
-  background-color: rgba(255, 0, 0, 0.2);
-}
-
-/* ===== 반응형 레이아웃 ===== */
-@media (max-width: 1200px) {
-  .top-header .container {
-    max-width: var(--header-width) !important;
-  }
-  
-  .footer-content {
-    max-width: var(--header-width);
   }
 }

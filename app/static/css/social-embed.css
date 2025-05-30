@@ -1,11 +1,11 @@
 /* 
- * social-embed.css - GitHub 스타일 소셜 미디어 임베드
+ * social-embed.css - GitHub 스타일 소셜 미디어 임베드, PC 55rem 폭 통일
  */
 
 /* 공통 임베드 스타일 */
 .social-embed {
   width: 100%;
-  max-width: 880px;
+  max-width: var(--container-width); /* PC에서 55rem */
   margin: 2rem auto;
   border-radius: 6px;
   overflow: hidden;
@@ -29,6 +29,13 @@
   aspect-ratio: 16 / 9;
   position: relative;
   background-color: #000;
+  width: 100%;
+  max-width: var(--container-width); /* PC에서 55rem */
+  margin: 2rem auto;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
 }
 
 .youtube-embed iframe {
@@ -45,6 +52,13 @@
   aspect-ratio: 16 / 9;
   position: relative;
   background-color: #6441a5;
+  width: 100%;
+  max-width: var(--container-width); /* PC에서 55rem */
+  margin: 2rem auto;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
 }
 
 .twitch-embed iframe {
@@ -59,7 +73,7 @@
 /* 트위터 임베드 */
 .twitter-embed {
   width: 100%;
-  max-width: 880px;
+  max-width: var(--container-width); /* PC에서 55rem */
   margin: 2rem auto;
   background-color: transparent !important;
   box-shadow: none !important;
@@ -73,6 +87,7 @@
 /* 인스타그램 임베드 */
 .instagram-embed {
   width: 100%;
+  max-width: var(--container-width); /* PC에서 55rem */
   margin: 2rem auto;
   background-color: transparent !important;
   box-shadow: none !important;
@@ -81,13 +96,34 @@
 .instagram-embed blockquote {
   margin: 0 auto !important;
   width: 100% !important;
-  max-width: 880px !important;
+  max-width: var(--container-width) !important; /* PC에서 55rem */
 }
 
 /* 페이스북 임베드 */
 .facebook-embed {
   width: 100%;
+  max-width: var(--container-width); /* PC에서 55rem */
   margin: 2rem auto;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* 링크드인 임베드 */
+.linkedin-embed {
+  width: 100%;
+  max-width: var(--container-width); /* PC에서 55rem */
+  margin: 2rem auto;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* 틱톡 임베드 */
+.tiktok-embed {
+  width: 100%;
+  max-width: var(--container-width); /* PC에서 55rem */
+  margin: 2rem auto;
+  display: flex;
+  justify-content: center;
   background-color: transparent !important;
   box-shadow: none !important;
 }
@@ -99,12 +135,315 @@
   color: var(--danger);
   text-align: center;
   border-radius: 6px;
-  margin: 1rem 0;
+  margin: 1rem auto;
   border: 1px solid var(--border-color);
+  width: 100%;
+  max-width: var(--container-width); /* PC에서 55rem */
+  box-sizing: border-box;
+}
+
+/* 임베드 컨테이너 */
+.embed-container {
+  width: 100%;
+  max-width: var(--container-width); /* PC에서 55rem */
+  margin: 0 auto;
+  padding: 0 var(--spacing-4);
+}
+
+.embed-wrapper {
+  width: 100%;
+  max-width: var(--container-width); /* PC에서 55rem */
+  margin: 0 auto;
+  position: relative;
+}
+
+/* 임베드 로딩 상태 */
+.embed-loading {
+  width: 100%;
+  max-width: var(--container-width); /* PC에서 55rem */
+  height: 200px;
+  margin: 2rem auto;
+  background-color: var(--bg-tertiary);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-color);
+}
+
+.embed-loading::after {
+  content: '';
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--github-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 임베드 플레이스홀더 */
+.embed-placeholder {
+  width: 100%;
+  max-width: var(--container-width); /* PC에서 55rem */
+  height: 300px;
+  margin: 2rem auto;
+  background-color: var(--bg-secondary);
+  border: 2px dashed var(--border-color);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+  text-align: center;
+  padding: var(--spacing-4);
+  box-sizing: border-box;
+}
+
+.embed-placeholder-icon {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-2);
+  opacity: 0.5;
+}
+
+.embed-placeholder-text {
+  font-size: 1rem;
+  margin-bottom: var(--spacing-1);
+}
+
+.embed-placeholder-subtext {
+  font-size: 0.875rem;
+  opacity: 0.7;
+}
+
+/* ===== PC 전용 최적화 (769px 이상) ===== */
+@media (min-width: 769px) {
+  /* PC에서 모든 임베드 컨테이너 55rem 고정 */
+  .social-embed,
+  .youtube-embed,
+  .twitch-embed,
+  .twitter-embed,
+  .instagram-embed,
+  .facebook-embed,
+  .linkedin-embed,
+  .tiktok-embed,
+  .error-embed,
+  .embed-loading,
+  .embed-placeholder {
+    max-width: var(--container-width); /* 55rem */
+  }
+  
+  /* PC에서 임베드 컨테이너 개선 */
+  .embed-container {
+    max-width: var(--container-width); /* 55rem */
+    padding: 0 var(--spacing-6);
+  }
+  
+  .embed-wrapper {
+    max-width: var(--container-width); /* 55rem */
+  }
+  
+  /* PC에서 에러 메시지 개선 */
+  .error-embed {
+    padding: 1.5rem;
+    font-size: 1.125rem;
+  }
+  
+  /* PC에서 플레이스홀더 개선 */
+  .embed-placeholder {
+    height: 400px;
+    padding: var(--spacing-8);
+  }
+  
+  .embed-placeholder-icon {
+    font-size: 4rem;
+  }
+  
+  .embed-placeholder-text {
+    font-size: 1.25rem;
+  }
+  
+  .embed-placeholder-subtext {
+    font-size: 1rem;
+  }
+  
+  /* PC에서 로딩 상태 개선 */
+  .embed-loading {
+    height: 300px;
+  }
+  
+  .embed-loading::after {
+    width: 40px;
+    height: 40px;
+    border-width: 4px;
+  }
+}
+
+/* ===== 모바일 최적화 (768px 이하) ===== */
+@media (max-width: 768px) {
+  .social-embed,
+  .youtube-embed,
+  .twitch-embed,
+  .twitter-embed,
+  .instagram-embed,
+  .facebook-embed,
+  .linkedin-embed,
+  .tiktok-embed,
+  .error-embed,
+  .embed-loading,
+  .embed-placeholder {
+    margin: 1.5rem 1rem;
+  }
+  
+  .embed-container {
+    padding: 0 1rem;
+  }
+  
+  .error-embed {
+    padding: 0.875rem;
+    font-size: 0.9rem;
+  }
+  
+  .embed-placeholder {
+    height: 250px;
+    padding: var(--spacing-3);
+  }
+  
+  .embed-placeholder-icon {
+    font-size: 2.5rem;
+  }
+  
+  .embed-placeholder-text {
+    font-size: 0.9rem;
+  }
+  
+  .embed-placeholder-subtext {
+    font-size: 0.8rem;
+  }
+  
+  .embed-loading {
+    height: 180px;
+  }
+  
+  .embed-loading::after {
+    width: 28px;
+    height: 28px;
+    border-width: 2px;
+  }
+}
+
+/* ===== 작은 모바일 (480px 이하) ===== */
+@media (max-width: 480px) {
+  .social-embed,
+  .youtube-embed,
+  .twitch-embed,
+  .twitter-embed,
+  .instagram-embed,
+  .facebook-embed,
+  .linkedin-embed,
+  .tiktok-embed,
+  .error-embed,
+  .embed-loading,
+  .embed-placeholder {
+    margin: 1rem 0.75rem;
+  }
+  
+  .embed-container {
+    padding: 0 0.75rem;
+  }
+  
+  .error-embed {
+    padding: 0.75rem;
+    font-size: 0.85rem;
+  }
+  
+  .embed-placeholder {
+    height: 200px;
+    padding: var(--spacing-2);
+  }
+  
+  .embed-placeholder-icon {
+    font-size: 2rem;
+  }
+  
+  .embed-placeholder-text {
+    font-size: 0.85rem;
+  }
+  
+  .embed-placeholder-subtext {
+    font-size: 0.75rem;
+  }
+  
+  .embed-loading {
+    height: 150px;
+  }
+  
+  .embed-loading::after {
+    width: 24px;
+    height: 24px;
+  }
 }
 
 /* 다크 모드 조정 */
 html.dark-theme .error-embed {
   background-color: rgba(207, 34, 46, 0.15);
   border-color: rgba(207, 34, 46, 0.4);
+  color: #f85149;
+}
+
+html.dark-theme .embed-placeholder {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-tertiary);
+}
+
+html.dark-theme .embed-loading {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+/* ===== 접근성 개선 ===== */
+.youtube-embed:focus-within,
+.twitch-embed:focus-within {
+  outline: 2px solid var(--github-accent);
+  outline-offset: 2px;
+}
+
+/* ===== 모션 감소 설정 대응 ===== */
+@media (prefers-reduced-motion: reduce) {
+  .embed-loading::after {
+    animation: none;
+    border: 3px solid var(--github-accent);
+  }
+}
+
+/* ===== 프린트 최적화 ===== */
+@media print {
+  .youtube-embed,
+  .twitch-embed,
+  .twitter-embed,
+  .instagram-embed,
+  .facebook-embed,
+  .linkedin-embed,
+  .tiktok-embed {
+    display: none;
+  }
+  
+  .youtube-embed::after,
+  .twitch-embed::after {
+    content: "영상 콘텐츠: " attr(data-title) " - " attr(data-url);
+    display: block;
+    padding: 1rem;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    font-size: 0.9rem;
+    color: #333;
+  }
 }
