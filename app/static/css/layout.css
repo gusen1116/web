@@ -1,9 +1,8 @@
 /* 
- * layout.css - 완전한 모바일 최적화 레이아웃 시스템, PC 버전 75rem 헤더 폭
- * 혁신적인 모바일 네비게이션 + 터치 최적화
+ * layout.css - 혁신적인 모바일 네비게이션 시스템
  */
 
-/* ===== 헤더 스타일 - 모바일 최적화, PC 버전 폭 조정 ===== */
+/* ===== 헤더 스타일 - GitHub 스타일 ===== */
 .top-header {
   background-color: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
@@ -15,16 +14,15 @@
   display: flex;
   align-items: center;
   width: 100%;
-  height: 64px;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  height: 60px;
 }
 
+/* 헤더 컨테이너 */
 .top-header .container {
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: var(--header-width); /* PC에서 75rem */
+  max-width: var(--header-width) !important;
   margin: 0 auto;
   padding: 0 var(--spacing-4);
   height: 100%;
@@ -43,7 +41,7 @@ main {
 main .container {
   padding-top: var(--spacing-8); 
   padding-bottom: var(--spacing-8);
-  max-width: var(--content-max-width); /* PC에서 55rem */
+  max-width: var(--content-max-width);
   position: relative;
   z-index: 5;
 }
@@ -60,18 +58,18 @@ h1, h2, h3, h4, h5, h6 {
 .section-title {
   margin-top: var(--spacing-8);
   margin-bottom: var(--spacing-8);
-  max-width: var(--content-max-width); /* PC에서 55rem */
+  max-width: var(--content-max-width);
 }
 
 .header-hidden {
   transform: translateY(-100%);
 }
 
-/* ===== 로고 영역 - PC 버전 최적화 ===== */
+/* ===== 로고 영역 (GitHub 스타일) ===== */
 .logo-area {
   display: flex;
   align-items: center;
-  width: 18rem; /* PC에서 더 넓게 */
+  width: 16rem; /* PC에서 고정 너비로 원래대로 복원 */
   height: 100%;
 }
 
@@ -96,19 +94,19 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-sans);
 }
 
-/* ===== 데스크톱 내비게이션 스타일 - 중앙 정렬 유지 ===== */
+/* ===== 데스크톱 내비게이션 스타일 - 원래대로 중앙 정렬 ===== */
 .desktop-nav {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-grow: 1;
+  flex-grow: 1; /* 중앙에 위치하도록 flex-grow 유지 */
   height: 100%;
 }
 
 .desktop-nav ul {
   display: flex;
   list-style: none;
-  gap: var(--spacing-2);
+  gap: var(--spacing-1);
   padding: 0;
   margin: 0 auto;
   height: 100%;
@@ -129,7 +127,7 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 500;
   font-size: 1.1rem;
   transition: color var(--transition-fast), background-color var(--transition-fast);
-  padding: 0 var(--spacing-5);
+  padding: 0 var(--spacing-4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -167,7 +165,7 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: flex-end;
   gap: var(--spacing-4);
   height: 100%;
-  width: 18rem; /* 로고 영역과 동일한 너비로 균형 맞춤 */
+  width: 16rem; /* PC에서 로고 영역과 동일한 너비로 균형 맞춤 */
 }
 
 /* ===== 데스크톱 테마 토글 버튼 ===== */
@@ -227,15 +225,10 @@ html.dark-theme .dark-icon {
   justify-content: center;
   flex-direction: column;
   gap: 4px;
-  touch-action: manipulation;
 }
 
 .mobile-toggle:hover {
   background-color: var(--bg-tertiary);
-}
-
-.mobile-toggle:active {
-  transform: scale(0.95);
 }
 
 .hamburger-line {
@@ -278,7 +271,6 @@ html.dark-theme .dark-icon {
   border-left: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  -webkit-overflow-scrolling: touch;
 }
 
 .mobile-nav.active {
@@ -327,16 +319,11 @@ html.dark-theme .dark-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  touch-action: manipulation;
 }
 
 .mobile-nav-close:hover {
   background-color: var(--bg-tertiary);
   transform: rotate(90deg);
-}
-
-.mobile-nav-close:active {
-  transform: scale(0.9);
 }
 
 /* 모바일 네비게이션 콘텐츠 */
@@ -377,8 +364,6 @@ html.dark-theme .dark-icon {
   cursor: pointer;
   width: 100%;
   justify-content: space-between;
-  min-height: 56px;
-  touch-action: manipulation;
 }
 
 .mobile-nav-link::before {
@@ -402,10 +387,6 @@ html.dark-theme .dark-icon {
 .mobile-nav-link:focus {
   background: linear-gradient(90deg, rgba(var(--github-accent), 0.05) 0%, transparent 100%);
   transform: translateX(8px);
-}
-
-.mobile-nav-link:active {
-  transform: translateX(4px) scale(0.98);
 }
 
 .mobile-nav-link i:first-child {
@@ -509,7 +490,6 @@ html.dark-theme .theme-switch {
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   border: 1px solid var(--border-color);
-  touch-action: manipulation;
 }
 
 .mobile-nav-social a:hover {
@@ -517,10 +497,6 @@ html.dark-theme .theme-switch {
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(var(--github-accent), 0.4);
-}
-
-.mobile-nav-social a:active {
-  transform: scale(0.95);
 }
 
 /* ===== 모바일 오버레이 ===== */
@@ -543,12 +519,12 @@ html.dark-theme .theme-switch {
   visibility: visible;
 }
 
-/* ===== 푸터 스타일 - GitHub 스타일, PC 버전 폭 조정 ===== */
+/* ===== 푸터 스타일 - GitHub 스타일 ===== */
 .footer-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  max-width: var(--header-width); /* PC에서 75rem */
+  max-width: var(--header-width);
   width: 100%;
   margin: 0 auto;
   padding: 0 var(--spacing-4);
@@ -633,16 +609,6 @@ body.nav-open {
     width: 100%;
   }
 
-  /* 헤더 높이 및 패딩 조정 */
-  .top-header {
-    height: 56px;
-  }
-
-  .top-header .container {
-    padding: 0 1rem;
-    max-width: 100%; /* 모바일에서는 전체 폭 사용 */
-  }
-
   /* 데스크톱 네비게이션 숨기기 */
   .desktop-nav {
     display: none;
@@ -662,31 +628,15 @@ body.nav-open {
   .logo-area {
     flex: 1;
     min-width: 0;
-    width: auto;
-  }
-
-  .logo {
-    gap: 0.5rem;
-  }
-
-  .logo img {
-    width: 28px;
-    height: 28px;
   }
 
   .site-name {
-    font-size: 1rem;
+    font-size: 16px;
   }
 
   /* 헤더 컨트롤 조정 */
   .header-controls {
-    gap: 0.5rem;
-    width: auto;
-  }
-
-  /* 모바일 네비게이션 너비 조정 */
-  .mobile-nav {
-    width: 280px;
+    gap: var(--spacing-2);
   }
 
   /* 모바일 푸터 최적화 */
@@ -694,7 +644,6 @@ body.nav-open {
     flex-direction: column;
     gap: var(--spacing-4);
     text-align: center;
-    max-width: 100%; /* 모바일에서는 전체 폭 사용 */
   }
 
   .footer-links {
@@ -721,9 +670,6 @@ body.nav-open {
     min-height: 44px;
     display: flex;
     align-items: center;
-    padding: 0.75rem 1rem;
-    border-radius: 6px;
-    touch-action: manipulation;
   }
 
   /* 모바일에서 섹션 간격 최적화 */
@@ -735,123 +681,21 @@ body.nav-open {
 
   main .container {
     padding: var(--spacing-6) var(--spacing-4);
-    max-width: 100%; /* 모바일에서는 전체 폭 사용 */
-  }
-}
-
-/* ===== 작은 모바일 (480px 이하) ===== */
-@media (max-width: 480px) {
-  .top-header .container {
-    padding: 0 0.75rem;
   }
 
-  .mobile-nav {
-    width: 100%;
-    right: -100%;
-  }
-
-  .mobile-nav-header,
-  .mobile-nav-content,
-  .mobile-nav-footer {
-    padding-left: calc(var(--spacing-5) + env(safe-area-inset-left));
-    padding-right: calc(var(--spacing-5) + env(safe-area-inset-right));
-  }
-
-  .site-name {
-    font-size: 0.95rem;
-  }
-
-  .logo img {
-    width: 26px;
-    height: 26px;
-  }
-
-  main .container {
-    padding: var(--spacing-4) var(--spacing-3);
-  }
-
-  .blog-section, 
-  .simulation-section,
-  .content-section {
-    padding: 0 var(--spacing-3);
-  }
-
-  .footer-content {
-    padding: 0 var(--spacing-3);
-  }
-
-  .footer-links {
-    gap: var(--spacing-2);
-  }
-
-  .footer-links a {
-    padding: 0.5rem;
-    font-size: 0.8rem;
-  }
-}
-
-/* ===== PC 전용 헤더 최적화 (769px 이상) ===== */
-@media (min-width: 769px) {
-  .top-header .container {
-    max-width: var(--header-width); /* 75rem으로 고정 */
-    padding: 0 var(--spacing-6); /* PC에서 더 넓은 패딩 */
-  }
-  
-  .footer-content {
-    max-width: var(--header-width); /* 75rem으로 고정 */
-    padding: 0 var(--spacing-6);
-  }
-  
-  main .container {
-    max-width: var(--content-max-width); /* 55rem으로 고정 */
-  }
-  
-  .section-title {
-    max-width: var(--content-max-width); /* 55rem으로 고정 */
-  }
-  
-  /* 네비게이션 아이템 간격 확대 */
-  .desktop-nav ul {
-    gap: var(--spacing-3);
-  }
-  
-  .desktop-nav a {
-    padding: 0 var(--spacing-6);
-    font-size: 1.125rem;
-  }
-  
-  /* 로고 영역 확대 */
-  .logo-area {
-    width: 20rem;
-  }
-  
-  .header-controls {
-    width: 20rem;
-  }
-  
-  .site-name {
-    font-size: 1.125rem;
-    font-weight: 700;
-  }
-}
-
-/* ===== 대형 데스크톱 최적화 (1200px 이상) ===== */
-@media (min-width: 1200px) {
-  .top-header .container {
-    padding: 0 var(--spacing-8);
-  }
-  
-  .footer-content {
-    padding: 0 var(--spacing-8);
+  /* 작은 화면에서 모바일 메뉴 너비 조정 */
+  @media (max-width: 400px) {
+    .mobile-nav {
+      width: 100%;
+      right: -100%;
+    }
   }
 }
 
 /* ===== 접근성 개선 ===== */
 .mobile-nav-link:focus-visible,
 .mobile-toggle:focus-visible,
-.mobile-nav-close:focus-visible,
-.theme-toggle:focus-visible,
-.footer-links a:focus-visible {
+.mobile-nav-close:focus-visible {
   outline: 2px solid var(--github-accent);
   outline-offset: 2px;
 }
@@ -863,15 +707,8 @@ body.nav-open {
   .mobile-toggle,
   .hamburger-line,
   .theme-switch-slider,
-  .mobile-nav-link,
-  .mobile-nav-social a,
-  .footer-links a {
+  .mobile-nav-link {
     transition: none;
-  }
-  
-  .mobile-nav-link:hover,
-  .mobile-nav-link:active {
-    transform: none;
   }
 }
 
@@ -889,115 +726,13 @@ html.dark-theme .mobile-nav-footer {
   background-color: var(--bg-secondary);
 }
 
-/* ===== 성능 최적화 ===== */
-.mobile-nav,
-.mobile-overlay,
-.hamburger-line,
-.theme-switch-slider {
-  will-change: transform;
-  transform: translateZ(0);
-}
-
-/* ===== 안전 영역 (노치 대응) ===== */
-@supports (padding: max(0px)) {
-  @media (max-width: 768px) {
-    .top-header {
-      padding-top: max(0px, env(safe-area-inset-top));
-    }
-    
-    .mobile-nav {
-      padding-top: max(0px, env(safe-area-inset-top));
-      padding-bottom: max(0px, env(safe-area-inset-bottom));
-    }
-    
-    .mobile-nav-header,
-    .mobile-nav-content,
-    .mobile-nav-footer {
-      padding-left: max(var(--spacing-5), calc(var(--spacing-5) + env(safe-area-inset-left)));
-      padding-right: max(var(--spacing-5), calc(var(--spacing-5) + env(safe-area-inset-right)));
-    }
-  }
-}
-
-/* ===== 가로 모드 최적화 ===== */
-@media (max-width: 768px) and (orientation: landscape) {
-  .mobile-nav {
-    width: 260px;
+/* ===== 반응형 레이아웃 ===== */
+@media (max-width: 1200px) {
+  .top-header .container {
+    max-width: var(--header-width) !important;
   }
   
-  .mobile-nav-content {
-    padding: var(--spacing-2) 0;
-  }
-  
-  .mobile-nav-link {
-    padding: var(--spacing-3) var(--spacing-4);
-    font-size: 1rem;
-    min-height: 48px;
-  }
-  
-  .mobile-nav-header {
-    padding: var(--spacing-3) var(--spacing-4);
-    min-height: 52px;
-  }
-  
-  .mobile-nav-footer {
-    padding: var(--spacing-3) var(--spacing-4);
-  }
-}
-
-/* ===== 터치 디바이스 최적화 ===== */
-@media (hover: none) and (pointer: coarse) {
-  .mobile-nav-link:hover {
-    background: none;
-    transform: none;
-  }
-  
-  .mobile-nav-link:active {
-    background: rgba(9, 105, 218, 0.1);
-    transform: scale(0.98);
-  }
-  
-  .mobile-nav-social a:hover {
-    background-color: var(--bg-tertiary);
-    color: var(--text-primary);
-    transform: none;
-    box-shadow: none;
-  }
-  
-  .mobile-nav-social a:active {
-    background-color: var(--github-accent);
-    color: white;
-    transform: scale(0.95);
-  }
-  
-  .footer-links a:hover {
-    color: var(--text-tertiary);
-    background-color: transparent;
-  }
-  
-  .footer-links a:active {
-    color: var(--text-accent);
-    background-color: var(--bg-tertiary);
-  }
-}
-
-/* ===== 고대비 모드 지원 ===== */
-@media (prefers-contrast: high) {
-  .mobile-nav {
-    border-left-width: 3px;
-  }
-  
-  .mobile-nav-link {
-    border-bottom: 1px solid var(--border-color);
-  }
-  
-  .mobile-nav-link::before {
-    width: 6px;
-  }
-  
-  .mobile-toggle:focus-visible,
-  .mobile-nav-close:focus-visible,
-  .theme-toggle:focus-visible {
-    outline-width: 3px;
+  .footer-content {
+    max-width: var(--header-width);
   }
 }

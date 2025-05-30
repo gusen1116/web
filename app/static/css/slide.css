@@ -1,26 +1,25 @@
 /* 
- * slide.css - 모바일 여백 최적화 슬라이드 컨테이너, PC 55rem 폭 통일
+ * slide.css - GitHub 스타일 슬라이드 컨테이너
  */
 
 /* ===== 슬라이드 컨테이너 ===== */
 .slide-container {
   position: relative;
   width: 100%;
-  max-width: var(--content-max-width); /* PC에서 55rem */
-  height: 250px;
+  height: 300px;
   overflow: hidden;
-  margin: var(--spacing-8) auto var(--spacing-8);
+  margin-bottom: 3rem;
   background-color: var(--github-accent);
-  border-radius: 12px;
+  border-radius: 6px;
   box-shadow: var(--shadow-sm);
+  margin-left: auto;
+  margin-right: auto;
   padding: 0;
   display: flex;
   justify-content: center;
   align-items: center;
+  max-width: 880px;
   border: 1px solid var(--border-color);
-  /* 모바일 여백 추가 */
-  margin-left: auto;
-  margin-right: auto;
 }
 
 html.dark-theme .slide-container {
@@ -38,7 +37,7 @@ html.dark-theme .slide-container {
   flex-direction: column;
   color: white;
   text-align: center;
-  padding: 1.5rem;
+  padding: 2rem;
   opacity: 0;
   z-index: 1;
   transition: opacity 0.7s ease;
@@ -51,22 +50,21 @@ html.dark-theme .slide-container {
 
 /* ===== 슬라이드 내용 ===== */
 .slide h2 {
-  font-size: 1.8rem;
-  margin: 0 auto 1rem;
+  font-size: 2.5rem;
+  margin: 0 auto 1.5rem;
   color: white;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   letter-spacing: -0.02em;
   font-family: var(--font-sans);
   width: 100%;
   text-align: center;
-  max-width: 100%;
-  font-weight: 700;
+  max-width: 700px;
 }
 
 .slide p {
-  font-size: 1rem;
-  max-width: 100%;
-  margin: 0 auto 1.5rem;
+  font-size: 1.2rem;
+  max-width: 700px;
+  margin: 0 auto 2rem;
   line-height: 1.5;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   font-family: var(--font-sans);
@@ -78,18 +76,18 @@ html.dark-theme .slide-container {
 /* ===== 슬라이드 인디케이터 ===== */
 .slide-controls {
   position: absolute;
-  bottom: 20px;
+  bottom: 25px;
   left: 0;
   right: 0;
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   z-index: 3;
 }
 
 .slide-indicator {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.4);
   transition: all 0.3s ease;
@@ -106,289 +104,17 @@ html.dark-theme .slide-container {
   background-color: rgba(255, 255, 255, 0.8);
 }
 
-/* ===== PC 전용 최적화 (769px 이상) ===== */
-@media (min-width: 769px) {
-  .slide-container {
-    height: 350px; /* PC에서 더 높게 */
-    margin: var(--spacing-12) auto; /* PC에서 더 넓은 마진 */
-    border-radius: 16px; /* PC에서 더 둥글게 */
-    max-width: var(--content-max-width); /* 55rem으로 고정 */
-  }
-  
-  .slide {
-    padding: 3rem; /* PC에서 더 넓은 패딩 */
-  }
-  
-  .slide h2 {
-    font-size: 2.75rem; /* PC에서 훨씬 크게 */
-    margin-bottom: 1.5rem;
-    max-width: 700px;
-    font-weight: 720; /* PC에서 더 굵게 */
-  }
-  
-  .slide p {
-    font-size: 1.25rem; /* PC에서 더 크게 */
-    max-width: 700px;
-    margin-bottom: 2rem;
-    line-height: 1.6;
-  }
-  
-  .slide-controls {
-    bottom: 30px; /* PC에서 더 아래 */
-    gap: 15px; /* PC에서 더 넓은 간격 */
-  }
-  
-  .slide-indicator {
-    width: 12px;
-    height: 12px;
-  }
-  
-  .slide-indicator:hover {
-    transform: scale(1.1);
-  }
-  
-  .slide-indicator.active {
-    transform: scale(1.3);
-  }
-}
-
-/* ===== 모바일 최적화 ===== */
-@media (max-width: 768px) {
+/* 반응형 설정 */
+@media (max-width: 880px) {
   .slide-container {
     width: calc(100% - 2rem);
-    height: 200px;
-    margin: var(--spacing-6) 1rem;
-    border-radius: 16px;
-  }
-  
-  .slide {
-    padding: 1.2rem;
   }
   
   .slide h2 {
-    font-size: 1.5rem;
-    margin-bottom: 0.8rem;
+    font-size: 2rem;
   }
   
   .slide p {
-    font-size: 0.95rem;
-    margin-bottom: 1.2rem;
-  }
-  
-  .slide-controls {
-    bottom: 15px;
-    gap: 8px;
-  }
-  
-  .slide-indicator {
-    width: 7px;
-    height: 7px;
-  }
-}
-
-@media (max-width: 480px) {
-  .slide-container {
-    width: calc(100% - 1.5rem);
-    height: 180px;
-    margin: var(--spacing-4) 0.75rem;
-    border-radius: 20px;
-  }
-  
-  .slide {
-    padding: 1rem;
-  }
-  
-  .slide h2 {
-    font-size: 1.3rem;
-    margin-bottom: 0.6rem;
-  }
-  
-  .slide p {
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-  }
-  
-  .slide-controls {
-    bottom: 12px;
-    gap: 6px;
-  }
-  
-  .slide-indicator {
-    width: 6px;
-    height: 6px;
-  }
-}
-
-/* ===== 슬라이드 섹션 컨테이너 ===== */
-.slide-section {
-  width: 100%;
-  max-width: var(--content-max-width); /* PC에서 55rem */
-  margin: 0 auto;
-  padding: 0 var(--spacing-4);
-}
-
-/* ===== PC에서 슬라이드 섹션 개선 ===== */
-@media (min-width: 769px) {
-  .slide-section {
-    max-width: var(--content-max-width); /* 55rem */
-    padding: 0 var(--spacing-6);
-  }
-}
-
-/* ===== 모바일에서 슬라이드 섹션 최적화 ===== */
-@media (max-width: 768px) {
-  .slide-section {
-    padding: 0 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .slide-section {
-    padding: 0 0.75rem;
-  }
-}
-
-/* ===== 터치 디바이스 최적화 ===== */
-@media (hover: none) and (pointer: coarse) {
-  .slide-indicator {
-    width: 12px;
-    height: 12px;
-    min-width: 44px;
-    min-height: 44px;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .slide-indicator::before {
-    content: '';
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: currentColor;
-  }
-  
-  .slide-indicator.active::before {
-    background-color: white;
-  }
-  
-  .slide-indicator:hover {
-    background-color: rgba(255, 255, 255, 0.4);
-    transform: none;
-  }
-  
-  .slide-indicator:active {
-    transform: scale(0.95);
-  }
-}
-
-/* ===== 접근성 개선 ===== */
-.slide-indicator:focus-visible {
-  outline: 2px solid white;
-  outline-offset: 2px;
-}
-
-/* 슬라이드 자동재생 일시정지 버튼 */
-.slide-play-pause {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  z-index: 4;
-  font-size: 1rem;
-}
-
-.slide-play-pause:hover {
-  background-color: rgba(0, 0, 0, 0.7);
-  transform: scale(1.1);
-}
-
-.slide-play-pause:focus-visible {
-  outline: 2px solid white;
-  outline-offset: 2px;
-}
-
-/* PC에서 일시정지 버튼 개선 */
-@media (min-width: 769px) {
-  .slide-play-pause {
-    width: 48px;
-    height: 48px;
-    font-size: 1.2rem;
-    top: 1.5rem;
-    right: 1.5rem;
-  }
-}
-
-/* 모바일에서 일시정지 버튼 터치 최적화 */
-@media (max-width: 768px) {
-  .slide-play-pause {
-    min-width: 44px;
-    min-height: 44px;
-    top: 0.75rem;
-    right: 0.75rem;
-  }
-}
-
-/* ===== 모션 감소 설정 대응 ===== */
-@media (prefers-reduced-motion: reduce) {
-  .slide {
-    transition: none;
-  }
-  
-  .slide-indicator {
-    transition: none;
-  }
-  
-  .slide-play-pause {
-    transition: none;
-  }
-  
-  .slide-indicator:hover,
-  .slide-play-pause:hover {
-    transform: none;
-  }
-}
-
-/* ===== 슬라이드 로딩 상태 ===== */
-.slide-container.loading {
-  background-color: var(--bg-tertiary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.slide-container.loading::after {
-  content: '';
-  width: 32px;
-  height: 32px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* 로딩 상태에서는 애니메이션 비활성화 옵션 */
-@media (prefers-reduced-motion: reduce) {
-  .slide-container.loading::after {
-    animation: none;
-    border: 3px solid rgba(255, 255, 255, 0.5);
+    font-size: 1rem;
   }
 }

@@ -1,19 +1,16 @@
 /* 
- * enhanced-content.css - 모바일 우선 완전 최적화
- * 모든 콘텐츠 요소 중앙정렬 및 폭 맞춤 완벽 해결
+ * enhanced-content.css - 통합 콘텐츠 및 미디어 스타일
  */
 
 /* ===== 1. 강조 박스 ===== */
 .highlight-box {
-  width: 100%;
+  width: 55rem;
   max-width: 100%;
-  margin: 1.5rem 0;
-  padding: 1rem;
+  margin: 1.5rem auto;
+  padding: 1rem 1.5rem;
   background-color: #ddf4ff;
   border-left: 4px solid #0969da;
   border-radius: 6px;
-  box-sizing: border-box;
-  display: block;
 }
 
 html.dark-theme .highlight-box {
@@ -23,9 +20,6 @@ html.dark-theme .highlight-box {
 
 .highlight-box p {
   margin-bottom: 0.5em;
-  width: 100%;
-  max-width: 100%;
-  word-wrap: break-word;
 }
 
 .highlight-box p:last-child {
@@ -34,17 +28,15 @@ html.dark-theme .highlight-box {
 
 /* ===== 2. 인용문 ===== */
 blockquote.styled-quote {
-  width: 100%;
+  width: 55rem;
   max-width: 100%;
-  margin: 1.5rem 0;
-  padding: 1rem;
+  margin: 1.5rem auto;
+  padding: 1rem 1.5rem;
   background-color: #f6f8fa;
   border-left: 4px solid #d0d7de;
   color: #57606a;
   font-style: italic;
   position: relative;
-  box-sizing: border-box;
-  display: block;
 }
 
 blockquote.styled-quote::before {
@@ -74,48 +66,47 @@ html.dark-theme blockquote.styled-quote {
 
 /* ===== 3. 큰 인용구 ===== */
 .pullquote {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   line-height: 1.4;
   font-weight: 300;
-  width: 100%;
+  width: 55rem;
   max-width: 100%;
-  margin: 1.5rem 0;
-  padding: 1rem;
+  margin: 2rem auto;
+  padding: 1.5rem;
   text-align: center;
   color: #0969da;
   border-top: 1px solid #d0d7de;
   border-bottom: 1px solid #d0d7de;
-  box-sizing: border-box;
-  display: block;
 }
 
-.pullquote.align-left,
+.pullquote.align-left {
+  float: left;
+  width: 40%;
+  margin: 1rem 1.5rem 1rem 0;
+  text-align: left;
+}
+
 .pullquote.align-right {
-  float: none;
-  width: 100%;
-  max-width: 100%;
-  margin: 1.5rem 0;
-  text-align: center;
+  float: right;
+  width: 40%;
+  margin: 1rem 0 1rem 1.5rem;
+  text-align: right;
 }
 
 /* ===== 4. 이미지 및 미디어 ===== */
 /* 이미지 컨테이너 */
 figure.post-image {
-  width: 100%;
+  width: 55rem;
   max-width: 100%;
-  margin: 1.5rem 0;
+  margin: 2rem auto;
   text-align: center;
-  box-sizing: border-box;
-  display: block;
 }
 
 figure.post-image img {
-  width: 100%;
   max-width: 100%;
   height: auto;
   border-radius: 6px;
   border: 1px solid #d0d7de;
-  display: block;
 }
 
 figure.post-image figcaption {
@@ -123,37 +114,48 @@ figure.post-image figcaption {
   color: #57606a;
   font-style: italic;
   font-size: 0.9rem;
-  padding: 0;
-  box-sizing: border-box;
-  text-align: center;
-  word-wrap: break-word;
 }
 
-figure.post-image.align-left,
+figure.post-image.align-left {
+  float: left;
+  margin-right: 1.5rem;
+  margin-bottom: 1rem;
+  width: auto;
+  max-width: 50%;
+}
+
 figure.post-image.align-right {
-  float: none;
-  margin: 1.5rem 0;
-  max-width: 100%;
-  width: 100%;
+  float: right;
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+  width: auto;
+  max-width: 50%;
 }
 
-figure.post-image.size-small img,
-figure.post-image.size-medium img,
-figure.post-image.size-large img,
+figure.post-image.size-small img {
+  max-width: 300px;
+}
+
+figure.post-image.size-medium img {
+  max-width: 500px;
+}
+
+figure.post-image.size-large img {
+  max-width: 700px;
+}
+
 figure.post-image.size-full img {
   max-width: 100%;
-  width: 100%;
 }
 
 /* 갤러리 */
 .gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 0.75rem;
-  margin: 1.5rem 0;
-  width: 100%;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  margin: 2rem auto;
+  width: 55rem;
   max-width: 100%;
-  box-sizing: border-box;
 }
 
 .gallery-item {
@@ -164,18 +166,17 @@ figure.post-image.size-full img {
   cursor: pointer;
   position: relative;
   border: 1px solid #d0d7de;
-  width: 100%;
-  display: block;
 }
 
-.gallery-item:active {
-  transform: scale(0.98);
-  transition: transform 0.1s ease;
+.gallery-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: #0969da;
 }
 
 .gallery-image {
   width: 100%;
-  height: 150px;
+  height: 200px;
   object-fit: cover;
   display: block;
 }
@@ -185,30 +186,31 @@ figure.post-image.size-full img {
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.7);
   color: white;
   padding: 0.5rem;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.gallery-item:hover .gallery-caption {
   opacity: 1;
-  word-wrap: break-word;
 }
 
 /* 비디오 컨테이너 */
 .video-embed {
-  width: 100%;
+  width: 55rem;
   max-width: 100%;
-  margin: 1.5rem 0;
+  margin: 2rem auto;
   border-radius: 6px;
   overflow: hidden;
   background-color: #000;
-  box-sizing: border-box;
-  display: block;
 }
 
 .video-embed video {
   display: block;
   width: 100%;
-  max-width: 100%;
   border-radius: 6px;
 }
 
@@ -216,29 +218,23 @@ figure.post-image.size-full img {
   margin-top: 0.5rem;
   color: #57606a;
   font-style: italic;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   text-align: center;
-  padding: 0;
-  box-sizing: border-box;
-  word-wrap: break-word;
 }
 
 /* 오디오 컨테이너 */
 .audio-embed {
-  width: 100%;
+  width: 55rem;
   max-width: 100%;
-  margin: 1.5rem 0;
-  padding: 0.8rem;
+  margin: 2rem auto;
+  padding: 1rem;
   background-color: #f6f8fa;
   border: 1px solid #d0d7de;
   border-radius: 6px;
-  box-sizing: border-box;
-  display: block;
 }
 
 .audio-embed audio {
   width: 100%;
-  max-width: 100%;
   display: block;
 }
 
@@ -246,24 +242,21 @@ figure.post-image.size-full img {
   margin-top: 0.5rem;
   color: #57606a;
   font-style: italic;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   text-align: center;
-  word-wrap: break-word;
 }
 
 /* ===== 5. 소셜 미디어 임베드 ===== */
 /* 소셜 미디어 임베드 공통 스타일 */
 .social-embed {
-  width: 100%;
+  width: 55rem;
   max-width: 100%;
-  margin: 1.5rem 0;
+  margin: 2rem auto;
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border: 1px solid #d0d7de;
   background-color: #ffffff;
-  box-sizing: border-box;
-  display: block;
 }
 
 html.dark-theme .social-embed {
@@ -271,7 +264,7 @@ html.dark-theme .social-embed {
   border-color: #30363d;
 }
 
-/* 코드 블록과 충돌 방지 */
+/* 코드 블록과 충돌 방지를 위한 스타일 */
 .social-embed pre,
 .social-embed code {
   background: none !important;
@@ -285,16 +278,14 @@ html.dark-theme .social-embed {
 /* 유튜브 임베드 */
 .youtube-embed {
   position: relative;
-  width: 100%;
+  width: 55rem;
   max-width: 100%;
-  margin: 1.5rem 0;
+  margin: 2rem auto;
   padding-bottom: 56.25%; /* 16:9 비율 */
   height: 0;
   overflow: hidden;
   background-color: #f0f0f0;
   border-radius: 6px;
-  box-sizing: border-box;
-  display: block;
 }
 
 .youtube-embed iframe {
@@ -309,16 +300,14 @@ html.dark-theme .social-embed {
 /* 트위치 임베드 */
 .twitch-embed {
   position: relative;
-  width: 100%;
+  width: 55rem;
   max-width: 100%;
-  margin: 1.5rem 0;
+  margin: 2rem auto;
   padding-bottom: 56.25%; /* 16:9 비율 */
   height: 0;
   overflow: hidden;
   background-color: #6441a5;
   border-radius: 6px;
-  box-sizing: border-box;
-  display: block;
 }
 
 .twitch-embed iframe {
@@ -332,36 +321,30 @@ html.dark-theme .social-embed {
 
 /* 트위터 임베드 */
 .twitter-embed {
-  width: 100%;
+  width: 55rem;
   max-width: 100%;
-  margin: 1.5rem 0;
-  box-sizing: border-box;
-  display: block;
+  margin: 2rem auto;
 }
 
 /* 인스타그램 임베드 */
 .instagram-embed {
-  width: 100%;
+  width: 55rem;
   max-width: 100%;
-  margin: 1.5rem 0;
-  box-sizing: border-box;
-  display: block;
+  margin: 2rem auto;
 }
 
 /* 페이스북 임베드 */
 .facebook-embed {
-  width: 100%;
+  width: 55rem;
   max-width: 100%;
-  margin: 1.5rem 0;
-  box-sizing: border-box;
-  display: block;
+  margin: 2rem auto;
 }
 
 /* 에러 메시지 */
 .error-embed {
-  width: 100%;
+  width: 55rem;
   max-width: 100%;
-  margin: 1.5rem 0;
+  margin: 1.5rem auto;
   padding: 1rem;
   background-color: #ffebe9;
   border: 1px solid #cf222e;
@@ -369,9 +352,6 @@ html.dark-theme .social-embed {
   color: #cf222e;
   text-align: center;
   font-size: 0.9rem;
-  box-sizing: border-box;
-  display: block;
-  word-wrap: break-word;
 }
 
 html.dark-theme .error-embed {
@@ -385,13 +365,11 @@ html.dark-theme .error-embed {
 .related-posts-box {
   background-color: #f6f8fa;
   border-radius: 6px;
-  padding: 1rem;
-  margin: 1.5rem 0;
-  width: 100%;
+  padding: 1.2rem 1.5rem;
+  margin: 1.5rem auto;
+  width: 55rem;
   max-width: 100%;
   border: 1px solid #d0d7de;
-  box-sizing: border-box;
-  display: block;
 }
 
 .related-posts-box h4 {
@@ -401,7 +379,6 @@ html.dark-theme .error-embed {
   color: var(--text-primary);
   font-weight: 600;
   width: 100%;
-  word-wrap: break-word;
 }
 
 .related-posts-list {
@@ -412,13 +389,11 @@ html.dark-theme .error-embed {
 
 .related-posts-list li {
   margin-bottom: 0.5rem;
-  word-wrap: break-word;
 }
 
 .related-posts-list a {
   color: #0969da;
   text-decoration: none;
-  word-wrap: break-word;
 }
 
 .related-posts-list a:hover {
@@ -429,13 +404,11 @@ html.dark-theme .error-embed {
 .series-box {
   background-color: #ddf4ff;
   border-radius: 6px;
-  padding: 1rem;
-  margin: 1.5rem 0;
-  width: 100%;
+  padding: 1.2rem 1.5rem;
+  margin: 1.5rem auto;
+  width: 55rem;
   max-width: 100%;
   border: 1px solid rgba(9, 105, 218, 0.1);
-  box-sizing: border-box;
-  display: block;
 }
 
 html.dark-theme .series-box {
@@ -448,7 +421,6 @@ html.dark-theme .series-box {
   margin-bottom: 0.5rem;
   font-size: 1.1rem;
   color: #0969da;
-  word-wrap: break-word;
 }
 
 html.dark-theme .series-title {
@@ -458,20 +430,17 @@ html.dark-theme .series-title {
 .series-info {
   font-size: 0.95rem;
   color: var(--text-secondary);
-  word-wrap: break-word;
 }
 
 /* 수정 이력 */
 .changelog-box {
   background-color: #f6f8fa;
   border-radius: 6px;
-  padding: 1rem;
-  margin: 1.5rem 0;
-  width: 100%;
+  padding: 1.2rem 1.5rem;
+  margin: 1.5rem auto;
+  width: 55rem;
   max-width: 100%;
   border: 1px solid #d0d7de;
-  box-sizing: border-box;
-  display: block;
 }
 
 .changelog-box h4 {
@@ -481,7 +450,6 @@ html.dark-theme .series-title {
   color: var(--text-primary);
   font-weight: 600;
   width: 100%;
-  word-wrap: break-word;
 }
 
 .changelog-list {
@@ -493,7 +461,6 @@ html.dark-theme .series-title {
 .changelog-list li {
   margin-bottom: 0.4rem;
   position: relative;
-  word-wrap: break-word;
 }
 
 .changelog-list li::before {
@@ -507,167 +474,59 @@ html.dark-theme .changelog-list li::before {
   color: #58a6ff;
 }
 
-/* ===== 7. 태블릿 이상에서 데스크톱 스타일 적용 ===== */
-@media (min-width: 769px) {
-  .highlight-box,
-  blockquote.styled-quote,
-  .pullquote,
-  figure.post-image,
-  .video-embed,
-  .audio-embed,
-  .social-embed,
-  .youtube-embed,
-  .twitch-embed,
-  .twitter-embed,
-  .instagram-embed,
-  .facebook-embed,
-  .error-embed,
-  .related-posts-box,
-  .series-box,
-  .changelog-box {
-    max-width: 55rem;
-    margin-left: auto;
-    margin-right: auto;
+/* ===== 7. 모바일 최적화 ===== */
+@media screen and (max-width: 1024px) {
+  .post-image, .video-embed, .audio-embed, .youtube-embed,
+  .twitch-embed, .twitter-embed, .instagram-embed, .facebook-embed,
+  .error-embed, .highlight-box, blockquote.styled-quote, 
+  .pullquote, .gallery, .related-posts-box, .series-box, .changelog-box {
+    width: 90%;
   }
-  
-  .pullquote {
-    font-size: 1.5rem;
-    padding: 1.5rem;
-    margin: 2rem auto;
-  }
-  
-  .pullquote.align-left {
-    float: left;
-    width: 40%;
-    margin: 1rem 1.5rem 1rem 0;
-    text-align: left;
-  }
-  
+}
+
+@media screen and (max-width: 768px) {
+  .pullquote.align-left,
   .pullquote.align-right {
-    float: right;
-    width: 40%;
-    margin: 1rem 0 1rem 1.5rem;
-    text-align: right;
+    float: none;
+    width: 100%;
+    margin: 1.5rem auto;
+    text-align: center;
   }
   
-  figure.post-image.align-left {
-    float: left;
-    margin-right: 1.5rem;
-    margin-bottom: 1rem;
-    width: auto;
-    max-width: 50%;
-  }
-  
+  figure.post-image.align-left,
   figure.post-image.align-right {
-    float: right;
-    margin-left: 1.5rem;
-    margin-bottom: 1rem;
-    width: auto;
-    max-width: 50%;
-  }
-  
-  figure.post-image.size-small img {
-    max-width: 300px;
-  }
-  
-  figure.post-image.size-medium img {
-    max-width: 500px;
-  }
-  
-  figure.post-image.size-large img {
-    max-width: 700px;
+    float: none;
+    margin: 1.5rem auto;
+    max-width: 100%;
   }
   
   .gallery {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
-    margin: 2rem auto;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .post-image, .video-embed, .audio-embed, .youtube-embed,
+  .twitch-embed, .twitter-embed, .instagram-embed, .facebook-embed,
+  .error-embed, .highlight-box, blockquote.styled-quote, 
+  .pullquote, .gallery, .related-posts-box, .series-box, .changelog-box {
+    width: 100%;
+    margin: 1.5rem auto;
   }
   
-  .gallery-image {
-    height: 200px;
-  }
-  
-  .gallery-caption {
-    font-size: 0.9rem;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  
-  .gallery-item:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    border-color: #0969da;
-  }
-  
-  .gallery-item:hover .gallery-caption {
-    opacity: 1;
+  .post-image figcaption,
+  .video-embed figcaption,
+  .audio-caption {
+    font-size: 0.8rem;
   }
   
   .highlight-box,
-  blockquote.styled-quote,
-  .series-box,
-  .changelog-box,
-  .related-posts-box {
-    padding: 1.2rem 1.5rem;
+  blockquote.styled-quote {
+    padding: 0.8rem 1rem;
   }
   
-  .audio-embed {
+  .pullquote {
+    font-size: 1.25rem;
     padding: 1rem;
   }
-  
-  figure.post-image figcaption,
-  .video-embed figcaption,
-  .audio-caption {
-    font-size: 0.9rem;
-    padding: 0 1rem;
-  }
-}
-
-/* ===== 접근성 개선 ===== */
-.gallery-item:focus-visible {
-  outline: 2px solid var(--github-accent);
-  outline-offset: 2px;
-}
-
-/* ===== 성능 최적화 ===== */
-.gallery-item,
-.video-embed,
-.youtube-embed,
-.twitch-embed {
-  will-change: auto;
-}
-
-/* 이미지 최적화 (HTML에서 loading="lazy" decoding="async" 사용) */
-.post-image img,
-.gallery-image {
-  image-rendering: auto;
-  object-fit: cover;
-}
-
-/* ===== 다크모드 추가 스타일 ===== */
-html.dark-theme .related-posts-box,
-html.dark-theme .changelog-box {
-  background-color: #161b22;
-  border-color: #30363d;
-}
-
-html.dark-theme .pullquote {
-  color: #58a6ff;
-  border-top-color: #30363d;
-  border-bottom-color: #30363d;
-}
-
-html.dark-theme .gallery-item {
-  border-color: #30363d;
-}
-
-@media (min-width: 769px) {
-  html.dark-theme .gallery-item:hover {
-    border-color: #58a6ff;
-  }
-}
-
-html.dark-theme figure.post-image img {
-  border-color: #30363d;
 }

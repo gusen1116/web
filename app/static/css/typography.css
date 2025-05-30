@@ -1,6 +1,6 @@
 /* 
- * typography.css - 완전한 모바일 폭 깨짐 해결
- * 데스크톱: test.css 기준 유지, 모바일: 완전 최적화
+ * typography.css - 완전히 개선된 타이포그래피 시스템
+ * 데스크톱: test.css 기준 유지, 모바일: 대폭 개선
  * 앵커 링크 제거 및 설명 위치 최적화
  */
 
@@ -19,7 +19,6 @@ body {
   font-feature-settings: "kern" 1, "liga" 1, "calt" 1; /* 윈도우 폰트 렌더링 개선 */
   font-synthesis: none;
   width: 100%;
-  overflow-x: hidden;
 }
 
 /* ===== 윈도우 특화 폰트 설정 ===== */
@@ -67,508 +66,113 @@ h6:hover::after {
   display: none !important;
 }
 
-/* ===== 데스크톱 제목 스타일 - test.css와 정확히 일치 ===== */
-@media (min-width: 769px) {
-  h1 {
-    margin: 0 auto;
-    display: block;
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 2.75rem;
-    line-height: 130%;
-    font-weight: 720;
-    text-align: left;
-    word-break: keep-all;
-    word-wrap: break-word;
-    color: inherit;
-    width: 55rem; /* 고정 너비 55rem으로 지정 */
-    max-width: 100%;
-    position: relative;
-  }
-
-  h2 {
-    margin: 0 auto;
-    display: block;
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 1.9rem;
-    line-height: 130%;
-    font-weight: 700;
-    text-align: left;
-    word-break: keep-all;
-    word-wrap: break-word;
-    color: inherit;
-    width: 55rem; /* 고정 너비 55rem으로 지정 */
-    max-width: 100%;
-    margin-top: 2.5em;
-    margin-bottom: 1em;
-    position: relative;
-  }
-
-  h3 {
-    margin: 0 auto;
-    display: block;
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 1.23rem;
-    line-height: 203%; /* test.css 기준으로 수정 */
-    font-weight: 600;
-    text-align: left;
-    word-break: keep-all;
-    word-wrap: break-word;
-    color: inherit;
-    width: 55rem; /* 고정 너비 55rem으로 지정 */
-    max-width: 100%;
-    margin-top: 2em;
-    margin-bottom: 0.8em;
-    position: relative;
-  }
-
-  h4, h5, h6 {
-    margin: 0 auto;
-    display: block;
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    text-align: left;
-    word-break: keep-all;
-    word-wrap: break-word;
-    color: inherit;
-    width: 55rem; /* 고정 너비 55rem으로 지정 */
-    max-width: 100%;
-    position: relative;
-  }
-
-  h4 { 
-    font-size: 1.15rem;
-    line-height: 203%; /* test.css의 h3와 일치 */
-    font-weight: 600;
-  }
-
-  h5 { 
-    font-size: 1.1rem;
-    line-height: 203%; /* test.css의 h3와 일치 */
-    font-weight: 600;
-  }
-
-  h6 { 
-    font-size: 1rem;
-    line-height: 203%; /* test.css의 h3와 일치 */
-    font-weight: 600;
-  }
-
-  /* ===== 일반 텍스트 요소 - test.css와 정확히 일치 ===== */
-  p {
-    margin: 0 auto;
-    display: block;
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 1.23rem;
-    line-height: 203%; /* test.css 기준으로 수정 */
-    font-weight: 400;
-    text-align: left;
-    word-break: keep-all;
-    word-wrap: break-word;
-    color: inherit;
-    width: 55rem; /* 고정 너비 55rem으로 지정 */
-    max-width: 100%;
-    margin-bottom: 1.5em; /* 단락 간격 확대 */
-    overflow-wrap: break-word; /* 긴 단어 줄 바꿈 개선 */
-  }
-
-  ul, ol {
-    margin: 0 auto;
-    width: 55rem; /* 고정 너비 55rem으로 지정 */
-    max-width: 100%;
-    margin-bottom: var(--spacing-3);
-    padding-left: var(--spacing-6);
-  }
-
-  blockquote {
-    margin: var(--spacing-3) auto;
-    width: 55rem; /* 고정 너비 55rem으로 지정 */
-    max-width: 100%;
-    padding: var(--spacing-3) var(--spacing-5);
-    border-left: 4px solid var(--primary-300);
-    background-color: var(--bg-secondary);
-    font-style: italic;
-    color: var(--text-secondary);
-  }
-
-  pre {
-    margin: var(--spacing-3) auto;
-    width: 55rem; /* 고정 너비 55rem으로 지정 */
-    max-width: 100%;
-    padding: var(--spacing-3);
-    background-color: var(--bg-secondary);
-    border-radius: var(--radius-md);
-    overflow-x: auto;
-    font-family: var(--font-mono);
-    font-size: var(--font-size-sm);
-  }
-
-  /* ===== 포스트 콘텐츠 특화 스타일 ===== */
-  .post-content {
-    font-size: 1.23rem;
-    line-height: 203%; /* test.css 기준으로 수정 */
-    max-width: 55rem; /* 고정 너비 55rem으로 지정 */
-    margin: 0 auto;
-    letter-spacing: -0.01em;
-    word-break: keep-all;
-    overflow-wrap: break-word;
-    white-space: normal; /* 텍스트 자연스럽게 표시 */
-    hyphens: auto; /* 자동 하이픈 추가 (필요한 경우) */
-    text-align: left;
-  }
-
-  .post-content figure {
-    margin: var(--spacing-4) auto;
-    width: 55rem; /* 고정 너비 55rem으로 지정 */
-    max-width: 100%;
-  }
-
-  /* 데스크톱 메타 정보 스타일 */
-  .post-meta-container {
-    width: 55rem; /* 고정 너비 55rem으로 지정 */
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .post-title {
-    width: 55rem; /* 고정 너비 55rem으로 지정 */
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .post-subtitle,
-  .post-description-header {
-    width: 55rem;
-    max-width: 100%;
-  }
-
-  .post-tags {
-    max-width: 55rem; /* 고정 너비 55rem으로 지정 */
-  }
-
-  .post-nav-simple {
-    width: 55rem; /* 고정 너비 55rem으로 지정 */
-    max-width: 100%;
-  }
+/* ===== 제목 스타일 - test.css와 정확히 일치 ===== */
+h1 {
+  margin: 0 auto;
+  display: block;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 2.75rem;
+  line-height: 130%;
+  font-weight: 720;
+  text-align: left;
+  word-break: keep-all;
+  word-wrap: break-word;
+  color: inherit;
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
+  position: relative;
 }
 
-/* ===== 모바일 제목 시스템 - 획기적 개선 ===== */
-@media (max-width: 768px) {
-  /* 모바일 기본 설정 */
-  body {
-    font-size: 16px; /* iOS에서 확대 방지를 위한 최소 크기 */
-    -webkit-overflow-scrolling: touch; /* 부드러운 스크롤 */
-    -webkit-text-size-adjust: 100%; /* 텍스트 크기 자동 조정 방지 */
-    overflow-x: hidden;
-  }
-  
-  /* ===== 모바일 제목 시스템 - 획기적 개선 ===== */
-  h1 {
-    font-size: 2rem; /* 2.75rem → 2rem으로 축소 */
-    line-height: 1.2; /* 130% → 1.2로 타이트하게 */
-    width: 100%;
-    max-width: 100%;
-    padding: 0 1rem; /* 좌우 여백 추가 */
-    margin: 0;
-    margin-top: 1rem; /* 상단 여백 축소 */
-    margin-bottom: 0.75rem; /* 하단 여백 축소 */
-    
-    /* 모바일 가독성 향상 */
-    text-shadow: none;
-    font-weight: 700; /* 720 → 700으로 약간 가볍게 */
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    display: block;
-    text-align: left;
-    word-break: keep-all;
-    word-wrap: break-word;
-    color: inherit;
-    position: relative;
-    box-sizing: border-box;
-  }
-  
-  h2 {
-    font-size: 1.5rem; /* 1.9rem → 1.5rem으로 축소 */
-    line-height: 1.25; /* 130% → 1.25로 조정 */
-    width: 100%;
-    max-width: 100%;
-    padding: 0 1rem;
-    margin: 0;
-    margin-top: 1.5rem; /* 2.5em → 1.5rem으로 축소 */
-    margin-bottom: 0.5rem; /* 1em → 0.5rem으로 축소 */
-    font-weight: 700;
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    display: block;
-    text-align: left;
-    word-break: keep-all;
-    word-wrap: break-word;
-    color: inherit;
-    position: relative;
-    box-sizing: border-box;
-  }
-  
-  h3 {
-    font-size: 1.2rem; /* 1.23rem → 1.2rem으로 약간 축소 */
-    line-height: 1.4; /* 203% → 1.4로 대폭 축소 */
-    width: 100%;
-    max-width: 100%;
-    padding: 0 1rem;
-    margin: 0;
-    margin-top: 1.25rem; /* 2em → 1.25rem으로 축소 */
-    margin-bottom: 0.5rem; /* 0.8em → 0.5rem으로 축소 */
-    font-weight: 600;
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    display: block;
-    text-align: left;
-    word-break: keep-all;
-    word-wrap: break-word;
-    color: inherit;
-    position: relative;
-    box-sizing: border-box;
-  }
-  
-  h4, h5, h6 {
-    width: 100%;
-    max-width: 100%;
-    padding: 0 1rem;
-    margin: 0;
-    margin-top: 1rem;
-    margin-bottom: 0.5rem;
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    display: block;
-    text-align: left;
-    word-break: keep-all;
-    word-wrap: break-word;
-    color: inherit;
-    position: relative;
-    box-sizing: border-box;
-  }
-  
-  h4 {
-    font-size: 1.1rem;
-    line-height: 1.35; /* 203% → 1.35로 대폭 축소 */
-    font-weight: 600;
-  }
-  
-  h5 {
-    font-size: 1.05rem;
-    line-height: 1.35;
-    font-weight: 600;
-  }
-  
-  h6 {
-    font-size: 1rem;
-    line-height: 1.35;
-    font-weight: 600;
-  }
-  
-  /* ===== 모바일 본문 텍스트 - 가독성 혁신 ===== */
-  p {
-    font-size: 1.1rem; /* 1.23rem → 1.1rem으로 축소 */
-    line-height: 1.6; /* 203% → 1.6으로 대폭 축소 (모바일 최적화) */
-    width: 100%;
-    max-width: 100%;
-    padding: 0 1rem; /* 좌우 여백 추가 */
-    margin: 0;
-    margin-bottom: 1.2em; /* 1.5em → 1.2em으로 축소 */
-    
-    /* 모바일 텍스트 렌더링 최적화 */
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeSpeed; /* 성능 우선 */
-    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-weight: 400;
-    display: block;
-    text-align: left;
-    word-break: keep-all;
-    word-wrap: break-word;
-    color: inherit;
-    overflow-wrap: break-word;
-    box-sizing: border-box;
-  }
-  
-  /* ===== 모바일 리스트 최적화 ===== */
-  ul, ol {
-    margin: 0;
-    width: 100%;
-    max-width: 100%;
-    margin-bottom: 1.2rem;
-    padding-left: 2rem; /* 들여쓰기 + 좌측 여백 */
-    padding-right: 1rem;
-    box-sizing: border-box;
-  }
-  
-  blockquote {
-    margin: 1rem 0;
-    width: 100%;
-    max-width: 100%;
-    padding: 0.7em 1.2em;
-    margin-left: 1rem;
-    margin-right: 1rem;
-    border-left: 4px solid var(--primary-400);
-    background-color: var(--bg-secondary);
-    font-style: italic;
-    color: var(--text-secondary);
-    box-sizing: border-box;
-  }
-  
-  pre {
-    margin: 1rem 0;
-    width: 100%;
-    max-width: 100%;
-    padding: 1rem;
-    margin-left: 1rem;
-    margin-right: 1rem;
-    background-color: var(--bg-secondary);
-    border-radius: var(--radius-md);
-    overflow-x: auto;
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-    box-sizing: border-box;
-  }
-  
-  /* ===== 모바일 포스트 콘텐츠 최적화 ===== */
-  .post-content {
-    font-size: 1.1rem; /* 기본 본문 크기로 조정 */
-    line-height: 1.6; /* 모바일 최적화 줄간격 */
-    max-width: 100%;
-    width: 100%;
-    margin: 0; /* 자동 마진 제거 */
-    padding: 0; /* 좌우 여백 추가 */
-    
-    /* 모바일 성능 최적화 */
-    will-change: auto;
-    contain: layout style;
-    letter-spacing: -0.01em;
-    word-break: keep-all;
-    overflow-wrap: break-word;
-    white-space: normal;
-    hyphens: auto;
-    text-align: left;
-    box-sizing: border-box;
-  }
-  
-  .post-content p {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    margin-bottom: 1.2em;
-    padding: 0 1rem; /* post-content에서 이미 패딩 적용됨 */
-    width: 100%;
-  }
-  
-  .post-content h1,
-  .post-content h2,
-  .post-content h3,
-  .post-content h4,
-  .post-content h5,
-  .post-content h6 {
-    padding: 0 1rem; /* post-content에서 이미 패딩 적용됨 */
-    width: 100%;
-    max-width: 100%;
-  }
-  
-  .post-content h1 {
-    font-size: 2rem;
-    line-height: 1.2;
-  }
-  
-  .post-content h2 {
-    font-size: 1.5rem;
-    line-height: 1.25;
-  }
-  
-  .post-content h3 {
-    font-size: 1.2rem;
-    line-height: 1.4; /* 203% → 1.4로 대폭 축소 */
-  }
-  
-  .compact-text {
-    line-height: 1.6; /* 203% → 1.6으로 대폭 축소 */
-    margin-bottom: 0.3em;
-  }
-  
-  .post-content figure {
-    margin: 1.5rem 0;
-    width: 100%;
-    max-width: 100%;
-    padding: 0 1rem;
-    box-sizing: border-box;
-  }
+h2 {
+  margin: 0 auto;
+  display: block;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1.9rem;
+  line-height: 130%;
+  font-weight: 700;
+  text-align: left;
+  word-break: keep-all;
+  word-wrap: break-word;
+  color: inherit;
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
+  margin-top: 2.5em;
+  margin-bottom: 1em;
+  position: relative;
 }
 
-/* ===== 추가 최적화: 작은 모바일 (480px 이하) ===== */
-@media (max-width: 480px) {
-  /* 매우 작은 화면에서 추가 최적화 */
-  h1 {
-    font-size: 1.75rem; /* 2rem → 1.75rem */
-    line-height: 1.15;
-    padding: 0 0.75rem; /* 패딩 축소 */
-  }
-  
-  h2 {
-    font-size: 1.35rem; /* 1.5rem → 1.35rem */
-    line-height: 1.2;
-    padding: 0 0.75rem;
-  }
-  
-  h3 {
-    font-size: 1.15rem; /* 1.2rem → 1.15rem */
-    line-height: 1.3;
-    padding: 0 0.75rem;
-  }
-  
-  h4, h5, h6 {
-    padding: 0 0.75rem;
-  }
-  
-  p, 
-  .post-content p {
-    font-size: 1.05rem; /* 1.1rem → 1.05rem */
-    line-height: 1.55; /* 1.6 → 1.55 */
-    padding: 0 0.75rem;
-  }
-  
-  ul, ol {
-    padding-left: 1.5rem;
-    padding-right: 0.75rem;
-  }
-  
-  blockquote {
-    margin-left: 0.75rem;
-    margin-right: 0.75rem;
-    padding: 0.6rem 0.8rem;
-  }
-  
-  pre {
-    margin-left: 0.75rem;
-    margin-right: 0.75rem;
-    padding: 0.8rem;
-  }
-  
-  .post-content {
-    padding: 0 0.75rem;
-  }
-  
-  .post-content h1,
-  .post-content h2,
-  .post-content h3,
-  .post-content h4,
-  .post-content h5,
-  .post-content h6 {
-    padding: 0 0.75rem;
-  }
-  
-  .post-content p {
-    padding: 0 0.75rem;
-  }
-  
-  .post-content figure {
-    padding: 0 0.75rem;
-  }
+h3 {
+  margin: 0 auto;
+  display: block;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1.23rem;
+  line-height: 203%; /* test.css 기준으로 수정 */
+  font-weight: 600;
+  text-align: left;
+  word-break: keep-all;
+  word-wrap: break-word;
+  color: inherit;
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
+  margin-top: 2em;
+  margin-bottom: 0.8em;
+  position: relative;
 }
 
-/* ===== 공통 스타일 (모든 화면 크기) ===== */
+h4, h5, h6 {
+  margin: 0 auto;
+  display: block;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  text-align: left;
+  word-break: keep-all;
+  word-wrap: break-word;
+  color: inherit;
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
+  position: relative;
+}
+
+h4 { 
+  font-size: 1.15rem;
+  line-height: 203%; /* test.css의 h3와 일치 */
+  font-weight: 600;
+}
+
+h5 { 
+  font-size: 1.1rem;
+  line-height: 203%; /* test.css의 h3와 일치 */
+  font-weight: 600;
+}
+
+h6 { 
+  font-size: 1rem;
+  line-height: 203%; /* test.css의 h3와 일치 */
+  font-weight: 600;
+}
+
+/* ===== 일반 텍스트 요소 - test.css와 정확히 일치 ===== */
+p {
+  margin: 0 auto;
+  display: block;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 1.23rem;
+  line-height: 203%; /* test.css 기준으로 수정 */
+  font-weight: 400;
+  text-align: left;
+  word-break: keep-all;
+  word-wrap: break-word;
+  color: inherit;
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
+  margin-bottom: 1.5em; /* 단락 간격 확대 */
+  overflow-wrap: break-word; /* 긴 단어 줄 바꿈 개선 */
+}
+
 /* 부제목과 본문 사이 간격 */
 h2 + p, h3 + p {
   margin-top: 0.8em;
+}
+
+ul, ol {
+  margin: 0 auto;
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
+  margin-bottom: var(--spacing-3);
+  padding-left: var(--spacing-6);
 }
 
 li {
@@ -583,20 +187,6 @@ li {
   margin-bottom: 0.6em; /* 리스트 아이템 간격 */
 }
 
-@media (max-width: 768px) {
-  li {
-    font-size: 1.1rem;
-    line-height: 1.6;
-  }
-}
-
-@media (max-width: 480px) {
-  li {
-    font-size: 1.05rem;
-    line-height: 1.55;
-  }
-}
-
 a {
   color: var(--text-accent);
   text-decoration: none;
@@ -605,6 +195,16 @@ a {
 
 a:hover {
   color: var(--primary-600);
+}
+
+blockquote {
+  margin: var(--spacing-3) auto;
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
+  padding: var(--spacing-3) var(--spacing-5);
+  border-left: 4px solid var(--primary-300);
+  background-color: var(--bg-secondary);
+  font-style: italic;
+  color: var(--text-secondary);
 }
 
 code {
@@ -616,6 +216,17 @@ code {
   word-break: break-all; /* 코드 내 줄 바꿈 개선 */
 }
 
+pre {
+  margin: var(--spacing-3) auto;
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
+  padding: var(--spacing-3);
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-sm);
+}
+
 pre code {
   padding: 0;
   background-color: transparent;
@@ -623,6 +234,19 @@ pre code {
 }
 
 /* ===== 포스트 콘텐츠 특화 스타일 ===== */
+.post-content {
+  font-size: 1.23rem;
+  line-height: 203%; /* test.css 기준으로 수정 */
+  max-width: 55rem; /* 고정 너비 55rem으로 지정 */
+  margin: 0 auto;
+  letter-spacing: -0.01em;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  white-space: normal; /* 텍스트 자연스럽게 표시 */
+  hyphens: auto; /* 자동 하이픈 추가 (필요한 경우) */
+  text-align: left;
+}
+
 /* 줄 바꿈 간격 조정 - 텍스트가 겹치지 않는 적절한 간격 */
 .post-content br {
   display: block;
@@ -656,6 +280,7 @@ br.compact-break {
 /* 문단 간격 조정 */
 .post-content p {
   margin-bottom: 1.5em; /* 단락 간격 확대 */
+  line-height: 203%; /* test.css 기준으로 수정 */
 }
 
 .post-content p + p {
@@ -698,6 +323,25 @@ br.compact-break {
   opacity: 0 !important;
 }
 
+/* 요청한 타이포그래피 스타일 유지 */
+.post-content h1 {
+  font-size: 2.75rem;
+  line-height: 130%;
+  font-weight: 720;
+}
+
+.post-content h2 {
+  font-size: 1.9rem;
+  line-height: 130%;
+  font-weight: 700;
+}
+
+.post-content h3 {
+  font-size: 1.23rem;
+  line-height: 203%; /* test.css 기준으로 수정 */
+  font-weight: 600;
+}
+
 .post-content a {
   color: var(--text-accent);
   text-decoration: underline;
@@ -713,6 +357,11 @@ br.compact-break {
   border-radius: var(--radius-md);
   margin: var(--spacing-3) auto;
   display: block;
+}
+
+.post-content figure {
+  margin: var(--spacing-4) auto;
+  width: 55rem; /* 고정 너비 55rem으로 지정 */
 }
 
 .post-content figcaption {
@@ -757,12 +406,6 @@ br.compact-break {
   /* 공백과 줄 바꿈 보존하되 간격 최적화 */
   white-space: pre-wrap; /* 공백과 줄 바꿈 보존하면서 자동 줄 바꿈 */
   line-height: 203%; /* test.css 기준으로 수정 */
-}
-
-@media (max-width: 768px) {
-  .preserve-whitespace {
-    line-height: 1.6;
-  }
 }
 
 /* 적당히 조밀한 텍스트를 위한 클래스 추가 */
@@ -988,39 +631,213 @@ br.compact-break {
   font-size: 1.2rem;
 }
 
-/* ===== 모바일 메타 정보 최적화 ===== */
+/* ===== 모바일 최적화 (768px 이하) ===== */
+/* 여기서부터 모바일 전용 최적화가 시작됩니다 */
 @media (max-width: 768px) {
+  /* 모바일 기본 설정 */
+  body {
+    font-size: 16px; /* iOS에서 확대 방지를 위한 최소 크기 */
+    -webkit-overflow-scrolling: touch; /* 부드러운 스크롤 */
+    -webkit-text-size-adjust: 100%; /* 텍스트 크기 자동 조정 방지 */
+  }
+  
+  /* ===== 모바일 제목 시스템 - 획기적 개선 ===== */
+  h1 {
+    font-size: 2rem; /* 2.75rem → 2rem으로 축소 */
+    line-height: 1.2; /* 130% → 1.2로 타이트하게 */
+    width: 100%;
+    max-width: none;
+    padding: 0 1rem; /* 좌우 여백 추가 */
+    margin-top: 1rem; /* 상단 여백 축소 */
+    margin-bottom: 0.75rem; /* 하단 여백 축소 */
+    
+    /* 모바일 가독성 향상 */
+    text-shadow: none;
+    font-weight: 700; /* 720 → 700으로 약간 가볍게 */
+  }
+  
+  h2 {
+    font-size: 1.5rem; /* 1.9rem → 1.5rem으로 축소 */
+    line-height: 1.25; /* 130% → 1.25로 조정 */
+    width: 100%;
+    max-width: none;
+    padding: 0 1rem;
+    margin-top: 1.5rem; /* 2.5em → 1.5rem으로 축소 */
+    margin-bottom: 0.5rem; /* 1em → 0.5rem으로 축소 */
+    font-weight: 700;
+  }
+  
+  h3 {
+    font-size: 1.2rem; /* 1.23rem → 1.2rem으로 약간 축소 */
+    line-height: 1.4; /* 203% → 1.4로 대폭 축소 */
+    width: 100%;
+    max-width: none;
+    padding: 0 1rem;
+    margin-top: 1.25rem; /* 2em → 1.25rem으로 축소 */
+    margin-bottom: 0.5rem; /* 0.8em → 0.5rem으로 축소 */
+    font-weight: 600;
+  }
+  
+  h4, h5, h6 {
+    width: 100%;
+    max-width: none;
+    padding: 0 1rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  h4 {
+    font-size: 1.1rem;
+    line-height: 1.35; /* 203% → 1.35로 대폭 축소 */
+  }
+  
+  h5 {
+    font-size: 1.05rem;
+    line-height: 1.35;
+  }
+  
+  h6 {
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+  
+  /* ===== 모바일 본문 텍스트 - 가독성 혁신 ===== */
+  p {
+    font-size: 1.1rem; /* 1.23rem → 1.1rem으로 축소 */
+    line-height: 1.6; /* 203% → 1.6으로 대폭 축소 (모바일 최적화) */
+    width: 100%;
+    max-width: none;
+    padding: 0 1rem; /* 좌우 여백 추가 */
+    margin-bottom: 1.2em; /* 1.5em → 1.2em으로 축소 */
+    
+    /* 모바일 텍스트 렌더링 최적화 */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeSpeed; /* 성능 우선 */
+  }
+  
+  /* ===== 모바일 리스트 최적화 ===== */
+  ul, ol {
+    width: 100%;
+    max-width: none;
+    padding-left: 2rem; /* 들여쓰기 + 좌측 여백 */
+    padding-right: 1rem;
+    margin-bottom: 1.2rem;
+  }
+  
+  li {
+    font-size: 1.1rem; /* 본문과 동일하게 조정 */
+    line-height: 1.6; /* 본문과 동일하게 조정 */
+    margin-bottom: 0.4em; /* 0.6em → 0.4em으로 축소 */
+  }
+  
+  /* ===== 모바일 포스트 콘텐츠 최적화 ===== */
+  .post-content {
+    font-size: 1.1rem; /* 기본 본문 크기로 조정 */
+    line-height: 1.6; /* 모바일 최적화 줄간격 */
+    max-width: none;
+    width: 100%;
+    padding: 0 1rem; /* 좌우 여백 추가 */
+    margin: 0; /* 자동 마진 제거 */
+    
+    /* 모바일 성능 최적화 */
+    will-change: auto;
+    contain: layout style;
+  }
+  
+  .post-content p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.2em;
+    padding: 0; /* post-content에서 이미 패딩 적용됨 */
+    width: 100%;
+  }
+  
+  .post-content h1,
+  .post-content h2,
+  .post-content h3,
+  .post-content h4,
+  .post-content h5,
+  .post-content h6 {
+    padding: 0; /* post-content에서 이미 패딩 적용됨 */
+    width: 100%;
+    max-width: none;
+  }
+  
+  .post-content h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+  }
+  
+  .post-content h2 {
+    font-size: 1.5rem;
+    line-height: 1.25;
+  }
+  
+  .post-content h3 {
+    font-size: 1.2rem;
+    line-height: 1.4; /* 203% → 1.4로 대폭 축소 */
+  }
+  
+  .compact-text {
+    line-height: 1.6; /* 203% → 1.6으로 대폭 축소 */
+    margin-bottom: 0.3em;
+  }
+  
+  /* ===== 모바일 부제목/설명 최적화 ===== */
+  .post-subtitle,
+  .post-description-header {
+    font-size: 1.1rem; /* 모바일 본문 크기와 동일 */
+    line-height: 1.6; /* 모바일 본문 line-height와 동일 */
+    width: 100%;
+    margin: 0 auto 1.25rem;
+    padding: 0 1rem; /* 좌우 여백만 추가 */
+  }
+  
+  /* ===== 모바일 기타 요소 최적화 ===== */
+  blockquote {
+    width: 100%;
+    max-width: none;
+    margin: 1rem 0;
+    padding: 1rem;
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+  
+  pre {
+    width: 100%;
+    max-width: none;
+    margin: 1rem 0;
+    padding: 1rem;
+    font-size: 0.9rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  code {
+    font-size: 0.9rem;
+    padding: 0.2em 0.4em;
+  }
+  
+  /* ===== 모바일 메타 정보 최적화 ===== */
   .post-meta-container {
     width: 100%;
-    max-width: 100%;
-    padding: 0 1rem 1rem;
+    max-width: none;
+    padding: 0 1rem;
     margin: 1rem 0 1.5rem;
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
-    box-sizing: border-box;
   }
   
   .post-title {
     width: 100%;
-    max-width: 100%;
+    max-width: none;
     padding: 0 1rem;
-    box-sizing: border-box;
-  }
-  
-  .post-subtitle,
-  .post-description-header {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    width: 100%;
-    margin: 0 auto 1.25rem;
-    padding: 0 1rem;
-    box-sizing: border-box;
   }
   
   .post-tags {
     width: 100%;
-    max-width: 100%;
+    max-width: none;
     margin-left: 0;
     margin-top: 0.5rem;
   }
@@ -1028,21 +845,21 @@ br.compact-break {
   .post-tag {
     font-size: 0.85rem;
     padding: 0.4rem 0.75rem;
-    min-height: 32px;
+    min-height: 32px; /* 터치 영역 확보 */
     display: inline-flex;
     align-items: center;
   }
   
+  /* ===== 모바일 네비게이션 최적화 ===== */
   .post-nav-simple {
     width: 100%;
-    max-width: 100%;
+    max-width: none;
     padding: 1.5rem 1rem 0;
     margin: 2rem 0 1rem;
-    box-sizing: border-box;
   }
   
   .post-nav-link {
-    min-height: 44px;
+    min-height: 44px; /* 터치 영역 확보 */
     padding: 0.75rem 1rem;
     font-size: 1rem;
     border-radius: 8px;
@@ -1061,27 +878,127 @@ br.compact-break {
     padding: 1rem;
     border-radius: 8px;
   }
-}
-
-@media (max-width: 480px) {
-  .post-meta-container {
-    padding: 0 0.75rem 0.8rem;
-    gap: 0.5rem;
+  
+  /* ===== 모바일 이미지 최적화 ===== */
+  .post-content img,
+  .post-content .text-post-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    margin: 1rem 0;
+    border-radius: 8px;
   }
   
-  .post-title {
+  .post-content figure {
+    width: 100%;
+    max-width: none;
+    padding: 0;
+    margin: 1.5rem 0;
+  }
+  
+  .post-content figcaption {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem 0;
+    text-align: left; /* 모바일에서는 왼쪽 정렬 */
+  }
+  
+  /* ===== 모바일 테이블 최적화 ===== */
+  .post-content table {
+    font-size: 0.9rem;
+    margin: 1rem -1rem; /* 화면 가장자리까지 확장 */
+    width: calc(100% + 2rem);
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .post-content table th,
+  .post-content table td {
+    padding: 0.75rem 0.5rem;
+    min-width: 100px; /* 최소 셀 너비 확보 */
+  }
+  
+  /* ===== 모바일 접근성 개선 ===== */
+  /* 텍스트 선택 개선 */
+  .post-content, p, h1, h2, h3, h4, h5, h6 {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+  }
+  
+  /* 터치 지연 최소화 */
+  a, button, .post-nav-link {
+    touch-action: manipulation;
+  }
+  
+  /* 스크롤 성능 최적화 */
+  .post-content {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
+/* ===== 추가 최적화: 작은 모바일 (480px 이하) ===== */
+@media (max-width: 480px) {
+  /* 매우 작은 화면에서 추가 최적화 */
+  h1 {
+    font-size: 1.75rem; /* 2rem → 1.75rem */
+    line-height: 1.15;
+    padding: 0 0.75rem; /* 패딩 축소 */
+  }
+  
+  h2 {
+    font-size: 1.35rem; /* 1.5rem → 1.35rem */
+    line-height: 1.2;
     padding: 0 0.75rem;
+  }
+  
+  h3 {
+    font-size: 1.15rem; /* 1.2rem → 1.15rem */
+    line-height: 1.3;
+    padding: 0 0.75rem;
+  }
+  
+  p, 
+  .post-content p {
+    font-size: 1.05rem; /* 1.1rem → 1.05rem */
+    line-height: 1.55; /* 1.6 → 1.55 */
+    padding: 0 0.75rem;
+  }
+  
+  li {
+    font-size: 1.05rem;
+    line-height: 1.55;
+  }
+  
+  .post-content {
+    padding: 0 0.75rem;
+  }
+  
+  .post-meta-container,
+  .post-title,
+  .post-nav-simple {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
   }
   
   .post-subtitle,
   .post-description-header {
-    font-size: 1.05rem;
-    line-height: 1.55;
+    font-size: 1.05rem; /* 작은 화면 본문 크기와 동일 */
+    line-height: 1.55; /* 작은 화면 본문 line-height와 동일 */
     margin: 0 auto 1rem;
-    padding: 0 0.75rem;
+    padding: 0 0.75rem; /* 좌우 여백만 */
+  }
+  
+  /* 초소형 화면에서 더 컴팩트한 간격 */
+  .post-meta-container {
+    margin: 0.75rem 0 1.25rem;
+    gap: 0.5rem;
   }
   
   .post-nav-simple {
-    padding: 1.25rem 0.75rem 0;
+    padding-top: 1.25rem;
+    margin-top: 1.5rem;
   }
 }
