@@ -201,7 +201,153 @@
     text-decoration: underline;
 }
 
-/* 다크모드 대응 - 부제목/설명 단순화 */
+/* 개선된 포스트 네비게이션 스타일 */
+.post-nav-simple {
+    width: 55rem;
+    max-width: 100%;
+    margin: 4rem auto 2rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 2rem;
+}
+
+.post-nav-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+    gap: 1rem;
+}
+
+.nav-divider-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border-color), transparent);
+}
+
+.nav-divider-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    color: var(--github-accent);
+    font-size: 1.1rem;
+}
+
+.post-nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+}
+
+.post-nav-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+    padding: 1.5rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.post-nav-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--github-accent), var(--primary-400));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.post-nav-link:hover::before {
+    transform: scaleX(1);
+}
+
+.post-nav-link:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: var(--github-accent);
+    text-decoration: none;
+}
+
+.post-nav-link.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: var(--bg-tertiary);
+}
+
+.post-nav-link.disabled:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: var(--border-color);
+}
+
+.post-nav-link.disabled:hover::before {
+    transform: scaleX(0);
+}
+
+.post-nav-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.post-nav-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--github-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.post-nav-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.post-nav-date {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    background-color: var(--bg-tertiary);
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.post-nav-link.next {
+    text-align: right;
+}
+
+.post-nav-link.next .post-nav-info {
+    align-items: flex-end;
+}
+
+.post-nav-link.next .post-nav-label {
+    flex-direction: row-reverse;
+}
+
+/* 다크모드 대응 */
 html.dark-theme .series-box {
     background-color: rgba(88, 166, 255, 0.15);
     border-color: rgba(88, 166, 255, 0.4);
@@ -235,8 +381,8 @@ html.dark-theme .post-tag:hover {
     .post-description-header {
         font-size: 1.1rem;
         width: 100%;
-        margin: 0 1rem 1.25rem;
-        padding: 0.8rem 1rem;
+        margin: 0 auto 1.25rem;
+        padding: 0 1rem;
     }
     
     .post-meta-container {
@@ -261,11 +407,50 @@ html.dark-theme .post-tag:hover {
     
     .series-box {
         width: 100%;
-        margin: 0 1rem 1.5rem;
+        margin: 0 auto 1.5rem;
         padding: 1rem;
     }
     
     .series-title {
+        font-size: 1rem;
+    }
+    
+    .post-nav-simple {
+        width: 100%;
+        margin: 3rem 0 1.5rem;
+        padding-top: 1.5rem;
+    }
+    
+    .post-nav-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .post-nav-link {
+        padding: 1.2rem;
+        text-align: left;
+    }
+    
+    .post-nav-link.next {
+        text-align: left;
+    }
+    
+    .post-nav-link.next .post-nav-info {
+        align-items: flex-start;
+    }
+    
+    .post-nav-link.next .post-nav-label {
+        flex-direction: row;
+    }
+    
+    .post-nav-title {
+        font-size: 1rem;
+        -webkit-line-clamp: 3;
+    }
+    
+    .nav-divider-icon {
+        width: 36px;
+        height: 36px;
         font-size: 1rem;
     }
 }
@@ -278,9 +463,9 @@ html.dark-theme .post-tag:hover {
     
     .post-subtitle,
     .post-description-header {
-        font-size: 1rem;
-        margin: 0 0.75rem 1rem;
-        padding: 0.7rem 0.8rem;
+        font-size: 1.05rem;
+        margin: 0 auto 1rem;
+        padding: 0 0.75rem;
     }
     
     .post-meta-container {
@@ -289,8 +474,24 @@ html.dark-theme .post-tag:hover {
     }
     
     .series-box {
-        margin: 0 0.75rem 1.25rem;
+        margin: 0 auto 1.25rem;
         padding: 0.8rem;
+    }
+    
+    .post-nav-simple {
+        margin: 2.5rem 0 1.25rem;
+    }
+    
+    .post-nav-link {
+        padding: 1rem;
+    }
+    
+    .post-nav-title {
+        font-size: 0.95rem;
+    }
+    
+    .post-nav-label {
+        font-size: 0.8rem;
     }
 }
 </style>
@@ -402,22 +603,35 @@ html.dark-theme .post-tag:hover {
 </section>
 {% endif %}
 
-<!-- 간결한 이전글/다음글 네비게이션 -->
+<!-- 개선된 이전글/다음글 네비게이션 -->
 <nav class="post-nav-simple">
+    <div class="post-nav-divider">
+        <div class="nav-divider-line"></div>
+        <div class="nav-divider-icon">
+            <i class="fas fa-compass"></i>
+        </div>
+        <div class="nav-divider-line"></div>
+    </div>
+    
     <div class="post-nav-container">
         {% if prev_post %}
         <a href="{{ url_for('posts.view_by_slug', slug=prev_post.id) }}" class="post-nav-link prev">
-            <span class="post-nav-icon"><i class="fas fa-chevron-left"></i></span>
             <div class="post-nav-info">
-                <span class="post-nav-label">이전 글</span>
-                <span class="post-nav-title">{{ prev_post.title[:30] }}{% if prev_post.title|length > 30 %}...{% endif %}</span>
+                <div class="post-nav-label">
+                    <i class="fas fa-chevron-left"></i>
+                    <span>이전 글</span>
+                </div>
+                <div class="post-nav-title">{{ prev_post.title }}</div>
+                <div class="post-nav-date">{{ prev_post.date.strftime('%Y.%m.%d') }}</div>
             </div>
         </a>
         {% else %}
         <div class="post-nav-link prev disabled">
-            <span class="post-nav-icon"><i class="fas fa-chevron-left"></i></span>
             <div class="post-nav-info">
-                <span class="post-nav-label">이전 글이 없습니다</span>
+                <div class="post-nav-label">
+                    <i class="fas fa-ban"></i>
+                    <span>이전 글 없음</span>
+                </div>
             </div>
         </div>
         {% endif %}
@@ -425,17 +639,22 @@ html.dark-theme .post-tag:hover {
         {% if next_post %}
         <a href="{{ url_for('posts.view_by_slug', slug=next_post.id) }}" class="post-nav-link next">
             <div class="post-nav-info">
-                <span class="post-nav-label">다음 글</span>
-                <span class="post-nav-title">{{ next_post.title[:30] }}{% if next_post.title|length > 30 %}...{% endif %}</span>
+                <div class="post-nav-label">
+                    <span>다음 글</span>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="post-nav-title">{{ next_post.title }}</div>
+                <div class="post-nav-date">{{ next_post.date.strftime('%Y.%m.%d') }}</div>
             </div>
-            <span class="post-nav-icon"><i class="fas fa-chevron-right"></i></span>
         </a>
         {% else %}
         <div class="post-nav-link next disabled">
             <div class="post-nav-info">
-                <span class="post-nav-label">다음 글이 없습니다</span>
+                <div class="post-nav-label">
+                    <span>다음 글 없음</span>
+                    <i class="fas fa-ban"></i>
+                </div>
             </div>
-            <span class="post-nav-icon"><i class="fas fa-chevron-right"></i></span>
         </div>
         {% endif %}
     </div>

@@ -480,23 +480,58 @@ html.dark-theme .post-card-tag:hover {
         touch-action: manipulation !important;
     }
     
+    /* 모바일에서 특별 링크들 - 이모지와 텍스트 정렬 문제 해결 */
     .post-content a[href*="book"],
     .post-content a[href*="youtube"],
     .post-content a[href*="github"],
-    .post-content a[href*="download"] {
-        display: block !important;
-        margin: 8px 0 !important;
-        padding: 12px 16px !important;
-        border-radius: 8px !important;
-        min-height: 48px !important;
-        text-align: center !important;
+    .post-content a[href*="download"],
+    .post-content a[href*="amazon"],
+    .post-content a[href*="vimeo"],
+    .post-content a[href*="twitch"],
+    .post-content a[href*="stackoverflow"],
+    .post-content a[href*="npmjs"],
+    .post-content a[href*="developer.mozilla"],
+    .post-content a[href$=".pdf"],
+    .post-content a[href$=".zip"],
+    .post-content a[href$=".doc"],
+    .post-content a[href$=".docx"] {
+        display: inline-flex !important;
+        align-items: center !important;
+        padding: 8px 12px !important;
+        margin: 4px 2px !important;
+        border-radius: 6px !important;
+        min-height: 44px !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: calc(100% - 8px) !important;
     }
     
+    /* 이모지와 텍스트 간격 조정 */
+    .post-content a[href*="book"]::before,
+    .post-content a[href*="youtube"]::before,
+    .post-content a[href*="github"]::before,
+    .post-content a[href*="download"]::before,
+    .post-content a[href*="amazon"]::before,
+    .post-content a[href*="vimeo"]::before,
+    .post-content a[href*="twitch"]::before,
+    .post-content a[href*="stackoverflow"]::before,
+    .post-content a[href*="npmjs"]::before,
+    .post-content a[href*="developer.mozilla"]::before,
+    .post-content a[href$=".pdf"]::before,
+    .post-content a[href$=".zip"]::before,
+    .post-content a[href$=".doc"]::before,
+    .post-content a[href$=".docx"]::before {
+        margin-right: 0.5em !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* 호버 효과 축소 (모바일 터치 환경) */
     .post-content a[href*="book"]:hover,
     .post-content a[href*="youtube"]:hover,
     .post-content a[href*="github"]:hover,
     .post-content a[href*="download"]:hover {
-        transform: translateY(-2px) scale(1.01) !important;
+        transform: translateY(-1px) scale(1.01) !important;
     }
     
     .post-tag,
