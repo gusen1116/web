@@ -1,50 +1,142 @@
 /* 
- * blog-grid.css - GitHub 스타일 블로그 그리드, 타이포그래피 유지
+ * blog-grid.css - 완전한 브라우저 호환성 지원 (CSS Grid → Flexbox 교체)
  */
 
-/* ===== 블로그 그리드 레이아웃 ===== */
+/* ===== 블로그 그리드 레이아웃 - Flexbox 기반 ===== */
 .posts-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-6);
+  /* Flexbox fallback */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  
   margin-bottom: var(--spacing-12);
   width: 100%;
   max-width: var(--content-max-width);
   margin-left: auto;
   margin-right: auto;
   padding: 0;
+  box-sizing: border-box;
+}
+
+/* CSS Grid enhancement for modern browsers */
+@supports (display: grid) {
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-6);
+    justify-content: initial;
+  }
+}
+
+/* Flexbox 아이템 크기 계산 (3열 그리드 모방) */
+.posts-grid > * {
+  display: block; /* Android 브라우저 호환성 */
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: calc(33.333% - 1rem);
+  margin-bottom: var(--spacing-6);
+  margin-right: 1.5rem;
+}
+
+.posts-grid > *:nth-child(3n) {
+  margin-right: 0;
+}
+
+/* CSS Grid에서는 margin 제거 */
+@supports (display: grid) {
+  .posts-grid > * {
+    width: auto;
+    margin-right: 0;
+  }
 }
 
 /* ===== 메인 페이지 중앙 정렬 포스트 그리드 ===== */
 .posts-grid-center {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-6);
+  /* Flexbox fallback */
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  
   width: 100%;
   max-width: var(--content-max-width);
   margin: 0 auto var(--spacing-12);
-  justify-content: center;
   padding: 0;
+  box-sizing: border-box;
 }
 
-/* ===== 슬라이드 스타일 - GitHub 스타일 ===== */
+/* CSS Grid enhancement */
+@supports (display: grid) {
+  .posts-grid-center {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-6);
+    justify-content: initial;
+  }
+}
+
+/* Flexbox 아이템 크기 */
+.posts-grid-center > * {
+  display: block;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: calc(33.333% - 1rem);
+  margin-bottom: var(--spacing-6);
+  margin-right: 1.5rem;
+}
+
+.posts-grid-center > *:nth-child(3n) {
+  margin-right: 0;
+}
+
+@supports (display: grid) {
+  .posts-grid-center > * {
+    width: auto;
+    margin-right: 0;
+  }
+}
+
+/* ===== 슬라이드 컨테이너 ===== */
 .slide-container {
   margin-top: var(--spacing-8);
-  background-color: #0969da; /* GitHub 파란색 */
-  border-radius: 6px; /* GitHub 라운딩 */
+  background-color: #0969da;
+  border-radius: 6px;
   overflow: hidden;
   width: 100%;
   max-width: var(--content-max-width);
   margin-left: auto;
   margin-right: auto;
   height: 300px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
   align-items: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
   justify-content: center;
   border: 1px solid var(--border-color);
+  box-sizing: border-box;
 }
 
-/* ===== 슬라이드 내용 - 기존 유지 ===== */
+/* ===== 슬라이드 내용 ===== */
 .slide {
   color: white;
   text-align: center;
@@ -55,7 +147,7 @@
 }
 
 .slide h2 {
-  font-size: 2.5rem; /* 슬라이드 제목 크기 */
+  font-size: 2.5rem;
   margin-bottom: var(--spacing-6);
   color: white;
   font-family: var(--font-sans);
@@ -64,7 +156,7 @@
 }
 
 .slide p {
-  font-size: 1.2rem; /* 슬라이드 본문 크기 */
+  font-size: 1.2rem;
   max-width: 90%;
   margin: 0 auto;
   color: white;
@@ -73,29 +165,58 @@
   width: 100%;
 }
 
-/* ===== 소개 섹션 스타일 - GitHub 스타일 ===== */
+/* ===== 소개 섹션 ===== */
 .intro-section {
   margin-top: var(--spacing-8);
   margin-bottom: var(--spacing-16);
   width: 100%;
-  max-width: var(--content-max-width);
+  max-width: 880px;
   margin-left: auto;
   margin-right: auto;
   padding: 0 var(--spacing-4);
+  box-sizing: border-box;
 }
 
 .intro-container {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
   align-items: center;
-  gap: var(--spacing-8);
   background-color: var(--bg-secondary);
-  border-radius: 6px; /* GitHub 스타일 라운딩 */
+  border-radius: 6px;
   padding: var(--spacing-6);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
   position: relative;
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.intro-container > * {
+  margin-right: var(--spacing-8);
+}
+
+.intro-container > *:last-child {
+  margin-right: 0;
+}
+
+/* CSS Grid enhancement */
+@supports (display: grid) {
+  .intro-container {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: var(--spacing-8);
+  }
+  
+  .intro-container > * {
+    margin-right: 0;
+  }
 }
 
 .intro-container:hover {
@@ -105,6 +226,8 @@
 }
 
 .intro-image-area {
+  -webkit-flex: 0 0 220px;
+  -ms-flex: 0 0 220px;
   flex: 0 0 220px;
   position: relative;
 }
@@ -122,11 +245,12 @@
 }
 
 .intro-content-area {
+  -webkit-flex: 1;
+  -ms-flex: 1;
   flex: 1;
   min-height: 180px;
 }
 
-/* 콘텐츠 영역 스타일 예시 - 필요에 따라 사용 */
 .intro-content-area h2 {
   font-size: 1.9rem;
   line-height: 130%;
@@ -145,14 +269,43 @@
 }
 
 .intro-content-area .intro-links {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
-  gap: var(--spacing-3);
   margin-top: var(--spacing-4);
 }
 
+.intro-content-area .intro-links > * {
+  margin-right: var(--spacing-3);
+}
+
+.intro-content-area .intro-links > *:last-child {
+  margin-right: 0;
+}
+
+@supports (display: grid) {
+  .intro-content-area .intro-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: var(--spacing-3);
+  }
+  
+  .intro-content-area .intro-links > * {
+    margin-right: 0;
+  }
+}
+
 .intro-content-area .intro-link {
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
   display: inline-flex;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
   align-items: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
   justify-content: center;
   padding: var(--spacing-2) var(--spacing-4);
   border-radius: var(--radius-md);
@@ -181,20 +334,27 @@
   transform: translateY(-2px);
 }
 
-/* ===== 포스트 카드 스타일 - GitHub 스타일 ===== */
+/* ===== 포스트 카드 스타일 ===== */
 .post-card {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 6px; /* GitHub 라운딩 */
+  border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   transition: all 0.25s cubic-bezier(0.1, 0.7, 0.1, 1);
   height: 100%;
   min-height: 450px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-flex-direction: column;
+  -ms-flex-direction: column;
   flex-direction: column;
   position: relative;
   overflow: hidden;
   cursor: pointer;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .post-card:hover {
@@ -204,7 +364,7 @@
 }
 
 .post-card::after {
-  content: '자세히 보기 →'; /* 더 자연스러운 텍스트 */
+  content: '자세히 보기 →';
   position: absolute;
   top: 0;
   left: 0;
@@ -212,8 +372,15 @@
   height: 100%;
   background-color: rgba(0, 0, 0, 0.6);
   color: white;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
   align-items: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
   justify-content: center;
   font-size: var(--font-size-lg);
   opacity: 0;
@@ -225,31 +392,57 @@
   opacity: 1;
 }
 
-/* ===== 포스트 카드 헤더 - GitHub 스타일 ===== */
+/* ===== 포스트 카드 헤더 ===== */
 .post-card-header {
-  padding: 0.8rem 1.25rem 0.75rem; /* 상하 패딩 축소 */
+  padding: 0.8rem 1.25rem 0.75rem;
   border-bottom: 1px solid var(--border-color);
+  -webkit-flex: 0 0 auto;
+  -ms-flex: 0 0 auto;
   flex: 0 0 auto;
 }
 
 .post-card-title {
-  font-size: 1.6rem; /* 제목 크기 약간 키움 */
+  font-size: 1.6rem;
   line-height: 1.3;
-  font-weight: 700; /* 더 두껍게 */
-  margin-top: 0.5rem; /* 상단 마진 축소 (64px → 0.5rem) */
-  margin-bottom: 0.6rem; /* 제목과 날짜 사이 간격 */
+  font-weight: 700;
+  margin-top: 0.5rem;
+  margin-bottom: 0.6rem;
   color: var(--text-primary);
   font-family: var(--font-sans);
   width: 100%;
 }
 
 .post-card-meta {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
   align-items: center;
-  gap: var(--spacing-2);
   font-size: calc(var(--font-size-xs) * 1.2);
   color: var(--text-tertiary);
   font-family: var(--font-sans);
+}
+
+.post-card-meta > * {
+  margin-right: var(--spacing-2);
+}
+
+.post-card-meta > *:last-child {
+  margin-right: 0;
+}
+
+@supports (display: grid) {
+  .post-card-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: var(--spacing-2);
+  }
+  
+  .post-card-meta > * {
+    margin-right: 0;
+  }
 }
 
 .post-card-date {
@@ -262,9 +455,11 @@
   margin-bottom: var(--spacing-3);
 }
 
-/* ===== 포스트 카드 내용 - 기존 유지 ===== */
+/* ===== 포스트 카드 내용 ===== */
 .post-card-content {
   padding: var(--spacing-3) var(--spacing-5) var(--spacing-5);
+  -webkit-flex: 1;
+  -ms-flex: 1;
   flex: 1;
 }
 
@@ -277,23 +472,58 @@
   -webkit-line-clamp: 5;
   line-clamp: 5;
   -webkit-box-orient: vertical;
+  -webkit-flex: 1 1 auto;
+  -ms-flex: 1 1 auto;
   flex: 1 1 auto;
   font-family: var(--font-sans);
 }
 
-/* ===== 포스트 카드 푸터 - GitHub 스타일 ===== */
+/* ===== 포스트 카드 푸터 ===== */
 .post-card-footer {
   padding: 0 var(--spacing-5) var(--spacing-5);
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-justify-content: space-between;
+  -ms-flex-pack: justify;
   justify-content: space-between;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
   align-items: center;
   margin-top: auto;
 }
 
 .post-card-tags {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
   flex-wrap: wrap;
-  gap: var(--spacing-2);
+}
+
+.post-card-tags > * {
+  margin-right: var(--spacing-2);
+  margin-bottom: var(--spacing-2);
+}
+
+.post-card-tags > *:last-child {
+  margin-right: 0;
+}
+
+@supports (display: grid) {
+  .post-card-tags {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: var(--spacing-2);
+  }
+  
+  .post-card-tags > * {
+    margin-right: 0;
+    margin-bottom: 0;
+  }
 }
 
 .post-card-tag {
@@ -311,7 +541,6 @@
   background-color: #b6e3ff;
 }
 
-/* 아무소리 버튼 스타일 개선 */
 .post-card-action {
   display: inline-block;
   margin-top: var(--spacing-3);
@@ -330,7 +559,7 @@
   transform: translateY(-2px);
 }
 
-/* Dark mode for post card tags */
+/* ===== Dark mode ===== */
 html.dark-theme .intro-container {
   background-color: var(--bg-secondary);
 }
@@ -345,7 +574,7 @@ html.dark-theme .post-card-tag:hover {
   background-color: rgba(56, 139, 253, 0.25);
 }
 
-/* ===== 포스트 카드 링크 스타일 - 기존 유지 ===== */
+/* ===== 포스트 카드 링크 ===== */
 .post-card-link {
   display: block;
   text-decoration: none;
@@ -354,7 +583,7 @@ html.dark-theme .post-card-tag:hover {
   width: 100%;
 }
 
-/* ===== 섹션 스타일 - GitHub 스타일 ===== */
+/* ===== 섹션 스타일 ===== */
 .section-title {
   font-size: 2rem;
   font-weight: 600;
@@ -368,6 +597,7 @@ html.dark-theme .post-card-tag:hover {
   font-family: var(--font-sans);
   border-bottom: 1px solid var(--border-color);
   padding-bottom: var(--spacing-4);
+  box-sizing: border-box;
 }
 
 .blog-section, 
@@ -379,63 +609,95 @@ html.dark-theme .post-card-tag:hover {
   margin-left: auto;
   margin-right: auto;
   padding: 0 var(--spacing-4);
+  box-sizing: border-box;
 }
 
-/* ===== 태그 섹션 스타일 - GitHub 스타일 ===== */
-.fixed-bottom-sections {
-  display: none; /* 태그 영역 숨김 처리 */
-}
-
-.tag-section {
-  display: block;
-  margin: 0;
-  width: 100%;
-}
-
-/* ===== 상단 태그 네비게이션 영역 - GitHub 스타일 ===== */
+/* ===== 상단 태그 네비게이션 - 완전한 브라우저 호환성 ===== */
 .top-tag-navigation {
   background-color: var(--bg-secondary);
-  border-radius: 6px;
-  padding: 0.8rem;
-  margin-bottom: 2rem;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 0 auto 2rem;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  gap: 0.5rem;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  max-width: var(--content-max-width);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
   position: relative;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.top-tag-navigation::-webkit-scrollbar {
-  display: none;
+.top-tag-navigation > * {
+  margin-right: 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
-/* GitHub 스타일 태그 */
+.top-tag-navigation > *:last-child {
+  margin-right: 0;
+}
+
+@supports (display: grid) {
+  .top-tag-navigation {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.75rem;
+    justify-items: center;
+  }
+  
+  .top-tag-navigation > * {
+    margin-right: 0;
+    margin-bottom: 0;
+  }
+}
+
 .top-tag-navigation .tag-item {
   background-color: #ddf4ff;
   color: var(--github-accent);
-  padding: 0.35rem 0.8rem;
-  border-radius: var(--radius-full);
-  font-size: 0.85rem;
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  font-size: 0.9rem;
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
+  transition: all 0.3s ease;
   border: 1px solid rgba(0, 0, 0, 0.06);
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  min-height: 44px;
+  text-align: center;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  touch-action: manipulation;
 }
 
 .top-tag-navigation .tag-item:hover {
   background-color: #b6e3ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(9, 105, 218, 0.15);
 }
 
 .top-tag-navigation .tag-item.active {
   background-color: var(--github-accent);
   color: white;
   border-color: transparent;
+  box-shadow: 0 4px 12px rgba(9, 105, 218, 0.25);
 }
 
 /* Dark mode tag styles */
@@ -455,7 +717,7 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   border-color: transparent;
 }
 
-/* ===== 블로그 헤더 스타일 - GitHub 스타일 ===== */
+/* ===== 블로그 헤더 ===== */
 .blog-header {
   margin-bottom: 2rem;
   text-align: left;
@@ -463,6 +725,7 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   margin-left: 0;
   margin-right: auto;
   position: relative;
+  box-sizing: border-box;
 }
 
 .blog-header h1 {
@@ -488,36 +751,49 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   border-radius: var(--radius-full);
 }
 
-/* ===== 공간 채우기용 스타일 ===== */
+/* ===== 공간 채우기 ===== */
 .spacer {
+  -webkit-flex-grow: 1;
+  -ms-flex-positive: 1;
   flex-grow: 1;
   min-height: 100px;
 }
 
-/* ===== 포스트 컨테이너 스타일 ===== */
+/* ===== 포스트 컨테이너 ===== */
 .posts-container {
   width: 100%;
   max-width: var(--content-max-width);
   margin: 0 auto;
   position: relative;
-  padding-bottom: calc(var(--spacing-16) + 50px); /* 버튼 공간 확보 */
+  padding-bottom: calc(var(--spacing-16) + 50px);
+  box-sizing: border-box;
 }
 
-/* ===== 접기/더보기 버튼 컨테이너 ===== */
+/* ===== 접기/더보기 버튼 ===== */
 .toggle-button-container {
   width: 100%;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
   justify-content: center;
   margin: var(--spacing-8) 0;
   position: relative;
 }
 
-/* ===== 접기/더보기 버튼 스타일 - GitHub 스타일 ===== */
 .toggle-button {
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
   display: inline-flex;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
   align-items: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
   justify-content: center;
-  gap: var(--spacing-2);
   background-color: var(--github-accent);
   color: white;
   border: none;
@@ -529,6 +805,26 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   transition: all 0.2s ease;
   box-shadow: var(--shadow-sm);
   font-family: var(--font-sans);
+}
+
+.toggle-button > * {
+  margin-right: var(--spacing-2);
+}
+
+.toggle-button > *:last-child {
+  margin-right: 0;
+}
+
+@supports (display: grid) {
+  .toggle-button {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: var(--spacing-2);
+  }
+  
+  .toggle-button > * {
+    margin-right: 0;
+  }
 }
 
 .toggle-button:hover {
@@ -552,7 +848,6 @@ html.dark-theme .top-tag-navigation .tag-item.active {
 
 /* ===== 빈 상태 메시지 ===== */
 .empty-state {
-  grid-column: 1 / -1;
   text-align: center;
   padding: var(--spacing-12);
   background-color: var(--bg-secondary);
@@ -561,33 +856,136 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   font-size: var(--font-size-lg);
   font-family: var(--font-sans);
   border: 1px solid var(--border-color);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* ===== 반응형 설정 ===== */
 @media (max-width: 1200px) {
-  .posts-grid,
-  .posts-grid-center {
-    grid-template-columns: repeat(2, 1fr); /* 중간 화면에서는 2개 */
+  /* 중간 화면에서는 2개 열 */
+  .posts-grid > *,
+  .posts-grid-center > * {
+    width: calc(50% - 0.75rem);
+    margin-right: 1.5rem;
   }
   
-  .intro-container {
-    gap: var(--spacing-6);
+  .posts-grid > *:nth-child(3n) {
+    margin-right: 1.5rem;
+  }
+  
+  .posts-grid > *:nth-child(2n),
+  .posts-grid-center > *:nth-child(2n) {
+    margin-right: 0;
+  }
+  
+  @supports (display: grid) {
+    .posts-grid,
+    .posts-grid-center {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
   
   .intro-image-area {
+    -webkit-flex: 0 0 180px;
+    -ms-flex: 0 0 180px;
     flex: 0 0 180px;
+  }
+  
+  @supports (display: grid) {
+    .intro-container {
+      grid-template-columns: 180px 1fr;
+    }
   }
 }
 
 @media (max-width: 768px) {
+  /* 모바일에서는 1개 열 */
   .posts-grid-center,
   .posts-grid {
-    grid-template-columns: 1fr; /* 모바일에서는 1개 */
-    gap: var(--spacing-8); /* 모바일에서 그리드 간격 */
+    margin: 0 1rem var(--spacing-12);
+    max-width: calc(100% - 2rem);
+    width: calc(100% - 2rem);
+  }
+  
+  .posts-grid > *,
+  .posts-grid-center > * {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: var(--spacing-6);
+  }
+  
+  @supports (display: grid) {
+    .posts-grid-center,
+    .posts-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .blog-section,
+  .simulation-section {
+    padding: 0 1rem;
+    max-width: calc(100% - 2rem);
+    width: calc(100% - 2rem);
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+  }
+  
+  .posts-container {
+    margin: 0 1rem;
+    max-width: calc(100% - 2rem);
+    width: calc(100% - 2rem);
+    box-sizing: border-box;
+  }
+  
+  /* 태그 네비게이션 모바일 최적화 */
+  .top-tag-navigation {
+    margin: 0 1rem 2rem;
+    max-width: calc(100% - 2rem);
+    width: calc(100% - 2rem);
+    padding: 0.8rem;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-flex-wrap: nowrap;
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    box-sizing: border-box;
+  }
+  
+  .top-tag-navigation::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .top-tag-navigation > * {
+    margin-right: 0.5rem;
+    margin-bottom: 0;
+    -webkit-flex-shrink: 0;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
+  }
+  
+  @supports (display: grid) {
+    .top-tag-navigation {
+      display: flex;
+      -webkit-flex-wrap: nowrap;
+      -ms-flex-wrap: nowrap;
+      flex-wrap: nowrap;
+    }
+  }
+  
+  .top-tag-navigation .tag-item {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    min-height: 40px;
+    min-width: max-content;
   }
   
   .post-card {
-    min-height: 380px; /* 모바일에서 카드 높이 최적화 */
+    min-height: 380px;
   }
   
   .post-card-title {
@@ -598,17 +996,14 @@ html.dark-theme .top-tag-navigation .tag-item.active {
     font-size: 1.1rem;
   }
   
-  .top-tag-navigation {
-    padding: 0.6rem 1rem;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-  
-  .top-tag-navigation .tag-item {
-    padding: 8px 12px; /* 터치 영역 확대 */
-  }
-  
   /* 헤더 간소화 */
+  .blog-header {
+    margin: 0 1rem 2rem;
+    max-width: calc(100% - 2rem);
+    width: calc(100% - 2rem);
+    box-sizing: border-box;
+  }
+  
   .blog-header h1 {
     font-size: 2rem;
   }
@@ -618,17 +1013,14 @@ html.dark-theme .top-tag-navigation .tag-item.active {
     height: 250px;
   }
   
-  /* 슬라이드 글자 크기 최적화 */
   .slide h2 {
     font-size: 1.8rem;
   }
   
-  /* 모바일에서 터치 영역 최적화 */
   .post-card-tag {
     padding: 8px 12px;
   }
   
-  /* 아무소리 버튼 모바일 최적화 */
   .post-card-action {
     padding: 8px 16px;
     font-size: 1rem;
@@ -638,18 +1030,45 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   .intro-section {
     margin-top: var(--spacing-6);
     margin-bottom: var(--spacing-8);
+    padding: 0 1rem;
+    max-width: calc(100% - 2rem);
+    width: calc(100% - 2rem);
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
   }
   
   .intro-container {
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
     flex-direction: column;
     text-align: center;
-    gap: var(--spacing-5);
     padding: var(--spacing-5);
   }
   
+  .intro-container > * {
+    margin-right: 0;
+    margin-bottom: var(--spacing-5);
+  }
+  
+  .intro-container > *:last-child {
+    margin-bottom: 0;
+  }
+  
+  @supports (display: grid) {
+    .intro-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--spacing-5);
+    }
+  }
+  
   .intro-image-area {
+    -webkit-flex: 0 0 auto;
+    -ms-flex: 0 0 auto;
     flex: 0 0 auto;
     width: 160px;
+    margin: 0 auto;
   }
   
   .intro-content-area {
@@ -665,6 +1084,86 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   }
   
   .intro-content-area .intro-links {
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
     justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  /* 초소형 화면 최적화 */
+  .posts-grid-center,
+  .posts-grid {
+    margin: 0 0.75rem var(--spacing-8);
+    max-width: calc(100% - 1.5rem);
+    width: calc(100% - 1.5rem);
+  }
+  
+  .posts-grid > *,
+  .posts-grid-center > * {
+    margin-bottom: var(--spacing-5);
+  }
+  
+  .blog-section,
+  .simulation-section {
+    padding: 0 0.75rem;
+    max-width: calc(100% - 1.5rem);
+    width: calc(100% - 1.5rem);
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+  }
+  
+  .posts-container {
+    margin: 0 0.75rem;
+    max-width: calc(100% - 1.5rem);
+    width: calc(100% - 1.5rem);
+    box-sizing: border-box;
+  }
+  
+  .top-tag-navigation {
+    margin: 0 0.75rem 1.5rem;
+    max-width: calc(100% - 1.5rem);
+    width: calc(100% - 1.5rem);
+    padding: 0.6rem;
+    box-sizing: border-box;
+  }
+  
+  .top-tag-navigation .tag-item {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.8rem;
+    min-height: 36px;
+  }
+  
+  .blog-header {
+    margin: 0 0.75rem 1.5rem;
+    max-width: calc(100% - 1.5rem);
+    width: calc(100% - 1.5rem);
+    box-sizing: border-box;
+  }
+  
+  .blog-header h1 {
+    font-size: 1.75rem;
+  }
+  
+  .intro-section {
+    padding: 0 0.75rem;
+    max-width: calc(100% - 1.5rem);
+    width: calc(100% - 1.5rem);
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+  }
+  
+  .post-card {
+    min-height: 350px;
+  }
+  
+  .post-card-title {
+    font-size: 1.3rem;
+  }
+  
+  .post-card-preview {
+    font-size: 1rem;
   }
 }

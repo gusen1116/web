@@ -1,5 +1,5 @@
 /* 
- * slide.css - GitHub 스타일 슬라이드 컨테이너
+ * slide.css - GitHub 스타일 슬라이드 컨테이너 (모바일 폭 수정)
  */
 
 /* ===== 슬라이드 컨테이너 ===== */
@@ -104,10 +104,19 @@ html.dark-theme .slide-container {
   background-color: rgba(255, 255, 255, 0.8);
 }
 
-/* 반응형 설정 */
-@media (max-width: 880px) {
+/* 반응형 설정 - 모바일 폭 수정 */
+@media (max-width: 1024px) {
   .slide-container {
-    width: calc(100% - 2rem);
+    margin: 0 1rem 3rem;
+    max-width: calc(100% - 2rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .slide-container {
+    margin: 0 1rem 2.5rem;
+    max-width: calc(100% - 2rem);
+    height: 250px;
   }
   
   .slide h2 {
@@ -116,5 +125,27 @@ html.dark-theme .slide-container {
   
   .slide p {
     font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .slide-container {
+    margin: 0 0.75rem 2rem;
+    max-width: calc(100% - 1.5rem);
+    height: 220px;
+  }
+  
+  .slide h2 {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+  
+  .slide p {
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .slide {
+    padding: 1.5rem 1rem;
   }
 }
