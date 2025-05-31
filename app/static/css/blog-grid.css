@@ -494,6 +494,7 @@
   margin-top: auto;
 }
 
+/* ===== 포스트 카드 태그 - 가로 배치 (Grid 오버라이드 제거) ===== */
 .post-card-tags {
   display: -webkit-box;
   display: -webkit-flex;
@@ -513,18 +514,7 @@
   margin-right: 0;
 }
 
-@supports (display: grid) {
-  .post-card-tags {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-    gap: var(--spacing-2);
-  }
-  
-  .post-card-tags > * {
-    margin-right: 0;
-    margin-bottom: 0;
-  }
-}
+/* Grid 오버라이드 제거됨 - 포스트 카드 태그는 항상 Flexbox 가로 배치 */
 
 .post-card-tag {
   font-size: 0.85rem;
@@ -612,7 +602,7 @@ html.dark-theme .post-card-tag:hover {
   box-sizing: border-box;
 }
 
-/* ===== 상단 태그 네비게이션 - 완전한 브라우저 호환성 ===== */
+/* ===== 상단 태그 네비게이션 - 가로 슬라이더로 수정 ===== */
 .top-tag-navigation {
   background-color: var(--bg-secondary);
   border-radius: 8px;
@@ -622,42 +612,46 @@ html.dark-theme .post-card-tag:hover {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-wrap: wrap;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
+  /* --- 변경된 부분 시작 --- */
+  -webkit-flex-wrap: nowrap; /* 줄 바꿈 없음 */
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap; /* 줄 바꿈 없음 */
+  overflow-x: auto; /* 가로 스크롤 활성화 */
+  -webkit-overflow-scrolling: touch; /* 모바일에서 부드러운 스크롤링 */
+  -webkit-justify-content: flex-start; /* 아이템을 시작점에서 정렬 */
+  -ms-flex-pack: start;
+  justify-content: flex-start; /* 아이템을 시작점에서 정렬 */
+  /* --- 변경된 부분 끝 --- */
   max-width: var(--content-max-width);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
   position: relative;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
   width: 100%;
   box-sizing: border-box;
+
+  /* 스크롤바 숨기기 (선택 사항) */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
 }
 
-.top-tag-navigation > * {
+.top-tag-navigation::-webkit-scrollbar { /* WebKit (Chrome, Safari, Edge) */
+  display: none;
+}
+
+/* 자식 태그 아이템 스타일 조정 */
+.top-tag-navigation > .tag-item { /* .tag-item 클래스를 명시적으로 타겟 */
   margin-right: 0.75rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0; /* 세로 스크롤이 아니므로 하단 마진 제거 */
+  -webkit-flex-shrink: 0; /* 아이템 크기 축소 방지 */
+  -ms-flex-negative: 0;
+  flex-shrink: 0; /* 아이템 크기 축소 방지 */
 }
 
-.top-tag-navigation > *:last-child {
-  margin-right: 0;
+.top-tag-navigation > .tag-item:last-child {
+  margin-right: 0; /* 마지막 아이템의 오른쪽 마진은 필요 없을 수 있음, 컨테이너 패딩으로 조절 */
 }
 
-@supports (display: grid) {
-  .top-tag-navigation {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: 0.75rem;
-    justify-items: center;
-  }
-  
-  .top-tag-navigation > * {
-    margin-right: 0;
-    margin-bottom: 0;
-  }
-}
+/* 기존 @supports (display: grid) 규칙 제거 - 상단 태그 네비게이션은 항상 Flexbox 가로 스크롤 */
 
 .top-tag-navigation .tag-item {
   background-color: #ddf4ff;
@@ -990,15 +984,6 @@ html.dark-theme .top-tag-navigation .tag-item.active {
     flex-shrink: 0;
   }
   
-  @supports (display: grid) {
-    .top-tag-navigation {
-      display: flex;
-      -webkit-flex-wrap: nowrap;
-      -ms-flex-wrap: nowrap;
-      flex-wrap: nowrap;
-    }
-  }
-  
   .top-tag-navigation .tag-item {
     padding: 0.4rem 0.8rem;
     font-size: 0.85rem;
@@ -1288,5 +1273,4 @@ html.dark-theme .top-tag-navigation .tag-item.active {
     -ms-flex-align: start;
     align-items: flex-start;
   }
-  
 }
