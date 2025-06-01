@@ -96,11 +96,11 @@
   --transition-fast: 150ms;
   --transition-normal: 300ms;
   
-  /* 레이아웃 변수 - 기존 유지 */
+  /* 레이아웃 변수 - 헤더 폭 기준으로 통일 */
   --paragraph-width: 55rem;
-  --container-width: 88rem;
+  --container-width: 90rem; /* 헤더 기준 폭을 약간 확장 (88rem → 90rem, 약 1440px) */
   --header-width: var(--container-width);
-  --content-max-width: var(--container-width);
+  --content-max-width: var(--container-width); /* 모든 주요 콘텐츠가 헤더 폭을 따르도록 */
 }
 
 /* ===== GitHub 다크 테마 설정 ===== */

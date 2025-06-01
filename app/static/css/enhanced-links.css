@@ -1,6 +1,7 @@
 /*
  * enhanced-links.css - 심플하고 모던한 하이퍼링크 스타일 (v3)
  * 요청사항 반영: 애니메이션 제거, 배경 최소화, 파란색 지양, 디테일 추가
+ * 수정: 태그에서 '#' 기호 제거
  */
 
 /* ===== 1. 일반 본문 하이퍼링크 스타일 ===== */
@@ -220,7 +221,7 @@ a[class*="button"]::before {
     display: none !important;
 }
 
-/* ===== 4. 태그 링크 스타일 개선 ===== */
+/* ===== 4. 태그 링크 스타일 개선 (수정: '#' 기호 제거) ===== */
 .post-tag,
 .post-card-tag {
     background-color: var(--neutral-100) !important;
@@ -245,12 +246,11 @@ a[class*="button"]::before {
     box-shadow: none !important;
 }
 
+/* 수정: '#' 기호 제거 */
 .post-tag::before,
 .post-card-tag::before {
-    content: '#' !important;
-    font-size: 0.9em !important;
-    opacity: 0.7 !important;
-    transition: opacity 0.15s ease !important;
+    content: '' !important; /* '#' 기호 제거 */
+    display: none !important; /* 완전히 숨김 */
 }
 
 .post-tag:hover,
@@ -261,12 +261,6 @@ a[class*="button"]::before {
     box-shadow: none !important;
     text-decoration: none !important;
     border-color: var(--neutral-300) !important;
-}
-
-.post-tag:hover::before,
-.post-card-tag:hover::before {
-    opacity: 1 !important;
-    transform: none !important;
 }
 
 /* ===== 5. 다크모드 스타일 ===== */
