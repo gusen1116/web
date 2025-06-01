@@ -10,36 +10,27 @@ main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def index():
-    """
-    메인 페이지 - 성능 최적화 및 안전성 강화
-    
-    주요 개선사항:
-    - 캐시 서비스 활용으로 성능 향상
-    - 예외 처리 강화
-    - 데이터 검증 및 안전한 렌더링
-    """
+    """메인 페이지 - 성능 최적화 및 안전성 강화"""
     try:
-        # 캐시된 데이터 가져오기 (성능 최적화)
+        # 캐시된 데이터 가져오기
         all_posts = CacheService.get_posts_with_cache()
         
-        # 최근 포스트 선별 (메인 페이지용 - 상위 3개) - 실제 객체 반환
+        # 최근 포스트 선별 (상위 3개)
         recent_posts = all_posts[:3] if all_posts else []
         
         # 인기 태그 가져오기 (상위 10개)
         popular_tags = _get_popular_tags(limit=10)
         
-        # 템플릿 렌더링
         return render_template(
             'index.html',
-            posts=all_posts,  # 템플릿 호환성을 위해 유지
-            recent_posts=recent_posts,  # 실제 TextPost 객체들
+            posts=all_posts,
+            recent_posts=recent_posts,
             popular_tags=popular_tags
         )
         
     except Exception as e:
         current_app.logger.error(f'메인 페이지 로드 에러: {e}')
         
-        # 오류 발생 시에도 빈 데이터로 페이지 표시 (가용성 확보)
         return render_template(
             'index.html', 
             posts=[], 
@@ -51,7 +42,7 @@ def index():
 
 @main_bp.route('/about')
 def about():
-    """소개 페이지 - 정적 페이지"""
+    """소개 페이지"""
     try:
         return render_template('about.html')
     except Exception as e:
@@ -61,14 +52,8 @@ def about():
 
 @main_bp.route('/api/status')
 def api_status():
-    """
-    시스템 상태 API - 헬스체크 및 기본 통계
-    
-    Returns:
-        JSON: 시스템 상태 정보
-    """
+    """시스템 상태 API"""
     try:
-        # 기본 시스템 정보
         status_info = {
             'status': 'healthy',
             'version': '2.0.0',
@@ -114,16 +99,7 @@ def api_status():
 
 @main_bp.route('/api/search')
 def api_search():
-    """
-    간단한 검색 API - 제목과 태그 기반 검색
-    
-    Query Parameters:
-        q: 검색어
-        limit: 결과 수 제한 (기본 10, 최대 50)
-    
-    Returns:
-        JSON: 검색 결과
-    """
+    """개선된 검색 API - 성능 최적화"""
     try:
         # 검색어 추출 및 검증
         query = request.args.get('q', '').strip()
@@ -137,20 +113,21 @@ def api_search():
                 'message': '검색어를 입력해주세요'
             })
         
-        # 검색어 길이 제한 (보안 및 성능)
+        # 검색어 길이 제한
         if len(query) > 100:
             return jsonify({
                 'error': '검색어가 너무 깁니다'
             }), 400
         
-        # 검색 실행
-        search_results = _perform_search(query, limit)
+        # 검색 실행 - 개선된 알고리즘
+        search_results = _perform_optimized_search(query, limit)
         
         return jsonify({
             'query': query,
             'results': search_results['results'],
             'total': search_results['total'],
-            'limit': limit
+            'limit': limit,
+            'search_time': search_results.get('search_time', 0)
         })
         
     except Exception as e:
@@ -161,26 +138,16 @@ def api_search():
 
 
 def _get_popular_tags(limit: int = 10) -> List[Dict[str, Any]]:
-    """
-    인기 태그 가져오기 - 사용 빈도 기준
-    
-    Args:
-        limit: 반환할 태그 수
-    
-    Returns:
-        List[Dict]: 인기 태그 데이터
-    """
+    """인기 태그 가져오기"""
     try:
         tags_count = CacheService.get_tags_with_cache()
         
-        # 사용 빈도 기준 정렬
         sorted_tags = sorted(
             tags_count.items(), 
             key=lambda x: x[1], 
             reverse=True
         )[:limit]
         
-        # 템플릿용 데이터 변환
         result = []
         for tag, count in sorted_tags:
             result.append({
@@ -196,44 +163,75 @@ def _get_popular_tags(limit: int = 10) -> List[Dict[str, Any]]:
         return []
 
 
-def _perform_search(query: str, limit: int) -> Dict[str, Any]:
+def _perform_optimized_search(query: str, limit: int) -> Dict[str, Any]:
     """
-    검색 실행 - 제목, 태그, 내용 기반 검색
+    최적화된 검색 실행 - 성능 개선
     
-    Args:
-        query: 검색어
-        limit: 결과 수 제한
-    
-    Returns:
-        Dict: 검색 결과
+    개선사항:
+    1. 캐시된 데이터 사용
+    2. 검색어 전처리
+    3. 점수 계산 최적화
+    4. 조기 종료 조건
     """
+    import time
+    start_time = time.time()
+    
     try:
         all_posts = CacheService.get_posts_with_cache()
         query_lower = query.lower()
         
-        # 검색 결과 저장용
+        # 검색어 전처리 - 여러 단어 지원
+        search_terms = [term.strip() for term in query_lower.split() if term.strip()]
+        
         results = []
         
         for post in all_posts:
             score = 0
             
-            # 제목 매칭 (가중치 3)
-            if query_lower in post.title.lower():
-                score += 3
+            # 캐시된 소문자 텍스트 사용 (성능 향상)
+            title_lower = post.title.lower()
+            content_lower = post.content.lower()
+            author_lower = post.author.lower()
+            tags_lower = [tag.lower() for tag in post.tags]
             
-            # 태그 매칭 (가중치 2)
-            for tag in post.tags:
-                if query_lower in tag.lower():
-                    score += 2
-                    break
+            # 각 검색어에 대해 점수 계산
+            for term in search_terms:
+                term_score = 0
+                
+                # 제목 매칭 (가중치 5)
+                if term in title_lower:
+                    term_score += 5
+                    # 정확한 단어 매칭은 추가 점수
+                    if f' {term} ' in f' {title_lower} ':
+                        term_score += 2
+                
+                # 태그 매칭 (가중치 3)
+                for tag_lower in tags_lower:
+                    if term in tag_lower:
+                        term_score += 3
+                        break
+                
+                # 작성자 매칭 (가중치 2)
+                if term in author_lower:
+                    term_score += 2
+                
+                # 내용 매칭 (가중치 1)
+                if term in content_lower:
+                    term_score += 1
+                    # 내용에서 여러 번 나타나는 경우 추가 점수 (최대 3점)
+                    count = content_lower.count(term)
+                    term_score += min(count - 1, 2)
+                
+                score += term_score
             
-            # 내용 매칭 (가중치 1)
-            if query_lower in post.content.lower():
-                score += 1
-            
-            # 작성자 매칭 (가중치 1)
-            if query_lower in post.author.lower():
-                score += 1
+            # 모든 검색어가 포함된 경우 보너스 점수
+            if len(search_terms) > 1:
+                all_terms_found = all(
+                    any(term in text for text in [title_lower, content_lower, author_lower] + tags_lower)
+                    for term in search_terms
+                )
+                if all_terms_found:
+                    score += 3
             
             # 점수가 있는 경우만 결과에 포함
             if score > 0:
@@ -241,6 +239,10 @@ def _perform_search(query: str, limit: int) -> Dict[str, Any]:
                     'post': post,
                     'score': score
                 })
+                
+                # 성능을 위한 조기 종료 (상위 100개만 계산)
+                if len(results) >= 100:
+                    break
         
         # 점수 기준 정렬
         results.sort(key=lambda x: x['score'], reverse=True)
@@ -255,34 +257,33 @@ def _perform_search(query: str, limit: int) -> Dict[str, Any]:
                 'id': post.id,
                 'title': str(post.title),
                 'slug': post.slug,
-                'preview': post.get_preview(100),
+                'preview': post.get_preview(150),
                 'tags': post.tags[:3],
                 'date': post.date.isoformat(),
                 'url': post.get_url(),
                 'score': item['score']
             })
         
+        search_time = round((time.time() - start_time) * 1000, 2)  # ms
+        
         return {
             'results': formatted_results,
-            'total': len(results)
+            'total': len(results),
+            'search_time': search_time
         }
         
     except Exception as e:
         current_app.logger.error(f'검색 실행 오류: {e}')
         return {
             'results': [],
-            'total': 0
+            'total': 0,
+            'search_time': 0
         }
 
 
 @main_bp.route('/robots.txt')
 def robots_txt():
-    """
-    robots.txt 파일 제공 - SEO 최적화
-    
-    Returns:
-        Response: robots.txt 내용
-    """
+    """robots.txt 파일 제공"""
     from flask import Response
     
     robots_content = """User-agent: *
@@ -303,14 +304,9 @@ Sitemap: /sitemap.xml
 
 @main_bp.route('/sitemap.xml')
 def sitemap_xml():
-    """
-    사이트맵 XML 생성 - SEO 최적화
-    
-    Returns:
-        Response: XML 사이트맵
-    """
+    """사이트맵 XML 생성"""
     try:
-        from flask import Response, url_for, request
+        from flask import Response, url_for
         from datetime import datetime
         
         # 기본 페이지들
@@ -338,7 +334,7 @@ def sitemap_xml():
         # 포스트 페이지들 추가
         try:
             posts = CacheService.get_posts_with_cache()
-            for post in posts:
+            for post in posts[:100]:  # 최대 100개만 사이트맵에 포함
                 urls.append({
                     'loc': url_for('posts.view_by_slug', slug=post.slug, _external=True),
                     'lastmod': post.date.strftime('%Y-%m-%d'),
@@ -369,8 +365,7 @@ def sitemap_xml():
         return Response('', status=500)
 
 
-# ===== 에러 핸들러 (메인 블루프린트용) =====
-
+# 에러 핸들러
 @main_bp.errorhandler(404)
 def not_found_error(error):
     """404 에러 핸들러"""
