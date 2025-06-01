@@ -13,11 +13,11 @@
     // ===== 물리 시뮬레이션 상수 =====
     const PHYSICS_CONFIG = {
         // 기본 물리 상수
-        DEFAULT_GRAVITY: 9.8,
-        DEFAULT_FRICTION: 0.01,
-        DEFAULT_AIR_RESISTANCE: 0.001,
-        DEFAULT_ELASTICITY: 0.8,
-        DEFAULT_PARTICLE_COUNT: 5,
+        DEFAULT_GRAVITY: 0,                            // 중력 0으로 변경
+        DEFAULT_FRICTION: 0.01,                        // 마찰은 언급되지 않았으므로 유지 (필요시 0으로 변경 가능)
+        DEFAULT_AIR_RESISTANCE: 0,                     // 공기 저항 0으로 변경
+        DEFAULT_ELASTICITY: 1,                         // 탄성 계수 1 (완전 탄성 충돌)으로 변경
+        DEFAULT_PARTICLE_COUNT: 5,                     // 입자 수 5개로 설정
         
         // 성능 관련 상수
         MAX_PARTICLES: 100,
@@ -48,8 +48,8 @@
         },
         
         // 인터랙션
-        CLICK_FORCE_MULTIPLIER: 300,
-        MAX_INTERACTION_DISTANCE: 150,
+        CLICK_FORCE_MULTIPLIER: 500, // 300에서 500으로 증가 (더 강한 클릭 효과)
+        MAX_INTERACTION_DISTANCE: 200, // 150에서 200으로 증가 (더 넓은 상호작용 범위)
         MOUSE_INFLUENCE_RADIUS: 50
     };
 
@@ -453,9 +453,8 @@
                     break;
                     
                 case PHYSICS_CONFIG.COLOR_MODES.SIZE:
-                    this.color.h = (this.radius - 10) * 6;
-                    this.color.s = 70;
-                    this.color.l = 65;
+                    // 모든 입자가 같은 크기이므로 랜덤 색상 사용
+                    this.color = { ...this.baseColor };
                     break;
                     
                 case PHYSICS_CONFIG.COLOR_MODES.ENERGY:
@@ -625,7 +624,7 @@
             this.renderOptions = {
                 showTrail: false,
                 showVectors: false,
-                colorMode: PHYSICS_CONFIG.COLOR_MODES.VELOCITY,
+                colorMode: PHYSICS_CONFIG.COLOR_MODES.RANDOM, // 'velocity'에서 'random'으로 변경
                 enableCollisions: true
             };
             
@@ -710,9 +709,13 @@
                 const margin = 50;
                 const x = margin + Math.random() * (this.canvas.clientWidth - margin * 2);
                 const y = margin + Math.random() * (this.canvas.clientHeight - margin * 2);
-                const vx = (Math.random() - 0.5) * 4;
-                const vy = (Math.random() - 0.5) * 4;
-                const radius = 10 + Math.random() * 20;
+                
+                // 더 역동적인 속도: -8, -5, 5, 8 중에서 선택
+                const speeds = [-8, -5, 5, 8];
+                const vx = speeds[Math.floor(Math.random() * speeds.length)];
+                const vy = speeds[Math.floor(Math.random() * speeds.length)];
+                
+                const radius = 25; // 일정한 크기로 설정하고 더 크게
                 
                 particle.initialize(x, y, vx, vy, radius);
                 this.particles.push(particle);
@@ -803,13 +806,8 @@
         }
 
         render() {
-            // 캔버스 클리어 (그라디언트 배경)
-            const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.clientHeight);
-            gradient.addColorStop(0, 'rgba(102, 126, 234, 0.1)');
-            gradient.addColorStop(1, 'rgba(118, 75, 162, 0.1)');
-            
-            this.ctx.fillStyle = gradient;
-            this.ctx.fillRect(0, 0, this.canvas.clientWidth, this.canvas.clientHeight);
+            // 캔버스를 투명하게 지웁니다.
+            this.ctx.clearRect(0, 0, this.canvas.clientWidth, this.canvas.clientHeight);
             
             // 입자 렌더링
             for (const particle of this.particles) {
@@ -915,15 +913,15 @@
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
                 if (distance > 0 && distance < PHYSICS_CONFIG.MAX_INTERACTION_DISTANCE) {
-                    const force = PHYSICS_CONFIG.CLICK_FORCE_MULTIPLIER / (distance + 10);
+                    const force = PHYSICS_CONFIG.CLICK_FORCE_MULTIPLIER / (distance + 10); // 이미 상수를 500으로 증가했으므로 1.5배 제거
                     const normalizedX = dx / distance;
                     const normalizedY = dy / distance;
                     
                     particle.velocity.x += normalizedX * force;
                     particle.velocity.y += normalizedY * force;
                     
-                    // 속도 제한
-                    const maxSpeed = 12;
+                    // 속도 제한을 더 높게 설정하여 더 역동적으로
+                    const maxSpeed = 20; // 15에서 20으로 증가
                     const speed = particle.velocity.magnitude();
                     if (speed > maxSpeed) {
                         particle.velocity.normalize().multiply(maxSpeed);
@@ -958,9 +956,13 @@
                     const margin = 50;
                     const x = margin + Math.random() * (this.canvas.clientWidth - margin * 2);
                     const y = margin + Math.random() * (this.canvas.clientHeight - margin * 2);
-                    const vx = (Math.random() - 0.5) * 4;
-                    const vy = (Math.random() - 0.5) * 4;
-                    const radius = 10 + Math.random() * 20;
+                    
+                    // 더 역동적인 속도: -8, -5, 5, 8 중에서 선택
+                    const speeds = [-8, -5, 5, 8];
+                    const vx = speeds[Math.floor(Math.random() * speeds.length)];
+                    const vy = speeds[Math.floor(Math.random() * speeds.length)];
+                    
+                    const radius = 25; // 일정한 크기로 설정하고 더 크게
                     
                     particle.initialize(x, y, vx, vy, radius);
                     this.particles.push(particle);

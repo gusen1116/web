@@ -20,7 +20,7 @@
 #simulationCanvas {
   width: 100%;
   height: 500px;
-  background-color: var(--bg-primary);
+  background-color: transparent; /* 명시적으로 투명하게 설정 */
   border-radius: 6px;
   margin: var(--spacing-4) 0;
   box-shadow: var(--shadow-sm);

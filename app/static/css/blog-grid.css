@@ -1,10 +1,10 @@
 /* 
- * blog-grid.css - 완전한 브라우저 호환성 지원 (CSS Grid → Flexbox 교체)
+ * blog-grid.css - 완전한 브라우저 호환성 지원 및 레이아웃 문제 해결 버전
  */
 
-/* ===== 블로그 그리드 레이아웃 - Flexbox 기반 ===== */
+/* ===== 블로그 그리드 레이아웃 - 개선된 Flexbox + Grid 하이브리드 ===== */
 .posts-grid {
-  /* Flexbox fallback */
+  /* Flexbox fallback - 개선된 버전 */
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -12,9 +12,12 @@
   -webkit-flex-wrap: wrap;
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
+  -webkit-justify-content: center; /* space-between에서 center로 변경 */
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: stretch;
+  -ms-flex-align: stretch;
+  align-items: stretch;
   
   margin-bottom: var(--spacing-12);
   width: 100%;
@@ -23,6 +26,7 @@
   margin-right: auto;
   padding: 0;
   box-sizing: border-box;
+  gap: var(--spacing-6); /* gap 사용으로 마진 계산 문제 해결 */
 }
 
 /* CSS Grid enhancement for modern browsers */
@@ -31,36 +35,36 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: var(--spacing-6);
-    justify-content: initial;
+    justify-content: center;
+    justify-items: center;
   }
 }
 
-/* Flexbox 아이템 크기 계산 (3열 그리드 모방) */
+/* Flexbox 아이템 크기 계산 (gap 기반으로 개선) */
 .posts-grid > * {
   display: block; /* Android 브라우저 호환성 */
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
-  width: calc(33.333% - 1rem);
-  margin-bottom: var(--spacing-6);
-  margin-right: 1.5rem;
-}
-
-.posts-grid > *:nth-child(3n) {
-  margin-right: 0;
+  width: calc(33.333% - (var(--spacing-6) * 2 / 3)); /* gap을 고려한 계산 */
+  margin-bottom: 0; /* gap으로 대체 */
+  margin-right: 0; /* gap으로 대체 */
+  -webkit-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
 }
 
 /* CSS Grid에서는 margin 제거 */
 @supports (display: grid) {
   .posts-grid > * {
     width: auto;
-    margin-right: 0;
+    margin: 0;
   }
 }
 
 /* ===== 메인 페이지 중앙 정렬 포스트 그리드 ===== */
 .posts-grid-center {
-  /* Flexbox fallback */
+  /* Flexbox fallback - 개선된 버전 */
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -68,15 +72,19 @@
   -webkit-flex-wrap: wrap;
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
-  -webkit-justify-content: space-between;
-  -ms-flex-pack: justify;
-  justify-content: space-between;
+  -webkit-justify-content: center; /* 항상 중앙 정렬 */
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-align-items: stretch;
+  -ms-flex-align: stretch;
+  align-items: stretch;
   
   width: 100%;
   max-width: var(--content-max-width);
   margin: 0 auto var(--spacing-12);
   padding: 0;
   box-sizing: border-box;
+  gap: var(--spacing-6);
 }
 
 /* CSS Grid enhancement */
@@ -85,7 +93,8 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: var(--spacing-6);
-    justify-content: initial;
+    justify-content: center;
+    justify-items: center;
   }
 }
 
@@ -95,19 +104,18 @@
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
-  width: calc(33.333% - 1rem);
-  margin-bottom: var(--spacing-6);
-  margin-right: 1.5rem;
-}
-
-.posts-grid-center > *:nth-child(3n) {
+  width: calc(33.333% - (var(--spacing-6) * 2 / 3));
+  margin-bottom: 0;
   margin-right: 0;
+  -webkit-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
 }
 
 @supports (display: grid) {
   .posts-grid-center > * {
     width: auto;
-    margin-right: 0;
+    margin: 0;
   }
 }
 
@@ -196,14 +204,7 @@
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-}
-
-.intro-container > * {
-  margin-right: var(--spacing-8);
-}
-
-.intro-container > *:last-child {
-  margin-right: 0;
+  gap: var(--spacing-8); /* gap 사용 */
 }
 
 /* CSS Grid enhancement */
@@ -212,10 +213,6 @@
     display: grid;
     grid-template-columns: 220px 1fr;
     gap: var(--spacing-8);
-  }
-  
-  .intro-container > * {
-    margin-right: 0;
   }
 }
 
@@ -274,14 +271,7 @@
   display: -ms-flexbox;
   display: flex;
   margin-top: var(--spacing-4);
-}
-
-.intro-content-area .intro-links > * {
-  margin-right: var(--spacing-3);
-}
-
-.intro-content-area .intro-links > *:last-child {
-  margin-right: 0;
+  gap: var(--spacing-3);
 }
 
 @supports (display: grid) {
@@ -289,10 +279,6 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     gap: var(--spacing-3);
-  }
-  
-  .intro-content-area .intro-links > * {
-    margin-right: 0;
   }
 }
 
@@ -423,14 +409,7 @@
   font-size: calc(var(--font-size-xs) * 1.2);
   color: var(--text-tertiary);
   font-family: var(--font-sans);
-}
-
-.post-card-meta > * {
-  margin-right: var(--spacing-2);
-}
-
-.post-card-meta > *:last-child {
-  margin-right: 0;
+  gap: var(--spacing-2);
 }
 
 @supports (display: grid) {
@@ -438,10 +417,6 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
     gap: var(--spacing-2);
-  }
-  
-  .post-card-meta > * {
-    margin-right: 0;
   }
 }
 
@@ -494,7 +469,7 @@
   margin-top: auto;
 }
 
-/* ===== 포스트 카드 태그 - 가로 배치 (Grid 오버라이드 제거) ===== */
+/* ===== 포스트 카드 태그 - 가로 배치 ===== */
 .post-card-tags {
   display: -webkit-box;
   display: -webkit-flex;
@@ -503,18 +478,8 @@
   -webkit-flex-wrap: wrap;
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
+  gap: var(--spacing-2);
 }
-
-.post-card-tags > * {
-  margin-right: var(--spacing-2);
-  margin-bottom: var(--spacing-2);
-}
-
-.post-card-tags > *:last-child {
-  margin-right: 0;
-}
-
-/* Grid 오버라이드 제거됨 - 포스트 카드 태그는 항상 Flexbox 가로 배치 */
 
 .post-card-tag {
   font-size: 0.85rem;
@@ -602,7 +567,7 @@ html.dark-theme .post-card-tag:hover {
   box-sizing: border-box;
 }
 
-/* ===== 상단 태그 네비게이션 - 가로 슬라이더로 수정 ===== */
+/* ===== 상단 태그 네비게이션 - 가로 슬라이더 ===== */
 .top-tag-navigation {
   background-color: var(--bg-secondary);
   border-radius: 8px;
@@ -612,46 +577,28 @@ html.dark-theme .post-card-tag:hover {
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  /* --- 변경된 부분 시작 --- */
-  -webkit-flex-wrap: nowrap; /* 줄 바꿈 없음 */
+  -webkit-flex-wrap: nowrap;
   -ms-flex-wrap: nowrap;
-  flex-wrap: nowrap; /* 줄 바꿈 없음 */
-  overflow-x: auto; /* 가로 스크롤 활성화 */
-  -webkit-overflow-scrolling: touch; /* 모바일에서 부드러운 스크롤링 */
-  -webkit-justify-content: flex-start; /* 아이템을 시작점에서 정렬 */
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  -webkit-justify-content: flex-start;
   -ms-flex-pack: start;
-  justify-content: flex-start; /* 아이템을 시작점에서 정렬 */
-  /* --- 변경된 부분 끝 --- */
+  justify-content: flex-start;
   max-width: var(--content-max-width);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
   position: relative;
   width: 100%;
   box-sizing: border-box;
-
-  /* 스크롤바 숨기기 (선택 사항) */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  gap: 0.75rem; /* gap 사용 */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
-.top-tag-navigation::-webkit-scrollbar { /* WebKit (Chrome, Safari, Edge) */
+.top-tag-navigation::-webkit-scrollbar {
   display: none;
 }
-
-/* 자식 태그 아이템 스타일 조정 */
-.top-tag-navigation > .tag-item { /* .tag-item 클래스를 명시적으로 타겟 */
-  margin-right: 0.75rem;
-  margin-bottom: 0; /* 세로 스크롤이 아니므로 하단 마진 제거 */
-  -webkit-flex-shrink: 0; /* 아이템 크기 축소 방지 */
-  -ms-flex-negative: 0;
-  flex-shrink: 0; /* 아이템 크기 축소 방지 */
-}
-
-.top-tag-navigation > .tag-item:last-child {
-  margin-right: 0; /* 마지막 아이템의 오른쪽 마진은 필요 없을 수 있음, 컨테이너 패딩으로 조절 */
-}
-
-/* 기존 @supports (display: grid) 규칙 제거 - 상단 태그 네비게이션은 항상 Flexbox 가로 스크롤 */
 
 .top-tag-navigation .tag-item {
   background-color: #ddf4ff;
@@ -679,6 +626,9 @@ html.dark-theme .post-card-tag:hover {
   box-sizing: border-box;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   touch-action: manipulation;
+  -webkit-flex-shrink: 0;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
 }
 
 .top-tag-navigation .tag-item:hover {
@@ -799,14 +749,7 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   transition: all 0.2s ease;
   box-shadow: var(--shadow-sm);
   font-family: var(--font-sans);
-}
-
-.toggle-button > * {
-  margin-right: var(--spacing-2);
-}
-
-.toggle-button > *:last-child {
-  margin-right: 0;
+  gap: var(--spacing-2);
 }
 
 @supports (display: grid) {
@@ -814,10 +757,6 @@ html.dark-theme .top-tag-navigation .tag-item.active {
     display: grid;
     grid-template-columns: auto auto;
     gap: var(--spacing-2);
-  }
-  
-  .toggle-button > * {
-    margin-right: 0;
   }
 }
 
@@ -852,30 +791,114 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   border: 1px solid var(--border-color);
   width: 100%;
   box-sizing: border-box;
+  grid-column: 1 / -1; /* Grid에서 전체 폭 차지 */
 }
 
-/* ===== 반응형 설정 ===== */
-@media (max-width: 1200px) {
-  /* 중간 화면에서는 2개 열 */
-  .posts-grid > *,
-  .posts-grid-center > * {
-    width: calc(50% - 0.75rem);
-    margin-right: 1.5rem;
-  }
-  
-  .posts-grid > *:nth-child(3n) {
-    margin-right: 1.5rem;
-  }
-  
-  .posts-grid > *:nth-child(2n),
-  .posts-grid-center > *:nth-child(2n) {
-    margin-right: 0;
+/* ===== 반응형 설정 - 개선된 버전 ===== */
+
+/* 데스크톱 대형 (1440px 이상) */
+@media (min-width: 1440px) {
+  .posts-grid,
+  .posts-grid-center {
+    max-width: 1200px;
   }
   
   @supports (display: grid) {
     .posts-grid,
     .posts-grid-center {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, minmax(300px, 380px));
+      justify-content: center;
+    }
+  }
+}
+
+/* 데스크톱 (1201px - 1439px) */
+@media (min-width: 1201px) and (max-width: 1439px) {
+  .posts-grid,
+  .posts-grid-center {
+    max-width: 1000px;
+    justify-content: center;
+  }
+  
+  @supports (display: grid) {
+    .posts-grid,
+    .posts-grid-center {
+      grid-template-columns: repeat(3, minmax(280px, 320px));
+      justify-content: center;
+    }
+  }
+}
+
+/* 태블릿 대형 (1025px - 1200px) */
+@media (min-width: 1025px) and (max-width: 1200px) {
+  .posts-grid,
+  .posts-grid-center {
+    max-width: 800px;
+    justify-content: center;
+  }
+  
+  .posts-grid > *,
+  .posts-grid-center > * {
+    width: calc(50% - (var(--spacing-6) / 2));
+    max-width: 380px;
+  }
+  
+  @supports (display: grid) {
+    .posts-grid,
+    .posts-grid-center {
+      grid-template-columns: repeat(2, minmax(300px, 380px));
+      justify-content: center;
+    }
+    
+    .posts-grid > *,
+    .posts-grid-center > * {
+      width: auto;
+    }
+  }
+}
+
+/* 태블릿 중형 (901px - 1024px) */
+@media (min-width: 901px) and (max-width: 1024px) {
+  .posts-grid,
+  .posts-grid-center {
+    max-width: 720px;
+    justify-content: center;
+  }
+  
+  .posts-grid > *,
+  .posts-grid-center > * {
+    width: calc(50% - (var(--spacing-6) / 2));
+    max-width: 350px;
+  }
+  
+  @supports (display: grid) {
+    .posts-grid,
+    .posts-grid-center {
+      grid-template-columns: repeat(2, minmax(280px, 350px));
+      justify-content: center;
+    }
+  }
+}
+
+/* 태블릿 소형 (769px - 900px) */
+@media (min-width: 769px) and (max-width: 900px) {
+  .posts-grid,
+  .posts-grid-center {
+    max-width: 640px;
+    justify-content: center;
+  }
+  
+  .posts-grid > *,
+  .posts-grid-center > * {
+    width: calc(50% - (var(--spacing-6) / 2));
+    max-width: 300px;
+  }
+  
+  @supports (display: grid) {
+    .posts-grid,
+    .posts-grid-center {
+      grid-template-columns: repeat(2, minmax(250px, 300px));
+      justify-content: center;
     }
   }
   
@@ -892,33 +915,26 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   }
 }
 
+/* 모바일 (768px 이하) - 1개 열 */
 @media (max-width: 768px) {
-  /* 모바일에서는 1개 열 */
   .posts-grid-center,
   .posts-grid {
     margin: 0 auto var(--spacing-12);
     max-width: calc(100% - 3rem);
     width: calc(100% - 3rem);
-    /* Flexbox 정렬을 center로 변경 */
-    -webkit-justify-content: center;
-    -ms-flex-pack: center;
     justify-content: center;
-    /* 컨테이너 자체도 중앙 정렬 */
     margin-left: auto;
     margin-right: auto;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
+    gap: var(--spacing-6);
   }
   
   .posts-grid > *,
   .posts-grid-center > * {
     width: 100%;
-    max-width: 400px; /* 최대 폭 제한 */
-    margin-right: 0;
-    margin-bottom: var(--spacing-6);
-    /* 아이템도 중앙 정렬 */
-    margin-left: auto;
-    margin-right: auto;
+    max-width: 400px;
+    margin: 0 auto;
   }
   
   @supports (display: grid) {
@@ -927,13 +943,13 @@ html.dark-theme .top-tag-navigation .tag-item.active {
       grid-template-columns: 1fr;
       justify-items: center;
       justify-content: center;
+      max-width: 450px;
     }
     
-    /* 모바일에서는 태그 그리드 비활성화 */
-    .post-card-tags {
-      display: flex !important;
-      flex-direction: row !important;
-      flex-wrap: wrap !important;
+    .posts-grid > *,
+    .posts-grid-center > * {
+      width: 100%;
+      max-width: 400px;
     }
   }
   
@@ -954,34 +970,22 @@ html.dark-theme .top-tag-navigation .tag-item.active {
     box-sizing: border-box;
   }
   
-  /* 태그 네비게이션 모바일 최적화 */
   .top-tag-navigation {
     margin: 0 1.5rem 2rem;
     max-width: calc(100% - 3rem);
     width: calc(100% - 3rem);
     padding: 0.8rem;
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: start;
     justify-content: flex-start;
     overflow-x: auto;
-    -webkit-flex-wrap: nowrap;
-    -ms-flex-wrap: nowrap;
     flex-wrap: nowrap;
     scrollbar-width: none;
     -ms-overflow-style: none;
     box-sizing: border-box;
+    gap: 0.5rem;
   }
   
   .top-tag-navigation::-webkit-scrollbar {
     display: none;
-  }
-  
-  .top-tag-navigation > * {
-    margin-right: 0.5rem;
-    margin-bottom: 0;
-    -webkit-flex-shrink: 0;
-    -ms-flex-negative: 0;
-    flex-shrink: 0;
   }
   
   .top-tag-navigation .tag-item {
@@ -989,6 +993,7 @@ html.dark-theme .top-tag-navigation .tag-item.active {
     font-size: 0.85rem;
     min-height: 40px;
     min-width: max-content;
+    flex-shrink: 0;
   }
   
   .post-card {
@@ -1003,47 +1008,19 @@ html.dark-theme .top-tag-navigation .tag-item.active {
     font-size: 1.1rem;
   }
   
-  /* 모바일에서 태그는 가로 배치로 강제 */
   .post-card-tags {
-    display: -webkit-box !important;
-    display: -webkit-flex !important;
-    display: -ms-flexbox !important;
     display: flex !important;
-    -webkit-flex-wrap: wrap;
-    -ms-flex-wrap: wrap;
     flex-wrap: wrap;
-    -webkit-flex-direction: row;
-    -ms-flex-direction: row;
     flex-direction: row;
     gap: 0.5rem;
-    -webkit-align-items: center;
-    -ms-flex-align: center;
     align-items: center;
   }
   
-  .post-card-tags > * {
-    margin-right: 0.5rem;
-    margin-bottom: 0.5rem;
-    -webkit-flex-shrink: 0;
-    -ms-flex-negative: 0;
-    flex-shrink: 0;
-  }
-  
-  .post-card-tags > *:last-child {
-    margin-right: 0;
-  }
-  
-  /* 포스트 카드 푸터도 가로 배치 최적화 */
   .post-card-footer {
-    -webkit-flex-direction: row;
-    -ms-flex-direction: row;
     flex-direction: row;
-    -webkit-align-items: flex-start;
-    -ms-flex-align: start;
     align-items: flex-start;
   }
   
-  /* 헤더 간소화 */
   .blog-header {
     margin: 0 1.5rem 2rem;
     max-width: calc(100% - 3rem);
@@ -1055,7 +1032,6 @@ html.dark-theme .top-tag-navigation .tag-item.active {
     font-size: 2rem;
   }
   
-  /* 슬라이드 컨테이너 높이 최적화 */
   .slide-container {
     height: 250px;
   }
@@ -1067,7 +1043,7 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   .post-card-tag {
     padding: 6px 10px;
     font-size: 0.8rem;
-    white-space: nowrap; /* 태그 텍스트 줄바꿈 방지 */
+    white-space: nowrap;
   }
   
   .post-card-action {
@@ -1075,7 +1051,6 @@ html.dark-theme .top-tag-navigation .tag-item.active {
     font-size: 1rem;
   }
   
-  /* 소개 섹션 모바일 최적화 */
   .intro-section {
     margin-top: var(--spacing-6);
     margin-bottom: var(--spacing-8);
@@ -1088,20 +1063,10 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   }
   
   .intro-container {
-    -webkit-flex-direction: column;
-    -ms-flex-direction: column;
     flex-direction: column;
     text-align: center;
     padding: var(--spacing-5);
-  }
-  
-  .intro-container > * {
-    margin-right: 0;
-    margin-bottom: var(--spacing-5);
-  }
-  
-  .intro-container > *:last-child {
-    margin-bottom: 0;
+    gap: var(--spacing-5);
   }
   
   @supports (display: grid) {
@@ -1113,8 +1078,6 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   }
   
   .intro-image-area {
-    -webkit-flex: 0 0 auto;
-    -ms-flex: 0 0 auto;
     flex: 0 0 auto;
     width: 160px;
     margin: 0 auto;
@@ -1133,34 +1096,28 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   }
   
   .intro-content-area .intro-links {
-    -webkit-justify-content: center;
-    -ms-flex-pack: center;
     justify-content: center;
   }
 }
 
+/* 초소형 모바일 (480px 이하) */
 @media (max-width: 480px) {
-  /* 초소형 화면 최적화 */
   .posts-grid-center,
   .posts-grid {
     margin: 0 auto var(--spacing-8);
     max-width: calc(100% - 2rem);
     width: calc(100% - 2rem);
-    /* 중앙 정렬 강화 */
-    -webkit-justify-content: center;
-    -ms-flex-pack: center;
     justify-content: center;
     padding-left: 1rem;
     padding-right: 1rem;
+    gap: var(--spacing-5);
   }
   
   .posts-grid > *,
   .posts-grid-center > * {
-    margin-bottom: var(--spacing-5);
-    /* 완전한 중앙 정렬 */
     margin-left: auto;
     margin-right: auto;
-    max-width: 350px; /* 작은 화면에서는 더 작게 */
+    max-width: 350px;
     width: 100%;
   }
   
@@ -1187,6 +1144,7 @@ html.dark-theme .top-tag-navigation .tag-item.active {
     width: calc(100% - 2rem);
     padding: 0.6rem;
     box-sizing: border-box;
+    gap: 0.4rem;
   }
   
   .top-tag-navigation .tag-item {
@@ -1227,50 +1185,48 @@ html.dark-theme .top-tag-navigation .tag-item.active {
     font-size: 1rem;
   }
   
-  /* 초소형 화면에서 태그 크기 조정 */
   .post-card-tag {
     padding: 5px 8px;
     font-size: 0.75rem;
     white-space: nowrap;
   }
   
-  /* 초소형 화면에서도 태그는 가로 배치 유지 */
   .post-card-tags {
-    display: -webkit-box !important;
-    display: -webkit-flex !important;
-    display: -ms-flexbox !important;
     display: flex !important;
-    -webkit-flex-wrap: wrap;
-    -ms-flex-wrap: wrap;
     flex-wrap: wrap;
-    -webkit-flex-direction: row;
-    -ms-flex-direction: row;
     flex-direction: row;
     gap: 0.4rem;
-    -webkit-align-items: center;
-    -ms-flex-align: center;
     align-items: center;
   }
   
-  .post-card-tags > * {
-    margin-right: 0.4rem;
-    margin-bottom: 0.4rem;
-    -webkit-flex-shrink: 0;
-    -ms-flex-negative: 0;
-    flex-shrink: 0;
-  }
-  
-  .post-card-tags > *:last-child {
-    margin-right: 0;
-  }
-  
-  /* 초소형 화면에서도 푸터 가로 배치 */
   .post-card-footer {
-    -webkit-flex-direction: row;
-    -ms-flex-direction: row;
     flex-direction: row;
-    -webkit-align-items: flex-start;
-    -ms-flex-align: start;
     align-items: flex-start;
+  }
+  
+  @supports (display: grid) {
+    .posts-grid-center,
+    .posts-grid {
+      max-width: 380px;
+    }
+  }
+}
+
+/* ===== Flexbox fallback 개선 ===== */
+@supports not (display: grid) {
+  .posts-grid,
+  .posts-grid-center {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+  }
+  
+  /* Flexbox에서 마지막 줄 아이템들이 늘어나지 않도록 */
+  .posts-grid::after,
+  .posts-grid-center::after {
+    content: '';
+    flex: auto;
+    margin: 0;
   }
 }
