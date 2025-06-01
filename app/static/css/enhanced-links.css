@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap');
+
 /*
  * enhanced-links.css - 심플하고 모던한 하이퍼링크 스타일 (v3)
  * 요청사항 반영: 애니메이션 제거, 배경 최소화, 파란색 지양, 디테일 추가
@@ -17,7 +19,6 @@
     border-radius: 2px !important;
     transform: none !important;
     box-shadow: none !important;
-    font-weight: inherit !important; /* 본문과 동일한 두께 */
     line-height: inherit !important; /* 줄 간격 유지 */
     word-break: break-word !important; /* 긴 URL 줄바꿈 */
     overflow-wrap: break-word !important;
@@ -25,6 +26,9 @@
     position: relative !important;
     cursor: pointer !important;
     hyphens: auto !important;
+    font-family: 'Cabin', sans-serif; /* Cabin 폰트 적용 */
+    font-weight: 400; /* 폰트 두께 400으로 설정 */
+    font-size: 1.0rem; /* 폰트 크기 0.8rem으로 설정 */
 }
 
 .post-content a:hover,
@@ -53,26 +57,25 @@
 
 /* ===== 2. 특별한 링크 타입 스타일 (심플 & 모던, 아이콘 중심) ===== */
 /* 공통 스타일: 왼쪽 테두리 대신 아이콘과 최소한의 배경으로 구분 */
+/* font-family 및 font-size는 .post-content a로부터 상속 (0.8rem, Cabin) */
+/* font-weight는 normal (400)으로 명시됨 */
 .post-content a.book-link,
 .post-content a[href*="book"], .post-content a[href*="amazon"], .post-content a[href*="aladin"],
 .post-content a[href*="youtube"], .post-content a[href*="vimeo"], .post-content a[href*="twitch"],
 .post-content a[href*="github"], .post-content a[href*="stackoverflow"], .post-content a[href*="npmjs"], .post-content a[href*="developer.mozilla"],
 .post-content a[href$=".pdf"], .post-content a[href$=".zip"], .post-content a[href$=".doc"], .post-content a[href$=".docx"], .post-content a[href*="download"] {
-    /* background-color: var(--neutral-50) !important; 제거 - 타입별로 설정 */
     border-radius: 3px !important;
-    padding: 2px 5px !important; /* 패딩 최소화 */
-    margin: 0px 1px !important; /* 수직 마진 거의 없이 */
+    padding: 2px 5px !important;
+    margin: 0px 1px !important;
     display: inline-flex !important;
-    align-items: center; /* 아이콘과 텍스트 수직 중앙 정렬 */
-    font-weight: normal !important; /* 일반 텍스트와 동일 두께 */
+    align-items: center;
+    font-weight: normal !important; /* 400 */
     color: var(--text-secondary) !important;
-    /* border: 1px solid var(--neutral-200) !important; 제거 - 타입별로 설정 */
-    border-bottom: 1px solid transparent !important; /* 밑줄 대신 테두리 */
+    border-bottom: 1px solid transparent !important;
     transform: none !important;
     box-shadow: none !important;
     transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease !important;
-    border-left: none !important; /* 왼쪽 테두리 제거 */
-    font-family: inherit !important; /* 기본 폰트 사용 */
+    border-left: none !important;
     word-break: break-word !important;
     overflow-wrap: break-word !important;
 }
@@ -82,7 +85,7 @@
 /* 📚 책/참고 자료 (연한 노랑/크림색 계열) */
 .post-content a.book-link,
 .post-content a[href*="book"], .post-content a[href*="amazon"], .post-content a[href*="aladin"] {
-    background-color: #fffbeb !important; /* 연한 크림색 */
+    background-color: #fffbeb !important;
     border: 1px solid #fdecc0 !important;
 }
 
@@ -93,16 +96,15 @@
     color: var(--text-primary) !important;
 }
 
-/* 타입별 아이콘 (왼쪽 테두리 제거, 아이콘으로만 구분) */
 .post-content a.book-link::before,
 .post-content a[href*="book"]::before, .post-content a[href*="amazon"]::before, .post-content a[href*="aladin"]::before {
-    content: "📚" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; filter: hue-rotate(0deg) saturate(1.5); /* 아이콘 색상 보정 */
-    animation: none !important; /* 애니메이션 제거 */
+    content: "📚" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; filter: hue-rotate(0deg) saturate(1.5);
+    animation: none !important;
 }
 
 /* 🎥 YouTube/비디오 (연한 분홍/빨강 계열) */
 .post-content a[href*="youtube"], .post-content a[href*="vimeo"], .post-content a[href*="twitch"] {
-    background-color: #fff0f1 !important; /* 연한 분홍색 */
+    background-color: #fff0f1 !important;
     border: 1px solid #ffdfe2 !important;
 }
 
@@ -113,13 +115,13 @@
 }
 
 .post-content a[href*="youtube"]::before, .post-content a[href*="vimeo"]::before, .post-content a[href*="twitch"]::before {
-    content: "▶" !important; margin-right: 0.3em !important; font-size: 0.7em !important; opacity: 0.9; color: #e53935 !important; /* 약간 톤 다운된 빨강 */
+    content: "▶" !important; margin-right: 0.3em !important; font-size: 0.7em !important; opacity: 0.9; color: #e53935 !important;
     animation: none !important;
 }
 
 /* 💻 GitHub/개발 (연한 하늘색/청록색 계열) */
 .post-content a[href*="github"], .post-content a[href*="stackoverflow"], .post-content a[href*="npmjs"], .post-content a[href*="developer.mozilla"] {
-    background-color: #eefcff !important; /* 연한 하늘색 */
+    background-color: #eefcff !important;
     border: 1px solid #d8f5fd !important;
 }
 
@@ -136,7 +138,7 @@
 
 /* ⬇️ 다운로드 (연한 녹색 계열) */
 .post-content a[href$=".pdf"], .post-content a[href$=".zip"], .post-content a[href$=".doc"], .post-content a[href$=".docx"], .post-content a[href*="download"] {
-    background-color: #efffef !important; /* 연한 녹색 */
+    background-color: #efffef !important;
     border: 1px solid #dff7df !important;
 }
 
@@ -147,16 +149,12 @@
 }
 
 .post-content a[href$=".pdf"]::before, .post-content a[href*="download"]::before {
-    content: "↓" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; color: #2da44e !important; /* 녹색 계열 */
+    content: "↓" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; color: #2da44e !important;
     animation: none !important;
 }
 .post-content a[href$=".zip"]::before { content: "🗜️" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; animation: none !important;}
 .post-content a[href$=".doc"]::before, .post-content a[href$=".docx"]::before { content: "📄" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; animation: none !important;}
 
-/* GitHub 링크는 monospace 폰트 제거 */
-.post-content a[href*="github"] {
-    font-family: inherit !important;
-}
 
 /* ===== 3. 버튼 스타일 링크 (본문 내 사용 시, view.html의 back-to-blog 버튼과 구분) ===== */
 .post-content a.btn-link-inline,
@@ -167,8 +165,8 @@ a[class*="button"] {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 4px 8px !important; /* 패딩 더 축소 */
-    font-size: 0.85em !important; /* 본문 폰트 대비 */
+    padding: 4px 8px !important;
+    font-size: 0.85em !important; /* 버튼의 폰트 크기는 상대적으로 유지 */
     font-weight: 500 !important;
     text-decoration: none !important;
     color: var(--text-primary) !important;
@@ -184,6 +182,7 @@ a[class*="button"] {
     gap: 0.3em !important;
     word-break: break-word !important;
     overflow-wrap: break-word !important;
+    font-family: var(--font-sans); /* Pretendard 폰트 명시 (UI 요소) */
 }
 
 .post-content a.btn-link-inline:hover,
@@ -213,7 +212,6 @@ a[class*="button"]:active {
     font-size: 0.9em;
 }
 
-/* 버튼의 빛나는 효과 제거 */
 .post-content a.btn-link::before,
 .post-content a[class*="button"]::before,
 .btn-link::before,
@@ -228,7 +226,7 @@ a[class*="button"]::before {
     color: var(--text-secondary) !important;
     border-radius: 15px !important;
     padding: 6px 12px !important;
-    font-size: 0.85rem !important;
+    font-size: 0.85rem !important; /* 태그의 폰트 크기는 상대적으로 유지 */
     font-weight: 500 !important;
     text-decoration: none !important;
     display: inline-flex !important;
@@ -244,13 +242,13 @@ a[class*="button"]::before {
     overflow-wrap: break-word !important;
     transform: none !important;
     box-shadow: none !important;
+    font-family: var(--font-sans); /* Pretendard 폰트 명시 (UI 요소) */
 }
 
-/* 수정: '#' 기호 제거 */
 .post-tag::before,
 .post-card-tag::before {
-    content: '' !important; /* '#' 기호 제거 */
-    display: none !important; /* 완전히 숨김 */
+    content: '' !important;
+    display: none !important;
 }
 
 .post-tag:hover,
@@ -269,25 +267,25 @@ html.dark-theme .post-content a:link,
 html.dark-theme .post-content a:visited {
     color: var(--text-secondary) !important;
     border-bottom-color: var(--neutral-600) !important;
+    /* font-family, font-weight, font-size는 이미 적용됨 */
 }
 
 html.dark-theme .post-content a:hover,
 html.dark-theme .post-content a:focus {
-    color: #39d353 !important; /* NEW: 다크모드용 밝은 녹색 */
+    color: #39d353 !important;
     background-color: var(--neutral-800) !important;
-    border-bottom-color: #39d353 !important; /* NEW: 다크모드용 밝은 녹색 밑줄 */
+    border-bottom-color: #39d353 !important;
 }
 
 html.dark-theme .post-content a:focus-visible {
-    outline-color: #39d353 !important; /* NEW: 다크모드 포커스 아웃라인 */
+    outline-color: #39d353 !important;
     background-color: var(--neutral-800) !important;
 }
 
-/* 다크모드 특별 링크 배경색 (기존보다 약간 더 명확하게) */
-/* 📚 책/참고 자료 */
+/* 다크모드 특별 링크 배경색 */
 html.dark-theme .post-content a.book-link,
 html.dark-theme .post-content a[href*="book"], html.dark-theme .post-content a[href*="amazon"], html.dark-theme .post-content a[href*="aladin"] {
-    background-color: rgba(255, 237, 179, 0.08) !important; /* 기존보다 약간 더 채도/명도 있게 */
+    background-color: rgba(255, 237, 179, 0.08) !important;
     border: 1px solid rgba(255, 237, 179, 0.15) !important;
     color: var(--text-secondary) !important;
 }
@@ -299,7 +297,6 @@ html.dark-theme .post-content a[href*="book"]:hover, html.dark-theme .post-conte
     color: var(--text-primary) !important;
 }
 
-/* 🎥 YouTube/비디오 */
 html.dark-theme .post-content a[href*="youtube"], html.dark-theme .post-content a[href*="vimeo"], html.dark-theme .post-content a[href*="twitch"] {
     background-color: rgba(255, 205, 210, 0.08) !important;
     border: 1px solid rgba(255, 205, 210, 0.15) !important;
@@ -313,10 +310,9 @@ html.dark-theme .post-content a[href*="youtube"]:hover, html.dark-theme .post-co
 }
 
 html.dark-theme .post-content a[href*="youtube"]::before, html.dark-theme .post-content a[href*="vimeo"]::before, html.dark-theme .post-content a[href*="twitch"]::before {
-    color: #ff8a80 !important; /* 다크모드용 밝은 빨강 */
+    color: #ff8a80 !important;
 }
 
-/* 💻 GitHub/개발 */
 html.dark-theme .post-content a[href*="github"], html.dark-theme .post-content a[href*="stackoverflow"], html.dark-theme .post-content a[href*="npmjs"], html.dark-theme .post-content a[href*="developer.mozilla"] {
     background-color: rgba(178, 235, 242, 0.08) !important;
     border: 1px solid rgba(178, 235, 242, 0.15) !important;
@@ -329,14 +325,12 @@ html.dark-theme .post-content a[href*="github"]:hover, html.dark-theme .post-con
     color: var(--text-primary) !important;
 }
 
-/* 다크모드 타입별 아이콘/테두리 색상 (밝은 색상으로 조정) */
 html.dark-theme .post-content a.book-link::before,
 html.dark-theme .post-content a[href*="book"]::before, html.dark-theme .post-content a[href*="amazon"]::before, html.dark-theme .post-content a[href*="aladin"]::before {
     filter: hue-rotate(0deg) saturate(1.2) brightness(1.2);
 }
 html.dark-theme .post-content a[href*="github"]::before { filter: grayscale(10%) sepia(10%) brightness(1.2); }
 
-/* ⬇️ 다운로드 */
 html.dark-theme .post-content a[href$=".pdf"], html.dark-theme .post-content a[href$=".zip"], html.dark-theme .post-content a[href$=".doc"], html.dark-theme .post-content a[href$=".docx"], html.dark-theme .post-content a[href*="download"] {
     background-color: rgba(200, 230, 201, 0.08) !important;
     border: 1px solid rgba(200, 230, 201, 0.15) !important;
@@ -350,10 +344,9 @@ html.dark-theme .post-content a[href$=".pdf"]:hover, html.dark-theme .post-conte
 }
 
 html.dark-theme .post-content a[href$=".pdf"]::before, html.dark-theme .post-content a[href*="download"]::before {
-    color: #39d353 !important; /* 다크모드용 밝은 녹색 */
+    color: #39d353 !important;
 }
 
-/* 다크모드 버튼형 링크 */
 html.dark-theme .post-content a.btn-link-inline,
 html.dark-theme .post-content a.btn-link,
 html.dark-theme .post-content a[class*="button"],
@@ -362,6 +355,7 @@ html.dark-theme a[class*="button"] {
     color: var(--text-accent) !important;
     background-color: var(--neutral-700) !important;
     border-color: var(--neutral-600) !important;
+    font-family: var(--font-sans); 
 }
 
 html.dark-theme .post-content a.btn-link-inline:hover,
@@ -373,12 +367,12 @@ html.dark-theme a[class*="button"]:hover {
     border-color: var(--neutral-500) !important;
 }
 
-/* 다크모드 태그 */
 html.dark-theme .post-tag,
 html.dark-theme .post-card-tag {
     background-color: var(--neutral-800) !important;
     color: var(--text-secondary) !important;
     border-color: var(--neutral-700) !important;
+    font-family: var(--font-sans);
 }
 
 html.dark-theme .post-tag:hover,
@@ -389,20 +383,20 @@ html.dark-theme .post-card-tag:hover {
 }
 
 /* ===== 6. 기타 (인쇄, 로딩 등) ===== */
-/* 인쇄 최적화 */
 @media print {
     .post-content a {
         color: #000 !important; text-decoration: underline !important; background: none !important;
         padding: 0 !important; box-shadow: none !important; border-bottom: none !important;
         word-break: break-all !important;
+        font-family: 'Cabin', sans-serif; 
     }
-    .post-content a::after { /* 외부링크 아이콘 대신 URL 표시 */
+    .post-content a::after { 
         content: " (" attr(href) ")" !important; font-size: 0.8em !important;
         color: #555 !important; font-weight: normal !important; margin-left: 0.1em !important;
-        opacity: 1 !important; /* 인쇄 시에는 항상 보이도록 */
+        opacity: 1 !important;
         word-break: break-all !important;
     }
-    .post-content a[href^="http"]::before, /* 모든 before 아이콘 제거 */
+    .post-content a[href^="http"]::before,
     .post-content a.book-link::before,
     .post-content a[href*="youtube"]::before,
     .post-content a[href*="github"]::before,
@@ -411,29 +405,28 @@ html.dark-theme .post-card-tag:hover {
     }
 }
 
-/* 로딩 상태 스피너 */
 .post-content a.is-loading,
 .post-content a.loading {
     position: relative !important;
     color: transparent !important;
     border-bottom-color: transparent !important;
-    pointer-events: none; /* 로딩 중 클릭 방지 */
+    pointer-events: none;
 }
 
 .post-content a.is-loading::after,
-.post-content a.loading::after { /* 외부 링크 아이콘 자리에 스피너 */
+.post-content a.loading::after {
     content: '' !important;
     position: absolute !important;
     top: 50% !important;
     left: 50% !important;
-    width: 10px !important; /* 스피너 크기 축소 */
+    width: 10px !important;
     height: 10px !important;
-    margin: -5px 0 0 -5px !important; /* 중앙 정렬 */
+    margin: -5px 0 0 -5px !important;
     border: 2px solid var(--neutral-300) !important;
     border-top-color: var(--text-accent) !important;
     border-radius: 50% !important;
-    animation: link-spin 0.7s linear infinite !important; /* 속도 약간 빠르게 */
-    opacity: 1 !important; /* 항상 보이도록 */
+    animation: link-spin 0.7s linear infinite !important;
+    opacity: 1 !important;
 }
 
 @keyframes link-spin {
@@ -450,7 +443,7 @@ html.dark-theme .post-content a.loading::after {
 @media (max-width: 768px) {
     .post-content a {
         padding: 4px 6px !important;
-        font-size: 1rem !important;
+        /* font-size는 0.8rem 상속 */
         min-height: 36px !important;
         display: inline-flex !important;
         align-items: center !important;
@@ -462,7 +455,6 @@ html.dark-theme .post-content a.loading::after {
         white-space: normal !important;
     }
     
-    /* 모바일에서 긴 URL 처리 */
     .post-content a[href^="http"] {
         word-break: break-all !important;
         overflow-wrap: anywhere !important;
@@ -470,7 +462,6 @@ html.dark-theme .post-content a.loading::after {
         white-space: normal !important;
     }
     
-    /* 모바일에서 특별 링크들 */
     .post-content a[href*="book"],
     .post-content a[href*="youtube"],
     .post-content a[href*="github"],
@@ -497,15 +488,14 @@ html.dark-theme .post-content a.loading::after {
         max-width: calc(100% - 4px) !important;
         line-height: 1.4 !important;
         flex-wrap: wrap !important;
+        /* font-size는 0.8rem 상속 */
     }
     
-    /* GitHub 링크는 더 강력한 줄바꿈 */
     .post-content a[href*="github"] {
         word-break: break-all !important;
         overflow-wrap: anywhere !important;
     }
     
-    /* 이모지와 텍스트 간격 조정 */
     .post-content a[href*="book"]::before,
     .post-content a[href*="youtube"]::before,
     .post-content a[href*="github"]::before,
@@ -524,7 +514,6 @@ html.dark-theme .post-content a.loading::after {
         flex-shrink: 0 !important;
     }
     
-    /* 호버 효과 축소 (모바일 터치 환경) */
     .post-content a[href*="book"]:hover,
     .post-content a[href*="youtube"]:hover,
     .post-content a[href*="github"]:hover,
@@ -541,6 +530,7 @@ html.dark-theme .post-content a.loading::after {
         word-break: break-word !important;
         overflow-wrap: break-word !important;
         white-space: normal !important;
+        font-family: var(--font-sans); 
     }
     
     .post-content a.btn-link,
@@ -557,9 +547,9 @@ html.dark-theme .post-content a.loading::after {
         overflow-wrap: break-word !important;
         text-align: center !important;
         line-height: 1.3 !important;
+        font-family: var(--font-sans);
     }
     
-    /* 매우 긴 URL 처리 개선 */
     .post-content a[href*="://"] {
         word-break: break-all !important;
         overflow-wrap: anywhere !important;
@@ -570,7 +560,7 @@ html.dark-theme .post-content a.loading::after {
 /* ===== 초소형 모바일 (480px 이하) 추가 최적화 ===== */
 @media (max-width: 480px) {
     .post-content a {
-        font-size: 0.95rem !important;
+        /* font-size는 0.8rem 상속 */
         padding: 3px 5px !important;
         line-height: 1.3 !important;
     }
@@ -591,7 +581,7 @@ html.dark-theme .post-content a.loading::after {
     .post-content a[href$=".docx"] {
         padding: 4px 6px !important;
         margin: 2px 1px !important;
-        font-size: 0.9rem !important;
+        /* font-size는 0.8rem 상속 */
         min-height: 32px !important;
         max-width: calc(100% - 4px) !important;
     }
@@ -602,6 +592,7 @@ html.dark-theme .post-content a.loading::after {
         font-size: 0.8rem !important;
         margin: 2px !important;
         min-height: 28px !important;
+        font-family: var(--font-sans); 
     }
 }
 
@@ -623,7 +614,6 @@ html.dark-theme .post-content a.loading::after {
     }
 }
 
-/* 고대비 모드 지원 */
 @media (prefers-contrast: high) {
     .post-content a {
         border: 2px solid currentColor !important;
@@ -636,14 +626,13 @@ html.dark-theme .post-content a.loading::after {
     }
 }
 
-/* 모바일 환경에서 터치 영역 확보 (필요한 경우) */
 @media (hover: none) and (pointer: coarse) {
     .post-content a,
-    .post-content a.book-link, /* 모든 특별 링크 포함 */
+    .post-content a.book-link, 
     .post-content a[href*="youtube"],
     .post-content a[href*="github"],
     .post-content a[href$=".pdf"] {
-        padding-top: 4px !important; /* 위아래 패딩 약간 추가 */
+        padding-top: 4px !important;
         padding-bottom: 4px !important;
     }
 }

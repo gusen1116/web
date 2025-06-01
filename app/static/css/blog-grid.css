@@ -32,11 +32,10 @@
 @supports (display: grid) {
   .posts-grid {
     display: grid;
-    /* 헤더 폭 기준으로 카드 너비 자동 계산: (전체폭 - gap*2) / 3 */
-    grid-template-columns: repeat(3, calc((var(--content-max-width) - 2 * var(--spacing-6)) / 3)); 
+    /* 수정: 그리드 컨테이너의 100% 너비를 기준으로 컬럼 너비 계산 */
+    grid-template-columns: repeat(3, calc((100% - 2 * var(--spacing-6)) / 3)); 
     gap: var(--spacing-6);
     justify-content: center; /* 그리드 아이템들을 컨테이너 중앙에 배치 */
-    /* justify-items: center; /* 그리드 셀 내에서 아이템을 중앙 정렬 (필요시) */
   }
 }
 
@@ -46,8 +45,8 @@
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
-  /* 헤더 폭 기준으로 카드 너비 자동 계산 */
-  width: calc((var(--content-max-width) - 2 * var(--spacing-6)) / 3); 
+  /* 수정: 플렉스 아이템의 너비도 부모의 100%를 기준으로 계산 */
+  width: calc((100% - 2 * var(--spacing-6)) / 3); 
   margin-bottom: 0; /* gap으로 대체 */
   margin-right: 0; /* gap으로 대체 */
   -webkit-flex-shrink: 0;
@@ -64,7 +63,6 @@
 }
 
 /* ===== 메인 페이지 중앙 정렬 포스트 그리드 ===== */
-/* 메인 페이지는 보통 3개 정도의 카드를 중앙에 표시하므로, posts-grid와 동일한 로직 적용 */
 .posts-grid-center {
   display: -webkit-box;
   display: -webkit-flex;
@@ -81,7 +79,6 @@
   align-items: stretch;
   
   width: 100%;
-  /* 헤더 폭 기준으로 설정 */
   max-width: var(--content-max-width); 
   margin: 0 auto var(--spacing-12);
   padding: 0;
@@ -92,8 +89,8 @@
 @supports (display: grid) {
   .posts-grid-center {
     display: grid;
-    /* 헤더 폭 기준으로 카드 너비 자동 계산 */
-    grid-template-columns: repeat(3, calc((var(--content-max-width) - 2 * var(--spacing-6)) / 3)); 
+    /* 수정: 그리드 컨테이너의 100% 너비를 기준으로 컬럼 너비 계산 */
+    grid-template-columns: repeat(3, calc((100% - 2 * var(--spacing-6)) / 3)); 
     gap: var(--spacing-6);
     justify-content: center;
   }
@@ -104,8 +101,8 @@
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
-  /* 헤더 폭 기준으로 카드 너비 자동 계산 */
-  width: calc((var(--content-max-width) - 2 * var(--spacing-6)) / 3); 
+  /* 수정: 플렉스 아이템의 너비도 부모의 100%를 기준으로 계산 */
+  width: calc((100% - 2 * var(--spacing-6)) / 3); 
   margin-bottom: 0;
   margin-right: 0;
   -webkit-flex-shrink: 0;
@@ -128,7 +125,6 @@
   border-radius: 6px;
   overflow: hidden;
   width: 100%;
-  /* 헤더 폭 기준으로 설정 */
   max-width: var(--content-max-width); 
   height: 300px;
   display: -webkit-box;
@@ -181,7 +177,6 @@
   margin-top: var(--spacing-8);
   margin-bottom: var(--spacing-16);
   width: 100%;
-  /* 헤더 폭 기준으로 설정 */
   max-width: var(--content-max-width); 
   margin-left: auto;
   margin-right: auto;
@@ -208,10 +203,9 @@
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  gap: var(--spacing-8); /* gap 사용 */
+  gap: var(--spacing-8); 
 }
 
-/* CSS Grid enhancement */
 @supports (display: grid) {
   .intro-container {
     display: grid;
@@ -344,7 +338,6 @@
   overflow: hidden;
   cursor: pointer;
   box-sizing: border-box;
-  /* NEW: 카드의 width는 부모 그리드 아이템에 의해 결정되므로 여기서는 100% */
   width: 100%; 
 }
 
@@ -474,7 +467,6 @@
   margin-top: auto;
 }
 
-/* ===== 포스트 카드 태그 - 가로 배치 (수정: enhanced-links.css와 일치) ===== */
 .post-card-tags {
   display: -webkit-box;
   display: -webkit-flex;
@@ -486,16 +478,15 @@
   gap: var(--spacing-2);
 }
 
-/* 수정: enhanced-links.css와 스타일 통일 */
 .post-card-tag {
-  background-color: var(--neutral-100) !important; /* 중성 배경색으로 변경 */
-  color: var(--text-secondary) !important; /* 중성 텍스트 색상으로 변경 */
+  background-color: var(--neutral-100) !important; 
+  color: var(--text-secondary) !important; 
   font-size: 0.85rem;
   padding: 0.2rem 0.6rem;
   border-radius: var(--radius-full);
   transition: all 0.2s ease;
   font-family: var(--font-sans);
-  border: 1px solid var(--neutral-200) !important; /* 중성 테두리로 변경 */
+  border: 1px solid var(--neutral-200) !important; 
   display: inline-flex;
   align-items: center;
   gap: 0.3em;
@@ -508,11 +499,10 @@
   box-shadow: none;
 }
 
-/* 수정: enhanced-links.css와 호버 효과 통일 */
 .post-card-tag:hover {
-  background-color: var(--neutral-200) !important; /* 중성 호버 배경 */
-  color: var(--text-primary) !important; /* 호버 시 기본 텍스트 색상 */
-  border-color: var(--neutral-300) !important; /* 중성 호버 테두리 */
+  background-color: var(--neutral-200) !important; 
+  color: var(--text-primary) !important; 
+  border-color: var(--neutral-300) !important; 
   transform: none;
   box-shadow: none;
   text-decoration: none;
@@ -541,17 +531,16 @@ html.dark-theme .intro-container {
   background-color: var(--bg-secondary);
 }
 
-/* 수정: 다크모드 태그 스타일도 enhanced-links.css와 통일 */
 html.dark-theme .post-card-tag {
-  background-color: var(--neutral-800) !important; /* 다크모드 중성 배경 */
-  color: var(--text-secondary) !important; /* 다크모드 중성 텍스트 */
-  border-color: var(--neutral-700) !important; /* 다크모드 중성 테두리 */
+  background-color: var(--neutral-800) !important; 
+  color: var(--text-secondary) !important; 
+  border-color: var(--neutral-700) !important; 
 }
 
 html.dark-theme .post-card-tag:hover {
-  background-color: var(--neutral-700) !important; /* 다크모드 중성 호버 배경 */
-  color: var(--text-primary) !important; /* 다크모드 호버 텍스트 */
-  border-color: var(--neutral-600) !important; /* 다크모드 중성 호버 테두리 */
+  background-color: var(--neutral-700) !important; 
+  color: var(--text-primary) !important; 
+  border-color: var(--neutral-600) !important; 
 }
 
 /* ===== 포스트 카드 링크 ===== */
@@ -571,7 +560,6 @@ html.dark-theme .post-card-tag:hover {
   color: var(--text-primary);
   position: relative;
   width: 100%;
-  /* 헤더 폭 기준으로 설정 */
   max-width: var(--content-max-width); 
   margin-left: auto;
   margin-right: auto;
@@ -586,7 +574,6 @@ html.dark-theme .post-card-tag:hover {
   margin-top: var(--spacing-16);
   margin-bottom: var(--spacing-16);
   width: 100%;
-  /* 헤더 폭 기준으로 설정 */
   max-width: var(--content-max-width); 
   margin-left: auto;
   margin-right: auto;
@@ -612,14 +599,13 @@ html.dark-theme .post-card-tag:hover {
   -webkit-justify-content: flex-start;
   -ms-flex-pack: start;
   justify-content: flex-start;
-  /* 헤더 폭 기준으로 설정 */
   max-width: var(--content-max-width); 
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
   position: relative;
   width: 100%;
   box-sizing: border-box;
-  gap: 0.75rem; /* gap 사용 */
+  gap: 0.75rem;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -672,7 +658,6 @@ html.dark-theme .post-card-tag:hover {
   box-shadow: 0 4px 12px rgba(9, 105, 218, 0.25);
 }
 
-/* Dark mode tag styles */
 html.dark-theme .top-tag-navigation .tag-item {
   background-color: rgba(56, 139, 253, 0.15);
   color: #58a6ff;
@@ -694,7 +679,7 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   margin-bottom: 2rem;
   text-align: left;
   width: 100%;
-  margin-left: 0; /* posts-container 내부로 이동 시 자동 중앙 정렬 */
+  margin-left: 0;
   margin-right: auto;
   position: relative;
   box-sizing: border-box;
@@ -734,11 +719,10 @@ html.dark-theme .top-tag-navigation .tag-item.active {
 /* ===== 포스트 컨테이너 ===== */
 .posts-container {
   width: 100%;
-  /* 헤더 폭 기준으로 설정 */
   max-width: var(--content-max-width); 
   margin: 0 auto;
   position: relative;
-  padding-bottom: calc(var(--spacing-16) + 50px);
+  padding-bottom: calc(var(--spacing-12) + 50px);
   box-sizing: border-box;
 }
 
@@ -803,12 +787,10 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   transition: transform 0.3s ease;
 }
 
-/* ===== 숨김 처리 ===== */
 .hidden {
   display: none;
 }
 
-/* ===== 빈 상태 메시지 ===== */
 .empty-state {
   text-align: center;
   padding: var(--spacing-12);
@@ -820,33 +802,23 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   border: 1px solid var(--border-color);
   width: 100%;
   box-sizing: border-box;
-  grid-column: 1 / -1; /* Grid에서 전체 폭 차지 */
+  grid-column: 1 / -1; 
 }
 
 /* ===== 반응형 설정 - 개선된 버전 ===== */
-
-/* 데스크톱 대형 (1440px 이상) - 현재 1128px 기준으로 충분하므로 특별한 변경 없음 */
 @media (min-width: 1440px) {
-  .posts-grid,
-  .posts-grid-center,
-  .section-title,
-  .blog-section,
-  .simulation-section,
-  .top-tag-navigation,
-  .posts-container,
-  .slide-container,
-  .intro-section {
-    /* max-width: 1200px; /* 필요시 더 넓게 */
-  }
+  /* Desktop large styles remain largely unchanged as base styles target this */
 }
 
-/* 태블릿 (2열) - 헤더 폭보다 작을 때 2열로 변경 */
+/* 태블릿 (2열) */
 @media (max-width: 1439px) { 
   .posts-grid,
   .posts-grid-center {
-    /* 2열: 헤더 폭 기준으로 카드 너비 자동 계산 */
-    max-width: calc(var(--content-max-width) * 0.7); /* 헤더 폭의 70% 정도 */
-    grid-template-columns: repeat(2, calc((var(--content-max-width) * 0.7 - var(--spacing-6)) / 2));
+    max-width: calc(var(--content-max-width) * 0.7); 
+    @supports (display: grid) {
+      /* 수정: 2열일 때 올바른 gap 계산 */
+      grid-template-columns: repeat(2, calc((100% - var(--spacing-6)) / 2));
+    }
   }
   .top-tag-navigation,
   .posts-container,
@@ -858,23 +830,21 @@ html.dark-theme .top-tag-navigation .tag-item.active {
     max-width: calc(var(--content-max-width) * 0.7);
   }
 
-  /* Flexbox fallback for 2 columns */
   .posts-grid > *,
   .posts-grid-center > * {
-    width: calc((var(--content-max-width) * 0.7 - var(--spacing-6)) / 2); /* 2열 카드 너비 */
-    max-width: calc((var(--content-max-width) * 0.7 - var(--spacing-6)) / 2);
+    /* 수정: 플렉스 아이템도 2열에 맞게 너비 조정 */
+    width: calc((100% - var(--spacing-6)) / 2);
+    max-width: none; /* 이전 max-width 제거 또는 조정 */
   }
 }
 
-
-/* 모바일 (1열) - 2열 폭보다 작을 때 1열로 변경 */
+/* 모바일 (1열) */
 @media (max-width: 950px) {
   .posts-grid,
   .posts-grid-center {
-    /* 1열: 모바일 기준 적당한 폭 */
     max-width: 500px; 
-    grid-template-columns: minmax(0, 450px); /* 1열, 최대 450px */
-    padding-left: var(--spacing-4); /* 모바일 좌우 여백 */
+    grid-template-columns: minmax(0, 1fr); /* 1열로 변경, 최대 카드폭은 카드가 스스로 결정 */
+    padding-left: var(--spacing-4);
     padding-right: var(--spacing-4);
   }
   .top-tag-navigation,
@@ -891,124 +861,41 @@ html.dark-theme .top-tag-navigation .tag-item.active {
     padding-right: var(--spacing-4);
   }
   
-  /* Flexbox fallback for 1 column */
   .posts-grid > *,
   .posts-grid-center > * {
-    width: 100%; /* 컨테이너(최대 400px)에 꽉 차게 */
-    max-width: 450px; /* 카드 자체의 최대 너비는 고정 */
+    width: 100%; 
+    max-width: 450px; /* 카드 자체의 최대 너비 */
     margin-left: auto;
     margin-right: auto;
   }
   
-  /* 기존 768px 미디어 쿼리 내용 중 카드 크기 및 그리드 관련 부분은 위에서 처리 */
-  /* 나머지 모바일 스타일(폰트, 패딩 등)은 유지 */
-  
   .top-tag-navigation {
-     width: calc(100% - (2 * var(--spacing-4))); /* 부모 패딩과 일치시키기 */
+     width: calc(100% - (2 * var(--spacing-4)));
   }
   
-  .post-card {
-    min-height: 380px;
-  }
+  .post-card { min-height: 380px; }
+  .post-card-title { font-size: 1.4rem; }
+  .post-card-preview { font-size: 1.1rem; }
+  .post-card-tags { display: flex !important; flex-wrap: wrap; flex-direction: row; gap: 0.5rem; align-items: center; }
+  .post-card-footer { flex-direction: row; align-items: flex-start; }
+  .blog-header h1 { font-size: 2rem; }
+  .slide-container { height: 250px; }
+  .slide h2 { font-size: 1.8rem; }
+  .post-card-tag { padding: 6px 10px; font-size: 0.8rem; white-space: nowrap; }
+  .post-card-action { padding: 8px 16px; font-size: 1rem; }
   
-  .post-card-title {
-    font-size: 1.4rem;
-  }
-  
-  .post-card-preview {
-    font-size: 1.1rem; /* 기존 768px 보다 큰 값 유지 */
-  }
-  
-  .post-card-tags {
-    display: flex !important;
-    flex-wrap: wrap;
-    flex-direction: row;
-    gap: 0.5rem;
-    align-items: center;
-  }
-  
-  .post-card-footer {
-    flex-direction: row;
-    align-items: flex-start; /* 기존 flex-start 유지 */
-  }
-  
-  .blog-header {
-    /* margin: 0 1.5rem 2rem; /* 기존 값에서 조정 */
-    /* max-width: calc(100% - (2*var(--spacing-4))); */
-    box-sizing: border-box;
-  }
-  
-  .blog-header h1 {
-    font-size: 2rem;
-  }
-  
-  .slide-container {
-    height: 250px;
-  }
-  
-  .slide h2 {
-    font-size: 1.8rem;
-  }
-  
-  .post-card-tag {
-    padding: 6px 10px;
-    font-size: 0.8rem;
-    white-space: nowrap;
-  }
-  
-  .post-card-action {
-    padding: 8px 16px;
-    font-size: 1rem;
-  }
-  
-  .intro-section {
-    /* margin-top: var(--spacing-6); */
-    /* margin-bottom: var(--spacing-8); */
-    /* padding: 0 var(--spacing-4); /* 부모 패딩과 일치 */
-    box-sizing: border-box;
-  }
-  
-  .intro-container {
-    flex-direction: column;
-    text-align: center;
-    padding: var(--spacing-5);
-    gap: var(--spacing-5);
-  }
-  
+  .intro-container { flex-direction: column; text-align: center; padding: var(--spacing-5); gap: var(--spacing-5); }
   @supports (display: grid) {
-    .intro-container {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: var(--spacing-5);
-    }
+    .intro-container { display: grid; grid-template-columns: 1fr; gap: var(--spacing-5); }
   }
-  
-  .intro-image-area {
-    flex: 0 0 auto;
-    width: 160px;
-    margin: 0 auto;
-  }
-  
-  .intro-content-area {
-    min-height: auto;
-  }
-  
-  .intro-content-area h2 {
-    font-size: 1.6rem;
-  }
-  
-  .intro-content-area p {
-    font-size: 1rem;
-  }
-  
-  .intro-content-area .intro-links {
-    justify-content: center;
-  }
+  .intro-image-area { flex: 0 0 auto; width: 160px; margin: 0 auto; }
+  .intro-content-area { min-height: auto; }
+  .intro-content-area h2 { font-size: 1.6rem; }
+  .intro-content-area p { font-size: 1rem; }
+  .intro-content-area .intro-links { justify-content: center; }
 }
 
-
-/* 초소형 모바일 (480px 이하) - 카드 너비가 360px이므로, 400px max-width 설정으로 대부분 커버됨. */
-/* 필요시 이 구간에서 .posts-grid, .top-tag-navigation 등의 padding을 1rem으로 줄이고 max-width를 더 타이트하게 조정 가능 */
+/* 초소형 모바일 (480px 이하) */
 @media (max-width: 480px) {
   .posts-grid,
   .posts-grid-center,
@@ -1019,39 +906,19 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   .section-title,
   .blog-section,
   .simulation-section {
-    padding-left: 1rem; /* 더 작은 화면에서 패딩 축소 */
+    padding-left: 1rem;
     padding-right: 1rem;
   }
 
   .top-tag-navigation {
      width: calc(100% - 2rem);
   }
-
-  .blog-header {
-    /* margin: 0 1rem 1.5rem; */
-    /* max-width: calc(100% - 2rem); */
-  }
   
-  .blog-header h1 {
-    font-size: 1.75rem;
-  }
-  
-  .post-card {
-    min-height: 350px;
-  }
-  
-  .post-card-title {
-    font-size: 1.3rem;
-  }
-  
-  .post-card-preview {
-    font-size: 1rem; /* 기존 480px 보다 큰 값 유지 */
-  }
-  
-  .post-card-tag {
-    padding: 5px 8px;
-    font-size: 0.75rem;
-  }
+  .blog-header h1 { font-size: 1.75rem; }
+  .post-card { min-height: 350px; }
+  .post-card-title { font-size: 1.3rem; }
+  .post-card-preview { font-size: 1rem; }
+  .post-card-tag { padding: 5px 8px; font-size: 0.75rem; }
 }
 
 /* ===== Flexbox fallback 개선 ===== */
@@ -1060,42 +927,48 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   .posts-grid-center {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center; /* 중앙 정렬 */
+    justify-content: center;
     align-items: stretch;
   }
   
-  /* Flexbox에서 아이템 너비 고정 및 반응형 처리 */
   .posts-grid > *,
   .posts-grid-center > * {
-      flex-basis: calc((var(--content-max-width) - 2 * var(--spacing-6)) / 3); 
-      flex-grow: 0; /* 늘어나지 않도록 */
-      flex-shrink: 0; /* 줄어들지 않도록 */
-      margin: calc(var(--spacing-6) / 2); /* gap 대신 margin 사용 */
+      /* 수정: 플렉스 아이템도 100% 기준으로 계산 */
+      flex-basis: calc((100% - 2 * var(--spacing-6)) / 3); 
+      flex-grow: 0;
+      flex-shrink: 0;
+      margin: calc(var(--spacing-6) / 2);
   }
 
-  /* 2열 */
   @media (max-width: 1439px) {
     .posts-grid > *,
     .posts-grid-center > * {
-        flex-basis: calc((var(--content-max-width) * 0.7 - var(--spacing-6)) / 2);
+        /* 수정: 2열일 때도 100% 기준으로 계산 */
+        flex-basis: calc((100% - var(--spacing-6)) / 2);
     }
   }
-  /* 1열 */
   @media (max-width: 950px) {
     .posts-grid > *,
     .posts-grid-center > * {
         flex-basis: 100%; 
         max-width: 450px;
-        margin-left: auto; /* 중앙 정렬 */
+        margin-left: auto;
         margin-right: auto;
     }
   }
 
-  /* Flexbox에서 마지막 줄 아이템들이 늘어나지 않도록 하는 트릭 (필요시) */
   .posts-grid::after,
   .posts-grid-center::after {
     content: '';
-    flex: auto; /* 남은 공간을 채우지만, 아이템이 없으면 보이지 않음 */
-    max-width: calc((var(--content-max-width) - 2 * var(--spacing-6)) / 3); /* 아이템과 동일한 최대 너비 */
+    flex: auto;
+    /* 수정: 기준 너비도 100% 기준으로 계산 */
+    max-width: calc((100% - 2 * var(--spacing-6)) / 3);
+  }
+  @media (max-width: 1439px) {
+    .posts-grid::after,
+    .posts-grid-center::after {
+        /* 수정: 2열일 때 기준 너비도 100% 기준으로 계산 */
+        max-width: calc((100% - var(--spacing-6)) / 2);
+    }
   }
 }
