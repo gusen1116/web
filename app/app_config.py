@@ -4,8 +4,9 @@ import sys
 from datetime import timedelta
 from pathlib import Path
 
-# 베이스 디렉토리
-basedir = Path(__file__).parent.parent.resolve()
+# 베이스 디렉토리 (app_config.py 파일이 위치한 디렉토리, 즉 app/ 디렉토리)
+# POSTS_DIR 설정 시 이 경로를 기준으로 합니다.
+app_dir = Path(__file__).parent.resolve()
 
 class Config:
     """향상된 보안 설정을 가진 기본 설정 클래스"""
@@ -43,11 +44,11 @@ class Config:
         # CSP는 nonce 기반으로 변경 (unsafe-inline, unsafe-eval 제거)
         'Content-Security-Policy': (
             "default-src 'self'; "
-            "script-src 'self' 'nonce-{nonce}' https://www.youtube.com https://youtube.com; "
+            "script-src 'self' 'nonce-{nonce}' https://www.youtube.com https://youtube.com; " # youtube.com 스크립트 허용을 위해 추가 (만약 Youtube API 등을 사용한다면)
             "style-src 'self' 'nonce-{nonce}' https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
             "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
-            "img-src 'self' data: https:; "
-            "frame-src 'self' https://www.youtube.com https://youtube.com; "
+            "img-src 'self' data: https:; " # 'https:' 추가하여 모든 HTTPS 이미지 허용
+            "frame-src 'self' https://www.youtube.com https://youtube.com; " # 유튜브 임베드 허용
             "connect-src 'self'; "
             "base-uri 'self'; "
             "form-action 'self'; "
@@ -58,7 +59,7 @@ class Config:
     }
     
     # 파일 및 콘텐츠 설정
-    POSTS_DIR = os.environ.get('POSTS_DIR', str(basedir / 'posts'))
+    POSTS_DIR = os.environ.get('POSTS_DIR', str(app_dir / 'content' / 'posts')) # 경로 수정됨
     ALLOWED_TEXT_EXTENSIONS = {'txt', 'md'}
     MAX_FILE_READ_SIZE = 10 * 1024 * 1024  # 10MB
     
@@ -91,9 +92,9 @@ class Config:
     ALLOWED_HTML_ATTRIBUTES = {
         'a': ['href', 'title', 'target', 'rel', 'class'],
         'img': ['src', 'alt', 'title', 'width', 'height', 'class', 'loading', 'decoding'],
-        'div': ['class', 'id', 'data-theme'],
+        'div': ['class', 'id', 'data-theme'], # data-theme 추가 (필요시)
         'span': ['class'],
-        'code': ['class'],
+        'code': ['class'], # language-python 등 클래스 허용
         'pre': ['class'],
         'iframe': ['src', 'width', 'height', 'frameborder', 
                  'allowfullscreen', 'allow', 'sandbox', 'loading', 'title'],
@@ -109,7 +110,7 @@ class Config:
     # 외부 도메인 허용 목록 (보안 강화)
     ALLOWED_EXTERNAL_DOMAINS = {
         # 동영상/미디어
-        'youtube.com', 'www.youtube.com', 'youtu.be',
+        'youtube.com', 'www.youtube.com', 'youtu.be', # YouTube
         'vimeo.com', 'player.vimeo.com',
         
         # 기술/개발
@@ -126,7 +127,8 @@ class Config:
         'bookhouse.co.kr', 'ebook.kyobobook.co.kr',
         
         # 클라우드/CDN
-        'cloudflare.com', 'jsdelivr.net', 'unpkg.com',
+        'cloudflare.com', 'cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com', # CDN 추가
+        'jsdelivr.net', 'unpkg.com',
         
         # 이미지 호스팅
         'imgur.com', 'i.imgur.com',
@@ -138,7 +140,7 @@ class Config:
     # 로깅 설정
     LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT', 'true').lower() == 'true'
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
-    LOG_FILE = 'logs/app.log'
+    LOG_FILE = 'logs/app.log' # 로그 파일 경로 수정 (프로젝트 루트 기준 logs 폴더)
     LOG_MAX_BYTES = 10 * 1024 * 1024  # 10MB
     LOG_BACKUP_COUNT = 10
     
@@ -177,8 +179,8 @@ class DevelopmentConfig(Config):
     
     # 개발 환경 로깅
     LOG_LEVEL = 'DEBUG'
-    LOG_TO_STDOUT = False  # 개발시 파일 로깅도 유용
-    
+    LOG_TO_STDOUT = True  # 개발시 stdout 로깅이 편리할 수 있음
+
     # 캐시 타임아웃 단축 (빠른 변경 확인)
     CACHE_TIMEOUT = 60  # 1분
 
@@ -193,11 +195,13 @@ class TestingConfig(Config):
     # 테스트 환경에서는 세션 쿠키 보안 비활성화
     SESSION_COOKIE_SECURE = False
     
-    # 테스트용 디렉토리
-    POSTS_DIR = str(basedir / 'tests' / 'test_posts')
+    # 테스트용 디렉토리 (프로젝트 루트 기준 tests/test_posts)
+    TEST_BASE_DIR = Path(__file__).parent.parent.parent.resolve() # app_config.py -> app -> project_root
+    POSTS_DIR = str(TEST_BASE_DIR / 'tests' / 'test_posts')
     
     # 로깅 최소화
     LOG_LEVEL = 'ERROR'
+    LOG_TO_STDOUT = True
 
 class ProductionConfig(Config):
     """프로덕션 환경 설정"""
@@ -216,15 +220,10 @@ class ProductionConfig(Config):
         """프로덕션 환경 초기화"""
         super().init_app(app)
         
-        # 프로덕션 환경 검증
-        import logging
-        from logging.handlers import SysLogHandler
-        
-        # Syslog 핸들러 추가 (선택사항)
-        if not cls.LOG_TO_STDOUT and sys.platform != 'win32':
-            syslog_handler = SysLogHandler()
-            syslog_handler.setLevel(logging.WARNING)
-            app.logger.addHandler(syslog_handler)
+        # 프로덕션 환경 검증 (이미 Config.init_app에서 수행)
+        # 추가적인 프로덕션 전용 로깅 설정이 필요하다면 여기에 추가
+        # 예: 외부 로깅 서비스 연동
+        pass
 
 # 설정 매핑
 config = {
