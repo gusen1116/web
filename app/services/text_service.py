@@ -17,9 +17,50 @@ try:
 except ImportError:
     MARKDOWN_ENABLED = False
 
+# HTML 파싱을 위한 임포트
+try:
+    from html.parser import HTMLParser
+    HTML_PARSER_ENABLED = True
+except ImportError:
+    HTML_PARSER_ENABLED = False
+
 # 상수 정의 - 보안 및 성능 최적화
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB (읽기용)
 CACHE_VERSION = "v2.0"  # 캐시 버전 관리
+
+
+class URLLinkifyParser(HTMLParser):
+    """HTML 내의 텍스트 노드만 추출하여 URL 링크 변환"""
+    def __init__(self):
+        super().__init__()
+        self.result = []
+        self.in_tag = None
+        self.tag_stack = []
+    
+    def handle_starttag(self, tag, attrs):
+        self.tag_stack.append(tag)
+        self.in_tag = tag
+        
+        # 태그를 그대로 결과에 추가
+        attrs_str = ' '.join([f'{k}="{v}"' for k, v in attrs])
+        if attrs_str:
+            self.result.append(f'<{tag} {attrs_str}>')
+        else:
+            self.result.append(f'<{tag}>')
+    
+    def handle_endtag(self, tag):
+        if self.tag_stack and self.tag_stack[-1] == tag:
+            self.tag_stack.pop()
+        self.in_tag = self.tag_stack[-1] if self.tag_stack else None
+        self.result.append(f'</{tag}>')
+    
+    def handle_data(self, data):
+        # a, script, style 태그 내부는 변환하지 않음
+        if self.in_tag in ['a', 'script', 'style', 'code', 'pre']:
+            self.result.append(data)
+        else:
+            # 텍스트 노드에서만 URL 변환
+            self.result.append(_linkify_text_urls(data))
 
 
 @dataclass
@@ -62,7 +103,7 @@ class TextPost:
     
     @staticmethod
     def _validate_filename(filename: str) -> bool:
-        """파일명 보안 검증 강화"""
+        """파일명 보안 검증 강화 - 공백 제거"""
         if not isinstance(filename, str) or not filename:
             return False
         
@@ -84,8 +125,8 @@ class TextPost:
         if not any(filename.lower().endswith(f'.{ext}') for ext in allowed_extensions):
             return False
         
-        # 안전한 문자만 허용 (유니코드 지원)
-        if not re.match(r'^[\w\-가-힣\s.]+$', filename):
+        # 안전한 문자만 허용 (공백 제거)
+        if not re.match(r'^[\w\-가-힣.]+$', filename):
             return False
         
         return True
@@ -569,7 +610,7 @@ def render_content(content: str,
                   base_url_videos: str = '/posts/videos', 
                   base_url_audios: str = '/posts/audios') -> Markup:
     """
-    특수 태그를 HTML로 변환 후 마크다운 처리 - URL 링크 변환 개선
+    특수 태그를 HTML로 변환 후 마크다운 처리 - HTML Parser 기반 URL 링크 변환
     """
     if not isinstance(content, str) or not content.strip():
         return Markup("")
@@ -593,19 +634,15 @@ def render_content(content: str,
         # HTML 정제 및 보안 검사
         clean_content = _sanitize_html_preserve_links(html_content)
         
-        # URL 링크 변환 (한 번만 실행)
-        final_content = _auto_linkify_urls(clean_content)
+        # URL 링크 변환 (HTML Parser 사용)
+        final_content = _auto_linkify_urls_safe(clean_content)
         
         return Markup(final_content)
         
     except Exception as e:
         current_app.logger.error(f"콘텐츠 렌더링 오류: {e}")
-        # 오류 발생시에도 기본 URL 링크 변환은 시도
-        try:
-            simple_linkified = _auto_linkify_urls(content)
-            return Markup(f'<div class="content-error">일부 기능이 제한되었습니다.</div><div class="post-content">{simple_linkified}</div>')
-        except:
-            return Markup(f"<div class='error-embed'>콘텐츠 렌더링 오류가 발생했습니다: {str(e)}</div>")
+        # 오류 발생시에도 기본 텍스트와 함께 반환
+        return Markup(f'<div class="content-error">일부 기능이 제한되었습니다.</div><div class="post-content">{escape(content)}</div>')
 
 
 def _process_special_tags(content: str, base_url_images: str, base_url_videos: str, base_url_audios: str) -> str:
@@ -620,6 +657,14 @@ def _process_special_tags(content: str, base_url_images: str, base_url_videos: s
         # 이미지 - 경로 검증 강화
         (r'\[img:([^\]|]+)(?:\|([^\]]*))?\]', 
          lambda m: _create_image_tag(m.group(1), m.group(2), base_url_images)),
+        
+        # 비디오
+        (r'\[video:([^\]|]+)(?:\|([^\]]*))?\]',
+         lambda m: _create_video_tag(m.group(1), m.group(2), base_url_videos)),
+        
+        # 오디오
+        (r'\[audio:([^\]|]+)(?:\|([^\]]*))?\]',
+         lambda m: _create_audio_tag(m.group(1), m.group(2), base_url_audios)),
         
         # 하이라이트 박스
         (r'\[highlight\](.*?)\[/highlight\]', 
@@ -698,8 +743,8 @@ def _create_image_tag(src: str, alt: Optional[str], base_url: str) -> str:
     
     src = src.strip()
     
-    # 파일명 보안 검증 - 더 엄격한 검사
-    if not re.match(r'^[a-zA-Z0-9_\-가-힣\s.]+\.(jpg|jpeg|png|gif|webp)$', src, re.IGNORECASE):
+    # 파일명 보안 검증 - 공백 제거
+    if not re.match(r'^[a-zA-Z0-9_\-가-힣.]+\.(jpg|jpeg|png|gif|webp)$', src, re.IGNORECASE):
         return '<div class="error-embed">잘못된 이미지 파일명</div>'
     
     # 경로 조작 시도 차단
@@ -719,6 +764,64 @@ def _create_image_tag(src: str, alt: Optional[str], base_url: str) -> str:
          decoding="async">
     {f'<figcaption>{safe_alt}</figcaption>' if alt and alt.strip() else ''}
 </figure>
+'''
+
+
+def _create_video_tag(src: str, title: Optional[str], base_url: str) -> str:
+    """안전한 비디오 태그 생성"""
+    if not isinstance(src, str) or not src.strip():
+        return '<div class="error-embed">비디오 경로가 없습니다</div>'
+    
+    src = src.strip()
+    
+    # 파일명 보안 검증
+    if not re.match(r'^[a-zA-Z0-9_\-가-힣.]+\.(mp4|webm|ogg|mov)$', src, re.IGNORECASE):
+        return '<div class="error-embed">잘못된 비디오 파일명</div>'
+    
+    # 경로 조작 시도 차단
+    if '..' in src or '/' in src or '\\' in src:
+        return '<div class="error-embed">잘못된 비디오 경로</div>'
+    
+    safe_src = escape(src)
+    safe_title = escape(title.strip()) if title and title.strip() else "비디오"
+    safe_base_url = escape(base_url.rstrip('/'))
+    
+    return f'''
+<div class="video-container">
+    <video controls preload="metadata" title="{safe_title}">
+        <source src="{safe_base_url}/{safe_src}" type="video/{src.split(".")[-1]}">
+        브라우저가 비디오 재생을 지원하지 않습니다.
+    </video>
+</div>
+'''
+
+
+def _create_audio_tag(src: str, title: Optional[str], base_url: str) -> str:
+    """안전한 오디오 태그 생성"""
+    if not isinstance(src, str) or not src.strip():
+        return '<div class="error-embed">오디오 경로가 없습니다</div>'
+    
+    src = src.strip()
+    
+    # 파일명 보안 검증
+    if not re.match(r'^[a-zA-Z0-9_\-가-힣.]+\.(mp3|wav|ogg|flac|m4a)$', src, re.IGNORECASE):
+        return '<div class="error-embed">잘못된 오디오 파일명</div>'
+    
+    # 경로 조작 시도 차단
+    if '..' in src or '/' in src or '\\' in src:
+        return '<div class="error-embed">잘못된 오디오 경로</div>'
+    
+    safe_src = escape(src)
+    safe_title = escape(title.strip()) if title and title.strip() else "오디오"
+    safe_base_url = escape(base_url.rstrip('/'))
+    
+    return f'''
+<div class="audio-container">
+    <audio controls preload="metadata" title="{safe_title}">
+        <source src="{safe_base_url}/{safe_src}" type="audio/{src.split(".")[-1]}">
+        브라우저가 오디오 재생을 지원하지 않습니다.
+    </audio>
+</div>
 '''
 
 
@@ -754,58 +857,30 @@ def _create_code_block(code_text: str, language: Optional[str]) -> str:
     return f'<pre><code class="language-{safe_language}">{safe_code}</code></pre>'
 
 
-def _auto_linkify_urls(text: str) -> str:
-    """URL 자동 링크 변환 - 중복 방지 강화"""
+def _linkify_text_urls(text: str) -> str:
+    """텍스트 내의 URL을 링크로 변환 (HTML 태그 제외)"""
     if not isinstance(text, str):
         return text
     
-    # 간단한 URL 패턴 - look-behind 제거
+    # URL 패턴
     url_pattern = re.compile(
-        r'\b(https?://[^\s<>"\'`\)]+)',  # URL 패턴
+        r'\b(https?://[^\s<>"\'`\)]+)',
         re.IGNORECASE
     )
     
     def url_replacer(match):
         url = match.group(1)
-        original_url = url
-        full_match = match.group(0)
-        
-        # 이미 HTML 속성 안에 있는 URL인지 체크
-        match_start = match.start()
-        if match_start > 0:
-            # 앞의 20글자 정도를 확인해서 href= 또는 src= 안에 있는지 체크
-            prefix = text[max(0, match_start - 20):match_start]
-            if 'href="' in prefix or "href='" in prefix or 'src="' in prefix or "src='" in prefix:
-                return original_url
         
         # URL 끝의 문장부호 제거
         url = url.rstrip('.,;:!?)]')
         
         # URL 길이 제한
         if len(url) > 1000:
-            current_app.logger.warning(f"URL too long, skipping: {url[:100]}...")
-            return original_url
+            return match.group(0)
         
         # URL 안전성 검증
         if not _is_safe_url(url):
-            current_app.logger.debug(f"URL failed safety check: {url}")
-            return escape(original_url)
-        
-        # 도메인 허용 목록 확인
-        allowed_domains = current_app.config.get('ALLOWED_EXTERNAL_DOMAINS', set())
-        
-        # 도메인 허용 목록이 비어있으면 모든 도메인 허용
-        if allowed_domains and not _is_allowed_domain(url, allowed_domains):
-            current_app.logger.debug(f"URL not in allowed domains: {url}")
-            # 허용되지 않은 도메인이어도 링크로 만들되 경고 표시
-            safe_url = escape(url)
-            display_text = url if len(url) <= 60 else url[:57] + "..."
-            
-            return (f'<a href="{safe_url}" '
-                   f'target="_blank" '
-                   f'rel="noopener noreferrer nofollow" '
-                   f'class="auto-link external-link"'
-                   f'title="외부 링크: {escape(url)}">{escape(display_text)}</a>')
+            return escape(match.group(0))
         
         # 안전한 URL로 이스케이프
         safe_url = escape(url)
@@ -822,46 +897,37 @@ def _auto_linkify_urls(text: str) -> str:
                 f'class="auto-link post-link"'
                 f'title="{escape(url)}">{escape(display_text)}</a>')
     
-    # 이미 HTML로 변환된 부분은 건드리지 않도록 체크
-    if '<a href=' in text and '</a>' in text:
-        # 이미 링크가 있는 경우 더 신중하게 처리
-        # 링크 태그 사이의 내용은 변환하지 않도록 분할 처리
-        parts = []
-        in_link = False
-        current_part = ""
-        
-        i = 0
-        while i < len(text):
-            if text[i:i+8] == '<a href=' and not in_link:
-                # 링크 태그 시작
-                if current_part:
-                    # 이전 부분 처리
-                    parts.append(url_pattern.sub(url_replacer, current_part))
-                    current_part = ""
-                in_link = True
-                current_part += text[i]
-            elif text[i:i+4] == '</a>' and in_link:
-                # 링크 태그 끝
-                current_part += text[i:i+4]
-                parts.append(current_part)  # 링크 부분은 그대로 유지
-                current_part = ""
-                in_link = False
-                i += 3  # </a>의 나머지 부분 건너뛰기
-            else:
-                current_part += text[i]
-            i += 1
-        
-        # 마지막 부분 처리
-        if current_part:
-            if in_link:
-                parts.append(current_part)  # 링크 안의 내용은 그대로
-            else:
-                parts.append(url_pattern.sub(url_replacer, current_part))  # 일반 텍스트는 변환
-        
-        return ''.join(parts)
-    else:
-        # 링크가 없는 경우 일반적인 변환
-        return url_pattern.sub(url_replacer, text)
+    return url_pattern.sub(url_replacer, text)
+
+
+def _auto_linkify_urls_safe(html_content: str) -> str:
+    """HTML Parser를 사용한 안전한 URL 자동 링크 변환"""
+    if not HTML_PARSER_ENABLED:
+        # HTML Parser가 없으면 기존 방식 사용
+        return _auto_linkify_urls(html_content)
+    
+    try:
+        parser = URLLinkifyParser()
+        parser.feed(html_content)
+        return ''.join(parser.result)
+    except Exception as e:
+        current_app.logger.error(f"HTML Parser 오류: {e}")
+        # 파싱 실패시 원본 반환
+        return html_content
+
+
+def _auto_linkify_urls(text: str) -> str:
+    """URL 자동 링크 변환 - 폴백 버전"""
+    if not isinstance(text, str):
+        return text
+    
+    # 이미 링크가 있는지 간단히 확인
+    if '<a ' in text and '</a>' in text:
+        # 복잡한 HTML이면 그대로 반환
+        return text
+    
+    # 간단한 텍스트에만 URL 변환 적용
+    return _linkify_text_urls(text)
 
 
 def _is_safe_url(url: str) -> bool:
@@ -885,36 +951,6 @@ def _is_safe_url(url: str) -> bool:
         from urllib.parse import urlparse
         parsed = urlparse(url)
         return bool(parsed.netloc)  # 도메인이 있는지만 확인
-    except Exception:
-        return False
-
-
-def _is_allowed_domain(url: str, allowed_domains: Set[str]) -> bool:
-    """허용된 도메인인지 확인"""
-    try:
-        from urllib.parse import urlparse
-        parsed = urlparse(url)
-        domain = parsed.netloc.lower()
-        
-        # 일반적인 도메인들은 기본 허용
-        common_safe_domains = {
-            'youtube.com', 'youtu.be', 'google.com', 'github.com',
-            'stackoverflow.com', 'wikipedia.org', 'amazon.com',
-            'bookhouse.co.kr', 'kyobobook.co.kr', 'yes24.com'
-        }
-        
-        # 일반적으로 안전한 도메인 확인
-        for safe_domain in common_safe_domains:
-            if domain == safe_domain or domain.endswith(f'.{safe_domain}'):
-                return True
-        
-        # 설정된 허용 도메인 확인
-        for allowed in allowed_domains:
-            if domain == allowed or domain.endswith(f'.{allowed}'):
-                return True
-        
-        return False
-        
     except Exception:
         return False
 
@@ -967,7 +1003,8 @@ def _sanitize_html_preserve_links(html_content: str) -> str:
             'p', 'br', 'hr', 'a', 'strong', 'em',
             'code', 'pre', 'blockquote', 'img',
             'ul', 'ol', 'li', 'span', 'div',
-            'figure', 'figcaption', 'iframe'
+            'figure', 'figcaption', 'iframe',
+            'video', 'audio', 'source'
         ])
         
         # 링크 속성도 보다 관대하게 허용
@@ -984,7 +1021,10 @@ def _sanitize_html_preserve_links(html_content: str) -> str:
             'figure': ['class'],
             'figcaption': ['class'],
             'h1': ['id'], 'h2': ['id'], 'h3': ['id'], 
-            'h4': ['id'], 'h5': ['id'], 'h6': ['id']
+            'h4': ['id'], 'h5': ['id'], 'h6': ['id'],
+            'video': ['controls', 'preload', 'title', 'class'],
+            'audio': ['controls', 'preload', 'title', 'class'],
+            'source': ['src', 'type']
         })
         
         # HTML 정제 - 링크는 보존
@@ -1000,12 +1040,12 @@ def _sanitize_html_preserve_links(html_content: str) -> str:
         
     except Exception as e:
         current_app.logger.error(f"HTML 정제 오류: {e}")
-        # 정제 실패시 URL 변환만이라도 시도
-        return _auto_linkify_urls(html_content)
+        # 정제 실패시 원본 반환
+        return html_content
 
 
 def _process_content_fallback(content: str) -> str:
-    """마크다운 라이브러리 없을 때 기본 처리 - URL 링크 변환 제거"""
+    """마크다운 라이브러리 없을 때 기본 처리"""
     lines = content.split('\n')
     processed_lines = []
     in_code_block = False
@@ -1018,7 +1058,6 @@ def _process_content_fallback(content: str) -> str:
         if not line_stripped:
             if current_paragraph:
                 paragraph_text = " ".join(current_paragraph)
-                # URL 링크 변환은 마지막에 한 번만 수행
                 processed_lines.append(f'<p class="compact-text">{paragraph_text}</p>')
                 current_paragraph = []
             processed_lines.append('<br>')

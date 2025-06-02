@@ -10,18 +10,19 @@ from app.services.text_service import get_all_text_posts, get_tags_count, TextPo
 
 class CacheService:
     """
-    개선된 캐시 서비스 - 성능 최적화 및 메모리 효율성 강화
+    개선된 캐시 서비스 - 파일 해시 기반 변경 감지 및 포스트 인덱싱
     
     주요 개선사항:
-    - 파일 수정 시간 기반 스마트 캐시 무효화
+    - 파일 해시 기반 정확한 변경 감지
+    - 포스트 인덱싱으로 O(1) 조회
+    - 멀티프로세스 환경 대응
     - 메모리 사용량 최적화
-    - 멀티스레드 안전성 강화
-    - 캐시 히트율 모니터링
     """
     
     # 클래스 레벨 캐시 저장소
     _posts_cache: Optional[List[TextPost]] = None
     _tags_cache: Optional[Dict[str, int]] = None
+    _posts_index: Dict[str, TextPost] = {}  # 빠른 조회를 위한 인덱스
     _cache_metadata: Dict[str, Any] = {}
     _cache_stats: Dict[str, int] = {'hits': 0, 'misses': 0, 'invalidations': 0}
     
@@ -48,7 +49,7 @@ class CacheService:
     @classmethod
     def get_posts_with_cache(cls, force_refresh: bool = False) -> List[TextPost]:
         """
-        캐싱된 포스트 목록 반환 - 스마트 캐시 무효화
+        캐싱된 포스트 목록 반환 - 파일 해시 기반 스마트 캐시 무효화
         
         Args:
             force_refresh: 강제 새로고침 여부
@@ -70,6 +71,38 @@ class CacheService:
             # 캐시 미스 - 새로 로드
             cls._cache_stats['misses'] += 1
             return cls._refresh_posts_cache()
+    
+    @classmethod
+    def get_post_by_slug(cls, slug: str) -> Optional[TextPost]:
+        """
+        슬러그로 포스트 빠르게 조회 - O(1) 성능
+        
+        Args:
+            slug: 포스트 슬러그
+            
+        Returns:
+            Optional[TextPost]: 포스트 객체 또는 None
+        """
+        with cls._lock:
+            # 캐시가 유효한지 확인
+            if not cls._is_posts_cache_valid():
+                cls._refresh_posts_cache()
+            
+            # 인덱스에서 조회
+            # 1. 슬러그로 직접 조회
+            if slug in cls._posts_index:
+                return cls._posts_index[slug]
+            
+            # 2. 확장자 제거 후 조회
+            slug_no_ext = slug.rsplit('.', 1)[0] if '.' in slug else slug
+            if slug_no_ext in cls._posts_index:
+                return cls._posts_index[slug_no_ext]
+            
+            # 3. .txt 확장자 추가 후 조회
+            if f"{slug}.txt" in cls._posts_index:
+                return cls._posts_index[f"{slug}.txt"]
+            
+            return None
     
     @classmethod
     def get_tags_with_cache(cls, force_refresh: bool = False) -> Dict[str, int]:
@@ -111,6 +144,7 @@ class CacheService:
                 'hit_rate': round(hit_rate, 2),
                 'total_requests': total_requests,
                 'posts_cached': len(cls._posts_cache) if cls._posts_cache else 0,
+                'posts_indexed': len(cls._posts_index),
                 'tags_cached': len(cls._tags_cache) if cls._tags_cache else 0,
                 'memory_usage': cls._estimate_memory_usage()
             }
@@ -137,17 +171,12 @@ class CacheService:
             if not posts_dir.exists():
                 return False
             
-            # 디렉토리 수정 시간 및 파일 해시 확인
-            current_dir_mtime = posts_dir.stat().st_mtime
+            # 현재 파일 해시 계산
             current_files_hash = cls._calculate_directory_hash(posts_dir)
-            
-            cached_dir_mtime = cls._cache_metadata.get('directory_mtime', 0)
             cached_files_hash = cls._cache_metadata.get('files_hash', '')
             
             # 변경 감지
-            if (current_dir_mtime != cached_dir_mtime or 
-                current_files_hash != cached_files_hash):
-                
+            if current_files_hash != cached_files_hash:
                 cls._invalidate_all_cache()
                 cls._cache_stats['invalidations'] += 1
                 current_app.logger.info('파일 시스템 변경 감지로 캐시 무효화')
@@ -159,16 +188,24 @@ class CacheService:
     
     @classmethod
     def _is_posts_cache_valid(cls) -> bool:
-        """포스트 캐시 유효성 검사"""
+        """포스트 캐시 유효성 검사 - 파일 해시 기반"""
         if cls._posts_cache is None:
             return False
         
+        # TTL 확인
         cache_time = cls._cache_metadata.get('posts_cache_time', 0)
         if time.time() - cache_time > cls._cache_ttl:
             return False
         
-        # 파일 시스템 변경 확인
-        return not cls._has_filesystem_changed()
+        # 파일 해시 기반 변경 확인
+        posts_dir = Path(current_app.config.get('POSTS_DIR', ''))
+        if not posts_dir.exists():
+            return False
+        
+        current_files_hash = cls._calculate_directory_hash(posts_dir)
+        cached_files_hash = cls._cache_metadata.get('files_hash', '')
+        
+        return current_files_hash == cached_files_hash
     
     @classmethod
     def _is_tags_cache_valid(cls) -> bool:
@@ -176,33 +213,17 @@ class CacheService:
         if cls._tags_cache is None:
             return False
         
+        # TTL 확인
         cache_time = cls._cache_metadata.get('tags_cache_time', 0)
         if time.time() - cache_time > cls._cache_ttl:
             return False
         
-        # 포스트가 변경되면 태그도 변경될 수 있음
-        return not cls._has_filesystem_changed()
-    
-    @classmethod
-    def _has_filesystem_changed(cls) -> bool:
-        """파일 시스템 변경 여부 확인"""
-        try:
-            posts_dir = Path(current_app.config.get('POSTS_DIR', ''))
-            if not posts_dir.exists():
-                return True
-            
-            current_mtime = posts_dir.stat().st_mtime
-            cached_mtime = cls._cache_metadata.get('directory_mtime', 0)
-            
-            return current_mtime != cached_mtime
-            
-        except Exception as e:
-            current_app.logger.error(f"파일 시스템 변경 확인 오류: {e}")
-            return True  # 오류 시 안전하게 변경된 것으로 처리
+        # 포스트 캐시와 동일한 파일 해시 사용
+        return cls._is_posts_cache_valid()
     
     @classmethod
     def _refresh_posts_cache(cls) -> List[TextPost]:
-        """포스트 캐시 새로고침"""
+        """포스트 캐시 새로고침 - 인덱싱 포함"""
         try:
             posts_dir = current_app.config.get('POSTS_DIR')
             posts = get_all_text_posts(posts_dir)
@@ -212,23 +233,38 @@ class CacheService:
                 posts = posts[:cls._max_cache_size]
                 current_app.logger.warning(f'포스트 수가 최대 캐시 크기를 초과하여 {cls._max_cache_size}개로 제한')
             
+            # 포스트 인덱스 생성
+            cls._posts_index.clear()
+            for post in posts:
+                # 여러 키로 인덱싱 (빠른 조회를 위해)
+                if hasattr(post, 'slug') and post.slug:
+                    cls._posts_index[post.slug] = post
+                cls._posts_index[post.id] = post
+                cls._posts_index[post.filename] = post
+                
+                # 확장자 없는 파일명으로도 인덱싱
+                filename_no_ext = post.filename.rsplit('.', 1)[0] if '.' in post.filename else post.filename
+                cls._posts_index[filename_no_ext] = post
+            
             # 캐시 업데이트
             cls._posts_cache = posts
+            posts_dir_path = Path(posts_dir)
             current_time = time.time()
+            
             cls._cache_metadata.update({
                 'posts_cache_time': current_time,
-                'directory_mtime': cls._get_directory_mtime(),
-                'files_hash': cls._calculate_directory_hash(Path(posts_dir)),
+                'files_hash': cls._calculate_directory_hash(posts_dir_path),
                 'posts_count': len(posts)
             })
             
-            current_app.logger.debug(f'포스트 캐시 새로고침 완료: {len(posts)}개')
+            current_app.logger.debug(f'포스트 캐시 새로고침 완료: {len(posts)}개, 인덱스: {len(cls._posts_index)}개')
             return cls._get_posts_copy()
             
         except Exception as e:
             current_app.logger.error(f'포스트 캐시 새로고침 오류: {e}')
             # 오류 시 빈 목록 반환
             cls._posts_cache = []
+            cls._posts_index.clear()
             return []
     
     @classmethod
@@ -283,7 +319,9 @@ class CacheService:
     def _invalidate_posts_cache(cls) -> None:
         """포스트 캐시 무효화"""
         cls._posts_cache = None
+        cls._posts_index.clear()
         cls._cache_metadata.pop('posts_cache_time', None)
+        cls._cache_metadata.pop('files_hash', None)
     
     @classmethod
     def _invalidate_tags_cache(cls) -> None:
@@ -296,20 +334,12 @@ class CacheService:
         """전체 캐시 무효화"""
         cls._posts_cache = None
         cls._tags_cache = None
+        cls._posts_index.clear()
         cls._cache_metadata.clear()
     
     @classmethod
-    def _get_directory_mtime(cls) -> float:
-        """디렉토리 수정 시간 반환"""
-        try:
-            posts_dir = Path(current_app.config.get('POSTS_DIR', ''))
-            return posts_dir.stat().st_mtime if posts_dir.exists() else 0
-        except Exception:
-            return 0
-    
-    @classmethod
     def _calculate_directory_hash(cls, directory: Path) -> str:
-        """디렉토리 내 파일들의 해시값 계산"""
+        """디렉토리 내 파일들의 해시값 계산 - 정확한 변경 감지"""
         try:
             if not directory.exists():
                 return ''
@@ -322,7 +352,8 @@ class CacheService:
                 for file_path in directory.glob(f"*.{ext}"):
                     try:
                         stat = file_path.stat()
-                        file_info.append(f"{file_path.name}:{stat.st_mtime}:{stat.st_size}")
+                        # 파일명, 수정시간, 크기를 조합
+                        file_info.append(f"{file_path.name}:{stat.st_mtime:.6f}:{stat.st_size}")
                     except Exception:
                         continue
             
@@ -330,7 +361,8 @@ class CacheService:
             file_info.sort()
             combined_info = '|'.join(file_info)
             
-            return hashlib.md5(combined_info.encode('utf-8')).hexdigest()
+            # SHA256 해시 사용 (MD5보다 안전)
+            return hashlib.sha256(combined_info.encode('utf-8')).hexdigest()
             
         except Exception as e:
             current_app.logger.error(f"디렉토리 해시 계산 오류: {e}")
@@ -351,6 +383,11 @@ class CacheService:
                     total_size += sys.getsizeof(post.content)
                     total_size += sys.getsizeof(post.title)
                     total_size += sum(sys.getsizeof(tag) for tag in post.tags)
+            
+            # 포스트 인덱스 크기
+            total_size += sys.getsizeof(cls._posts_index)
+            for key in cls._posts_index:
+                total_size += sys.getsizeof(key)
             
             # 태그 캐시 크기
             if cls._tags_cache:

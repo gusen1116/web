@@ -12,11 +12,15 @@ from app.services.cache_service import CacheService
 
 posts_bp = Blueprint('posts', __name__, url_prefix='/posts')
 
-# 안전한 파일명 패턴 정의
-SAFE_FILENAME_PATTERN = re.compile(r'^[a-zA-Z0-9_\-]+\.(txt|jpg|jpeg|png|gif|webp|svg|mp4|webm|ogg|mov|mp3|wav|flac|m4a)$')
-ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'}
-ALLOWED_VIDEO_EXTENSIONS = {'mp4', 'webm', 'ogg', 'mov'}
-ALLOWED_AUDIO_EXTENSIONS = {'mp3', 'wav', 'ogg', 'flac', 'm4a'}
+# 미디어 타입별 허용 확장자 정의
+ALLOWED_EXTENSIONS = {
+    'image': {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'},
+    'video': {'mp4', 'webm', 'ogg', 'mov'},
+    'audio': {'mp3', 'wav', 'ogg', 'flac', 'm4a'}
+}
+
+# 안전한 파일명 패턴 (확장자 제외)
+SAFE_FILENAME_BASE_PATTERN = re.compile(r'^[a-zA-Z0-9_\-]+$')
 
 def validate_slug(slug):
     """슬러그 유효성 검증"""
@@ -40,29 +44,62 @@ def validate_tag(tag):
         return False
     return True
 
-def validate_filename(filename):
-    """파일명 유효성 검증"""
+def validate_media_filename(filename, media_type):
+    """
+    미디어 파일명 유효성 검증 - 통합된 검증 로직
+    
+    Args:
+        filename: 검증할 파일명
+        media_type: 'image', 'video', 'audio' 중 하나
+    
+    Returns:
+        bool: 유효한 파일명인지 여부
+    """
     if not filename or not isinstance(filename, str):
         return False
-    if not SAFE_FILENAME_PATTERN.match(filename):
+    
+    # 파일명 길이 검사
+    if len(filename) > 255:
         return False
+    
     # secure_filename으로 재검증
     if filename != secure_filename(filename):
         return False
+    
+    # 경로 조작 시도 차단
+    if '..' in filename or '/' in filename or '\\' in filename:
+        return False
+    
+    # 파일명과 확장자 분리
+    if '.' not in filename:
+        return False
+    
+    base_name, ext = filename.rsplit('.', 1)
+    ext = ext.lower()
+    
+    # 기본 파일명 패턴 검증
+    if not SAFE_FILENAME_BASE_PATTERN.match(base_name):
+        return False
+    
+    # 미디어 타입별 확장자 검증
+    if media_type not in ALLOWED_EXTENSIONS:
+        return False
+    
+    if ext not in ALLOWED_EXTENSIONS[media_type]:
+        return False
+    
     return True
 
 @posts_bp.route('/')
 def index():
     """텍스트 파일 목록 페이지 - 디버깅 강화"""
     try:
-        # 디버깅: 로그 출력
         current_app.logger.info("포스트 인덱스 페이지 로드 시작")
         
         # 캐시 서비스 사용
         posts = CacheService.get_posts_with_cache()
         tags_count = CacheService.get_tags_with_cache()
         
-        # 디버깅: 데이터 확인
         current_app.logger.info(f"로드된 포스트 수: {len(posts) if posts else 0}")
         current_app.logger.info(f"로드된 태그 수: {len(tags_count) if tags_count else 0}")
         
@@ -98,17 +135,6 @@ def index():
         if posts:
             recent_posts = posts[:5] if len(posts) > 5 else posts
         
-        # 디버깅: 최종 데이터 확인
-        current_app.logger.info(f"템플릿에 전달할 포스트 수: {len(posts) if posts else 0}")
-        current_app.logger.info(f"템플릿에 전달할 태그 수: {len(tags) if tags else 0}")
-        current_app.logger.info(f"최근 포스트 수: {len(recent_posts) if recent_posts else 0}")
-        
-        # 포스트 샘플 로그 (첫 번째 포스트)
-        if posts:
-            first_post = posts[0]
-            current_app.logger.info(f"첫 번째 포스트 제목: {first_post.title}")
-            current_app.logger.info(f"첫 번째 포스트 태그: {first_post.tags}")
-        
         return render_template(
             'posts/index.html', 
             posts=posts or [], 
@@ -119,7 +145,6 @@ def index():
     except Exception as e:
         current_app.logger.error(f'포스트 목록 로드 오류: {str(e)}', exc_info=True)
         
-        # 오류 발생 시에도 빈 페이지라도 표시
         return render_template(
             'posts/index.html', 
             posts=[], 
@@ -130,7 +155,7 @@ def index():
 
 @posts_bp.route('/<slug>')
 def view_by_slug(slug):
-    """슬러그로 포스트 찾기"""
+    """슬러그로 포스트 찾기 - 성능 최적화"""
     # 슬러그 검증
     if not validate_slug(slug):
         abort(400, "잘못된 요청입니다")
@@ -138,20 +163,23 @@ def view_by_slug(slug):
     posts_dir = current_app.config.get('POSTS_DIR')
     
     try:
-        # 캐시된 포스트에서 찾기
-        all_posts = CacheService.get_posts_with_cache()
-        matching_post = None
+        # 캐시된 포스트 인덱스 사용 (O(1) 조회)
+        matching_post = CacheService.get_post_by_slug(slug)
         
-        # 확장자가 있으면 제거
-        slug_no_ext = os.path.splitext(slug)[0]
-        
-        for post in all_posts:
-            if (hasattr(post, 'slug') and post.slug == slug) or \
-               post.id == slug_no_ext or \
-               post.filename == slug or \
-               post.filename == slug + '.txt':
-                matching_post = post
-                break
+        if not matching_post:
+            # 캐시에 인덱스가 없으면 기존 방식으로 폴백
+            all_posts = CacheService.get_posts_with_cache()
+            
+            # 확장자가 있으면 제거
+            slug_no_ext = os.path.splitext(slug)[0]
+            
+            for post in all_posts:
+                if (hasattr(post, 'slug') and post.slug == slug) or \
+                   post.id == slug_no_ext or \
+                   post.filename == slug or \
+                   post.filename == slug + '.txt':
+                    matching_post = post
+                    break
         
         if not matching_post:
             abort(404, "포스트를 찾을 수 없습니다")
@@ -200,8 +228,17 @@ def view_by_slug(slug):
 @posts_bp.route('/view/<filename>')
 def view_post(filename):
     """이전 URL 형식 지원 (리다이렉트)"""
-    if not validate_filename(filename):
+    # 파일명 검증 (텍스트 파일용)
+    if not filename or not isinstance(filename, str):
         abort(400, "잘못된 파일명입니다")
+    
+    # 텍스트 파일 검증
+    allowed_text_extensions = current_app.config.get('ALLOWED_TEXT_EXTENSIONS', {'txt', 'md'})
+    if not any(filename.endswith(f'.{ext}') for ext in allowed_text_extensions):
+        # 확장자가 없으면 기본값 추가
+        if '.' not in filename:
+            filename = filename + '.txt'
+    
     return redirect(url_for('posts.view_by_slug', slug=filename))
 
 @posts_bp.route('/tag/<tag>')
@@ -276,20 +313,11 @@ def view_series(series_name):
         abort(500)
 
 def serve_static_file(filename, media_type):
-    """정적 파일 서빙 헬퍼 함수"""
-    # 파일명 검증
-    if not validate_filename(filename):
-        abort(403, "잘못된 파일명입니다")
-    
-    # 확장자 검증
-    ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
-    
-    if media_type == 'image' and ext not in ALLOWED_IMAGE_EXTENSIONS:
-        abort(403, "허용되지 않는 이미지 형식입니다")
-    elif media_type == 'video' and ext not in ALLOWED_VIDEO_EXTENSIONS:
-        abort(403, "허용되지 않는 비디오 형식입니다")
-    elif media_type == 'audio' and ext not in ALLOWED_AUDIO_EXTENSIONS:
-        abort(403, "허용되지 않는 오디오 형식입니다")
+    """정적 파일 서빙 헬퍼 함수 - 통합된 검증 로직 사용"""
+    # 통합된 파일명 검증
+    if not validate_media_filename(filename, media_type):
+        current_app.logger.warning(f"잘못된 {media_type} 파일명 요청: {filename}")
+        abort(403, f"잘못된 {media_type} 파일명입니다")
     
     # 미디어 디렉토리 경로
     media_dirs = {
@@ -303,6 +331,7 @@ def serve_static_file(filename, media_type):
     # 경로 검증
     abs_path = os.path.abspath(os.path.join(media_dir, filename))
     if not abs_path.startswith(os.path.abspath(media_dir)):
+        current_app.logger.warning(f"경로 접근 위반 시도: {filename}")
         abort(403, "경로 위반입니다")
     
     # 파일 존재 확인
