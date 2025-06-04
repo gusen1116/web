@@ -1,10 +1,8 @@
 /*
  * typography.css - PyeojinGothic 적용 및 타이포그래피 시스템 개선 (font-weight: 400 기준)
  * 헤더 폭 기준으로 통일된 레이아웃 적용
+ * test.css의 내용은 이 파일 또는 base.css와 중복되어 test.css는 삭제되었습니다.
  */
-
-/* Pretendard font import 주석 처리 또는 삭제 */
-/* @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"); */
 
 /* ===== 기본 글꼴 및 텍스트 설정 ===== */
 body {
@@ -30,7 +28,7 @@ body {
   }
 }
 
-/* ===== 헤딩 앵커 링크 완전 제거 ===== */
+/* ===== 헤딩 앵커 링크 완전 제거 (base.css 또는 이곳에서 한 번만 정의) ===== */
 h1 .anchor-link,
 h2 .anchor-link,
 h3 .anchor-link,
@@ -83,9 +81,9 @@ h1, h2, h3, h4, h5, h6 {
 h1 { font-size: 2.75rem; line-height: 130%; }
 h2 { font-size: 1.9rem; line-height: 130%; margin-top: 2.5em; margin-bottom: 1em; }
 h3 { font-size: 1.23rem; line-height: 203%; margin-top: 2em; margin-bottom: 0.8em; }
-h4 { font-size: 1.15rem; line-height: 203%; font-weight: 700; } /* 명시적 700 */
-h5 { font-size: 1.1rem; line-height: 203%; font-weight: 700; } /* 명시적 700 */
-h6 { font-size: 1rem; line-height: 203%; font-weight: 700; } /* 명시적 700 */
+h4 { font-size: 1.15rem; line-height: 203%; font-weight: 700; }
+h5 { font-size: 1.1rem; line-height: 203%; font-weight: 700; }
+h6 { font-size: 1rem; line-height: 203%; font-weight: 700; }
 
 
 /* ===== 일반 텍스트 요소 - 헤더 폭 기준으로 조정 ===== */
@@ -127,7 +125,7 @@ li {
 
 blockquote {
   font-family: var(--font-sans);
-  font-weight: 400; /* 인용구도 일반 텍스트 굵기 */
+  font-weight: 400;
   font-style: italic;
   margin: var(--spacing-3) auto;
   width: var(--paragraph-width);
@@ -168,7 +166,7 @@ pre code {
 /* ===== 포스트 콘텐츠 특화 스타일 ===== */
 .post-content {
   font-family: var(--font-sans);
-  font-weight: 400; /* 포스트 본문 기본 굵기를 400으로 */
+  font-weight: 400;
   font-size: 1.23rem;
   line-height: 203%;
   max-width: var(--paragraph-width);
@@ -204,7 +202,7 @@ br.compact-break,
 
 .post-content p {
   font-family: var(--font-sans);
-  font-weight: 400; /* 포스트 내 p 태그도 400 */
+  font-weight: 400;
   margin-bottom: 1.5em;
   line-height: 203%;
 }
@@ -220,34 +218,13 @@ br.compact-break,
 .post-content h5,
 .post-content h6 {
   font-family: var(--font-sans);
-  font-weight: 700; /* 포스트 내 제목들은 굵게 (PyeojinGothic-Bold 사용) */
+  font-weight: 700;
   margin-top: var(--spacing-4);
   margin-bottom: var(--spacing-2);
   border-bottom: none;
   padding-bottom: 0;
   text-align: left;
   position: relative;
-}
-
-.post-content h1::after,
-.post-content h2::after,
-.post-content h3::after,
-.post-content h4::after,
-.post-content h5::after,
-.post-content h6::after {
-  content: none !important;
-  display: none !important;
-}
-
-.post-content h1 .anchor-link,
-.post-content h2 .anchor-link,
-.post-content h3 .anchor-link,
-.post-content h4 .anchor-link,
-.post-content h5 .anchor-link,
-.post-content h6 .anchor-link {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
 }
 
 .post-content h1 { font-size: 2.75rem; line-height: 130%; }
@@ -275,7 +252,7 @@ br.compact-break,
 
 .post-content figcaption {
   font-family: var(--font-sans);
-  font-weight: 400; /* 캡션은 일반 굵기 */
+  font-weight: 400;
   font-style: italic;
   text-align: center;
   color: var(--text-tertiary);
@@ -285,7 +262,7 @@ br.compact-break,
 
 .post-content blockquote {
   font-family: var(--font-sans);
-  font-weight: 400; /* 인용구도 일반 굵기 */
+  font-weight: 400;
   font-style: italic;
   white-space: normal;
   padding: 0.7em 1.2em;
@@ -296,7 +273,7 @@ br.compact-break,
 
 .post-content table {
   font-family: var(--font-sans);
-  font-weight: 400; /* 테이블 내용도 일반 굵기 */
+  font-weight: 400;
   width: 100%;
   border-collapse: collapse;
   margin: 1em 0;
@@ -311,7 +288,7 @@ br.compact-break,
 }
 
 .post-content table th {
-  font-weight: 700; /* 테이블 헤더는 굵게 */
+  font-weight: 700;
   background-color: var(--bg-secondary);
 }
 
@@ -346,7 +323,7 @@ br.compact-break,
 
 .post-title {
   font-family: var(--font-sans);
-  font-weight: 700; /* 포스트 제목은 굵게 */
+  font-weight: 700;
   width: var(--paragraph-width);
   max-width: var(--content-max-width);
   margin-left: auto;
@@ -356,7 +333,7 @@ br.compact-break,
 .post-subtitle,
 .post-description-header {
   font-family: var(--font-sans);
-  font-weight: 400; /* 부제목/설명은 일반 굵기 */
+  font-weight: 400;
   font-style: italic;
   width: var(--paragraph-width);
   max-width: var(--content-max-width);
@@ -371,7 +348,7 @@ br.compact-break,
 
 .post-date {
   font-family: var(--font-sans);
-  font-weight: 400; /* 날짜는 일반 굵기 */
+  font-weight: 400;
   display: flex;
   align-items: center;
   font-size: 0.9rem;
@@ -386,14 +363,14 @@ br.compact-break,
 
 .post-author {
   font-family: var(--font-sans);
-  font-weight: 700; /* 작성자 이름은 굵게 */
+  font-weight: 700;
   display: flex;
   align-items: center;
   font-size: 0.9rem;
   color: var(--text-secondary);
 }
 .post-author i { margin-right: 0.5rem; color: var(--primary-500); }
-.post-author a { color: var(--text-accent); text-decoration: none; transition: color 0.2s ease; font-weight: 700; } /* 작성자 링크도 굵게 */
+.post-author a { color: var(--text-accent); text-decoration: none; transition: color 0.2s ease; font-weight: 700; }
 .post-author a:hover { text-decoration: underline; }
 
 
@@ -408,7 +385,7 @@ br.compact-break,
 
 .post-tag {
   font-family: var(--font-sans);
-  font-weight: 700; /* 태그 UI 요소는 굵게 */
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
   background-color: var(--primary-50);
@@ -438,7 +415,7 @@ br.compact-break,
 
 .post-nav-link {
   font-family: var(--font-sans);
-  font-weight: 700; /* 네비게이션 링크 텍스트는 굵게 */
+  font-weight: 700;
   display: flex;
   align-items: center;
   color: var(--text-primary);
@@ -454,7 +431,7 @@ br.compact-break,
 .post-nav-icon { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; }
 .post-nav-link.prev .post-nav-icon { margin-right: 0.5rem; }
 .post-nav-link.next .post-nav-icon { margin-left: 0.5rem; }
-.post-nav-text { font-weight: 700; } /* 이전/다음 글자 굵게 */
+.post-nav-text { font-weight: 700; }
 
 .post-nav-details { padding: 1rem; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
 .post-nav-detail-link { display: flex; flex-direction: column; transition: transform 0.2s ease; }
@@ -462,14 +439,14 @@ br.compact-break,
 
 .post-nav-detail-title {
   font-family: var(--font-sans);
-  font-weight: 700; /* 이전/다음 글 제목은 굵게 */
+  font-weight: 700;
   font-size: 1.1rem;
   color: var(--text-primary);
   margin-bottom: 0.3rem;
 }
 .post-nav-detail-date {
   font-family: var(--font-sans);
-  font-weight: 400; /* 이전/다음 글 날짜는 일반 굵기 */
+  font-weight: 400;
   font-size: 0.9rem;
   color: var(--text-tertiary);
 }

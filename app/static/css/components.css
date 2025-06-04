@@ -1,4 +1,4 @@
-/* 
+/*
  * components.css - GitHub 스타일 컴포넌트, 타이포그래피 유지
  */
 
@@ -71,7 +71,6 @@
   box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
 }
 
-/* 카드 제목 강화 */
 .card-title {
   font-size: 1.5rem;
   font-weight: 600;
@@ -79,7 +78,6 @@
   color: var(--text-primary);
 }
 
-/* 카드 내용 여백 */
 .card-content {
   color: var(--text-secondary);
   padding: var(--spacing-4) 0;
@@ -115,7 +113,6 @@
   text-decoration: none;
 }
 
-/* Dark mode tag styles */
 html.dark-theme .tag {
   background-color: rgba(56, 139, 253, 0.15);
   color: #58a6ff;

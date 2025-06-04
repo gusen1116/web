@@ -1,8 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap');
-
 /*
  * enhanced-links.css - 심플하고 모던한 하이퍼링크 스타일 (v3)
+ * Cabin 폰트 변수 사용
  */
+
+/* Cabin 폰트는 base.css에서 @import 하도록 변경 */
 
 /* ===== 1. 일반 본문 하이퍼링크 스타일 ===== */
 .post-content a,
@@ -24,7 +25,7 @@
     position: relative !important;
     cursor: pointer !important;
     hyphens: auto !important;
-    font-family: 'Cabin', sans-serif; /* Cabin 폰트 및 굵기 400 유지 */
+    font-family: var(--font-cabin); /* Cabin 폰트 변수 사용 */
     font-weight: 400;
     font-size: 1.0rem;
 }
@@ -57,8 +58,8 @@
 .post-content a[href*="youtube"], .post-content a[href*="vimeo"], .post-content a[href*="twitch"],
 .post-content a[href*="github"], .post-content a[href*="stackoverflow"], .post-content a[href*="npmjs"], .post-content a[href*="developer.mozilla"],
 .post-content a[href$=".pdf"], .post-content a[href$=".zip"], .post-content a[href$=".doc"], .post-content a[href$=".docx"], .post-content a[href*="download"] {
-    font-family: 'Cabin', sans-serif; /* Cabin 폰트 명시적으로 지정 */
-    font-weight: 400 !important; /* Cabin 폰트 굵기 명시 */
+    font-family: var(--font-cabin); /* Cabin 폰트 변수 사용 */
+    font-weight: 400 !important; 
     border-radius: 3px !important;
     padding: 2px 5px !important;
     margin: 0px 1px !important;
@@ -134,10 +135,10 @@
 .post-content a.btn-link-inline,
 .post-content a.btn-link,
 .post-content a[class*="button"],
-.btn-link,
-a[class*="button"] {
-    font-family: var(--font-sans); /* PyeojinGothic-Bold */
-    font-weight: 700 !important; /* 버튼은 굵게 표시 */
+.btn-link, /* .btn 클래스는 components.css 에 정의되어 있으므로, 여기서는 링크 형태 버튼에 집중 */
+a[class*="button"] { 
+    font-family: var(--font-sans); 
+    font-weight: 700 !important; 
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -158,24 +159,18 @@ a[class*="button"] {
     word-break: break-word !important;
     overflow-wrap: break-word !important;
 }
-/* ... (나머지 버튼 관련 스타일은 이전과 동일하게 유지) ... */
 
 /* ===== 4. 태그 링크 스타일 개선 (PyeojinGothic-Bold, 700) ===== */
-.post-tag,
-.post-card-tag {
-    font-family: var(--font-sans); /* PyeojinGothic-Bold */
-    font-weight: 700 !important; /* 태그도 굵게 표시 */
-    background-color: var(--neutral-100) !important;
-    color: var(--text-secondary) !important;
-    border-radius: 15px !important;
-    padding: 6px 12px !important;
-    font-size: 0.85rem !important;
+.post-tag, /* 이 클래스는 components.css 또는 posts/view.html 등에서 더 구체적으로 정의될 수 있음 */
+.post-card-tag { /* 이 클래스는 blog-grid.css 에서 구체적으로 정의됨 */
+    font-family: var(--font-sans); 
+    font-weight: 700 !important; 
+    /* background-color, color, border-radius 등은 각 컴포넌트 CSS에서 정의하는 것을 권장 */
     text-decoration: none !important;
     display: inline-flex !important;
     align-items: center !important;
     gap: 0.3em !important;
     transition: all 0.15s ease !important;
-    border: 1px solid var(--neutral-200) !important;
     margin: 2px !important;
     position: relative !important;
     cursor: pointer !important;
@@ -185,18 +180,17 @@ a[class*="button"] {
     transform: none !important;
     box-shadow: none !important;
 }
-/* ... (나머지 태그 관련 스타일은 이전과 동일하게 유지) ... */
 
 /* ===== 5. 다크모드 스타일 ===== */
 html.dark-theme .post-content a,
 html.dark-theme .post-content a:link,
 html.dark-theme .post-content a:visited {
-    font-family: 'Cabin', sans-serif; /* Cabin 폰트 유지 */
-    font-weight: 400; /* Cabin 폰트 굵기 유지 */
+    font-family: var(--font-cabin); 
+    font-weight: 400; 
     color: var(--text-secondary) !important;
     border-bottom-color: var(--neutral-600) !important;
 }
-/* ... (나머지 다크모드 스타일은 이전과 동일하게 유지, font-weight 규칙 확인) ... */
+
 html.dark-theme .post-content a:hover,
 html.dark-theme .post-content a:focus {
     color: #39d353 !important;
@@ -214,10 +208,19 @@ html.dark-theme .post-content a[href*="book"], html.dark-theme .post-content a[h
 html.dark-theme .post-content a[href*="youtube"], html.dark-theme .post-content a[href*="vimeo"], html.dark-theme .post-content a[href*="twitch"],
 html.dark-theme .post-content a[href*="github"], html.dark-theme .post-content a[href*="stackoverflow"], html.dark-theme .post-content a[href*="npmjs"], html.dark-theme .post-content a[href*="developer.mozilla"],
 html.dark-theme .post-content a[href$=".pdf"], html.dark-theme .post-content a[href$=".zip"], html.dark-theme .post-content a[href$=".doc"], html.dark-theme .post-content a[href$=".docx"], html.dark-theme .post-content a[href*="download"] {
-    font-family: 'Cabin', sans-serif;
+    font-family: var(--font-cabin);
     font-weight: 400;
-    /* 색상 관련 다크모드 스타일은 이전과 동일하게 유지 */
+    /* 특별 링크 다크모드 색상 조정 */
+    /* 예: 책 링크 */
+    background-color: rgba(250, 235, 215, 0.1) !important; /* 보다 어두운 배경 */
+    border-color: rgba(210, 180, 140, 0.3) !important;
 }
+html.dark-theme .post-content a.book-link:hover,
+html.dark-theme .post-content a[href*="book"]:hover {
+    background-color: rgba(250, 235, 215, 0.2) !important;
+    border-color: rgba(210, 180, 140, 0.5) !important;
+}
+/* 다른 특별 링크 타입에 대해서도 유사하게 다크모드 색상 조정 필요 */
 
 
 html.dark-theme .post-content a.btn-link-inline,
@@ -225,7 +228,7 @@ html.dark-theme .post-content a.btn-link,
 html.dark-theme .post-content a[class*="button"],
 html.dark-theme .btn-link,
 html.dark-theme a[class*="button"] {
-    font-family: var(--font-sans); /* PyeojinGothic-Bold */
+    font-family: var(--font-sans); 
     font-weight: 700;
     color: var(--text-accent) !important;
     background-color: var(--neutral-700) !important;
@@ -240,26 +243,17 @@ html.dark-theme a[class*="button"]:hover {
     border-color: var(--neutral-500) !important;
 }
 
-html.dark-theme .post-tag,
-html.dark-theme .post-card-tag {
-    font-family: var(--font-sans); /* PyeojinGothic-Bold */
+html.dark-theme .post-tag, /* .post-tag 는 각 페이지/컴포넌트 CSS 에서 다크모드 정의 */
+html.dark-theme .post-card-tag { /* .post-card-tag 는 blog-grid.css 에서 다크모드 정의 */
+    font-family: var(--font-sans); 
     font-weight: 700;
-    background-color: var(--neutral-800) !important;
-    color: var(--text-secondary) !important;
-    border-color: var(--neutral-700) !important;
-}
-html.dark-theme .post-tag:hover,
-html.dark-theme .post-card-tag:hover {
-    background-color: var(--neutral-700) !important;
-    color: var(--text-primary) !important;
-    border-color: var(--neutral-600) !important;
 }
 
-/* ... (나머지 @media print, .is-loading, 모바일 최적화 등은 이전과 동일하게 유지, font-weight 규칙에 맞게) ... */
-/* 모바일 font-weight 규칙 예시: */
+
 @media (max-width: 768px) {
-    .post-content a { font-weight: 400; font-family: 'Cabin', sans-serif; }
-    .post-content a[href*="book"] /* 등 특별 링크 */ { font-weight: 400; font-family: 'Cabin', sans-serif; }
+    .post-content a { font-weight: 400; font-family: var(--font-cabin); }
+    .post-content a[href*="book"] { font-weight: 400; font-family: var(--font-cabin); }
+    /* 다른 특별 링크도 동일하게 Cabin 폰트 및 굵기 400 유지 */
     .post-tag, .post-card-tag { font-weight: 700; font-family: var(--font-sans); }
     .btn-link, a[class*="button"] { font-weight: 700; font-family: var(--font-sans); }
 }
