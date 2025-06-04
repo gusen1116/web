@@ -1,24 +1,45 @@
-{% raw %}{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}서버 오류 - 와구센{% endblock %}
 
 {% block head %}
-<style>
-  /* 500 페이지는 404와 동일한 스타일 사용 */
+<style nonce="{{ csp_nonce() }}"> /* 인라인 스타일에 nonce 추가 */
   .error-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /* min-height: 60vh; */ /* 기존 */
-    min-height: calc(var(--real-vh, 1vh) * 60); /* 수정 */
+    min-height: calc(var(--real-vh, 1vh) * 60);
     text-align: center;
     padding: 2rem 1rem;
   }
-  
-  /* ... 나머지 스타일 유지 ... */
+  .error-container h1 {
+    font-size: 2.5rem;
+    color: var(--danger);
+    margin-bottom: 1rem;
+    font-family: var(--font-sans);
+  }
+  .error-container p {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    font-family: var(--font-sans);
+  }
+  .error-container .btn {
+    min-width: 180px;
+    padding: 0.8rem 1.5rem;
+  }
+  /* 404.html과 유사한 스타일을 여기에 추가하거나, 공통 error.css 파일을 만들 수 있습니다. */
 </style>
 {% endblock %}
 
-{# ... content 및 scripts 블록 ... #}
-{% endraw %}
+{% block content %}
+<div class="error-container">
+  <h1><i class="fas fa-server"></i> 500 - 서버 내부 오류</h1>
+  <p>죄송합니다. 요청을 처리하는 중에 서버에서 오류가 발생했습니다.<br>잠시 후 다시 시도해 주시거나 문제가 지속되면 관리자에게 문의해주세요.</p>
+  <a href="{{ url_for('main.index') }}" class="btn btn-primary">홈으로 돌아가기</a>
+</div>
+{% endblock %}
+
+{# scripts 블록은 500 페이지에서 특별히 필요하지 않을 수 있지만, base.html 구조를 따름 #}
+{% block scripts %}{% endblock %}

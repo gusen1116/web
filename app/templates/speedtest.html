@@ -1,0 +1,502 @@
+{% raw %}{% extends "base.html" %}
+
+{% block title %}네트워크 속도 테스트 - 와구센{% endblock %}
+
+{% block head %}
+{{ super() }}
+{# speedtest.css 파일을 만들거나 아래 style 태그 내용을 해당 파일로 옮기세요. #}
+{# <link rel="stylesheet" href="{{ url_for('static', filename='css/speedtest.css') }}"> #}
+<style>
+  .speedtest-container {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: var(--spacing-6);
+    margin: var(--spacing-8) auto;
+    max-width: 800px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .speedtest-container h1 {
+    font-size: var(--font-size-2xl);
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: var(--spacing-6);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: var(--spacing-4);
+    font-family: var(--font-sans); /* base.css 의 변수 활용 */
+    width: auto; /* h1 기본 스타일 초기화 */
+  }
+
+  .start-button-container {
+    text-align: center;
+    margin-bottom: var(--spacing-6);
+  }
+
+  #startTestBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-3) var(--spacing-8);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: white;
+    background-color: var(--github-accent);
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: var(--shadow-sm);
+    font-family: var(--font-sans);
+  }
+  #startTestBtn:hover {
+    background-color: #0550ae;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  #startTestBtn:disabled {
+    background-color: var(--neutral-300);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  #startTestBtn i {
+    margin-right: var(--spacing-2);
+  }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: var(--spacing-5);
+    margin-bottom: var(--spacing-6);
+  }
+
+  .result-card {
+    background-color: var(--bg-primary);
+    padding: var(--spacing-4);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .result-card h2 {
+    font-size: var(--font-size-lg);
+    color: var(--text-accent);
+    margin-top: 0;
+    margin-bottom: var(--spacing-3);
+    padding-bottom: var(--spacing-2);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    font-family: var(--font-sans);
+    width: auto; /* h2 기본 스타일 초기화 */
+    text-align: center;
+  }
+  .result-card h2 i {
+    margin-right: var(--spacing-2);
+    font-size: 1.2em;
+  }
+  .result-card p { /* p 태그 스타일 초기화 */
+    font-size: var(--font-size-2xl); /* 크기 키움 */
+    font-weight: 700; /* 굵게 */
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-1);
+    text-align: center;
+    font-family: var(--font-sans);
+    width: auto;
+    line-height: 1.2; /* 줄간격 조정 */
+  }
+  .result-card .unit {
+    font-size: var(--font-size-md); /* 유닛 크기 조정 */
+    color: var(--text-tertiary);
+    text-align: center;
+    display: block;
+    font-family: var(--font-sans);
+  }
+  .result-card .details {
+    font-size: var(--font-size-sm); /* 상세정보 크기 조정 */
+    color: var(--text-tertiary);
+    margin-top: var(--spacing-3);
+    text-align: center;
+    font-family: var(--font-sans);
+  }
+
+  .progress-bar-container {
+    width: 100%;
+    max-width: 200px; /* 진행률 바 최대 너비 */
+    background-color: var(--neutral-200);
+    border-radius: var(--radius-md);
+    margin: var(--spacing-2) auto var(--spacing-4); /* 중앙 정렬 및 마진 조정 */
+    height: 24px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+  }
+  .progress-bar {
+    width: 0%;
+    height: 100%;
+    background-color: var(--success);
+    border-radius: var(--radius-md);
+    text-align: center;
+    line-height: 24px;
+    color: white;
+    font-size: 0.8em;
+    font-weight: 500;
+    transition: width 0.1s ease-out;
+  }
+  .progress-bar.error {
+    background-color: var(--danger);
+  }
+
+  .detailed-info-section {
+    margin-top: var(--spacing-6);
+    padding: var(--spacing-4);
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+  }
+  .detailed-info-section h2 {
+    font-size: var(--font-size-lg);
+    color: var(--text-primary);
+    margin-top: 0;
+    margin-bottom: var(--spacing-4);
+    font-family: var(--font-sans);
+    width: auto;
+    text-align: left;
+  }
+  .detailed-info-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .detailed-info-section li {
+    font-size: var(--font-size-md);
+    color: var(--text-secondary);
+    padding: var(--spacing-2) 0;
+    border-bottom: 1px solid var(--neutral-100);
+    font-family: var(--font-sans);
+  }
+  html.dark-theme .detailed-info-section li {
+    border-bottom: 1px solid var(--neutral-700);
+  }
+  .detailed-info-section li:last-child {
+    border-bottom: none;
+  }
+  .detailed-info-section li strong {
+    color: var(--text-primary);
+    margin-right: var(--spacing-2);
+  }
+  #errorMessage {
+    color: var(--danger);
+    font-weight: 500;
+    text-align: center;
+    margin-top: var(--spacing-4);
+    padding: var(--spacing-3);
+    background-color: rgba(207, 34, 46, 0.1);
+    border: 1px solid rgba(207, 34, 46, 0.3);
+    border-radius: var(--radius-md);
+    display: none;
+  }
+  #errorMessage.visible {
+      display: block;
+  }
+
+  html.dark-theme .progress-bar-container {
+    background-color: var(--neutral-700);
+    border-color: var(--neutral-600);
+  }
+  html.dark-theme .detailed-info-section {
+    background-color: var(--bg-secondary);
+    border-color: var(--neutral-700);
+  }
+
+  @media (max-width: 768px) {
+    .results-grid {
+        grid-template-columns: 1fr; /* 모바일에서는 1열로 */
+    }
+    .result-card p {
+        font-size: var(--font-size-xl);
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="speedtest-container">
+    <h1><i class="fas fa-tachometer-alt"></i> 네트워크 속도 및 핑 테스트</h1>
+
+    <div class="start-button-container">
+        <button id="startTestBtn">
+            <i class="fas fa-play"></i> 테스트 시작
+        </button>
+    </div>
+
+    <div id="resultsSection" style="display:none;">
+        <div class="results-grid">
+            <div class="result-card">
+                <h2><i class="fas fa-stopwatch"></i> 핑 (Ping)</h2>
+                <p><span id="pingResult">-</span> <span class="unit">ms</span></p>
+                <div class="details">지터: <span id="jitterResult">-</span> ms</div>
+            </div>
+            <div class="result-card">
+                <h2><i class="fas fa-arrow-down"></i> 다운로드</h2>
+                <p><span id="downloadResult">-</span> <span class="unit">Mbps</span></p>
+                <div class="progress-bar-container" id="downloadProgressContainer" style="display:none;">
+                    <div class="progress-bar" id="downloadProgressBar">0%</div>
+                </div>
+            </div>
+            <div class="result-card">
+                <h2><i class="fas fa-arrow-up"></i> 업로드</h2>
+                <p><span id="uploadResult">-</span> <span class="unit">Mbps</span></p>
+                <div class="progress-bar-container" id="uploadProgressContainer" style="display:none;">
+                    <div class="progress-bar" id="uploadProgressBar">0%</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="detailed-info-section">
+            <h2><i class="fas fa-info-circle"></i> 세부 정보</h2>
+            <ul>
+                <li><strong>클라이언트 IP:</strong> <span id="clientIp">-</span></li>
+                <li><strong>테스트 시간:</strong> <span id="testTimestamp">-</span></li>
+                <li><strong>다운로드 데이터:</strong> <span id="downloadDataSize">-</span> MB</li>
+                <li><strong>업로드 데이터:</strong> <span id="uploadDataSize">-</span> MB</li>
+            </ul>
+        </div>
+        <div id="errorMessage"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    const startTestBtn = document.getElementById('startTestBtn');
+    const resultsSection = document.getElementById('resultsSection');
+    const pingResult = document.getElementById('pingResult');
+    const jitterResult = document.getElementById('jitterResult');
+    const downloadResult = document.getElementById('downloadResult');
+    const uploadResult = document.getElementById('uploadResult');
+    const clientIp = document.getElementById('clientIp');
+    const testTimestamp = document.getElementById('testTimestamp');
+    const downloadDataSize = document.getElementById('downloadDataSize');
+    const uploadDataSize = document.getElementById('uploadDataSize');
+    const errorMessage = document.getElementById('errorMessage');
+
+    const downloadProgressBar = document.getElementById('downloadProgressBar');
+    const downloadProgressContainer = document.getElementById('downloadProgressContainer');
+    const uploadProgressBar = document.getElementById('uploadProgressBar');
+    const uploadProgressContainer = document.getElementById('uploadProgressContainer');
+
+    const PING_COUNT = 10;
+    const DOWNLOAD_FILE_SIZE_MB = 25; // 다운로드 테스트 파일 크기 (MB)
+    const UPLOAD_DATA_SIZE_MB = 10;   // 업로드 테스트 데이터 크기 (MB)
+
+    const API_PREFIX = "{{ url_for('speedtest.speedtest_page') }}"; //  '/speedtest'
+
+    async function getClientIp() {
+        try {
+            const response = await fetch(`${API_PREFIX}/ip`);
+            const data = await response.json();
+            clientIp.textContent = data.ip || '확인 불가';
+        } catch (error) {
+            console.error('IP 주소 확인 실패:', error);
+            clientIp.textContent = '확인 실패';
+        }
+    }
+
+    async function testPing() {
+        let latencies = [];
+        pingResult.textContent = '측정 중...';
+        jitterResult.textContent = '-';
+
+        for (let i = 0; i < PING_COUNT; i++) {
+            const startTime = performance.now();
+            try {
+                await fetch(`${API_PREFIX}/ping_target?t=${startTime}`);
+                const endTime = performance.now();
+                latencies.push(endTime - startTime);
+            } catch (error) {
+                console.error('Ping error:', error);
+                latencies.push(10000); // 실패 시 큰 값으로 기록
+            }
+            pingResult.textContent = `측정 중... (${((i + 1) / PING_COUNT * 100).toFixed(0)}%)`;
+            await new Promise(resolve => setTimeout(resolve, 100)); // 각 핑 사이에 짧은 지연
+        }
+
+        if (latencies.length > 0) {
+            const avgLatency = latencies.reduce((a, b) => a + b, 0) / latencies.length;
+            pingResult.textContent = avgLatency.toFixed(2);
+
+            if (latencies.length > 1) {
+                const mean = avgLatency;
+                const variance = latencies.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / (latencies.length -1);
+                const stdDev = Math.sqrt(variance); // 표준편차 (지터)
+                jitterResult.textContent = stdDev.toFixed(2);
+            } else {
+                jitterResult.textContent = '0.00';
+            }
+            return avgLatency;
+        } else {
+            pingResult.textContent = '실패';
+            jitterResult.textContent = '실패';
+            throw new Error("Ping 테스트에 실패했습니다.");
+        }
+    }
+
+    async function testDownloadSpeed() {
+        downloadResult.textContent = '측정 중...';
+        downloadDataSize.textContent = DOWNLOAD_FILE_SIZE_MB;
+        downloadProgressContainer.style.display = 'block';
+        downloadProgressBar.style.width = '0%';
+        downloadProgressBar.textContent = '0%';
+        downloadProgressBar.classList.remove('error');
+
+
+        const url = `${API_PREFIX}/download?size_mb=${DOWNLOAD_FILE_SIZE_MB}&r=${Date.now()}`;
+        const startTime = performance.now();
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`서버 오류: ${response.status} ${response.statusText}`);
+            }
+
+            const reader = response.body.getReader();
+            const contentLength = +response.headers.get('Content-Length');
+            let receivedLength = 0;
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                receivedLength += value.length;
+                const progress = ((receivedLength / contentLength) * 100).toFixed(0);
+                downloadProgressBar.style.width = `${progress}%`;
+                downloadProgressBar.textContent = `${progress}%`;
+            }
+
+            const endTime = performance.now();
+            const durationSeconds = (endTime - startTime) / 1000;
+            const bitsLoaded = receivedLength * 8;
+            const speedMbps = (bitsLoaded / durationSeconds / 1000000).toFixed(2);
+            
+            downloadResult.textContent = speedMbps;
+            return parseFloat(speedMbps);
+
+        } catch (error) {
+            console.error('Download test error:', error);
+            downloadResult.textContent = '실패';
+            downloadProgressBar.classList.add('error');
+            downloadProgressBar.textContent = '실패';
+            throw error;
+        }
+    }
+
+    async function testUploadSpeed() {
+        uploadResult.textContent = '측정 중...';
+        uploadDataSize.textContent = UPLOAD_DATA_SIZE_MB;
+        uploadProgressContainer.style.display = 'block';
+        uploadProgressBar.style.width = '0%';
+        uploadProgressBar.textContent = '0%';
+        uploadProgressBar.classList.remove('error');
+
+        const dataSize = UPLOAD_DATA_SIZE_MB * 1024 * 1024;
+        const chunkSize = 1024 * 256; // 256KB 청크
+        
+        const blobParts = [];
+        const randomChunk = new Uint8Array(chunkSize);
+        for(let i = 0; i < chunkSize; i++){ // 청크 데이터 한 번만 생성
+             randomChunk[i] = Math.floor(Math.random() * 256);
+        }
+        let totalDataToSend = dataSize;
+        while (totalDataToSend > 0) {
+            const currentChunkSize = Math.min(chunkSize, totalDataToSend);
+            // 마지막 청크가 아닌 경우 전체 청크 재사용, 마지막 청크는 잘라서 사용
+            blobParts.push(currentChunkSize === chunkSize ? randomChunk : randomChunk.slice(0, currentChunkSize));
+            totalDataToSend -= currentChunkSize;
+        }
+        const data = new Blob(blobParts, {type: 'application/octet-stream'});
+
+        const startTime = performance.now();
+
+        try {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `${API_PREFIX}/upload?r=${Date.now()}`, true);
+
+                xhr.upload.onprogress = (event) => {
+                    if (event.lengthComputable) {
+                        const progress = ((event.loaded / dataSize) * 100).toFixed(0);
+                        uploadProgressBar.style.width = `${progress}%`;
+                        uploadProgressBar.textContent = `${progress}%`;
+                    }
+                };
+                xhr.onload = () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        const endTime = performance.now();
+                        const durationSeconds = (endTime - startTime) / 1000;
+                        const bitsUploaded = dataSize * 8;
+                        const speedMbps = (bitsUploaded / durationSeconds / 1000000).toFixed(2);
+                        uploadResult.textContent = speedMbps;
+                        uploadProgressBar.style.width = `100%`;
+                        uploadProgressBar.textContent = `100%`;
+                        resolve(parseFloat(speedMbps));
+                    } else {
+                        reject(new Error(`업로드 실패: ${xhr.status} ${xhr.statusText}`));
+                    }
+                };
+                xhr.onerror = () => {
+                    reject(new Error('업로드 중 네트워크 오류가 발생했습니다.'));
+                };
+                xhr.send(data);
+            });
+        } catch (error) {
+            console.error('Upload test error:', error);
+            uploadResult.textContent = '실패';
+            uploadProgressBar.classList.add('error');
+            uploadProgressBar.textContent = '실패';
+            throw error;
+        }
+    }
+
+    startTestBtn.addEventListener('click', async () => {
+        startTestBtn.disabled = true;
+        startTestBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 테스트 진행 중...';
+        resultsSection.style.display = 'block';
+        errorMessage.textContent = '';
+        errorMessage.classList.remove('visible');
+
+        pingResult.textContent = '-';
+        jitterResult.textContent = '-';
+        downloadResult.textContent = '-';
+        uploadResult.textContent = '-';
+        clientIp.textContent = '-';
+        testTimestamp.textContent = new Date().toLocaleString('ko-KR');
+        
+        downloadProgressBar.style.width = '0%';
+        downloadProgressBar.textContent = '0%';
+        downloadProgressBar.classList.remove('error');
+        downloadProgressContainer.style.display = 'none';
+
+        uploadProgressBar.style.width = '0%';
+        uploadProgressBar.textContent = '0%';
+        uploadProgressBar.classList.remove('error');
+        uploadProgressContainer.style.display = 'none';
+
+        try {
+            await getClientIp();
+            await testPing();
+            await testDownloadSpeed();
+            await testUploadSpeed();
+        } catch (error) {
+            console.error('전체 테스트 중 오류 발생:', error);
+            errorMessage.textContent = `오류 발생: ${error.message}. 상세 내용은 콘솔을 확인하세요.`;
+            errorMessage.classList.add('visible');
+        } finally {
+            startTestBtn.disabled = false;
+            startTestBtn.innerHTML = '<i class="fas fa-play"></i> 테스트 시작';
+        }
+    });
+</script>
+{% endblock %}{% endraw %}

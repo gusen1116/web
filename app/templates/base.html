@@ -157,6 +157,7 @@
                 <ul>
                     <li><a href="{{ url_for('posts.index') }}">블로그</a></li>
                     <li><a href="{{ url_for('simulation.index') }}">시뮬레이션</a></li>
+                    <li><a href="{{ url_for('speedtest.speedtest_page') }}">네트워크 테스트</a></li> {# <<< 네트워크 테스트 링크 추가 #}
                     <li><a href="{{ url_for('main.about') }}">소개</a></li>
                 </ul>
             </nav>
@@ -202,6 +203,13 @@
                     <a href="{{ url_for('simulation.index') }}" class="mobile-nav-link">
                         <i class="fas fa-atom"></i>
                         <span>시뮬레이션</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                <li class="mobile-nav-item"> {# <<< 네트워크 테스트 링크 추가 (모바일) #}
+                    <a href="{{ url_for('speedtest.speedtest_page') }}" class="mobile-nav-link">
+                        <i class="fas fa-network-wired"></i>
+                        <span>네트워크 테스트</span>
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 </li>

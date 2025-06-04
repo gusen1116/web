@@ -177,11 +177,14 @@ def setup_logging(app):
 
 def register_blueprints(app):
     """블루프린트 등록"""
-    from app.routes import main_bp, simulation_bp, posts_bp
+    # app.routes.__init__.py 에서 블루프린트들을 가져옵니다.
+    # 해당 파일에 speedtest_bp가 추가되어 있어야 합니다.
+    from app.routes import main_bp, simulation_bp, posts_bp, speedtest_bp # speedtest_bp 임포트 추가
     
     app.register_blueprint(main_bp)
     app.register_blueprint(simulation_bp)
     app.register_blueprint(posts_bp)
+    app.register_blueprint(speedtest_bp) # 네트워크 속도 테스트 블루프린트 등록
     
     app.logger.info('블루프린트 등록 완료')
 

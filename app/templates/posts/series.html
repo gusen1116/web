@@ -1,9 +1,8 @@
-{% raw %}{% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block title %}{{ series_name }} 시리즈 - 와구센{% endblock %}
 
 {% block head %}
-{# CSS 링크가 올바르게 Jinja2 문법으로 처리되는지 확인 #}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/blog-grid.css') }}">
 {% endblock %}
 
@@ -64,11 +63,9 @@
 {% endblock %}
 
 {% block scripts %}
-<script>
+<script nonce="{{ csp_nonce() }}"> // 인라인 스크립트에 nonce 추가
     document.addEventListener('DOMContentLoaded', function() {
-        // 애니메이션 효과
         const fadeElements = document.querySelectorAll('.fade-in');
-        
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -77,7 +74,6 @@
                 }
             });
         }, { threshold: 0.1 });
-        
         fadeElements.forEach(element => {
             element.style.opacity = 0;
             element.style.transform = 'translateY(20px)';
@@ -86,4 +82,4 @@
         });
     });
 </script>
-{% endblock %}{% endraw %}
+{% endblock %}
