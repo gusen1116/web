@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% raw %}{% extends "base.html" %}
 
 {% block title %}시뮬레이션 - 와구센{% endblock %}
 
@@ -81,10 +81,11 @@
                             <h2>{{ sim.title }}</h2>
                         </div>
                         <div class="simulation-card-preview">
-                            <img src="{{ url_for('static', filename=sim.thumbnail.replace('/static/', '')) if sim.thumbnail else url_for('static', filename='img/simulation-placeholder.png') }}" 
-                                alt="{{ sim.title }} 미리보기"
-                                {# Fallback image if the primary thumbnail fails #}
-                                <img src="..." onerror="this.onerror=null; this.src='/static/img/simulation-placeholder.png';">
+                            {% set placeholder_img_url = url_for('static', filename='img/simulation-placeholder.png') %}
+                            <img src="{{ url_for('static', filename=sim.thumbnail.replace('/static/', '')) if sim.thumbnail else placeholder_img_url }}" 
+                                 alt="{{ sim.title }} 미리보기"
+                                 loading="lazy"
+                                 onerror="this.onerror=null; this.src='{{ placeholder_img_url | e }}'; this.alt='미리보기 이미지를 사용할 수 없습니다';">
                         </div>
                         <div class="simulation-card-description">
                             {# Truncate description to keep cards neat #}
@@ -140,21 +141,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Ensure placeholder image is used if a thumbnail is missing or fails to load
     const previewImages = document.querySelectorAll('.simulation-card-preview img');
-    const placeholderSrc = "{{ url_for('static', filename='img/simulation-placeholder.png') }}";
+    const placeholderSrc = "{{ placeholder_img_url | e }}"; 
     previewImages.forEach(img => {
-        img.onerror = function() {
-            if (this.src !== placeholderSrc) { // Prevent infinite loop if placeholder also fails
-                this.src = placeholderSrc;
-                this.alt = "미리보기 이미지를 사용할 수 없습니다";
-            }
-        };
-        // For images that might already be broken before onerror is attached
-        if (img.complete && img.naturalWidth === 0 && img.src !== placeholderSrc) {
-           img.dispatchEvent(new Event('error'));
+        if (img.complete && img.naturalWidth === 0 && img.src !== placeholderSrc && !img.getAttribute('data-error-handled')) {
+           img.dispatchEvent(new Event('error')); 
+           img.setAttribute('data-error-handled', 'true');
         }
     });
 });
 </script>
-{% endblock %}
+{% endblock %}{% endraw %}

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% raw %}{% extends "base.html" %}
 
 {% block title %}페이지를 찾을 수 없습니다 - 와구센{% endblock %}
 
@@ -8,7 +8,8 @@
   /* 404 페이지 전체 컨테이너 */
   .error-page {
     position: relative;
-    min-height: 100vh;
+    /* min-height: 100vh; */ /* 기존 */
+    min-height: calc(var(--real-vh, 1vh) * 100); /* 수정 */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -262,7 +263,7 @@
   
   @media (max-width: 480px) {
     .error-page {
-      min-height: calc(100vh - 120px);
+      min-height: calc(100vh - 120px); /* '--real-vh' 사용 시 이 부분도 조정 가능성 있음 */
       padding: 1rem 0.5rem;
     }
     
@@ -310,31 +311,25 @@
 
 {% block content %}
 <div class="error-page">
-  <!-- 배경 입자 애니메이션 캔버스 -->
   <canvas class="background-canvas" id="particleCanvas"></canvas>
   
-  <!-- 메인 콘텐츠 -->
   <div class="error-content">
-    <!-- 404 숫자 -->
     <div class="error-code" id="errorCode">404</div>
     
-    <!-- 404 이미지 - 크기 최적화 -->
     <div class="error-image-container">
       <img src="{{ url_for('static', filename='img/404.png') }}" 
           alt="고양이가 길을 잃었어요" 
           class="error-image" 
           id="errorImage"
-          loading="eager"
+          loading="eager" {# 최상단에 보이는 중요 이미지이므로 eager 로딩 유지 또는 lazy로 변경 후 preload와 함께 사용 #}
           width="320"
           height="320"
           decoding="sync">
     </div>
     
-    <!-- 메시지 -->
     <h1 class="error-title">페이지를 찾을 수 없습니다</h1>
     <p class="error-subtitle">고양이가 길을 잃었어요...<br>아래 버튼으로 안전한 곳으로 이동하세요!</p>
     
-    <!-- 액션 버튼들 -->
     <div class="error-actions">
       <a href="{{ url_for('main.index') }}" class="error-btn error-btn-primary">
         <i class="fas fa-home"></i>
@@ -610,4 +605,4 @@ document.addEventListener('DOMContentLoaded', function() {
     document.head.appendChild(style);
 });
 </script>
-{% endblock %}
+{% endblock %}{% endraw %}

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% raw %}{% extends "base.html" %}
 
 {% block title %}홈 - 와구센{% endblock %}
 
@@ -33,7 +33,7 @@
 <section class="intro-section">
   <div class="intro-container">
     <div class="intro-image-area">
-      <img src="{{ url_for('static', filename='img/gusen-jb.png') }}" alt="마스코트 이미지" class="intro-image">
+      <img src="{{ url_for('static', filename='img/gusen-jb.png') }}" alt="마스코트 이미지" class="intro-image" loading="lazy">
     </div>
     
     <div class="intro-content-area">
@@ -72,7 +72,7 @@
                 <div class="post-card-image-wrapper">
                     <img src="{{ url_for('posts.serve_image', filename=rich_preview_data.image_filename) }}"
                          alt="{{ rich_preview_data.image_alt }}"
-                         class="post-card-preview-image">
+                         class="post-card-preview-image" loading="lazy">
                 </div>
                 {% endif %}
                 <div class="post-card-preview-text"> {# 클래스명 일관성 유지 #}
@@ -128,4 +128,4 @@
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/slide-minimal.js') }}"></script>
 <script src="{{ url_for('static', filename='js/simulation.js') }}"></script>
-{% endblock %}
+{% endblock %}{% endraw %}

@@ -1,8 +1,9 @@
-{% extends "base.html" %}
+{% raw %}{% extends "base.html" %}
 
 {% block title %}블로그 - 와구센{% endblock %}
 
 {% block head %}
+{# CSS 링크가 올바르게 Jinja2 문법으로 처리되는지 확인 #}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/blog-grid.css') }}">
 {% endblock %}
 
@@ -39,7 +40,7 @@
                             <div class="post-card-image-wrapper">
                                 <img src="{{ url_for('posts.serve_image', filename=rich_preview_data.image_filename) }}"
                                      alt="{{ rich_preview_data.image_alt }}"
-                                     class="post-card-preview-image">
+                                     class="post-card-preview-image" loading="lazy">
                             </div>
                             {% endif %}
                             <div class="post-card-preview">
@@ -91,7 +92,7 @@
                         <div class="post-card-image-wrapper">
                             <img src="{{ url_for('posts.serve_image', filename=rich_preview_data_additional.image_filename) }}"
                                  alt="{{ rich_preview_data_additional.image_alt }}"
-                                 class="post-card-preview-image">
+                                 class="post-card-preview-image" loading="lazy">
                         </div>
                         {% endif %}
                         <div class="post-card-preview">
@@ -203,4 +204,4 @@
         });
     });
 </script>
-{% endblock %}
+{% endblock %}{% endraw %}
