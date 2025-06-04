@@ -343,7 +343,7 @@ def verify_startup(app):
         if os.path.exists(simulation_module_path):
             from app.routes.simulation import verify_simulation_templates
             if callable(verify_simulation_templates):
-                 verify_simulation_templates(app) # app 객체 전달
+                verify_simulation_templates(app) # app 객체 전달
             else:
                 app.logger.warning('verify_simulation_templates 함수를 찾을 수 없거나 호출할 수 없습니다.')
         else:
@@ -408,4 +408,3 @@ def get_locale():
     
     # 요청 컨텍스트가 없는 경우 (예: 백그라운드 작업, CLI 명령) 기본 로케일 반환
     return default_locale
-
