@@ -1,71 +1,85 @@
-/* 
- * simulation-grid.css - GitHub 스타일 시뮬레이션 그리드
- */
+/* app/static/css/simulation-grid.css */
 
-/* ===== 시뮬레이션 그리드 컨테이너 ===== */
+/* General Grid Container for Simulations */
 .simulation-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-4);
+  /* Default to 3 columns, adjusts based on available space */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+  gap: var(--spacing-6); /* Consistent gap with blog grid */
   margin-bottom: var(--spacing-12);
   width: 100%;
-  max-width: var(--container-width);
+  max-width: var(--content-max-width); /* Use content-max-width for consistency */
   margin-left: auto;
   margin-right: auto;
+  padding: 0; /* Remove padding if already handled by parent .simulations-container */
 }
 
-/* ===== 시뮬레이션 카드 스타일 - GitHub 스타일 ===== */
+/* Styling for the link wrapping the card */
+.simulation-card-link {
+  text-decoration: none;
+  color: inherit; /* Inherit text color from parent */
+  display: block; /* Ensure the link takes up the full card space */
+  height: 100%; /* Ensure the link covers the entire card height */
+}
+
+/* Simulation Card - Similar to Post Card but with variations */
 .simulation-card {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
-  transition: border-color var(--transition-normal), transform var(--transition-normal), box-shadow var(--transition-normal);
+  border-radius: 6px; /* GitHub standard border radius */
+  transition: border-color var(--transition-fast), transform var(--transition-normal), box-shadow var(--transition-normal);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  min-height: 400px;
+  height: 100%; /* Make cards in a row same height */
+  min-height: 380px; /* Slightly shorter than blog post cards */
+  box-shadow: var(--shadow-sm); /* Subtle shadow */
 }
 
 .simulation-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--github-accent);
+  transform: translateY(-5px); /* Slightly different hover transform */
+  box-shadow: var(--shadow-lg); /* More prominent shadow on hover */
+  border-color: var(--primary-500); /* Different accent color on hover */
 }
 
-/* ===== 시뮬레이션 카드 헤더 ===== */
+/* Simulation Card Header */
 .simulation-card-header {
-  padding: var(--spacing-4);
+  padding: var(--spacing-4); /* Slightly more padding */
   border-bottom: 1px solid var(--border-color);
-  background-color: var(--bg-primary);
+  background-color: var(--bg-tertiary); /* Different background for visual distinction */
 }
 
 .simulation-card-header h2 {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.4rem; /* Slightly smaller than blog card title */
+  font-weight: 600; /* Same weight */
   color: var(--text-primary);
   width: 100%;
-  text-align: center;
+  text-align: left; /* Align title to the left */
+  line-height: 1.3;
 }
 
-/* ===== 시뮬레이션 미리보기 영역 ===== */
+/* Simulation Preview (Thumbnail Area) */
 .simulation-card-preview {
   width: 100%;
-  height: 180px;
-  background-color: var(--bg-primary);
-  position: relative;
+  height: 200px; /* Fixed height for consistency */
+  background-color: var(--bg-primary); /* Placeholder background */
   overflow: hidden;
-  border-bottom: 1px solid var(--border-color);
+  position: relative;
 }
 
-.simulation-card-preview canvas {
+.simulation-card-preview img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* Cover the area, may crop */
+  transition: transform 0.3s ease;
 }
 
-/* ===== 시뮬레이션 설명 영역 ===== */
+.simulation-card:hover .simulation-card-preview img {
+  transform: scale(1.05); /* Subtle zoom on image hover */
+}
+
+/* Simulation Description */
 .simulation-card-description {
   padding: var(--spacing-4);
   flex-grow: 1;
@@ -73,71 +87,78 @@
 
 .simulation-card-description p {
   margin: 0;
-  font-size: 1rem;
-  line-height: 1.5;
-  color: var(--text-secondary);
-  width: 100%;
-}
-
-/* ===== 시뮬레이션 카드 푸터 ===== */
-.simulation-card-footer {
-  padding: var(--spacing-4);
-  display: flex;
-  justify-content: center;
-  border-top: 1px solid var(--border-color);
-  background-color: var(--bg-primary);
-}
-
-.simulation-card-footer .btn {
-  width: 100%;
-  text-align: center;
-}
-
-/* ===== 시뮬레이션 정보 섹션 ===== */
-.simulation-info {
-  background-color: var(--bg-secondary);
-  border-radius: 6px;
-  padding: var(--spacing-6);
-  margin-top: var(--spacing-8);
-  margin-bottom: var(--spacing-16);
-  box-shadow: var(--shadow-md);
-  width: 100%;
-  max-width: var(--container-width);
-  margin-left: auto;
-  margin-right: auto;
-  border: 1px solid var(--border-color);
-}
-
-.simulation-info h3 {
-  margin-top: 0;
-  margin-bottom: var(--spacing-4);
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  width: 100%;
-}
-
-.simulation-info p {
-  margin-bottom: var(--spacing-4);
-  font-size: 1.1rem;
+  font-size: 0.95rem; /* Slightly smaller description text */
   line-height: 1.6;
   color: var(--text-secondary);
   width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Limit to 3 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-/* ===== 반응형 레이아웃 ===== */
+/* Simulation Card Footer (Action Button) */
+.simulation-card-footer {
+  padding: var(--spacing-3) var(--spacing-4); /* Adjust padding */
+  display: flex;
+  justify-content: flex-end; /* Align button to the right */
+  border-top: 1px solid var(--border-color);
+  background-color: transparent; /* Match card background */
+  margin-top: auto; /* Push footer to bottom */
+}
+
+.simulation-card-footer .btn {
+  font-size: 0.9rem;
+  padding: var(--spacing-2) var(--spacing-4);
+}
+
+/* Responsive Adjustments */
 @media (max-width: 1200px) {
   .simulation-grid {
-    grid-template-columns: repeat(2, 1fr); /* 태블릿에서는 2개 열 */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--spacing-5);
   }
 }
 
 @media (max-width: 768px) {
   .simulation-grid {
-    grid-template-columns: 1fr; /* 모바일에서는 1개 열 */
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--spacing-4);
   }
-  
   .simulation-card {
-    min-height: 350px; /* 모바일에서는 높이 줄임 */
+    min-height: 360px;
   }
+  .simulation-card-header h2 {
+    font-size: 1.3rem;
+  }
+  .simulation-card-preview {
+    height: 180px;
+  }
+   .simulation-card-description p {
+    font-size: 0.9rem;
+  }
+  .simulation-card-footer .btn {
+    width: 100%; /* Full width button on mobile */
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+    .simulation-grid {
+        grid-template-columns: 1fr; /* Single column on very small screens */
+    }
+    .simulation-card-preview {
+      height: 160px;
+    }
+}
+
+/* Fade-in animation for cards (from your JS) */
+.fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.fade-in.visible { /* Assuming JS adds 'visible' or directly sets style */
+    opacity: 1;
+    transform: translateY(0);
 }

@@ -2,7 +2,6 @@
 
 /* ===== 블로그 그리드 레이아웃 - 개선된 Flexbox + Grid 하이브리드 ===== */
 .posts-grid {
-  /* Flexbox fallback - 개선된 버전 */
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -13,7 +12,7 @@
   -webkit-justify-content: center; /* 중앙 정렬 */
   -ms-flex-pack: center;
   justify-content: center;
-  -webkit-align-items: stretch;
+  -webkit-align-items: stretch; /* 카드의 높이가 동일하게 보이도록 */
   -ms-flex-align: stretch;
   align-items: stretch;
   
@@ -36,11 +35,12 @@
     grid-template-columns: repeat(3, calc((100% - 2 * var(--spacing-6)) / 3)); 
     gap: var(--spacing-6);
     justify-content: center; /* 그리드 아이템들을 컨테이너 중앙에 배치 */
+    align-items: stretch; /* 그리드 아이템 높이 통일 */
   }
 }
 
 /* Flexbox 아이템 크기 계산 (gap 기반으로 개선) */
-.posts-grid > * {
+.posts-grid > * { /* .post-card-link */
   display: block; /* Android 브라우저 호환성 */
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -52,6 +52,7 @@
   -webkit-flex-shrink: 0;
   -ms-flex-negative: 0;
   flex-shrink: 0;
+  height: 100%; /* 링크가 카드의 전체 높이를 차지하도록 */
 }
 
 /* CSS Grid에서는 margin과 width auto 처리 */
@@ -59,11 +60,13 @@
   .posts-grid > * {
     width: auto; /* grid-template-columns에 의해 너비 결정됨 */
     margin: 0;
+    height: 100%; /* 그리드 아이템 높이 통일 */
   }
 }
 
 /* ===== 메인 페이지 중앙 정렬 포스트 그리드 ===== */
 .posts-grid-center {
+  /* .posts-grid와 동일한 스타일 적용 */
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -93,6 +96,7 @@
     grid-template-columns: repeat(3, calc((100% - 2 * var(--spacing-6)) / 3)); 
     gap: var(--spacing-6);
     justify-content: center;
+    align-items: stretch;
   }
 }
 
@@ -108,12 +112,14 @@
   -webkit-flex-shrink: 0;
   -ms-flex-negative: 0;
   flex-shrink: 0;
+  height: 100%;
 }
 
 @supports (display: grid) {
   .posts-grid-center > * {
     width: auto;
     margin: 0;
+    height: 100%;
   }
 }
 
@@ -325,20 +331,17 @@
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   transition: all 0.25s cubic-bezier(0.1, 0.7, 0.1, 1);
-  height: 100%;
-  min-height: 450px;
+  height: 100%; /* 부모(.post-card-link)의 높이를 100% 채움 */
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
   -webkit-flex-direction: column;
   -ms-flex-direction: column;
-  flex-direction: column;
+  flex-direction: column; /* 내부 요소들을 세로로 정렬 */
   position: relative;
-  overflow: hidden;
-  cursor: pointer;
+  overflow: hidden; /* 내용이 넘칠 경우 대비 (선택 사항) */
   box-sizing: border-box;
-  width: 100%; 
 }
 
 .post-card:hover {
@@ -347,53 +350,40 @@
   transform: translateY(-4px);
 }
 
-.post-card::after {
-  content: '자세히 보기 →';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-align-items: center;
-  -ms-flex-align: center;
-  align-items: center;
-  -webkit-justify-content: center;
-  -ms-flex-pack: center;
-  justify-content: center;
-  font-size: var(--font-size-lg);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  font-family: var(--font-sans);
+/* 포스트 카드 링크 (article을 감싸는 a 태그) */
+.post-card-link {
+  display: flex; /* 내부 article이 높이를 100% 차지하도록 */
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  height: 100%; /* 부모 그리드 아이템의 높이를 100% 사용 */
 }
 
-.post-card:hover::after {
-  opacity: 1;
-}
 
-/* ===== 포스트 카드 헤더 ===== */
+/* 포스트 카드 헤더 (제목, 날짜) */
 .post-card-header {
-  padding: 0.8rem 1.25rem 0.75rem;
+  padding: 1rem 1.25rem; /* 패딩 조정 */
   border-bottom: 1px solid var(--border-color);
-  -webkit-flex: 0 0 auto;
-  -ms-flex: 0 0 auto;
-  flex: 0 0 auto;
+  -webkit-flex-shrink: 0; /* 헤더 크기가 줄어들지 않도록 */
+      -ms-flex-negative: 0;
+          flex-shrink: 0;
 }
 
 .post-card-title {
-  font-size: 1.6rem;
+  font-size: 1.5rem; /* 크기 조정 */
   line-height: 1.3;
-  font-weight: 700;
-  margin-top: 0.5rem;
-  margin-bottom: 0.6rem;
+  font-weight: 600; /* 두께 조정 */
+  margin-top: 0; /* 상단 마진 제거 */
+  margin-bottom: 0.5rem; /* 날짜와의 간격 */
   color: var(--text-primary);
   font-family: var(--font-sans);
-  width: 100%;
+  /* 제목이 길 경우 여러 줄 표시 후 말줄임 (선택적) */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 최대 2줄 */
+  -webkit-box-orient: vertical;
+  width: 100%; /* 부모 요소 너비에 맞춤 */
 }
 
 .post-card-meta {
@@ -404,56 +394,77 @@
   -webkit-align-items: center;
   -ms-flex-align: center;
   align-items: center;
-  font-size: calc(var(--font-size-xs) * 1.2);
+  font-size: 0.85rem; /* 크기 조정 */
   color: var(--text-tertiary);
   font-family: var(--font-sans);
-  gap: var(--spacing-2);
-}
-
-@supports (display: grid) {
-  .post-card-meta {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-    gap: var(--spacing-2);
-  }
 }
 
 .post-card-date {
   display: inline-block;
   color: var(--text-tertiary);
-  font-size: 0.85rem;
+  font-size: 0.8rem; /* 크기 조정 */
   padding: 0.2rem 0.6rem;
   background-color: var(--bg-tertiary);
-  border-radius: 20px;
-  margin-bottom: var(--spacing-3);
+  border-radius: 15px;
 }
 
-/* ===== 포스트 카드 내용 ===== */
+/* 포스트 카드 콘텐츠 (이미지 + 텍스트 미리보기) */
 .post-card-content {
-  padding: var(--spacing-3) var(--spacing-5) var(--spacing-5);
-  -webkit-flex: 1;
-  -ms-flex: 1;
-  flex: 1;
+  padding: 1rem 1.25rem; /* 헤더/푸터와 패딩 통일 */
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1; /* 이 영역이 남은 공간을 모두 차지하도록 */
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column; /* 이미지와 텍스트를 세로로 배열 */
+  -ms-flex-direction: column;
+  flex-direction: column;
+  overflow: hidden; /* 내부 내용이 넘칠 경우 대비 (텍스트 말줄임표와 함께 중요) */
 }
 
-.post-card-preview {
-  font-size: 1rem;
+.post-card-image-wrapper {
+  width: 100%;
+  height: 180px; /* 기본 이미지 높이 (조절 가능) */
+  overflow: hidden;
+  margin-bottom: 0.75rem; /* 이미지와 텍스트 사이 간격 */
+  background-color: var(--bg-tertiary); /* 이미지 로딩 중 배경색 */
+  border-radius: 4px; /* 이미지 모서리 (선택 사항) */
+  -webkit-flex-shrink: 0; /* 이미지 영역 크기 고정 */
+      -ms-flex-negative: 0;
+          flex-shrink: 0;
+}
+
+.post-card-preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 이미지 비율 유지하며 래퍼 채우기 (잘릴 수 있음) */
+  display: block; /* 이미지 하단 불필요한 여백 제거 */
+}
+
+/* 텍스트 미리보기 */
+.post-card-preview-text { /* HTML에서 클래스명 변경됨 */
+  font-size: 0.95rem;
   line-height: 1.6;
   color: var(--text-secondary);
   overflow: hidden;
+  text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 5;
-  line-clamp: 5;
   -webkit-box-orient: vertical;
-  -webkit-flex: 1 1 auto;
-  -ms-flex: 1 1 auto;
-  flex: 1 1 auto;
+  -webkit-line-clamp: 3; /* 이미지가 있을 경우 텍스트는 3줄로 제한 (조절 가능) */
+  line-clamp: 3;
+  margin-bottom: 0.5rem; /* 푸터와의 간격 */
   font-family: var(--font-sans);
+  /* flex-grow: 1; 이미지가 없을 때 텍스트가 공간을 채우도록 */
+  /* min-height: 4.8em; /* 약 3줄 높이 확보 (line-height * line-clamp) */
 }
 
-/* ===== 포스트 카드 푸터 ===== */
+
+/* 포스트 카드 푸터 (태그) */
 .post-card-footer {
-  padding: 0 var(--spacing-5) var(--spacing-5);
+  padding: 0.75rem 1.25rem 1rem;
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -464,7 +475,11 @@
   -webkit-align-items: center;
   -ms-flex-align: center;
   align-items: center;
-  margin-top: auto;
+  border-top: 1px solid var(--border-color);
+  margin-top: auto; /* 내용이 짧을 경우 푸터를 카드 하단에 고정 */
+  -webkit-flex-shrink: 0; /* 푸터 크기가 줄어들지 않도록 */
+      -ms-flex-negative: 0;
+          flex-shrink: 0;
 }
 
 .post-card-tags {
@@ -481,7 +496,7 @@
 .post-card-tag {
   background-color: var(--neutral-100) !important; 
   color: var(--text-secondary) !important; 
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   padding: 0.2rem 0.6rem;
   border-radius: var(--radius-full);
   transition: all 0.2s ease;
@@ -490,95 +505,51 @@
   display: inline-flex;
   align-items: center;
   gap: 0.3em;
-  position: relative;
-  cursor: pointer;
-  overflow: hidden;
-  word-break: break-word;
-  overflow-wrap: break-word;
-  transform: none;
-  box-shadow: none;
+  text-decoration: none; /* enhanced-links.css와 충돌 방지 */
 }
 
 .post-card-tag:hover {
   background-color: var(--neutral-200) !important; 
   color: var(--text-primary) !important; 
   border-color: var(--neutral-300) !important; 
-  transform: none;
-  box-shadow: none;
   text-decoration: none;
 }
 
-.post-card-action {
-  display: inline-block;
-  margin-top: var(--spacing-3);
-  padding: 0.4rem 1rem;
-  background-color: var(--bg-tertiary);
-  color: var(--github-accent);
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
 
-.post-card-action:hover {
-  background-color: var(--github-accent);
-  color: white;
-  transform: translateY(-2px);
-}
-
-/* ===== Dark mode ===== */
-html.dark-theme .intro-container {
-  background-color: var(--bg-secondary);
-}
-
-html.dark-theme .post-card-tag {
-  background-color: var(--neutral-800) !important; 
-  color: var(--text-secondary) !important; 
-  border-color: var(--neutral-700) !important; 
-}
-
-html.dark-theme .post-card-tag:hover {
-  background-color: var(--neutral-700) !important; 
-  color: var(--text-primary) !important; 
-  border-color: var(--neutral-600) !important; 
-}
-
-/* ===== 포스트 카드 링크 ===== */
-.post-card-link {
-  display: block;
-  text-decoration: none;
-  color: inherit;
-  height: 100%;
+/* ===== 블로그 헤더 ===== */
+.blog-header {
+  margin-bottom: 2rem;
+  text-align: left;
   width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: var(--content-max-width);
+  padding: 0 var(--spacing-4); /* 그리드와 동일한 좌우 패딩 */
+  box-sizing: border-box;
+  position: relative;
 }
 
-/* ===== 섹션 스타일 ===== */
-.section-title {
-  font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: var(--spacing-6);
+.blog-header h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  letter-spacing: -0.02em;
+  width: auto;
+  text-align: left;
+  font-weight: 700;
   color: var(--text-primary);
   position: relative;
-  width: 100%;
-  max-width: var(--content-max-width); 
-  margin-left: auto;
-  margin-right: auto;
-  font-family: var(--font-sans);
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: var(--spacing-4);
-  box-sizing: border-box;
+  display: inline-block;
 }
 
-.blog-section, 
-.simulation-section {
-  margin-top: var(--spacing-16);
-  margin-bottom: var(--spacing-16);
-  width: 100%;
-  max-width: var(--content-max-width); 
-  margin-left: auto;
-  margin-right: auto;
-  padding: 0 var(--spacing-4);
-  box-sizing: border-box;
+.blog-header h1::after {
+  content: '';
+  position: absolute;
+  bottom: -0.5rem;
+  left: 0;
+  width: 3rem;
+  height: 0.2rem;
+  background-color: var(--github-accent);
+  border-radius: var(--radius-full);
 }
 
 /* ===== 상단 태그 네비게이션 - 가로 슬라이더 ===== */
@@ -595,7 +566,7 @@ html.dark-theme .post-card-tag:hover {
   -ms-flex-wrap: nowrap;
   flex-wrap: nowrap;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch; /* 모바일 부드러운 스크롤 */
   -webkit-justify-content: flex-start;
   -ms-flex-pack: start;
   justify-content: flex-start;
@@ -606,11 +577,11 @@ html.dark-theme .post-card-tag:hover {
   width: 100%;
   box-sizing: border-box;
   gap: 0.75rem;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: none; /* Firefox 스크롤바 숨김 */
+  -ms-overflow-style: none;  /* IE, Edge 스크롤바 숨김 */
 }
 
-.top-tag-navigation::-webkit-scrollbar {
+.top-tag-navigation::-webkit-scrollbar { /* Chrome, Safari, Opera 스크롤바 숨김 */
   display: none;
 }
 
@@ -635,14 +606,14 @@ html.dark-theme .post-card-tag:hover {
   -webkit-justify-content: center;
   -ms-flex-pack: center;
   justify-content: center;
-  min-height: 44px;
+  min-height: 40px; /* 터치 영역 확보 */
   text-align: center;
   box-sizing: border-box;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0); /* 모바일 터치 시 배경색 제거 */
+  touch-action: manipulation; /* 더블탭 확대 방지 */
   -webkit-flex-shrink: 0;
   -ms-flex-negative: 0;
-  flex-shrink: 0;
+  flex-shrink: 0; /* 아이템 크기 줄어들지 않도록 */
 }
 
 .top-tag-navigation .tag-item:hover {
@@ -674,40 +645,6 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   border-color: transparent;
 }
 
-/* ===== 블로그 헤더 ===== */
-.blog-header {
-  margin-bottom: 2rem;
-  text-align: left;
-  width: 100%;
-  margin-left: 0;
-  margin-right: auto;
-  position: relative;
-  box-sizing: border-box;
-}
-
-.blog-header h1 {
-  margin: 0;
-  font-size: 2.5rem;
-  letter-spacing: -0.02em;
-  width: auto;
-  text-align: left;
-  font-weight: 700;
-  color: var(--text-primary);
-  position: relative;
-  display: inline-block;
-}
-
-.blog-header h1::after {
-  content: '';
-  position: absolute;
-  bottom: -0.5rem;
-  left: 0;
-  width: 3rem;
-  height: 0.2rem;
-  background-color: var(--github-accent);
-  border-radius: var(--radius-full);
-}
-
 /* ===== 공간 채우기 ===== */
 .spacer {
   -webkit-flex-grow: 1;
@@ -722,7 +659,7 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   max-width: var(--content-max-width); 
   margin: 0 auto;
   position: relative;
-  padding-bottom: calc(var(--spacing-12) + 50px);
+  padding-bottom: calc(var(--spacing-12) + 50px); /* 더보기 버튼 공간 고려 */
   box-sizing: border-box;
 }
 
@@ -788,7 +725,7 @@ html.dark-theme .top-tag-navigation .tag-item.active {
 }
 
 .hidden {
-  display: none;
+  display: none !important; /* Important 추가하여 확실히 숨김 */
 }
 
 .empty-state {
@@ -802,32 +739,26 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   border: 1px solid var(--border-color);
   width: 100%;
   box-sizing: border-box;
-  grid-column: 1 / -1; 
+  grid-column: 1 / -1; /* 그리드 사용 시 전체 컬럼 차지 */
 }
 
 /* ===== 반응형 설정 - 개선된 버전 ===== */
 @media (min-width: 1440px) {
-  /* Desktop large styles remain largely unchanged as base styles target this */
+  /* 데스크톱 큰 화면은 기본 3열 유지 */
 }
 
 /* 태블릿 (2열) */
-@media (max-width: 1439px) { 
+@media (max-width: 1439px) and (min-width: 951px) { 
   .posts-grid,
   .posts-grid-center {
-    max-width: calc(var(--content-max-width) * 0.7); 
+    max-width: calc(var(--content-max-width) * 0.85); /* 너비 조정 */
     @supports (display: grid) {
       /* 수정: 2열일 때 올바른 gap 계산 */
       grid-template-columns: repeat(2, calc((100% - var(--spacing-6)) / 2));
     }
   }
-  .top-tag-navigation,
-  .posts-container,
-  .slide-container,
-  .intro-section,
-  .section-title,
-  .blog-section,
-  .simulation-section {
-    max-width: calc(var(--content-max-width) * 0.7);
+  .blog-header, .top-tag-navigation, .posts-container, .slide-container, .intro-section, .section-title, .blog-section, .simulation-section {
+    max-width: calc(var(--content-max-width) * 0.85);
   }
 
   .posts-grid > *,
@@ -836,27 +767,22 @@ html.dark-theme .top-tag-navigation .tag-item.active {
     width: calc((100% - var(--spacing-6)) / 2);
     max-width: none; /* 이전 max-width 제거 또는 조정 */
   }
+  .post-card-title { font-size: 1.4rem; }
+  .post-card-image-wrapper { height: 170px; } /* 태블릿 이미지 높이 */
 }
 
 /* 모바일 (1열) */
 @media (max-width: 950px) {
   .posts-grid,
   .posts-grid-center {
-    max-width: 500px; 
-    grid-template-columns: minmax(0, 1fr); /* 1열로 변경, 최대 카드폭은 카드가 스스로 결정 */
+    max-width: 600px; /* 최대 너비 조정 */
+    grid-template-columns: minmax(0, 1fr); /* 1열로 변경 */
     padding-left: var(--spacing-4);
     padding-right: var(--spacing-4);
+    gap: var(--spacing-5); /* 모바일에서 간격 약간 줄임 */
   }
-  .top-tag-navigation,
-  .posts-container,
-  .slide-container,
-  .intro-section,
-  .section-title,
-  .blog-section,
-  .simulation-section {
-    max-width: 500px; 
-    margin-left: auto;
-    margin-right: auto;
+  .blog-header, .top-tag-navigation, .posts-container, .slide-container, .intro-section, .section-title, .blog-section, .simulation-section {
+    max-width: 600px; 
     padding-left: var(--spacing-4);
     padding-right: var(--spacing-4);
   }
@@ -864,34 +790,35 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   .posts-grid > *,
   .posts-grid-center > * {
     width: 100%; 
-    max-width: 450px; /* 카드 자체의 최대 너비 */
-    margin-left: auto;
-    margin-right: auto;
+    max-width: 100%; /* 카드 자체는 100% 너비 */
   }
   
-  .top-tag-navigation {
-     width: calc(100% - (2 * var(--spacing-4)));
-  }
-  
-  .post-card { min-height: 380px; }
-  .post-card-title { font-size: 1.4rem; }
-  .post-card-preview { font-size: 1.1rem; }
-  .post-card-tags { display: flex !important; flex-wrap: wrap; flex-direction: row; gap: 0.5rem; align-items: center; }
-  .post-card-footer { flex-direction: row; align-items: flex-start; }
+  .post-card { min-height: auto; } /* 모바일에서는 최소 높이 자동 */
+  .post-card-title { font-size: 1.3rem; -webkit-line-clamp: 3; line-clamp: 3;}
+  .post-card-image-wrapper { height: 160px; } /* 모바일 이미지 높이 조정 */
+  .post-card-preview-text { font-size: 0.9rem; -webkit-line-clamp: 4; line-clamp: 4;}
   .blog-header h1 { font-size: 2rem; }
   .slide-container { height: 250px; }
   .slide h2 { font-size: 1.8rem; }
-  .post-card-tag { padding: 6px 10px; font-size: 0.8rem; white-space: nowrap; }
-  .post-card-action { padding: 8px 16px; font-size: 1rem; }
+  .post-card-tag { padding: 0.3rem 0.7rem; font-size: 0.75rem; } /* 패딩 조정 */
   
-  .intro-container { flex-direction: column; text-align: center; padding: var(--spacing-5); gap: var(--spacing-5); }
+  .intro-container { 
+      flex-direction: column; 
+      text-align: center; 
+      padding: var(--spacing-5); 
+      gap: var(--spacing-5); 
+  }
   @supports (display: grid) {
-    .intro-container { display: grid; grid-template-columns: 1fr; gap: var(--spacing-5); }
+    .intro-container { 
+        display: grid; 
+        grid-template-columns: 1fr; 
+        gap: var(--spacing-5); 
+    }
   }
   .intro-image-area { flex: 0 0 auto; width: 160px; margin: 0 auto; }
   .intro-content-area { min-height: auto; }
-  .intro-content-area h2 { font-size: 1.6rem; }
-  .intro-content-area p { font-size: 1rem; }
+  .intro-content-area h2 { font-size: 1.6rem; text-align: center; }
+  .intro-content-area p { font-size: 1rem; text-align: center; }
   .intro-content-area .intro-links { justify-content: center; }
 }
 
@@ -899,6 +826,7 @@ html.dark-theme .top-tag-navigation .tag-item.active {
 @media (max-width: 480px) {
   .posts-grid,
   .posts-grid-center,
+  .blog-header,
   .top-tag-navigation,
   .posts-container,
   .slide-container,
@@ -909,16 +837,22 @@ html.dark-theme .top-tag-navigation .tag-item.active {
     padding-left: 1rem;
     padding-right: 1rem;
   }
-
-  .top-tag-navigation {
-     width: calc(100% - 2rem);
-  }
+  .posts-grid, .posts-grid-center { gap: var(--spacing-4); } /* 간격 더 줄임 */
+  .top-tag-navigation { width: calc(100% - 2rem); padding: 0.75rem; gap: 0.5rem; }
+  .top-tag-navigation .tag-item { font-size: 0.85rem; padding: 0.4rem 0.8rem; min-height: 36px;}
   
   .blog-header h1 { font-size: 1.75rem; }
-  .post-card { min-height: 350px; }
-  .post-card-title { font-size: 1.3rem; }
-  .post-card-preview { font-size: 1rem; }
-  .post-card-tag { padding: 5px 8px; font-size: 0.75rem; }
+  .post-card-header, .post-card-content, .post-card-footer { padding-left: 1rem; padding-right: 1rem; }
+  .post-card-header { padding-top: 0.75rem; padding-bottom: 0.75rem;}
+  .post-card-content { padding-top: 0.75rem; padding-bottom: 0.75rem;}
+  .post-card-footer { padding-bottom: 0.75rem; }
+  .post-card-title { font-size: 1.2rem; }
+  .post-card-image-wrapper { height: 140px; margin-bottom: 0.5rem; }
+  .post-card-preview-text { font-size: 0.85rem; line-height: 1.5; margin-bottom: 0.5rem;}
+  .post-card-tag { font-size: 0.7rem; padding: 0.15rem 0.5rem; }
+  .slide-container { height: 220px; }
+  .slide h2 { font-size: 1.6rem; }
+  .slide p { font-size: 0.9rem; }
 }
 
 /* ===== Flexbox fallback 개선 ===== */
@@ -927,48 +861,112 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   .posts-grid-center {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: center; /* 중앙 정렬 유지 */
     align-items: stretch;
   }
   
   .posts-grid > *,
   .posts-grid-center > * {
-      /* 수정: 플렉스 아이템도 100% 기준으로 계산 */
       flex-basis: calc((100% - 2 * var(--spacing-6)) / 3); 
       flex-grow: 0;
       flex-shrink: 0;
-      margin: calc(var(--spacing-6) / 2);
+      margin: calc(var(--spacing-6) / 2); /* gap 효과 */
+      height: auto; /* 플렉스 아이템은 내용에 따라 높이 결정 */
   }
 
-  @media (max-width: 1439px) {
+  @media (max-width: 1439px) and (min-width: 951px) { /* 태블릿 2열 */
     .posts-grid > *,
     .posts-grid-center > * {
-        /* 수정: 2열일 때도 100% 기준으로 계산 */
         flex-basis: calc((100% - var(--spacing-6)) / 2);
+        margin: calc(var(--spacing-6) / 2);
     }
   }
-  @media (max-width: 950px) {
+  @media (max-width: 950px) { /* 모바일 1열 */
     .posts-grid > *,
     .posts-grid-center > * {
         flex-basis: 100%; 
-        max-width: 450px;
+        max-width: 600px; /* 최대 너비 */
         margin-left: auto;
         margin-right: auto;
+        margin-top: calc(var(--spacing-5) / 2);
+        margin-bottom: calc(var(--spacing-5) / 2);
     }
   }
+  @media (max-width: 480px) { /* 초소형 모바일 */
+     .posts-grid > *,
+    .posts-grid-center > * {
+        margin-top: calc(var(--spacing-4) / 2);
+        margin-bottom: calc(var(--spacing-4) / 2);
+    }
+  }
+}
 
-  .posts-grid::after,
-  .posts-grid-center::after {
-    content: '';
-    flex: auto;
-    /* 수정: 기준 너비도 100% 기준으로 계산 */
-    max-width: calc((100% - 2 * var(--spacing-6)) / 3);
-  }
-  @media (max-width: 1439px) {
-    .posts-grid::after,
-    .posts-grid-center::after {
-        /* 수정: 2열일 때 기준 너비도 100% 기준으로 계산 */
-        max-width: calc((100% - var(--spacing-6)) / 2);
-    }
-  }
+/* ===== Dark mode ===== */
+html.dark-theme .post-card {
+  background-color: var(--bg-secondary); 
+  border-color: var(--border-color); 
+}
+html.dark-theme .post-card:hover {
+  border-color: var(--github-accent); 
+}
+html.dark-theme .post-card-header {
+  border-bottom-color: var(--border-color);
+}
+html.dark-theme .post-card-title {
+  color: var(--text-primary);
+}
+html.dark-theme .post-card-meta {
+  color: var(--text-tertiary);
+}
+html.dark-theme .post-card-date {
+  background-color: var(--bg-tertiary);
+  color: var(--text-tertiary); /* 다크모드 날짜 색상 */
+}
+html.dark-theme .post-card-image-wrapper {
+  background-color: var(--bg-tertiary);
+}
+html.dark-theme .post-card-preview-text {
+  color: var(--text-secondary);
+}
+html.dark-theme .post-card-footer {
+  border-top-color: var(--border-color);
+}
+html.dark-theme .post-card-tag {
+  background-color: var(--neutral-800) !important; 
+  color: var(--text-secondary) !important; 
+  border-color: var(--neutral-700) !important; 
+}
+html.dark-theme .post-card-tag:hover {
+  background-color: var(--neutral-700) !important; 
+  color: var(--text-primary) !important; 
+  border-color: var(--neutral-600) !important; 
+}
+html.dark-theme .intro-container {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+html.dark-theme .intro-image {
+  border-color: var(--border-color);
+}
+html.dark-theme .intro-content-area .intro-link.secondary {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+html.dark-theme .intro-content-area .intro-link.secondary:hover {
+  background-color: var(--neutral-700); /* 다크모드 버튼 호버 색상 조정 */
+}
+html.dark-theme .slide-container {
+    background-color: #1f6feb; /* 다크모드 슬라이드 배경 */
+    border-color: var(--border-color);
+}
+html.dark-theme .empty-state {
+    background-color: var(--bg-secondary);
+    color: var(--text-tertiary);
+    border-color: var(--border-color);
+}
+html.dark-theme .toggle-button {
+    background-color: var(--github-accent); /* 다크모드에서도 동일 색상 유지 또는 조정 */
+}
+html.dark-theme .toggle-button:hover {
+    background-color: #58a6ff; /* 다크모드 호버 시 밝은 파랑 */
 }

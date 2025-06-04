@@ -7,25 +7,21 @@
 {% endblock %}
 
 {% block content %}
-<!-- 블로그 헤더 -->
 <div class="blog-header">
     <h1>블로그</h1>
 </div>
 
-<!-- 상단 태그 네비게이션 영역 - 동적 태그 적용 -->
 <div class="top-tag-navigation">
-    {% for tag in tags %}
-        <div class="tag-item" data-tag="{{ tag.name }}">{{ tag.name }}</div>
+    {% for tag_item in tags %} {# 변수명을 tag에서 tag_item으로 변경 (내부 post.tags의 tag와 충돌 방지) #}
+        <div class="tag-item" data-tag="{{ tag_item.name }}">{{ tag_item.name }}</div>
     {% endfor %}
 </div>
 
-<!-- 포스트 컨테이너 -->
 <div class="posts-container">
-    <!-- 포스트 그리드 -->
     <div class="posts-grid" id="initialPosts">
         {% if posts %}
             {% for post in posts[:6] %}
-                <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}" class="post-card-link" data-tags="{{ ','.join(post.tags) }}">
+                <a href="{{ url_for('posts.view_by_slug', slug=post.slug or post.id) }}" class="post-card-link" data-tags="{{ ','.join(post.tags) }}">
                     <article class="post-card fade-in">
                         <div class="post-card-header">
                             <h2 class="post-card-title">{{ post.title }}</h2>
@@ -35,9 +31,23 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        {# ----- 미리보기 영역 수정 시작 ----- #}
+                        {% set rich_preview_data = post.get_rich_preview(100) %} {# 텍스트 미리보기 100자 #}
                         <div class="post-card-content">
-                            <div class="post-card-preview">{{ post.get_preview(150) }}</div>
+                            {% if rich_preview_data.image_filename %}
+                            <div class="post-card-image-wrapper">
+                                <img src="{{ url_for('posts.serve_image', filename=rich_preview_data.image_filename) }}"
+                                     alt="{{ rich_preview_data.image_alt }}"
+                                     class="post-card-preview-image">
+                            </div>
+                            {% endif %}
+                            <div class="post-card-preview">
+                                {{ rich_preview_data.text }}
+                            </div>
                         </div>
+                        {# ----- 미리보기 영역 수정 끝 ----- #}
+                        
                         <div class="post-card-footer">
                             <div class="post-card-tags">
                                 {% for tag in post.tags[:2] %}
@@ -54,14 +64,16 @@
         {% else %}
             <div class="empty-state">
                 <p>아직 게시글이 없습니다.</p>
+                 {% if error_message %}
+                    <p class="error-message" style="color: red;">{{ error_message }}</p>
+                {% endif %}
             </div>
         {% endif %}
     </div>
     
-    <!-- 추가 포스트 (더보기 누를 때 표시됨) -->
     <div class="posts-grid hidden" id="additionalPosts">
         {% for post in posts[6:] %}
-            <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}" class="post-card-link" data-tags="{{ ','.join(post.tags) }}">
+            <a href="{{ url_for('posts.view_by_slug', slug=post.slug or post.id) }}" class="post-card-link" data-tags="{{ ','.join(post.tags) }}">
                 <article class="post-card fade-in">
                     <div class="post-card-header">
                         <h2 class="post-card-title">{{ post.title }}</h2>
@@ -71,9 +83,23 @@
                             </div>
                         </div>
                     </div>
+
+                    {# ----- 추가 포스트 미리보기 영역 수정 시작 ----- #}
+                    {% set rich_preview_data_additional = post.get_rich_preview(100) %}
                     <div class="post-card-content">
-                        <div class="post-card-preview">{{ post.get_preview(150) }}</div>
+                        {% if rich_preview_data_additional.image_filename %}
+                        <div class="post-card-image-wrapper">
+                            <img src="{{ url_for('posts.serve_image', filename=rich_preview_data_additional.image_filename) }}"
+                                 alt="{{ rich_preview_data_additional.image_alt }}"
+                                 class="post-card-preview-image">
+                        </div>
+                        {% endif %}
+                        <div class="post-card-preview">
+                            {{ rich_preview_data_additional.text }}
+                        </div>
                     </div>
+                    {# ----- 추가 포스트 미리보기 영역 수정 끝 ----- #}
+
                     <div class="post-card-footer">
                         <div class="post-card-tags">
                             {% for tag in post.tags[:2] %}
@@ -89,7 +115,6 @@
         {% endfor %}
     </div>
     
-    <!-- 더보기/접기 버튼 -->
     {% if posts and posts|length > 6 %}
         <div class="toggle-button-container">
             <button id="toggleButton" class="toggle-button">
@@ -122,39 +147,37 @@
         
         // 태그 필터링 기능
         const tagItems = document.querySelectorAll('.tag-item');
-        const postCards = document.querySelectorAll('.post-card-link');
+        const postCards = document.querySelectorAll('.post-card-link'); // 모든 포스트 카드 링크 (초기 + 추가)
         let activeTag = null;
         
         tagItems.forEach(tag => {
             tag.addEventListener('click', function() {
-                const selectedTag = this.textContent.trim();
+                const selectedTag = this.getAttribute('data-tag'); // data-tag 속성 값 사용
                 
-                // 같은 태그 재클릭 시 필터 해제 (전체 태그 표시)
                 if (activeTag === selectedTag) {
                     activeTag = null;
                     tagItems.forEach(t => t.classList.remove('active'));
-                    
                     postCards.forEach(post => {
-                        post.style.display = '';
+                        post.style.display = ''; // 또는 'flex' 등 .post-card-link의 기본 display 속성
                     });
+                    // 더보기/접기 버튼 상태 원래대로 (필요시)
+                    if (additionalPosts && additionalPosts.classList.contains('hidden') && toggleButton) {
+                         // 이미 접혀있으면 그대로 두거나, 필요에 따라 펼칠 수 있음
+                    } else if (additionalPosts && !additionalPosts.classList.contains('hidden') && toggleButton) {
+                        // 필터 해제 시 추가 포스트가 보이고 있었다면, 초기 상태(숨김)로 돌릴지 결정 필요
+                        // 여기서는 일단 그대로 둠
+                    }
                     return;
                 }
                 
-                // 태그 활성화 상태 업데이트
                 activeTag = selectedTag;
                 tagItems.forEach(t => {
-                    if (t.textContent.trim() === selectedTag) {
-                        t.classList.add('active');
-                    } else {
-                        t.classList.remove('active');
-                    }
+                    t.classList.toggle('active', t.getAttribute('data-tag') === selectedTag);
                 });
                 
-                // 포스트 필터링
                 let visibleCount = 0;
                 postCards.forEach(post => {
                     const postTags = post.getAttribute('data-tags').split(',');
-                    
                     if (postTags.includes(selectedTag)) {
                         post.style.display = '';
                         visibleCount++;
@@ -163,25 +186,18 @@
                     }
                 });
                 
-                // 태그 필터링 시 추가 포스트도 보이게 함
+                // 태그 필터링 시에는 추가 포스트도 항상 보이도록 처리
                 if (additionalPosts) {
                     additionalPosts.classList.remove('hidden');
-                    
                     if (toggleButton) {
                         toggleButton.innerHTML = '<span>포스트 접기</span><i class="fas fa-chevron-up"></i>';
                     }
                 }
                 
-                // 일치하는 포스트가 없으면 알림
                 if (visibleCount === 0) {
-                    alert('선택한 태그의 게시물이 없습니다.');
-                    // 필터 초기화
-                    activeTag = null;
-                    tagItems.forEach(t => t.classList.remove('active'));
-                    
-                    postCards.forEach(post => {
-                        post.style.display = '';
-                    });
+                    // 일치하는 포스트가 없을 때 사용자에게 알림 (alert 대신 다른 방식 고려 가능)
+                    // alert('선택한 태그의 게시물이 없습니다.');
+                    // 필터 초기화 또는 "결과 없음" 메시지 표시 등의 UX 개선 가능
                 }
             });
         });

@@ -4,8 +4,8 @@
 [author: 구센]
 [description: 읽은 책중에 괜찮은 것들]
 
-## 구분 
-과학분야 및 문학분야로 나눔
+### 구분 
+읽었던 책중에 재미있고 나름 좋은 책목록
 
 ### 과학
 1. 빛의 물리학 - EBS 다큐프라임
@@ -17,10 +17,16 @@ https://product.kyobobook.co.kr/detail/S000200560227
 3. 위험한 과학책 - 랜들 먼로
 https://product.kyobobook.co.kr/detail/S000000733681
 
+4. 우주탐사 매뉴얼
+https://product.kyobobook.co.kr/detail/S000203097376
 
 
 ### 문학 
 1. 아내를 모자로 착각한 남자
 https://product.kyobobook.co.kr/detail/S000001786520
 
-2. 
+2. 안녕히 계세요, 아빠
+https://product.kyobobook.co.kr/detail/S000000864604
+
+3. 우리가 빛의 속도로 갈 수 없다면 
+https://product.kyobobook.co.kr/detail/S000001935245

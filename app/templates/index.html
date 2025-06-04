@@ -9,7 +9,6 @@
 {% endblock %}
 
 {% block content %}
-<!-- 슬라이드 섹션 -->
 <div class="slide-container">
   <div class="slide active">
     <h2>구센의 법칙</h2>
@@ -31,29 +30,29 @@
   </div>
 </div>
 
-<!-- 소개 섹션 -->
 <section class="intro-section">
   <div class="intro-container">
-    <!-- 왼쪽: 이미지 영역 -->
     <div class="intro-image-area">
       <img src="{{ url_for('static', filename='img/gusen-jb.png') }}" alt="마스코트 이미지" class="intro-image">
     </div>
     
-    <!-- 오른쪽: 텍스트 콘텐츠 영역 -->
     <div class="intro-content-area">
-      <!-- 여기에 소개 내용을 추가하세요 -->
+      <h2>와구센의 블로그에 오신 것을 환영합니다!</h2>
+      <p>다양한 주제의 글과 시뮬레이션을 만나보세요. 흥미로운 이야기가 여러분을 기다리고 있습니다.</p>
+      <div class="intro-links">
+          <a href="{{ url_for('posts.index') }}" class="intro-link primary">블로그 바로가기</a>
+          <a href="{{ url_for('simulation.index') }}" class="intro-link secondary">시뮬레이션 보기</a>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- 블로그 섹션 - 중앙 정렬된 포스트 -->
 <section class="blog-section">
-  <h2 class="section-title">블로그</h2>
+  <h2 class="section-title">최근 블로그 포스트</h2>
   
-  <!-- 중앙 정렬된 포스트 그리드 - 3개 포스트로 수정 -->
-  <div class="posts-grid-center">
+  <div class="posts-grid-center"> {# 이 클래스에 CSS가 적용되어야 합니다. blog-grid.css 참고 #}
     {% if recent_posts %}
-      {% for post in recent_posts %}
+      {% for post in recent_posts %} {# recent_posts 변수는 라우트에서 전달받아야 합니다. #}
         <a href="{{ url_for('posts.view_by_slug', slug=post.slug or post.id) }}" class="post-card-link">
           <article class="post-card">
             <div class="post-card-header">
@@ -65,9 +64,23 @@
                 </div>
               </div>
             </div>
+
+            {# ----- 미리보기 영역 수정 시작 ----- #}
+            {% set rich_preview_data = post.get_rich_preview(80) %} {# 텍스트 미리보기 80자 (메인 페이지는 더 짧게) #}
             <div class="post-card-content">
-              <div class="post-card-preview">{{ post.get_preview(300) }}</div>
+                {% if rich_preview_data.image_filename %}
+                <div class="post-card-image-wrapper">
+                    <img src="{{ url_for('posts.serve_image', filename=rich_preview_data.image_filename) }}"
+                         alt="{{ rich_preview_data.image_alt }}"
+                         class="post-card-preview-image">
+                </div>
+                {% endif %}
+                <div class="post-card-preview-text"> {# 클래스명 일관성 유지 #}
+                    {{ rich_preview_data.text }}
+                </div>
             </div>
+            {# ----- 미리보기 영역 수정 끝 ----- #}
+
             <div class="post-card-footer">
               <div class="post-card-tags">
                 {% for tag in post.tags[:2] %}
@@ -85,30 +98,34 @@
       <div class="empty-state">
         <p>아직 게시글이 없습니다.</p>
         {% if error_message %}
-        <p class="error-message">{{ error_message }}</p>
+        <p class="error-message" style="color: red;">{{ error_message }}</p>
         {% endif %}
       </div>
     {% endif %}
   </div>
+  {% if recent_posts and recent_posts|length > 0 %} {# recent_posts가 있고 내용이 있을 때만 버튼 표시 #}
+  <div style="text-align: center; margin-top: 2rem;">
+      <a href="{{ url_for('posts.index') }}" class="btn btn-primary">모든 포스트 보기</a>
+  </div>
+  {% endif %}
 </section>
 
-<!-- 물리 시뮬레이션 섹션 -->
 <section class="simulation-section">
   <h2 class="section-title">팅팅 탱탱</h2>
-  <p>팅팅탱탱 중력과 함께하기기</p>
+  <p>팅팅탱탱 중력과 함께하기</p>
   
-  <div class="simulation-container">
+  <div class="simulation-container"> {# simulation.css 에 정의된 스타일을 따름 #}
     <canvas id="simulationCanvas"></canvas>
+  </div>
+  <div style="text-align: center; margin-top: 2rem;">
+      <a href="{{ url_for('simulation.index') }}" class="btn btn-secondary">시뮬레이션 더 보기</a>
   </div>
 </section>
 
-<!-- 공간 채우기용 div -->
 <div class="spacer"></div>
 {% endblock %}
 
 {% block scripts %}
-<!-- 슬라이드 스크립트 -->
 <script src="{{ url_for('static', filename='js/slide-minimal.js') }}"></script>
-<!-- 단순화된 시뮬레이션 스크립트 -->
 <script src="{{ url_for('static', filename='js/simulation.js') }}"></script>
 {% endblock %}

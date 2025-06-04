@@ -1,101 +1,160 @@
 {% extends "base.html" %}
 
-{% block title %}물리 시뮬레이션{% endblock %}
+{% block title %}시뮬레이션 - 와구센{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/simulation-grid.css') }}">
+{# Styles for the page header itself. You can move this to a general CSS file if preferred. #}
+<style>
+  .simulation-page-header {
+    margin-bottom: 2rem;
+    text-align: left;
+    width: 100%;
+    max-width: var(--content-max-width); /* Consistent with blog header */
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 var(--spacing-4);
+    box-sizing: border-box;
+  }
+
+  .simulation-page-header h1 {
+    margin: 0;
+    font-size: 2.5rem; /* Matches blog header h1 */
+    letter-spacing: -0.02em;
+    width: auto;
+    text-align: left;
+    font-weight: 700;
+    color: var(--text-primary);
+    position: relative;
+    display: inline-block;
+  }
+
+  .simulation-page-header h1::after { /* Underline effect */
+    content: '';
+    position: absolute;
+    bottom: -0.5rem;
+    left: 0;
+    width: 3rem;
+    height: 0.2rem;
+    background-color: var(--github-accent); /* Accent color for underline */
+    border-radius: var(--radius-full);
+  }
+  
+  .simulation-page-description {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-top: 0.75rem;
+    max-width: 700px;
+  }
+
+  /* Style for empty state, similar to blog-grid.css */
+  .empty-state {
+    text-align: center;
+    padding: var(--spacing-12);
+    background-color: var(--bg-secondary);
+    border-radius: 6px;
+    color: var(--text-tertiary);
+    font-size: var(--font-size-lg);
+    font-family: var(--font-sans);
+    border: 1px solid var(--border-color);
+    width: 100%;
+    box-sizing: border-box;
+    grid-column: 1 / -1; /* Ensure it spans all columns if grid is empty */
+  }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="section-header">
-    <h1>입자 물리 시뮬레이션</h1>
-    <p>물리 법칙에 따라 상호작용하는 입자들의 움직임을 관찰해보세요.</p>
+<div class="simulation-page-header">
+    <h1>인터랙티브 시뮬레이션</h1>
+    <p class="simulation-page-description">다양한 물리 및 현상들을 직접 체험해보세요. 각 카드를 클릭하여 시뮬레이션을 시작할 수 있습니다.</p>
 </div>
 
-<div class="simulation-container card">
-    <div class="simulation-controls">
-        <div class="control-group">
-            <label for="gravityControl">중력: <span id="gravityValue">9.8</span> m/s²</label>
-            <input type="range" id="gravityControl" min="0" max="20" step="0.1" value="9.8">
-        </div>
-        
-        <div class="control-group">
-            <label for="frictionControl">마찰: <span id="frictionValue">0.01</span></label>
-            <input type="range" id="frictionControl" min="0" max="0.1" step="0.001" value="0.01">
-        </div>
-        
-        <div class="control-group">
-            <label for="elasticityControl">탄성: <span id="elasticityValue">0.8</span></label>
-            <input type="range" id="elasticityControl" min="0" max="1" step="0.01" value="0.8">
-        </div>
-        
-        <div class="control-group">
-            <label for="airResistanceControl">공기저항: <span id="airResistanceValue">0.001</span></label>
-            <input type="range" id="airResistanceControl" min="0" max="0.01" step="0.0001" value="0.001">
-        </div>
-        
-        <div class="control-group">
-            <label for="particleCountControl">입자 수: <span id="particleCountValue">30</span></label>
-            <input type="range" id="particleCountControl" min="1" max="100" step="1" value="30">
-        </div>
-        
-        <div class="checkbox-group">
-            <label>
-                <input type="checkbox" id="collisionToggle" checked>
-                입자 간 충돌 감지
-            </label>
-        </div>
-        
-        <div class="checkbox-group">
-            <label>
-                <input type="checkbox" id="vectorToggle">
-                속도 벡터 표시
-            </label>
-        </div>
-        
-        <div class="checkbox-group">
-            <label>
-                <input type="checkbox" id="trailToggle">
-                궤적 표시
-            </label>
-        </div>
-        
-        <div class="control-group">
-            <label for="colorModeSelect">색상 모드:</label>
-            <select id="colorModeSelect" class="form-select">
-                <option value="velocity">속도 기반</option>
-                <option value="size">크기 기반</option>
-                <option value="random">랜덤 고정</option>
-            </select>
-        </div>
-        
-        <div class="button-group">
-            <button id="startSimulation" class="btn" disabled>시작</button>
-            <button id="stopSimulation" class="btn btn-secondary">정지</button>
-            <button id="resetSimulation" class="btn btn-secondary">초기화</button>
-        </div>
-    </div>
-    
-    <canvas id="simulationCanvas"></canvas>
-    
-    <div class="simulation-info">
-        <h3>입자 물리 시뮬레이션</h3>
-        <p>이 시뮬레이션은 다양한 물리 법칙이 적용된 입자들의 움직임을 보여줍니다. 중력, 마찰, 탄성, 공기저항 등의 매개변수를 조절하여 물리 세계가 어떻게 변화하는지 관찰해보세요.</p>
-        
-        <div class="simulation-interaction-hint">
-            <p><strong>팁:</strong> 캔버스를 클릭하면 새로운 입자를 추가할 수 있습니다.</p>
-        </div>
-        
-        <div class="simulation-theory">
-            <h4>관련 물리 원리</h4>
-            <ul>
-                <li><strong>중력:</strong> 지구의 중력 가속도는 약 9.8 m/s²입니다. 이 값을 조정하면 다른 행성이나 무중력 상태를 시뮬레이션할 수 있습니다.</li>
-                <li><strong>탄성 충돌:</strong> 탄성계수가 1에 가까울수록 충돌 시 에너지 손실이 적어 더 많이 튀어오르게 됩니다.</li>
-                <li><strong>마찰력:</strong> 물체가 표면에 닿을 때 발생하는 힘으로, 운동 방향과 반대로 작용합니다.</li>
-                <li><strong>공기저항:</strong> 물체의 속도 제곱에 비례하는 항력으로, 빠를수록 더 큰 저항을 받습니다.</li>
-                <li><strong>운동량 보존:</strong> 입자 간 충돌에서 운동량(질량×속도)의 합은 보존됩니다.</li>
-            </ul>
-        </div>
+<div class="simulations-container">
+    <div class="simulation-grid">
+        {% if simulations %}
+            {% for sim in simulations %}
+                {# Each card is a link to the specific simulation #}
+                <a href="{{ url_for('simulation.dynamic_simulation', simulation_type=sim.type) }}" class="simulation-card-link">
+                    <article class="simulation-card fade-in">
+                        <div class="simulation-card-header">
+                            <h2>{{ sim.title }}</h2>
+                        </div>
+                        <div class="simulation-card-preview">
+                            <img src="{{ url_for('static', filename=sim.thumbnail.replace('/static/', '')) if sim.thumbnail else url_for('static', filename='img/simulation-placeholder.png') }}" 
+                                alt="{{ sim.title }} 미리보기"
+                                {# Fallback image if the primary thumbnail fails #}
+                                <img src="..." onerror="this.onerror=null; this.src='/static/img/simulation-placeholder.png';">
+                        </div>
+                        <div class="simulation-card-description">
+                            {# Truncate description to keep cards neat #}
+                            <p>{{ sim.description | truncate(100, True) }}</p>
+                        </div>
+                        <div class="simulation-card-footer">
+                            <span class="btn btn-primary">
+                                시작하기 <i class="fas fa-play" style="margin-left: 8px;"></i>
+                            </span>
+                        </div>
+                    </article>
+                </a>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <p>현재 사용 가능한 시뮬레이션이 없습니다.</p>
+                 {% if error %}
+                 <p class="error-message">시뮬레이션 목록을 불러오는 중 오류가 발생했습니다.</p>
+                 {% endif %}
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/simulation.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Fade-in animation for cards (similar to blog page)
+    const fadeElements = document.querySelectorAll('.fade-in');
+    if (typeof IntersectionObserver === 'function') {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                    observer.unobserve(entry.target); // Stop observing once animated
+                }
+            });
+        }, { threshold: 0.1 }); // Trigger when 10% of the element is visible
+
+        fadeElements.forEach(element => {
+            element.style.opacity = 0;
+            element.style.transform = 'translateY(20px)';
+            element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(element);
+        });
+    } else {
+        // Fallback for older browsers that don't support IntersectionObserver
+        fadeElements.forEach(element => {
+            element.style.opacity = 1;
+            element.style.transform = 'translateY(0)';
+        });
+    }
+
+    // Ensure placeholder image is used if a thumbnail is missing or fails to load
+    const previewImages = document.querySelectorAll('.simulation-card-preview img');
+    const placeholderSrc = "{{ url_for('static', filename='img/simulation-placeholder.png') }}";
+    previewImages.forEach(img => {
+        img.onerror = function() {
+            if (this.src !== placeholderSrc) { // Prevent infinite loop if placeholder also fails
+                this.src = placeholderSrc;
+                this.alt = "미리보기 이미지를 사용할 수 없습니다";
+            }
+        };
+        // For images that might already be broken before onerror is attached
+        if (img.complete && img.naturalWidth === 0 && img.src !== placeholderSrc) {
+           img.dispatchEvent(new Event('error'));
+        }
+    });
+});
+</script>
 {% endblock %}
