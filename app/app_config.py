@@ -44,12 +44,20 @@ class Config:
         # CSP는 nonce 기반으로 변경 (unsafe-inline, unsafe-eval 제거)
         'Content-Security-Policy': (
             "default-src 'self'; "
-            "script-src 'self' 'nonce-{nonce}' https://www.youtube.com https://youtube.com; " # youtube.com 스크립트 허용을 위해 추가 (만약 Youtube API 등을 사용한다면)
-            "style-src 'self' 'nonce-{nonce}' https://fonts.googleapis.com https://cdnjs.cloudflare.com; "
-            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
-            "img-src 'self' data: https:; " # 'https:' 추가하여 모든 HTTPS 이미지 허용
-            "frame-src 'self' https://www.youtube.com https://youtube.com; " # 유튜브 임베드 허용
-            "connect-src 'self'; "
+            "script-src 'self' 'nonce-{nonce}' " # nonce는 Flask-Talisman에 의해 동적으로 처리
+            "           https://www.youtube.com https://youtube.com " # 유튜브 스크립트
+            "           https://cdnjs.cloudflare.com; " # FontAwesome JS 등
+            "style-src 'self' 'nonce-{nonce}' " # 인라인 스타일 및 외부 CSS
+            "          https://fonts.googleapis.com https://cdnjs.cloudflare.com; " # 구글 폰트, FontAwesome CSS
+            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com " # 구글 폰트, FontAwesome 폰트
+            "         https://fastly.jsdelivr.net; "  # PyeojinGothic-Bold 폰트 로드 허용
+            "img-src 'self' data: https:; " # 모든 HTTPS 이미지 및 data URI 이미지 허용
+            "frame-src 'self' https://www.youtube.com https://youtube.com; " # 유튜브 임베드
+            # API 엔드포인트(speedtest/ip)가 있는 도메인 추가
+            # 로컬 개발 환경과 실제 배포 환경 도메인을 모두 고려할 수 있습니다.
+            # 실제 운영 도메인이 https://test.wagusen.com 이라면 아래와 같이 변경합니다.
+            # "connect-src 'self' https://test.wagusen.com http://127.0.0.1:4000; "
+            "connect-src 'self' http://test.wagusen.com http://127.0.0.1:4000; " # 오류 메시지 기반 http 및 로컬 개발 환경
             "base-uri 'self'; "
             "form-action 'self'; "
             "frame-ancestors 'self'; "
@@ -59,7 +67,7 @@ class Config:
     }
     
     # 파일 및 콘텐츠 설정
-    POSTS_DIR = os.environ.get('POSTS_DIR', str(app_dir / 'content' / 'posts')) # 경로 수정됨
+    POSTS_DIR = os.environ.get('POSTS_DIR', str(app_dir / 'content' / 'posts'))
     ALLOWED_TEXT_EXTENSIONS = {'txt', 'md'}
     MAX_FILE_READ_SIZE = 10 * 1024 * 1024  # 10MB
     
@@ -92,9 +100,9 @@ class Config:
     ALLOWED_HTML_ATTRIBUTES = {
         'a': ['href', 'title', 'target', 'rel', 'class'],
         'img': ['src', 'alt', 'title', 'width', 'height', 'class', 'loading', 'decoding'],
-        'div': ['class', 'id', 'data-theme'], # data-theme 추가 (필요시)
+        'div': ['class', 'id', 'data-theme'],
         'span': ['class'],
-        'code': ['class'], # language-python 등 클래스 허용
+        'code': ['class'],
         'pre': ['class'],
         'iframe': ['src', 'width', 'height', 'frameborder', 
                  'allowfullscreen', 'allow', 'sandbox', 'loading', 'title'],
@@ -127,8 +135,8 @@ class Config:
         'bookhouse.co.kr', 'ebook.kyobobook.co.kr',
         
         # 클라우드/CDN
-        'cloudflare.com', 'cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com', # CDN 추가
-        'jsdelivr.net', 'unpkg.com',
+        'cloudflare.com', 'cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com',
+        'jsdelivr.net', 'unpkg.com', # fastly.jsdelivr.net은 font-src에 직접 추가
         
         # 이미지 호스팅
         'imgur.com', 'i.imgur.com',
@@ -140,7 +148,7 @@ class Config:
     # 로깅 설정
     LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT', 'true').lower() == 'true'
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
-    LOG_FILE = 'logs/app.log' # 로그 파일 경로 수정 (프로젝트 루트 기준 logs 폴더)
+    LOG_FILE = 'logs/app.log'
     LOG_MAX_BYTES = 10 * 1024 * 1024  # 10MB
     LOG_BACKUP_COUNT = 10
     
@@ -160,12 +168,9 @@ class Config:
     @staticmethod
     def init_app(app):
         """애플리케이션 초기화시 추가 설정"""
-        # 프로덕션 환경 경고
         if app.config['FLASK_ENV'] == 'production':
             if app.config['SECRET_KEY'] == 'dev-only-secret-key-do-not-use-in-production':
                 app.logger.critical("프로덕션 환경에서 개발용 SECRET_KEY를 사용하고 있습니다!")
-            
-            # HTTPS 사용 확인
             if not app.config.get('SESSION_COOKIE_SECURE'):
                 app.logger.warning("프로덕션 환경에서 SESSION_COOKIE_SECURE가 활성화되지 않았습니다.")
 
@@ -173,33 +178,19 @@ class DevelopmentConfig(Config):
     """개발 환경 설정"""
     FLASK_ENV = 'development'
     FLASK_DEBUG = True
-    
-    # 개발 환경에서는 세션 쿠키 보안 완화
     SESSION_COOKIE_SECURE = False
-    
-    # 개발 환경 로깅
     LOG_LEVEL = 'DEBUG'
-    LOG_TO_STDOUT = True  # 개발시 stdout 로깅이 편리할 수 있음
-
-    # 캐시 타임아웃 단축 (빠른 변경 확인)
-    CACHE_TIMEOUT = 60  # 1분
+    LOG_TO_STDOUT = True
+    CACHE_TIMEOUT = 60
 
 class TestingConfig(Config):
     """테스트 환경 설정"""
     TESTING = True
     FLASK_ENV = 'testing'
-    
-    # 테스트용 SECRET_KEY
     SECRET_KEY = 'test-secret-key-for-unit-tests'
-    
-    # 테스트 환경에서는 세션 쿠키 보안 비활성화
     SESSION_COOKIE_SECURE = False
-    
-    # 테스트용 디렉토리 (프로젝트 루트 기준 tests/test_posts)
-    TEST_BASE_DIR = Path(__file__).parent.parent.parent.resolve() # app_config.py -> app -> project_root
+    TEST_BASE_DIR = Path(__file__).parent.parent.parent.resolve()
     POSTS_DIR = str(TEST_BASE_DIR / 'tests' / 'test_posts')
-    
-    # 로깅 최소화
     LOG_LEVEL = 'ERROR'
     LOG_TO_STDOUT = True
 
@@ -207,28 +198,18 @@ class ProductionConfig(Config):
     """프로덕션 환경 설정"""
     FLASK_ENV = 'production'
     FLASK_DEBUG = False
-    
-    # 프로덕션 전용 보안 강화
     SESSION_COOKIE_SECURE = True
-    SESSION_COOKIE_NAME = '__Host-session'  # __Host- 접두사로 추가 보안
-    
-    # 성능 최적화
-    SEND_FILE_MAX_AGE_DEFAULT = 604800  # 1주일
+    SESSION_COOKIE_NAME = '__Host-session'
+    SEND_FILE_MAX_AGE_DEFAULT = 604800
     
     @classmethod
     def init_app(cls, app):
-        """프로덕션 환경 초기화"""
         super().init_app(app)
-        
-        # 프로덕션 환경 검증 (이미 Config.init_app에서 수행)
-        # 추가적인 프로덕션 전용 로깅 설정이 필요하다면 여기에 추가
-        # 예: 외부 로깅 서비스 연동
-        pass
 
 # 설정 매핑
 config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
     'production': ProductionConfig,
-    'default': ProductionConfig  # 기본값을 프로덕션으로 설정 (보안)
+    'default': ProductionConfig
 }
