@@ -239,13 +239,16 @@ def register_blueprints(app):
     """블루프린트를 애플리케이션에 등록합니다."""
     # app.routes 패키지의 __init__.py 파일에서 정의된 블루프린트들을 가져옵니다.
     # 이 단계에서 ImportError가 발생한다면 app/routes/__init__.py 파일에 문제가 있는 것입니다.
-    from app.routes import main_bp, simulation_bp, posts_bp, speedtest_bp
+    from app.routes.main_routes import main_bp
+    from app.routes.simulation import simulation_bp
+    from app.routes.posts_routes import posts_bp
+    from app.routes.speedtest_routes import speedtest_bp    
     
     app.register_blueprint(main_bp)
     app.register_blueprint(simulation_bp)
     app.register_blueprint(posts_bp)
     app.register_blueprint(speedtest_bp) 
-    
+    __all__ = ['main_bp', 'simulation_bp', 'posts_bp', 'speedtest_bp']
     app.logger.info('모든 블루프린트가 성공적으로 등록되었습니다.')
 
 def register_error_handlers(app):

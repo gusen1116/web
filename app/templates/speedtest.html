@@ -1,4 +1,7 @@
-{% raw %}{% extends "base.html" %}
+{# app/templates/speedtest.html #}
+{# 네트워크 속도 및 핑 테스트를 위한 HTML 템플릿입니다. #}
+{# FontAwesome 아이콘을 사용하며, 테스트 결과를 동적으로 표시합니다. #}
+{% extends "base.html" %}
 
 {% block title %}네트워크 속도 테스트 - 와구센{% endblock %}
 
@@ -6,7 +9,7 @@
 {{ super() }}
 {# speedtest.css 파일을 만들거나 아래 style 태그 내용을 해당 파일로 옮기세요. #}
 {# <link rel="stylesheet" href="{{ url_for('static', filename='css/speedtest.css') }}"> #}
-<style>
+<style nonce="{{ csp_nonce() }}"> 
   .speedtest-container {
     background-color: var(--bg-secondary);
     border: 1px solid var(--border-color);
@@ -271,7 +274,7 @@
 
 {% block scripts %}
 {{ super() }}
-<script>
+<script nonce="{{ csp_nonce() }}"> 
     const startTestBtn = document.getElementById('startTestBtn');
     const resultsSection = document.getElementById('resultsSection');
     const pingResult = document.getElementById('pingResult');
@@ -298,11 +301,17 @@
     async function getClientIp() {
         try {
             const response = await fetch(`${API_PREFIX}/ip`);
+            if (!response.ok) { // 응답 상태 코드 확인
+                throw new Error(`IP 주소 확인 실패: ${response.status} ${response.statusText}`);
+            }
             const data = await response.json();
             clientIp.textContent = data.ip || '확인 불가';
         } catch (error) {
             console.error('IP 주소 확인 실패:', error);
             clientIp.textContent = '확인 실패';
+            // 오류 메시지 표시
+            errorMessage.textContent = `IP 주소 확인 중 오류: ${error.message}`;
+            errorMessage.classList.add('visible');
         }
     }
 
@@ -314,7 +323,11 @@
         for (let i = 0; i < PING_COUNT; i++) {
             const startTime = performance.now();
             try {
-                await fetch(`${API_PREFIX}/ping_target?t=${startTime}`);
+                // ping_target 응답은 성공 여부만 중요하므로, response.ok 확인
+                const response = await fetch(`${API_PREFIX}/ping_target?t=${Date.now()}`); // 캐시 방지용 타임스탬프 추가
+                if (!response.ok) {
+                    throw new Error(`Ping 요청 실패: ${response.status} ${response.statusText}`);
+                }
                 const endTime = performance.now();
                 latencies.push(endTime - startTime);
             } catch (error) {
@@ -331,6 +344,7 @@
 
             if (latencies.length > 1) {
                 const mean = avgLatency;
+                // 분산 계산 시 (N-1)로 나누는 것이 표준 편차의 더 나은 추정치입니다.
                 const variance = latencies.reduce((sq, n) => sq + Math.pow(n - mean, 2), 0) / (latencies.length -1);
                 const stdDev = Math.sqrt(variance); // 표준편차 (지터)
                 jitterResult.textContent = stdDev.toFixed(2);
@@ -364,7 +378,11 @@
             }
 
             const reader = response.body.getReader();
-            const contentLength = +response.headers.get('Content-Length');
+            const contentLengthHeader = response.headers.get('Content-Length');
+            if (!contentLengthHeader) {
+                throw new Error('Content-Length 헤더가 없습니다.');
+            }
+            const contentLength = +contentLengthHeader;
             let receivedLength = 0;
 
             while (true) {
@@ -378,9 +396,13 @@
 
             const endTime = performance.now();
             const durationSeconds = (endTime - startTime) / 1000;
+            // durationSeconds가 0이거나 매우 작은 경우 오류 방지
+            if (durationSeconds <= 0) {
+                throw new Error("다운로드 시간 측정 오류 (0초 이하)");
+            }
             const bitsLoaded = receivedLength * 8;
             const speedMbps = (bitsLoaded / durationSeconds / 1000000).toFixed(2);
-            
+
             downloadResult.textContent = speedMbps;
             return parseFloat(speedMbps);
 
@@ -389,7 +411,7 @@
             downloadResult.textContent = '실패';
             downloadProgressBar.classList.add('error');
             downloadProgressBar.textContent = '실패';
-            throw error;
+            throw error; // 오류를 다시 던져서 finally 블록에서 처리하도록 함
         }
     }
 
@@ -403,10 +425,11 @@
 
         const dataSize = UPLOAD_DATA_SIZE_MB * 1024 * 1024;
         const chunkSize = 1024 * 256; // 256KB 청크
-        
+
         const blobParts = [];
         const randomChunk = new Uint8Array(chunkSize);
-        for(let i = 0; i < chunkSize; i++){ // 청크 데이터 한 번만 생성
+        // 청크 데이터 한 번만 생성 (성능 개선)
+        for(let i = 0; i < chunkSize; i++){
              randomChunk[i] = Math.floor(Math.random() * 256);
         }
         let totalDataToSend = dataSize;
@@ -423,7 +446,7 @@
         try {
             return new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', `${API_PREFIX}/upload?r=${Date.now()}`, true);
+                xhr.open('POST', `${API_PREFIX}/upload?r=${Date.now()}`, true); // 캐시 방지용 타임스탬프 추가
 
                 xhr.upload.onprogress = (event) => {
                     if (event.lengthComputable) {
@@ -436,6 +459,11 @@
                     if (xhr.status >= 200 && xhr.status < 300) {
                         const endTime = performance.now();
                         const durationSeconds = (endTime - startTime) / 1000;
+                        // durationSeconds가 0이거나 매우 작은 경우 오류 방지
+                        if (durationSeconds <= 0) {
+                            reject(new Error("업로드 시간 측정 오류 (0초 이하)"));
+                            return;
+                        }
                         const bitsUploaded = dataSize * 8;
                         const speedMbps = (bitsUploaded / durationSeconds / 1000000).toFixed(2);
                         uploadResult.textContent = speedMbps;
@@ -456,7 +484,7 @@
             uploadResult.textContent = '실패';
             uploadProgressBar.classList.add('error');
             uploadProgressBar.textContent = '실패';
-            throw error;
+            throw error; // 오류를 다시 던져서 finally 블록에서 처리하도록 함
         }
     }
 
@@ -464,7 +492,7 @@
         startTestBtn.disabled = true;
         startTestBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 테스트 진행 중...';
         resultsSection.style.display = 'block';
-        errorMessage.textContent = '';
+        errorMessage.textContent = ''; // 이전 오류 메시지 초기화
         errorMessage.classList.remove('visible');
 
         pingResult.textContent = '-';
@@ -473,7 +501,7 @@
         uploadResult.textContent = '-';
         clientIp.textContent = '-';
         testTimestamp.textContent = new Date().toLocaleString('ko-KR');
-        
+
         downloadProgressBar.style.width = '0%';
         downloadProgressBar.textContent = '0%';
         downloadProgressBar.classList.remove('error');
@@ -485,7 +513,7 @@
         uploadProgressContainer.style.display = 'none';
 
         try {
-            await getClientIp();
+            await getClientIp(); // IP 주소 먼저 확인
             await testPing();
             await testDownloadSpeed();
             await testUploadSpeed();
@@ -499,4 +527,4 @@
         }
     });
 </script>
-{% endblock %}{% endraw %}
+{% endblock %}

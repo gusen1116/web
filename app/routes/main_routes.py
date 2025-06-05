@@ -377,4 +377,4 @@ def not_found_error(error):
 def internal_error(error):
     """500 에러 핸들러"""
     current_app.logger.error(f'500 에러 (메인): {error}')
-    return render_template('500.html'), 500
+    return render_template('500.html'), 500 
