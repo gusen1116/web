@@ -33,7 +33,7 @@ class Config:
     SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF 방어
     PERMANENT_SESSION_LIFETIME = timedelta(hours=24)  # 세션 수명
     
-    # 보안 헤더 설정 강화
+    # 보안 헤더 설정 강화 (최종 수정 버전)
     SECURITY_HEADERS = {
         'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
         'X-Content-Type-Options': 'nosniff',
@@ -41,23 +41,15 @@ class Config:
         'X-XSS-Protection': '1; mode=block',
         'Referrer-Policy': 'strict-origin-when-cross-origin',
         'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
-        # CSP는 nonce 기반으로 변경 (unsafe-inline, unsafe-eval 제거)
+        # [수정] CSP(콘텐츠 보안 정책)의 각 지시어를 한 줄로 통합하고 필요한 소스를 추가
         'Content-Security-Policy': (
             "default-src 'self'; "
-            "script-src 'self' 'nonce-{nonce}' " # nonce는 Flask-Talisman에 의해 동적으로 처리
-            "           https://www.youtube.com https://youtube.com " # 유튜브 스크립트
-            "           https://cdnjs.cloudflare.com; " # FontAwesome JS 등
-            "style-src 'self' 'nonce-{nonce}' " # 인라인 스타일 및 외부 CSS
-            "          https://fonts.googleapis.com https://cdnjs.cloudflare.com; " # 구글 폰트, FontAwesome CSS
-            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com " # 구글 폰트, FontAwesome 폰트
-            "         https://fastly.jsdelivr.net; "  # PyeojinGothic-Bold 폰트 로드 허용
-            "img-src 'self' data: https:; " # 모든 HTTPS 이미지 및 data URI 이미지 허용
-            "frame-src 'self' https://www.youtube.com https://youtube.com; " # 유튜브 임베드
-            # API 엔드포인트(speedtest/ip)가 있는 도메인 추가
-            # 로컬 개발 환경과 실제 배포 환경 도메인을 모두 고려할 수 있습니다.
-            # 실제 운영 도메인이 https://test.wagusen.com 이라면 아래와 같이 변경합니다.
-            # "connect-src 'self' https://test.wagusen.com http://127.0.0.1:4000; "
-            "connect-src 'self' http://test.wagusen.com http://127.0.0.1:4000; " # 오류 메시지 기반 http 및 로컬 개발 환경
+            "script-src 'self' 'nonce-{nonce}' https://cdnjs.cloudflare.com https://www.youtube.com https://s.ytimg.com; "
+            "style-src 'self' 'nonce-{nonce}' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://fastly.jsdelivr.net; "
+            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://fastly.jsdelivr.net; "
+            "img-src 'self' data: https:; "
+            "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; "
+            "connect-src 'self' http://test.wagusen.com http://127.0.0.1:4000; "
             "base-uri 'self'; "
             "form-action 'self'; "
             "frame-ancestors 'self'; "

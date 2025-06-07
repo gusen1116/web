@@ -1,149 +1,84 @@
 <!DOCTYPE html>
 <html lang="ko">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title>{% block title %}와구센{% endblock %}</title>
-        
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
-    
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/typography.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-content.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-links.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/simulation.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/slide.css') }}">
-        <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        
-    
-    
-    {% block head %}{% endblock %}
-    
-    <script>
-        // 로컬 스토리지에서 저장된 테마 설정을 확인하고 즉시 적용
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark-theme');
-            // body 태그가 생성되기 전일 수 있으므로, DOMContentLoaded 이후에 body 클래스 추가
-            document.addEventListener('DOMContentLoaded', () => {
-                document.body.classList.add('dark-theme');
-            });
-        }
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{% block title %}와구센{% endblock %}</title>
 
-        // '--real-vh' CSS 변수 설정 스크립트 (모바일 뷰포트 높이 문제 해결용)
-        function setRealViewportHeight() {
-            const vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--real-vh', `${vh}px`);
-        }
-        // 페이지 로드 시 및 창 크기 변경 시 실행
-        window.addEventListener('resize', setRealViewportHeight);
-        document.addEventListener('DOMContentLoaded', setRealViewportHeight);
-        // 초기 로드 시 한 번 더 호출하여 즉시 적용 (DOMContentLoaded보다 빠를 수 있음)
-        setRealViewportHeight(); 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/typography.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-content.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-links.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/simulation.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/slide.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/8bit-theme.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    {% block head %}{% endblock %}
+
+    <script nonce="{{ csp_nonce() }}">
+        // 페이지 깜빡임(FOUC) 방지를 위한 초기 테마 설정 스크립트
+        (function() {
+            try {
+                const themes = ['light', 'dark', '8bit'];
+                let theme = localStorage.getItem('theme');
+
+                if (!theme || !themes.includes(theme)) {
+                    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+
+                if (theme !== 'light') {
+                    document.documentElement.classList.add('theme-' + theme);
+                }
+                // Flask base.html의 body 클래스 호환성을 위해 추가
+                if (theme === 'dark' || theme === '8bit') {
+                    // DOM 로드 후 body에 클래스 추가
+                    document.addEventListener('DOMContentLoaded', function() {
+                        document.body.classList.add('theme-' + theme);
+                        if(theme === 'dark') document.body.classList.add('dark-theme');
+                    });
+                }
+            } catch (e) {
+                console.error('Error applying initial theme:', e);
+            }
+
+            // 모바일 뷰포트 높이 문제 해결용 스크립트
+            function setRealViewportHeight() {
+                document.documentElement.style.setProperty('--real-vh', (window.innerHeight * 0.01) + 'px');
+            }
+            window.addEventListener('resize', setRealViewportHeight);
+            setRealViewportHeight();
+        })();
     </script>
     
-    <style>
-        /* 테마 토글 버튼 아이콘 표시 로직 강화 */
-        .theme-toggle {
-            position: relative;
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
+    <style nonce="{{ csp_nonce() }}">
+        /* 테마 토글 버튼 아이콘 표시 로직 (3단) */
         .theme-toggle .theme-icon {
             position: absolute;
             font-size: 1.25rem;
             transition: all 0.3s ease;
-            display: flex;
+            display: none; /* 기본적으로 모든 아이콘 숨김 */
             align-items: center;
             justify-content: center;
         }
         
-        /* 라이트 모드일 때 - 전구 꺼진 아이콘 보이기 (다크모드로 전환하는 버튼) */
-        html:not(.dark-theme) .theme-toggle .far.fa-lightbulb {
-            opacity: 1;
-            transform: rotate(0deg) scale(1);
-            visibility: visible;
-            color: var(--text-primary);
-        }
-        
-        html:not(.dark-theme) .theme-toggle .fas.fa-lightbulb {
-            opacity: 0;
-            transform: rotate(-90deg) scale(0.5);
-            visibility: hidden;
-        }
-        
-        /* 다크 모드일 때 - 전구 켜진 아이콘 보이기 (라이트모드로 전환하는 버튼) */
-        html.dark-theme .theme-toggle .far.fa-lightbulb {
-            opacity: 0;
-            transform: rotate(90deg) scale(0.5);
-            visibility: hidden;
-        }
-        
-        html.dark-theme .theme-toggle .fas.fa-lightbulb {
-            opacity: 1;
-            transform: rotate(0deg) scale(1);
-            visibility: visible;
-            color: #fbbf24;
-            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.4));
-        }
-        
-        /* 호버 효과 */
-        .theme-toggle:hover .fas.fa-lightbulb {
-            color: #f59e0b;
-            filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.6));
-        }
-        
-        .theme-toggle:hover .far.fa-lightbulb {
-            color: var(--github-accent);
-        }
-        
-        /* 모바일 테마 토글 전구 아이콘 스타일 */
-        .mobile-theme-toggle i {
-            transition: all 0.3s ease;
-        }
-
-        /* 라이트 모드에서 꺼진 전구 */
-        html:not(.dark-theme) .mobile-theme-toggle .far.fa-lightbulb {
-            color: var(--text-primary);
-        }
-
-        /* 다크 모드에서 켜진 전구 */
-        html.dark-theme .mobile-theme-toggle .fas.fa-lightbulb {
-            color: #fbbf24;
-            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.4));
-            text-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
-        }
-
-        /* 모바일 테마 토글 호버 효과 */
-        .mobile-theme-toggle:hover i.fas.fa-lightbulb {
-            color: #f59e0b;
-            filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.6));
-            text-shadow: 0 0 16px rgba(245, 158, 11, 0.8);
-            transform: scale(1.1);
-        }
-
-        .mobile-theme-toggle:hover i.far.fa-lightbulb {
-            color: var(--github-accent);
-            transform: scale(1.1);
-        }
-
-        /* 모바일 테마 토글 클릭 효과 */
-        .mobile-theme-toggle:active i {
-            transform: scale(0.95);
+        /* 각 테마에 맞는 아이콘만 표시 */
+        html:not(.theme-dark):not(.theme-8bit) .theme-toggle .icon-light,
+        html.theme-dark .theme-toggle .icon-dark,
+        html.theme-8bit .theme-toggle .icon-8bit {
+            display: flex;
         }
     </style>
 </head>
-<body class="{% block body_class %}{% if 'dark-theme' in request.cookies.get('theme', '') or (not request.cookies.get('theme') and request.cookies.get('system_theme') == 'dark') %}dark-theme{% endif %}{% endblock %}">
+<body class="{% block body_class %}{% endblock %}">
     <header class="top-header" id="siteHeader">
         <div class="container">
             <div class="logo-area">
@@ -157,7 +92,7 @@
                 <ul>
                     <li><a href="{{ url_for('posts.index') }}">블로그</a></li>
                     <li><a href="{{ url_for('simulation.index') }}">시뮬레이션</a></li>
-                    <li><a href="{{ url_for('speedtest.speedtest_page') }}">네트워크 테스트</a></li> {# <<< 네트워크 테스트 링크 추가 #}
+                    <li><a href="{{ url_for('speedtest.speedtest_page') }}">네트워크 테스트</a></li>
                     <li><a href="{{ url_for('main.about') }}">소개</a></li>
                 </ul>
             </nav>
@@ -165,11 +100,11 @@
             <div class="header-controls">
                 <div class="theme-toggle-area">
                     <button class="theme-toggle" id="themeToggle" title="테마 변경" aria-label="테마 전환">
-                        <i class="far fa-lightbulb theme-icon"></i>
-                        <i class="fas fa-lightbulb theme-icon"></i>
+                        <i class="far fa-lightbulb theme-icon icon-light"></i>
+                        <i class="fas fa-lightbulb theme-icon icon-dark"></i>
+                        <i class="fas fa-gamepad theme-icon icon-8bit"></i>
                     </button>
                 </div>
-                
                 <button class="mobile-toggle" id="mobileToggle" aria-label="메뉴 열기">
                     <span class="hamburger-line"></span>
                     <span class="hamburger-line"></span>
@@ -206,7 +141,7 @@
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 </li>
-                <li class="mobile-nav-item"> {# <<< 네트워크 테스트 링크 추가 (모바일) #}
+                <li class="mobile-nav-item">
                     <a href="{{ url_for('speedtest.speedtest_page') }}" class="mobile-nav-link">
                         <i class="fas fa-network-wired"></i>
                         <span>네트워크 테스트</span>
@@ -220,41 +155,15 @@
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 </li>
-                <li class="mobile-nav-item mobile-theme-item">
-                    <button class="mobile-nav-link mobile-theme-toggle" id="mobileThemeToggle">
-                        <i class="far fa-lightbulb"></i>
-                        <span class="theme-text">라이트모드</span>
-                        <div class="theme-switch">
-                            <div class="theme-switch-slider"></div>
-                        </div>
-                    </button>
-                </li>
             </ul>
         </div>
-        
-        <div class="mobile-nav-footer">
-            <div class="mobile-nav-info">
-                <p>&copy; 2025 와구센</p>
-            </div>
-            <div class="mobile-nav-social">
-                <a href="https://github.com/wagusen" target="_blank" rel="noopener noreferrer">
-                    <i class="fab fa-github"></i>
-                </a>
-                <a href="mailto:gusen@wagusen.com">
-                    <i class="fas fa-envelope"></i>
-                </a>
-            </div>
-        </div>
     </nav>
-
     <div class="mobile-overlay" id="mobileOverlay"></div>
-
     <main>
         <div class="container">
             {% block content %}{% endblock %}
         </div>
     </main>
-
     <footer>
         <div class="container">
             <div class="footer-content">
@@ -278,188 +187,7 @@
         </div>
     </footer>
 
-    <script>
-        // ===== 공통 테마 토글 함수 =====
-        function toggleTheme() {
-            const isDark = document.documentElement.classList.contains('dark-theme');
-            const themeText = document.querySelector('.theme-text');
-            const themeSwitch = document.querySelector('.theme-switch-slider');
-            const mobileIcon = document.querySelector('.mobile-theme-toggle i');
-            
-            // console.log('테마 토글 실행, 현재 상태:', isDark ? 'dark' : 'light');
-            
-            if (isDark) {
-                // 라이트 모드로 전환
-                document.documentElement.classList.remove('dark-theme');
-                document.body.classList.remove('dark-theme');
-                localStorage.setItem('theme', 'light');
-                
-                if (themeText) themeText.textContent = '라이트모드';
-                if (themeSwitch) themeSwitch.classList.remove('active');
-                
-                // 모바일 전구 아이콘 변경 (꺼진 전구)
-                if (mobileIcon) {
-                    mobileIcon.className = 'far fa-lightbulb';
-                }
-                // console.log('라이트 모드로 전환 완료');
-            } else {
-                // 다크 모드로 전환
-                document.documentElement.classList.add('dark-theme');
-                document.body.classList.add('dark-theme');
-                localStorage.setItem('theme', 'dark');
-                
-                if (themeText) themeText.textContent = '다크모드';
-                if (themeSwitch) themeSwitch.classList.add('active');
-                
-                // 모바일 전구 아이콘 변경 (켜진 전구)
-                if (mobileIcon) {
-                    mobileIcon.className = 'fas fa-lightbulb';
-                }
-                // console.log('다크 모드로 전환 완료');
-            }
-            
-            // CSS 변수 재계산을 위한 강제 리플로우
-            document.body.offsetHeight;
-            applyThemeColors();
-        }
-
-        // 테마 색상 적용 함수
-        function applyThemeColors() {
-            // const isDark = document.documentElement.classList.contains('dark-theme');
-            const bgPrimary = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
-            const textPrimary = getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim();
-            
-            document.body.style.backgroundColor = bgPrimary;
-            document.body.style.color = textPrimary;
-        }
-
-        // ===== 모바일 메뉴 시스템 =====
-        document.addEventListener('DOMContentLoaded', function() {
-            const mobileToggle = document.getElementById('mobileToggle');
-            const mobileNav = document.getElementById('mobileNav');
-            const mobileNavClose = document.getElementById('mobileNavClose');
-            const overlay = document.getElementById('mobileOverlay');
-            const body = document.body;
-            const desktopThemeToggle = document.getElementById('themeToggle');
-            const mobileThemeToggle = document.getElementById('mobileThemeToggle');
-            
-            let isMenuOpen = false;
-            
-            // 초기 테마 상태 설정 (applyThemeColors 와 중복될 수 있으므로, DOM 로드 후 한 번만 확실히 실행)
-            function initThemeState() {
-                const isDark = document.documentElement.classList.contains('dark-theme');
-                const themeText = document.querySelector('.theme-text');
-                const themeSwitch = document.querySelector('.theme-switch-slider');
-                const mobileIcon = document.querySelector('.mobile-theme-toggle i');
-                
-                if (!body.classList.contains('dark-theme') && isDark) {
-                     body.classList.add('dark-theme'); // body에도 dark-theme 클래스 적용
-                }
-                if (body.classList.contains('dark-theme') && !isDark) {
-                     body.classList.remove('dark-theme');
-                }
-
-                if (themeText) {
-                    themeText.textContent = isDark ? '다크모드' : '라이트모드';
-                }
-                if (themeSwitch) {
-                    themeSwitch.classList.toggle('active', isDark);
-                }
-                if (mobileIcon) {
-                    mobileIcon.className = isDark ? 'fas fa-lightbulb' : 'far fa-lightbulb';
-                }
-                applyThemeColors(); // 초기 색상 적용
-            }
-            
-            // 메뉴 열기/닫기 함수들 (기존 코드 유지)
-            function openMobileMenu() {
-                if(isMenuOpen) return; // 이미 열려있으면 중복 실행 방지
-                isMenuOpen = true;
-                const scrollY = window.scrollY;
-                body.style.overflow = 'hidden';
-                body.style.position = 'fixed';
-                body.style.top = `-${scrollY}px`;
-                body.style.width = '100%';
-                body.setAttribute('data-scroll-y', scrollY);
-                
-                if (mobileNav) mobileNav.classList.add('active');
-                if (mobileToggle) mobileToggle.classList.add('active');
-                if (overlay) overlay.classList.add('active');
-                body.classList.add('nav-open');
-                
-                setTimeout(() => { if (mobileNavClose) mobileNavClose.focus(); }, 300);
-            }
-            
-            function closeMobileMenu() {
-                if(!isMenuOpen) return; // 이미 닫혀있으면 중복 실행 방지
-                isMenuOpen = false;
-                
-                if (mobileNav) mobileNav.classList.remove('active');
-                if (mobileToggle) mobileToggle.classList.remove('active');
-                if (overlay) overlay.classList.remove('active');
-                body.classList.remove('nav-open');
-                
-                const scrollY = body.getAttribute('data-scroll-y');
-                body.style.overflow = '';
-                body.style.position = '';
-                body.style.top = '';
-                body.style.width = '';
-                if (scrollY) {
-                    window.scrollTo(0, parseInt(scrollY));
-                    body.removeAttribute('data-scroll-y');
-                }
-            }
-            
-            function toggleMobileMenu() { isMenuOpen ? closeMobileMenu() : openMobileMenu(); }
-            
-            // 이벤트 리스너들 (기존 코드 유지)
-            if (mobileToggle) mobileToggle.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); toggleMobileMenu(); });
-            if (mobileNavClose) mobileNavClose.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); closeMobileMenu(); });
-            if (overlay) overlay.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); closeMobileMenu(); });
-            
-            document.querySelectorAll('.mobile-nav-link:not(.mobile-theme-toggle)').forEach(link => {
-                link.addEventListener('click', () => { if (isMenuOpen) setTimeout(() => closeMobileMenu(), 150); });
-            });
-            
-            document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && isMenuOpen) closeMobileMenu(); });
-            window.addEventListener('resize', () => { if (window.innerWidth > 768 && isMenuOpen) closeMobileMenu(); });
-            
-            // 스와이프 제스처 (기존 코드 유지)
-            let touchStartX = 0, touchStartY = 0;
-            if (mobileNav) {
-                mobileNav.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; }, { passive: true });
-                mobileNav.addEventListener('touchend', (e) => {
-                    const touchEndX = e.changedTouches[0].clientX;
-                    const touchEndY = e.changedTouches[0].clientY;
-                    if (touchStartX - touchEndX > 50 && Math.abs(touchStartY - touchEndY) < 100) closeMobileMenu();
-                }, { passive: true });
-            }
-
-            // 테마 토글 이벤트 리스너들 (기존 코드 유지)
-            if (desktopThemeToggle) desktopThemeToggle.addEventListener('click', toggleTheme);
-            if (mobileThemeToggle) {
-                mobileThemeToggle.addEventListener('click', (e) => {
-                    e.preventDefault(); e.stopPropagation(); toggleTheme();
-                    e.currentTarget.style.transform = 'scale(0.95)';
-                    setTimeout(() => { e.currentTarget.style.transform = ''; }, 150);
-                });
-            }
-            
-            // 초기화
-            initThemeState(); // DOMContentLoaded 후 테마 상태 및 색상 최종 적용
-            
-            // console.log('모바일 메뉴 시스템 초기화 완료!');
-        });
-        
-        // 스크롤에 따른 헤더 애니메이션 (기존 코드 유지)
-        (function() { /* ... */ })();
-        
-        // 페이지 로드 완료 후 실행되는 기능들 (기존 코드 유지 - 태그 클릭 시 이벤트 전파 방지 관련 로직 포함)
-        document.addEventListener('DOMContentLoaded', function() {
-            // ... (postLinks 및 tagElements 이벤트 리스너)
-            // console.log('모든 페이지 스크립트 로드 및 초기화 완료');
-        });
-    </script>
+    <script nonce="{{ csp_nonce() }}" src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
