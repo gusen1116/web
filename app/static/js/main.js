@@ -26,9 +26,11 @@
             }
             
             this.currentThemeIndex = this.themes.indexOf(initialTheme);
-            this.applyTheme(initialTheme, true); // 초기 로드 시에는 전환 효과 없음
+            // 초기 테마 적용은 base.html의 인라인 스크립트가 처리하므로 여기서는 호출하지 않음
+            // this.applyTheme(initialTheme, true);
 
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                // 사용자가 직접 테마를 설정하지 않았을 경우에만 시스템 설정을 따름
                 if (!localStorage.getItem('theme')) {
                     const newTheme = e.matches ? 'dark' : 'light';
                     this.currentThemeIndex = this.themes.indexOf(newTheme);
@@ -37,24 +39,25 @@
             });
         }
 
-        applyTheme(themeName, isInitialLoad = false) {
-            document.documentElement.classList.remove('theme-light', 'theme-dark', 'theme-8bit');
-            document.body.classList.remove('theme-light', 'theme-dark', 'theme-8bit', 'dark-theme');
-            
-            if (themeName !== 'light') {
-                document.documentElement.classList.add('theme-' + themeName);
-                document.body.classList.add('theme-' + themeName);
-                if (themeName === 'dark') {
-                    document.body.classList.add('dark-theme'); // 기존 CSS 호환성
-                }
-            }
+        // ===== 수정된 부분: 테마 클래스를 <html>에만 적용하도록 통일 =====
+        applyTheme(themeName) {
+            const html = document.documentElement;
+            // 모든 테마 관련 클래스 제거
+            html.classList.remove('theme-dark', 'dark-theme', 'theme-8bit');
 
-            if (!isInitialLoad) {
-                document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
-                setTimeout(() => {
-                    document.body.style.transition = '';
-                }, 300);
+            // 새로운 테마 클래스 추가
+            if (themeName === 'dark') {
+                html.classList.add('theme-dark', 'dark-theme');
+            } else if (themeName === '8bit') {
+                html.classList.add('theme-8bit');
             }
+            // 'light'는 클래스가 없는 기본 상태
+
+            // 테마 변경 시 부드러운 전환 효과
+            document.body.style.transition = 'background-color 0.3s ease, color 0.3s ease';
+            setTimeout(() => {
+                document.body.style.transition = '';
+            }, 300);
         }
 
         toggle() {
@@ -104,13 +107,13 @@
     // ===== 초기화 =====
     document.addEventListener('DOMContentLoaded', () => {
         const themeManager = new ThemeManager();
-        new MobileNavigation();
+        const mobileNav = new MobileNavigation();
+        mobileNav.init();
 
         const themeToggle = $('#themeToggle');
         
         if(themeToggle) themeToggle.addEventListener('click', () => themeManager.toggle());
 
-        // 서비스 워커 등록 코드는 404 오류로 인해 제거되었습니다.
     });
 
 })();

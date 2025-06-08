@@ -423,7 +423,8 @@ body.nav-open {
   html, body { overflow-x: hidden; } /* 가로 스크롤 방지 */
   body { position: relative; width: 100%; } /* body 너비 강제 */
 
-  .desktop-nav, .theme-toggle-area { display: none; }
+  /* ===== 수정된 부분: .theme-toggle-area를 숨기지 않음 ===== */
+  .desktop-nav { display: none; }
   .mobile-toggle { display: flex; }
   .logo-area { flex: 1; min-width: 0; } /* 로고 영역이 남은 공간 차지 */
   .site-name { font-size: 16px; }
