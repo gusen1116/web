@@ -3,7 +3,7 @@
 {% block title %}페이지를 찾을 수 없습니다 - 와구센{% endblock %}
 
 {% block head %}
-<link rel="preload" as="image" href="{{ url_for('static', filename='img/404.png') }}" fetchpriority="high">
+<link rel="preload" as="image" href="{{ url_for('static', filename='img/icon/404.png') }}" fetchpriority="high">
 <style nonce="{{ csp_nonce() }}"> /* 인라인 스타일에 nonce 추가 */
   .error-page {
     position: relative;
@@ -226,7 +226,7 @@
   <div class="error-content">
     <div class="error-code" id="errorCode">404</div>
     <div class="error-image-container">
-      <img src="{{ url_for('static', filename='img/404.png') }}" 
+      <img src="{{ url_for('static', filename='img/icon/404.png') }}" 
           alt="고양이가 길을 잃었어요" 
           class="error-image" 
           id="errorImage"

@@ -1,6 +1,6 @@
 /*
  * enhanced-links.css - 심플하고 모던한 하이퍼링크 스타일 (v3)
- * Cabin 폰트 변수 사용
+ * Cabin 폰트 변수 사용 및 8비트 테마 아이콘 분리
  */
 
 /* Cabin 폰트는 base.css에서 @import 하도록 변경 */
@@ -76,6 +76,11 @@
 }
 
 /* 📚 책/참고 자료 */
+.post-content a.book-link::before,
+.post-content a[href*="book"]::before, .post-content a[href*="amazon"]::before, .post-content a[href*="aladin"]::before {
+    content: "📚" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; filter: hue-rotate(0deg) saturate(1.5);
+    animation: none !important;
+}
 .post-content a.book-link,
 .post-content a[href*="book"], .post-content a[href*="amazon"], .post-content a[href*="aladin"] {
     background-color: #fffbeb !important;
@@ -85,50 +90,45 @@
 .post-content a[href*="book"]:hover, .post-content a[href*="amazon"]:hover, .post-content a[href*="aladin"]:hover {
     background-color: #fff3ad !important; border-color: #fce282 !important; color: var(--text-primary) !important;
 }
-.post-content a.book-link::before,
-.post-content a[href*="book"]::before, .post-content a[href*="amazon"]::before, .post-content a[href*="aladin"]::before {
-    content: "📚" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; filter: hue-rotate(0deg) saturate(1.5);
-    animation: none !important;
-}
 
 /* 🎥 YouTube/비디오 */
+.post-content a[href*="youtube"]::before, .post-content a[href*="vimeo"]::before, .post-content a[href*="twitch"]::before {
+    content: "▶" !important; margin-right: 0.3em !important; font-size: 0.7em !important; opacity: 0.9; color: #e53935 !important;
+    animation: none !important;
+}
 .post-content a[href*="youtube"], .post-content a[href*="vimeo"], .post-content a[href*="twitch"] {
     background-color: #fff0f1 !important; border: 1px solid #ffdfe2 !important;
 }
 .post-content a[href*="youtube"]:hover, .post-content a[href*="vimeo"]:hover, .post-content a[href*="twitch"]:hover {
     background-color: #ffe5e8 !important; border-color: #ffc4c9 !important; color: var(--text-primary) !important;
 }
-.post-content a[href*="youtube"]::before, .post-content a[href*="vimeo"]::before, .post-content a[href*="twitch"]::before {
-    content: "▶" !important; margin-right: 0.3em !important; font-size: 0.7em !important; opacity: 0.9; color: #e53935 !important;
-    animation: none !important;
-}
 
 /* 💻 GitHub/개발 */
+.post-content a[href*="github"]::before { content: "💻" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; filter: grayscale(30%) sepia(30%); animation: none !important;}
+.post-content a[href*="stackoverflow"]::before { content: "❓" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; animation: none !important;}
+.post-content a[href*="npmjs"]::before { content: "📦" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; animation: none !important;}
+.post-content a[href*="developer.mozilla"]::before { content: "📖" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; animation: none !important;}
 .post-content a[href*="github"], .post-content a[href*="stackoverflow"], .post-content a[href*="npmjs"], .post-content a[href*="developer.mozilla"] {
     background-color: #eefcff !important; border: 1px solid #d8f5fd !important;
 }
 .post-content a[href*="github"]:hover, .post-content a[href*="stackoverflow"]:hover, .post-content a[href*="npmjs"]:hover, .post-content a[href*="developer.mozilla"]:hover {
     background-color: #dcfaff !important; border-color: #c0f2fc !important; color: var(--text-primary) !important;
 }
-.post-content a[href*="github"]::before { content: "💻" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; filter: grayscale(30%) sepia(30%); animation: none !important;}
-.post-content a[href*="stackoverflow"]::before { content: "❓" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; animation: none !important;}
-.post-content a[href*="npmjs"]::before { content: "📦" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; animation: none !important;}
-.post-content a[href*="developer.mozilla"]::before { content: "📖" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; animation: none !important;}
 
 
 /* ⬇️ 다운로드 */
-.post-content a[href$=".pdf"], .post-content a[href$=".zip"], .post-content a[href$=".doc"], .post-content a[href$=".docx"], .post-content a[href*="download"] {
-    background-color: #efffef !important; border: 1px solid #dff7df !important;
-}
-.post-content a[href$=".pdf"]:hover, .post-content a[href$=".zip"]:hover, .post-content a[href$=".doc"]:hover, .post-content a[href$=".docx"]:hover, .post-content a[href*="download"]:hover {
-    background-color: #d9f7d9 !important; border-color: #c0f0c0 !important; color: var(--text-primary) !important;
-}
 .post-content a[href$=".pdf"]::before, .post-content a[href*="download"]::before {
     content: "↓" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; color: #2da44e !important;
     animation: none !important;
 }
 .post-content a[href$=".zip"]::before { content: "🗜️" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; animation: none !important;}
 .post-content a[href$=".doc"]::before, .post-content a[href$=".docx"]::before { content: "📄" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; animation: none !important;}
+.post-content a[href$=".pdf"], .post-content a[href$=".zip"], .post-content a[href$=".doc"], .post-content a[href$=".docx"], .post-content a[href*="download"] {
+    background-color: #efffef !important; border: 1px solid #dff7df !important;
+}
+.post-content a[href$=".pdf"]:hover, .post-content a[href$=".zip"]:hover, .post-content a[href$=".doc"]:hover, .post-content a[href$=".docx"]:hover, .post-content a[href*="download"]:hover {
+    background-color: #d9f7d9 !important; border-color: #c0f0c0 !important; color: var(--text-primary) !important;
+}
 
 
 /* ===== 3. 버튼 스타일 링크 (PyeojinGothic-Bold, 700) ===== */

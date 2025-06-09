@@ -1,32 +1,28 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>{% block title %}와구센{% endblock %}</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/typography.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-content.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-links.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/simulation.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/slide.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/8bit-theme.css') }}">
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <title>{% block title %}와구센{% endblock %}</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/typography.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-content.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-links.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/simulation.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/slide.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/8bit-theme.css') }}">
+        <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     {% block head %}{% endblock %}
 
     <script nonce="{{ csp_nonce() }}">
-        // ===== 수정된 부분: 페이지 깜빡임(FOUC) 방지 스크립트 =====
-        // main.js와 일관성을 맞추기 위해 <html> 태그에만 클래스를 적용합니다.
         (function() {
             try {
                 const themes = ['light', 'dark', '8bit'];
@@ -41,13 +37,7 @@
                 } else if (theme === '8bit') {
                     document.documentElement.classList.add('theme-8bit');
                 }
-                // 'light'는 클래스가 없는 기본 상태입니다.
-
-            } catch (e) {
-                console.error('Error applying initial theme:', e);
-            }
-
-            // 모바일 뷰포트 높이 문제 해결용 스크립트
+            } catch (e) {}
             function setRealViewportHeight() {
                 document.documentElement.style.setProperty('--real-vh', (window.innerHeight * 0.01) + 'px');
             }
@@ -57,22 +47,28 @@
     </script>
     
     <style nonce="{{ csp_nonce() }}">
-        /* 테마 토글 버튼 아이콘 표시 로직 (3단) */
         .theme-toggle .theme-icon {
             position: absolute;
             font-size: 1.25rem;
             transition: all 0.3s ease;
-            display: none; /* 기본적으로 모든 아이콘 숨김 */
+            display: none;
             align-items: center;
             justify-content: center;
         }
+
+        .theme-toggle .theme-icon.icon-8bit {
+             width: 24px;
+             height: 24px;
+        }
         
-        /* 각 테마에 맞는 아이콘만 표시 (html 태그 기준) */
         html:not(.theme-dark):not(.theme-8bit) .theme-toggle .icon-light,
         html.theme-dark .theme-toggle .icon-dark,
         html.theme-8bit .theme-toggle .icon-8bit {
             display: flex;
         }
+
+        .mobile-nav-link .nav-icon-8bit { display: none; }
+        .mobile-nav-link .nav-icon { width: 20px; height: 20px; }
     </style>
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -99,7 +95,7 @@
                     <button class="theme-toggle" id="themeToggle" title="테마 변경" aria-label="테마 전환">
                         <i class="far fa-lightbulb theme-icon icon-light"></i>
                         <i class="fas fa-lightbulb theme-icon icon-dark"></i>
-                        <i class="fas fa-gamepad theme-icon icon-8bit"></i>
+                        <img src="{{ url_for('static', filename='img/icon/light.png') }}" alt="8-bit Theme" class="theme-icon icon-8bit">
                     </button>
                 </div>
                 <button class="mobile-toggle" id="mobileToggle" aria-label="메뉴 열기">
@@ -126,29 +122,31 @@
             <ul class="mobile-nav-list">
                 <li class="mobile-nav-item">
                     <a href="{{ url_for('posts.index') }}" class="mobile-nav-link">
-                        <i class="fas fa-blog"></i>
+                        <i class="fas fa-blog default-icon"></i>
+                        <img src="{{ url_for('static', filename='img/icon/book.png') }}" class="nav-icon nav-icon-8bit" alt="블로그 아이콘">
                         <span>블로그</span>
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 </li>
                 <li class="mobile-nav-item">
                     <a href="{{ url_for('simulation.index') }}" class="mobile-nav-link">
-                        <i class="fas fa-atom"></i>
-                        <span>시뮬레이션</span>
+                        <i class="fas fa-atom default-icon"></i>
+                        <span class="nav-icon nav-icon-8bit"></span> <span>시뮬레이션</span>
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 </li>
                 <li class="mobile-nav-item">
                     <a href="{{ url_for('speedtest.speedtest_page') }}" class="mobile-nav-link">
-                        <i class="fas fa-network-wired"></i>
+                        <i class="fas fa-network-wired default-icon"></i>
+                        <img src="{{ url_for('static', filename='img/icon/network.png') }}" class="nav-icon nav-icon-8bit" alt="네트워크 아이콘">
                         <span>네트워크 테스트</span>
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 </li>
                 <li class="mobile-nav-item">
                     <a href="{{ url_for('main.about') }}" class="mobile-nav-link">
-                        <i class="fas fa-info-circle"></i>
-                        <span>소개</span>
+                        <i class="fas fa-info-circle default-icon"></i>
+                        <span class="nav-icon nav-icon-8bit"></span> <span>소개</span>
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 </li>
