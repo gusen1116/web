@@ -1,6 +1,7 @@
+# app/routes/utils_routes.py
+
 from flask import Blueprint, render_template, request, Response, stream_with_context, jsonify
 import socket
-import ipaddress
 import concurrent.futures
 import json
 
@@ -41,67 +42,70 @@ def scan_port(host, port):
 @utils_bp.route('/portscanner', methods=['GET'])
 def port_scanner_page():
     """포트 스캐너 페이지를 렌더링합니다."""
+    # 이 페이지는 현재 사용되지 않으므로 필요 시 구현합니다.
     return render_template('port_scanner.html')
 
 @utils_bp.route('/start_portscan', methods=['POST'])
 def start_portscan():
-    """포트 스캔을 시작하고 결과를 스트리밍합니다."""
+    """
+    포트 스캔을 시작하고 결과를 스트리밍합니다.
+    (클라이언트-서버 데이터 불일치 문제 해결 버전)
+    """
     host = request.form.get('host')
-    try:
-        start_port = int(request.form.get('start_port'))
-        end_port = int(request.form.get('end_port'))
-    except (ValueError, TypeError):
-        # 포트 번호가 유효하지 않을 경우
-        return Response(json.dumps({'error': '유효하지 않은 포트 번호입니다.'}), status=400, mimetype='application/json')
+    ports_json_str = request.form.get('ports') # [핵심 수정 1] 'ports' 필드를 가져옵니다.
 
     # 호스트 이름 유효성 검사
     if not host or not is_valid_host(host):
         return Response(json.dumps({'error': '유효하지 않거나 비어있는 호스트 이름/IP 주소입니다.'}), status=400, mimetype='application/json')
 
+    # [핵심 수정 2] 클라이언트에서 받은 JSON 형식의 포트 목록을 파싱합니다.
+    try:
+        if not ports_json_str:
+            return Response(json.dumps({'error': '포트 목록이 비어있습니다.'}), status=400, mimetype='application/json')
+        
+        ports_to_scan = json.loads(ports_json_str)
+
+        if not isinstance(ports_to_scan, list) or not all(isinstance(p, int) for p in ports_to_scan):
+             raise ValueError("포트 목록은 정수형 배열이어야 합니다.")
+
+    except (json.JSONDecodeError, ValueError) as e:
+        return Response(json.dumps({'error': f'유효하지 않은 포트 형식입니다: {e}'}), status=400, mimetype='application/json')
+    
     # 스캔 전 호스트 이름을 IP로 한 번만 변환
     try:
         target_ip = socket.gethostbyname(host)
     except socket.gaierror:
         return Response(json.dumps({'error': f"호스트 이름 '{host}'을(를) 확인할 수 없습니다."}), status=400, mimetype='application/json')
-
-    # 포트 범위 유효성 검사 (최대 2000개로 증가)
-    if not (0 < start_port <= 65535 and 0 < end_port <= 65535 and start_port <= end_port):
-        return Response(json.dumps({'error': '포트 범위는 1과 65535 사이여야 하며, 시작 포트는 종료 포트보다 작거나 같아야 합니다.'}), status=400, mimetype='application/json')
     
-    # 최대 2000개 포트로 제한
-    if end_port - start_port + 1 > 2000:
+    # 포트 개수 제한 검사
+    if len(ports_to_scan) > 2000:
         return Response(json.dumps({'error': '한 번에 스캔할 수 있는 최대 포트 수는 2000개입니다.'}), status=400, mimetype='application/json')
 
     def generate_results():
         """포트를 스캔하고 결과를 생성(yield)하는 제너레이터 함수입니다."""
-        ports_to_scan = range(start_port, end_port + 1)
+        # [핵심 수정 3] range 대신 파싱된 포트 리스트를 사용합니다.
         total_ports = len(ports_to_scan)
         
         # 스캔 시작 메시지
         yield f"data: {json.dumps({'status': 'start', 'total': total_ports, 'host': host, 'ip': target_ip})}\n\n"
         
         # ThreadPoolExecutor를 사용하여 I/O 바운드 작업을 동시에 처리
-        # max_workers는 동시에 실행할 최대 스레드 수를 의미 (증가)
         with concurrent.futures.ThreadPoolExecutor(max_workers=200) as executor:
-            # 각 포트 스캔 작업을 스레드 풀에 제출
             future_to_port = {executor.submit(scan_port, target_ip, port): port for port in ports_to_scan}
             
             scanned_count = 0
             
-            # as_completed는 작업이 완료되는 순서대로 future를 반환
             for future in concurrent.futures.as_completed(future_to_port):
                 try:
                     data = future.result()
                     scanned_count += 1
                     
-                    # 진행률 정보와 함께 결과 전송
                     data['progress'] = {
                         'current': scanned_count,
                         'total': total_ports,
                         'percentage': round((scanned_count / total_ports) * 100, 1)
                     }
                     
-                    # Server-Sent Events (SSE) 형식으로 데이터를 클라이언트에 yield
                     yield f"data: {json.dumps(data)}\n\n"
                     
                 except Exception as e:
@@ -125,7 +129,7 @@ def start_portscan():
     # 스트리밍 응답을 반환
     return Response(stream_with_context(generate_results()), mimetype='text/event-stream')
 
-# API 엔드포인트 추가 (프론트엔드에서 쉽게 사용할 수 있도록)
+# API 엔드포인트는 기존 코드를 유지해도 좋습니다.
 @utils_bp.route('/api/utils/port_scan', methods=['GET'])
 def api_port_scan():
     """API 형태의 포트 스캔 엔드포인트"""
@@ -138,61 +142,40 @@ def api_port_scan():
     if not is_valid_host(host):
         return jsonify({'error': '유효하지 않은 호스트입니다.'}), 400
     
-    # 포트 파싱
     ports_to_scan = []
     try:
-        # 쉼표로 분리된 포트들 처리
         for port_part in ports_str.split(','):
             port_part = port_part.strip()
             if '-' in port_part:
-                # 범위 처리 (예: 80-85)
-                start, end = port_part.split('-')
-                start = int(start.strip())
-                end = int(end.strip())
-                if start > end:
-                    start, end = end, start
-                # 범위가 너무 크면 제한
+                start, end = map(int, port_part.split('-'))
+                if start > end: start, end = end, start
                 if end - start > 2000:
                     return jsonify({'error': '포트 범위가 너무 큽니다. 최대 2000개까지 가능합니다.'}), 400
                 ports_to_scan.extend(range(start, end + 1))
-            else:
-                # 단일 포트
+            elif port_part:
                 ports_to_scan.append(int(port_part))
     except ValueError:
         return jsonify({'error': '잘못된 포트 형식입니다.'}), 400
     
-    # 중복 제거 및 정렬
     ports_to_scan = sorted(list(set(ports_to_scan)))
     
-    # 최대 포트 수 제한
     if len(ports_to_scan) > 2000:
         return jsonify({'error': '한 번에 스캔할 수 있는 최대 포트 수는 2000개입니다.'}), 400
     
     if not ports_to_scan:
         return jsonify({'error': '스캔할 포트를 지정해주세요.'}), 400
     
-    # 간단한 동기 스캔 (API용)
     try:
         target_ip = socket.gethostbyname(host)
     except socket.gaierror:
         return jsonify({'error': f"호스트 '{host}'를 확인할 수 없습니다."}), 400
     
-    results = {
-        'host': host,
-        'ip': target_ip,
-        'open': [],
-        'closed': [],
-        'errors': []
-    }
+    results = {'host': host, 'ip': target_ip, 'open': [], 'closed': [], 'errors': []}
     
-    # 빠른 스캔을 위해 타임아웃을 짧게 설정
-    for port in ports_to_scan[:100]:  # API는 최대 100개로 제한
+    for port in ports_to_scan[:100]:
         result = scan_port(target_ip, port)
-        if result['error']:
-            results['errors'].append(port)
-        elif result['status'] == 'Open':
-            results['open'].append(port)
-        else:
-            results['closed'].append(port)
+        if result['error']: results['errors'].append(port)
+        elif result['status'] == 'Open': results['open'].append(port)
+        else: results['closed'].append(port)
     
     return jsonify(results)
