@@ -72,7 +72,7 @@
     <header class="top-header" id="siteHeader">
         <div class="container">
             <div class="logo-area">
-                <a href="{{ url_for('main_bp.index') }}" class="logo">
+                <a href="{{ url_for('main.index') }}" class="logo">
                     <img src="{{ url_for('static', filename='img/logo.png') }}" alt="로고 이미지" loading="lazy">
                     <span class="site-name">와구센</span>
                 </a>
@@ -80,10 +80,10 @@
             
             <nav class="main-nav desktop-nav" id="desktopNav">
                 <ul>
-                    <li><a href="{{ url_for('posts_bp.posts_index') }}">블로그</a></li>
-                    <li><a href="{{ url_for('simulation_bp.index') }}">시뮬레이션</a></li>
-                    <li><a href="{{ url_for('network_bp.network_page') }}">네트워크</a></li>
-                    <li><a href="{{ url_for('main_bp.about') }}">소개</a></li>
+                    <li><a href="{{ url_for('posts.index') }}">블로그</a></li>
+                    <li><a href="{{ url_for('simulation.index') }}">시뮬레이션</a></li>
+                    <li><a href="{{ url_for('speedtest.speedtest_page') }}">네트워크</a></li>
+                    <li><a href="{{ url_for('main.about') }}">소개</a></li>
                 </ul>
             </nav>
             
@@ -118,7 +118,7 @@
         <div class="mobile-nav-content">
             <ul class="mobile-nav-list">
                 <li class="mobile-nav-item">
-                    <a href="{{ url_for('posts_bp.posts_index') }}" class="mobile-nav-link">
+                    <a href="{{ url_for('posts.index') }}" class="mobile-nav-link">
                         <i class="fas fa-blog default-icon"></i>
                         <img src="{{ url_for('static', filename='img/icon/book.png') }}" class="nav-icon nav-icon-8bit" alt="블로그 아이콘">
                         <span>블로그</span>
@@ -126,14 +126,14 @@
                     </a>
                 </li>
                 <li class="mobile-nav-item">
-                    <a href="{{ url_for('simulation_bp.index') }}" class="mobile-nav-link">
+                    <a href="{{ url_for('simulation.index') }}" class="mobile-nav-link">
                         <i class="fas fa-atom default-icon"></i>
                         <span class="nav-icon nav-icon-8bit"></span> <span>시뮬레이션</span>
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 </li>
                 <li class="mobile-nav-item">
-                    <a href="{{ url_for('network_bp.network_page') }}" class="mobile-nav-link">
+                    <a href="{{ url_for('speedtest.speedtest_page') }}" class="mobile-nav-link">
                         <i class="fas fa-network-wired default-icon"></i>
                         <img src="{{ url_for('static', filename='img/icon/network.png') }}" class="nav-icon nav-icon-8bit" alt="네트워크 아이콘">
                         <span>네트워크</span>
@@ -141,7 +141,7 @@
                     </a>
                 </li>
                 <li class="mobile-nav-item">
-                    <a href="{{ url_for('main_bp.about') }}" class="mobile-nav-link">
+                    <a href="{{ url_for('main.about') }}" class="mobile-nav-link">
                         <i class="fas fa-info-circle default-icon"></i>
                         <span class="nav-icon nav-icon-8bit"></span> <span>소개</span>
                         <i class="fas fa-chevron-right"></i>
