@@ -286,38 +286,63 @@ h1, h2, h3, h4, h5, h6 { /* 기본 헤딩 z-index */
 .mobile-nav-item { margin: 0; border-bottom: 1px solid rgba(var(--border-color), 0.3); }
 .mobile-nav-item:last-child { border-bottom: none; }
 
+/* ===== 수정된 부분: 모바일 내비게이션 링크 정렬 문제 해결 ===== */
 .mobile-nav-link {
-  display: flex; align-items: center; gap: var(--spacing-4);
+  display: flex; 
+  align-items: center; 
+  gap: var(--spacing-4);
   padding: var(--spacing-4) var(--spacing-5);
-  color: var(--text-primary); text-decoration: none;
-  font-size: 1.1rem; font-weight: 500;
+  color: var(--text-primary); 
+  text-decoration: none;
+  font-size: 1.1rem; 
+  font-weight: 500;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  position: relative; overflow: hidden;
-  border: none; background: none; cursor: pointer;
-  width: 100%; justify-content: space-between;
+  position: relative; 
+  overflow: hidden;
+  border: none; 
+  background: none; 
+  cursor: pointer;
+  width: 100%;
 }
 .mobile-nav-link::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-  width: 4px; background: linear-gradient(45deg, var(--github-accent), var(--primary-400));
-  transform: scaleY(0); transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  content: ''; 
+  position: absolute; 
+  left: 0; top: 0; bottom: 0;
+  width: 4px; 
+  background: linear-gradient(45deg, var(--github-accent), var(--primary-400));
+  transform: scaleY(0); 
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
-.mobile-nav-link:hover::before, .mobile-nav-link:focus::before { transform: scaleY(1); }
+.mobile-nav-link:hover::before, .mobile-nav-link:focus::before { 
+  transform: scaleY(1); 
+}
 .mobile-nav-link:hover, .mobile-nav-link:focus {
   background: linear-gradient(90deg, rgba(var(--github-accent), 0.05) 0%, transparent 100%);
   transform: translateX(8px);
 }
-.mobile-nav-link i:first-child, .mobile-nav-link .nav-icon { 
+.mobile-nav-link .default-icon,
+.mobile-nav-link .nav-icon { 
     font-size: 1.2rem; 
     width: 24px;
     height: 24px;
     text-align: center; 
     color: var(--github-accent);
-    margin-right: -1rem;
+    flex-shrink: 0; /* 아이콘 크기 고정 */
 }
+.mobile-nav-link span { 
+  flex-grow: 1; /* 텍스트가 남은 공간을 채우도록 */
+}
+.mobile-nav-link i:last-child { 
+  font-size: 0.9rem; 
+  color: var(--text-tertiary); 
+  transition: transform 0.3s ease;
+  margin-left: auto; /* 화살표를 오른쪽 끝으로 밀어냄 */
+}
+.mobile-nav-link:hover i:last-child { 
+  transform: translateX(4px); 
+}
+/* ===== 수정 끝 ===== */
 
-.mobile-nav-link span { flex: 1; }
-.mobile-nav-link i:last-child { font-size: 0.9rem; color: var(--text-tertiary); transition: transform 0.3s ease; }
-.mobile-nav-link:hover i:last-child { transform: translateX(4px); }
 
 .mobile-theme-item {
   border-top: 2px solid var(--border-color);

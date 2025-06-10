@@ -1,16 +1,14 @@
 {# app/templates/speedtest.html #}
-{# 네트워크 속도 및 핑 테스트를 위한 HTML 템플릿입니다. #}
-{# FontAwesome 아이콘을 사용하며, 테스트 결과를 동적으로 표시합니다. #}
+{# 네트워크 속도, 핑, Whois, 포트 스캔을 위한 통합 HTML 템플릿입니다. #}
 {% extends "base.html" %}
 
-{% block title %}네트워크 속도 테스트 - 와구센{% endblock %}
+{% block title %}네트워크 진단 도구 - 와구센{% endblock %}
 
 {% block head %}
 {{ super() }}
-{# speedtest.css 파일을 만들거나 아래 style 태그 내용을 해당 파일로 옮기세요. #}
-{# <link rel="stylesheet" href="{{ url_for('static', filename='css/speedtest.css') }}"> #}
 <style nonce="{{ csp_nonce() }}">
-  .speedtest-container {
+  /* --- 공통 컨테이너 --- */
+  .diagnostic-container {
     background-color: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 6px;
@@ -20,17 +18,40 @@
     box-shadow: var(--shadow-md);
   }
 
-  .speedtest-container h1 {
+  .diagnostic-container h1 {
     font-size: var(--font-size-2xl);
     color: var(--text-primary);
     text-align: center;
     margin-bottom: var(--spacing-6);
     border-bottom: 1px solid var(--border-color);
     padding-bottom: var(--spacing-4);
-    font-family: var(--font-sans); /* base.css 의 변수 활용 */
-    width: auto; /* h1 기본 스타일 초기화 */
+    font-family: var(--font-sans);
+    width: auto;
+  }
+  
+  .section-divider {
+    margin-top: var(--spacing-8);
+    border-top: 2px solid var(--border-color);
+    padding-top: var(--spacing-6);
   }
 
+  /* --- 에러 메시지 공통 스타일 --- */
+  .error-message {
+    color: var(--danger);
+    font-weight: 500;
+    text-align: center;
+    margin-top: var(--spacing-4);
+    padding: var(--spacing-3);
+    background-color: rgba(207, 34, 46, 0.1);
+    border: 1px solid rgba(207, 34, 46, 0.3);
+    border-radius: var(--radius-md);
+    display: none; /* 기본적으로 숨김 */
+  }
+  .error-message.visible {
+      display: block;
+  }
+
+  /* --- Speedtest 섹션 스타일 --- */
   .start-button-container {
     text-align: center;
     margin-bottom: var(--spacing-6);
@@ -94,32 +115,32 @@
     display: flex;
     align-items: center;
     font-family: var(--font-sans);
-    width: auto; /* h2 기본 스타일 초기화 */
+    width: auto;
     text-align: center;
   }
   .result-card h2 i {
     margin-right: var(--spacing-2);
     font-size: 1.2em;
   }
-  .result-card p { /* p 태그 스타일 초기화 */
-    font-size: var(--font-size-2xl); /* 크기 키움 */
-    font-weight: 700; /* 굵게 */
+  .result-card p {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
     color: var(--text-primary);
     margin-bottom: var(--spacing-1);
     text-align: center;
     font-family: var(--font-sans);
     width: auto;
-    line-height: 1.2; /* 줄간격 조정 */
+    line-height: 1.2;
   }
   .result-card .unit {
-    font-size: var(--font-size-md); /* 유닛 크기 조정 */
+    font-size: var(--font-size-md);
     color: var(--text-tertiary);
     text-align: center;
     display: block;
     font-family: var(--font-sans);
   }
   .result-card .details {
-    font-size: var(--font-size-sm); /* 상세정보 크기 조정 */
+    font-size: var(--font-size-sm);
     color: var(--text-tertiary);
     margin-top: var(--spacing-3);
     text-align: center;
@@ -128,10 +149,10 @@
 
   .progress-bar-container {
     width: 100%;
-    max-width: 200px; /* 진행률 바 최대 너비 */
+    max-width: 200px;
     background-color: var(--neutral-200);
     border-radius: var(--radius-md);
-    margin: var(--spacing-2) auto var(--spacing-4); /* 중앙 정렬 및 마진 조정 */
+    margin: var(--spacing-2) auto var(--spacing-4);
     height: 24px;
     overflow: hidden;
     border: 1px solid var(--border-color);
@@ -152,13 +173,47 @@
     background-color: var(--danger);
   }
 
-  .detailed-info-section {
-    margin-top: var(--spacing-6);
-    padding: var(--spacing-4);
-    background-color: var(--bg-primary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
+  /* --- 수정된 부분: 세부 정보 및 Whois 결과 레이아웃 --- */
+  .detailed-info-section, #whoisResultContent {
+    font-family: var(--font-sans);
   }
+
+  .detailed-info-section ul, #whoisResultContent ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .detailed-info-section li, #whoisResultContent li {
+    display: flex;
+    justify-content: flex-start;
+    align-items: baseline;
+    gap: var(--spacing-4);
+    padding: var(--spacing-2) 0;
+    border-bottom: 1px solid var(--border-color);
+    font-size: var(--font-size-sm);
+  }
+
+  .detailed-info-section li:last-child, #whoisResultContent li:last-child {
+    border-bottom: none;
+  }
+
+  .detailed-info-section li strong, #whoisResultContent li strong {
+    color: var(--text-primary);
+    flex: 0 0 120px; /* 고정 너비, 줄어들지 않음 */
+    text-align: right;
+    font-weight: 600;
+  }
+  
+  .detailed-info-section li span, #whoisResultContent li span {
+    color: var(--text-secondary);
+    flex: 1 1 auto; /* 남은 공간 차지, 필요시 줄어듦 */
+    word-break: break-all;
+    white-space: pre-wrap;
+    line-height: 1.5;
+  }
+  /* --- 수정 끝 --- */
+
   .detailed-info-section h2 {
     font-size: var(--font-size-lg);
     color: var(--text-primary);
@@ -168,50 +223,154 @@
     width: auto;
     text-align: left;
   }
-  .detailed-info-section ul {
-    list-style: none;
-    padding: 0; /* ===== 수정된 부분: ul의 패딩 제거 ===== */
-    margin: 0;
+  
+  /* --- Whois 섹션 스타일 --- */
+  .whois-input-group {
+    display: flex;
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-4);
   }
-  .detailed-info-section li {
+  
+  #whoisDomainInput {
+    flex-grow: 1;
+    padding: var(--spacing-2) var(--spacing-3);
     font-size: var(--font-size-md);
-    color: var(--text-secondary);
-    padding: var(--spacing-2) 0;
-    border-bottom: 1px solid var(--neutral-100);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     font-family: var(--font-sans);
   }
-  html.dark-theme .detailed-info-section li {
-    border-bottom: 1px solid var(--neutral-700);
+  
+  #whoisDomainInput:focus {
+    outline: none;
+    border-color: var(--github-accent);
+    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
   }
-  .detailed-info-section li:last-child {
-    border-bottom: none;
-  }
-  .detailed-info-section li strong {
-    color: var(--text-primary);
-    margin-right: var(--spacing-2);
-  }
-  #errorMessage {
-    color: var(--danger);
+  
+  #whoisSearchBtn {
+    padding: var(--spacing-2) var(--spacing-5);
+    font-size: var(--font-size-md);
     font-weight: 500;
-    text-align: center;
-    margin-top: var(--spacing-4);
-    padding: var(--spacing-3);
-    background-color: rgba(207, 34, 46, 0.1);
-    border: 1px solid rgba(207, 34, 46, 0.3);
-    border-radius: var(--radius-md);
-    display: none; /* 기본적으로 숨김 */
+    color: white;
+    background-color: var(--success);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
   }
-  #errorMessage.visible {
-      display: block;
+  
+  #whoisSearchBtn:hover {
+    background-color: #269341;
+  }
+  #whoisSearchBtn:disabled {
+    background-color: var(--neutral-300);
+    cursor: not-allowed;
+  }
+  
+  #whoisResultCard {
+    background-color: var(--bg-primary);
+    padding: var(--spacing-4);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    display: none; /* 기본 숨김 */
+  }
+  
+  /* --- Port Scan 섹션 스타일 --- */
+  .port-scan-input-group {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr auto;
+    gap: var(--spacing-3);
+    margin-bottom: var(--spacing-4);
+  }
+  
+  #portScanHostInput, #portScanPortsInput {
+    padding: var(--spacing-2) var(--spacing-3);
+    font-size: var(--font-size-md);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+  }
+  
+  #portScanHostInput:focus, #portScanPortsInput:focus {
+    outline: none;
+    border-color: var(--github-accent);
+    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
+  }
+  
+  #portScanBtn {
+    padding: var(--spacing-2) var(--spacing-5);
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    color: white;
+    background-color: var(--warning);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  #portScanBtn:hover {
+    background-color: #a67000;
+  }
+  #portScanBtn:disabled {
+    background-color: var(--neutral-300);
+    cursor: not-allowed;
   }
 
+  #portScanResultCard {
+    background-color: var(--bg-primary);
+    padding: var(--spacing-4);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    display: none; /* 기본 숨김 */
+  }
+  
+  #portScanResultContent {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-sm);
+    line-height: 1.8;
+  }
+
+  .port-status-open {
+    color: var(--success);
+    font-weight: 600;
+  }
+
+  .port-status-closed {
+     color: var(--danger);
+  }
+
+  .port-scan-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--spacing-3);
+  }
+
+  /* --- 테마 및 반응형 스타일 --- */
   html.dark-theme .progress-bar-container {
     background-color: var(--neutral-700);
     border-color: var(--neutral-600);
   }
-  html.dark-theme .detailed-info-section {
+  html.dark-theme .detailed-info-section,
+  html.dark-theme #whoisResultCard,
+  html.dark-theme #portScanResultCard {
     background-color: var(--bg-secondary);
     border-color: var(--neutral-700);
+  }
+  html.dark-theme #whoisDomainInput,
+  html.dark-theme #portScanHostInput,
+  html.dark-theme #portScanPortsInput {
+    background-color: var(--bg-primary);
+    border-color: var(--neutral-600);
+  }
+  html.dark-theme .detailed-info-section li,
+  html.dark-theme #whoisResultContent li {
+     border-bottom-color: var(--neutral-700);
   }
 
   @media (max-width: 768px) {
@@ -221,53 +380,95 @@
     .result-card p {
         font-size: var(--font-size-xl);
     }
+    .port-scan-input-group {
+      grid-template-columns: 1fr;
+    }
+    .detailed-info-section li, #whoisResultContent li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-1);
+    }
+    .detailed-info-section li strong, #whoisResultContent li strong {
+        text-align: left;
+        flex-basis: auto;
+    }
   }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="speedtest-container">
-    <h1><i class="fas fa-tachometer-alt"></i> 네트워크 속도 및 핑 테스트</h1>
+<div class="diagnostic-container">
+    <h1><i class="fas fa-network-wired"></i> 네트워크 진단 도구</h1>
 
-    <div class="start-button-container">
-        <button id="startTestBtn">
-            <i class="fas fa-play"></i> 테스트 시작
-        </button>
+    {# --- 속도 및 핑 테스트 섹션 --- #}
+    <div class="speedtest-section">
+        <div class="start-button-container">
+            <button id="startTestBtn">
+                <i class="fas fa-play"></i> 속도/핑 테스트 시작
+            </button>
+        </div>
+
+        <div id="resultsSection" style="display:none;">
+            <div class="results-grid">
+                <div class="result-card">
+                    <h2><i class="fas fa-stopwatch"></i> 핑 (Ping)</h2>
+                    <p><span id="pingResult">-</span> <span class="unit">ms</span></p>
+                    <div class="details">지터: <span id="jitterResult">-</span> ms</div>
+                </div>
+                <div class="result-card">
+                    <h2><i class="fas fa-arrow-down"></i> 다운로드</h2>
+                    <p><span id="downloadResult">-</span> <span class="unit">Mbps</span></p>
+                    <div class="progress-bar-container" id="downloadProgressContainer" style="display:none;">
+                        <div class="progress-bar" id="downloadProgressBar">0%</div>
+                    </div>
+                </div>
+                <div class="result-card">
+                    <h2><i class="fas fa-arrow-up"></i> 업로드</h2>
+                    <p><span id="uploadResult">-</span> <span class="unit">Mbps</span></p>
+                    <div class="progress-bar-container" id="uploadProgressContainer" style="display:none;">
+                        <div class="progress-bar" id="uploadProgressBar">0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detailed-info-section">
+                <h2><i class="fas fa-info-circle"></i> 세부 정보</h2>
+                <ul>
+                    <li><strong>클라이언트 IP:</strong> <span id="clientIp">-</span></li>
+                    <li><strong>테스트 시간:</strong> <span id="testTimestamp">-</span></li>
+                    <li><strong>다운로드 데이터:</strong> <span><span id="downloadDataSize">-</span> MB</span></li>
+                    <li><strong>업로드 데이터:</strong> <span><span id="uploadDataSize">-</span> MB</span></li>
+                </ul>
+            </div>
+            <div id="speedtestErrorMessage" class="error-message"></div>
+        </div>
     </div>
 
-    <div id="resultsSection" style="display:none;">
-        <div class="results-grid">
-            <div class="result-card">
-                <h2><i class="fas fa-stopwatch"></i> 핑 (Ping)</h2>
-                <p><span id="pingResult">-</span> <span class="unit">ms</span></p>
-                <div class="details">지터: <span id="jitterResult">-</span> ms</div>
-            </div>
-            <div class="result-card">
-                <h2><i class="fas fa-arrow-down"></i> 다운로드</h2>
-                <p><span id="downloadResult">-</span> <span class="unit">Mbps</span></p>
-                <div class="progress-bar-container" id="downloadProgressContainer" style="display:none;">
-                    <div class="progress-bar" id="downloadProgressBar">0%</div>
-                </div>
-            </div>
-            <div class="result-card">
-                <h2><i class="fas fa-arrow-up"></i> 업로드</h2>
-                <p><span id="uploadResult">-</span> <span class="unit">Mbps</span></p>
-                <div class="progress-bar-container" id="uploadProgressContainer" style="display:none;">
-                    <div class="progress-bar" id="uploadProgressBar">0%</div>
-                </div>
-            </div>
+    {# --- Whois 조회 섹션 --- #}
+    <div class="whois-section section-divider">
+        <h1><i class="fas fa-id-card"></i> 도메인 정보 조회 (Whois)</h1>
+        <div class="whois-input-group">
+            <input type="text" id="whoisDomainInput" placeholder="google.com">
+            <button id="whoisSearchBtn"><i class="fas fa-search"></i> 조회</button>
         </div>
+        <div id="whoisResultCard">
+            <div id="whoisResultContent"></div>
+        </div>
+        <div id="whoisErrorMessage" class="error-message"></div>
+    </div>
 
-        <div class="detailed-info-section">
-            <h2><i class="fas fa-info-circle"></i> 세부 정보</h2>
-            <ul>
-                <li><strong>클라이언트 IP:</strong> <span id="clientIp">-</span></li>
-                <li><strong>테스트 시간:</strong> <span id="testTimestamp">-</span></li>
-                <li><strong>다운로드 데이터:</strong> <span id="downloadDataSize">-</span> MB</li>
-                <li><strong>업로드 데이터:</strong> <span id="uploadDataSize">-</span> MB</li>
-            </ul>
+    {# --- Port Scan 섹션 --- #}
+    <div class="port-scan-section section-divider">
+        <h1><i class="fas fa-search-location"></i> 포트 스캔 (Port Scan)</h1>
+        <div class="port-scan-input-group">
+            <input type="text" id="portScanHostInput" placeholder="스캔할 호스트 (예: google.com)">
+            <input type="text" id="portScanPortsInput" placeholder="포트 (예: 80, 443, 8000-8010)">
+            <button id="portScanBtn"><i class="fas fa-crosshairs"></i> 스캔 시작</button>
         </div>
-        <div id="errorMessage"></div>
+        <div id="portScanResultCard" style="display: none;">
+             <div id="portScanResultContent"></div>
+        </div>
+        <div id="portScanErrorMessage" class="error-message"></div>
     </div>
 </div>
 {% endblock %}
@@ -275,7 +476,9 @@
 {% block scripts %}
 {{ super() }}
 <script nonce="{{ csp_nonce() }}">
-    // --- DOM 요소 가져오기 ---
+    // ===============================================
+    //               Speedtest & Ping
+    // ===============================================
     const startTestBtn = document.getElementById('startTestBtn');
     const resultsSection = document.getElementById('resultsSection');
     const pingResult = document.getElementById('pingResult');
@@ -286,24 +489,19 @@
     const testTimestamp = document.getElementById('testTimestamp');
     const downloadDataSize = document.getElementById('downloadDataSize');
     const uploadDataSize = document.getElementById('uploadDataSize');
-    const errorMessage = document.getElementById('errorMessage');
+    const speedtestErrorMessage = document.getElementById('speedtestErrorMessage');
 
     const downloadProgressBar = document.getElementById('downloadProgressBar');
     const downloadProgressContainer = document.getElementById('downloadProgressContainer');
     const uploadProgressBar = document.getElementById('uploadProgressBar');
     const uploadProgressContainer = document.getElementById('uploadProgressContainer');
 
-    // --- 테스트 설정 상수 ---
-    // Flask의 url_for를 사용하여 블루프린트의 루트 URL을 가져오고, 마지막 '/'를 제거하여 기본 경로로 사용
     const API_PREFIX = "{{ url_for('speedtest.speedtest_page').rstrip('/') }}";
-    console.log('API_PREFIX:', API_PREFIX); // API_PREFIX 값 확인
+    const PING_COUNT = 10;
+    const DOWNLOAD_TOTAL_SIZE_MB = 25;
+    const UPLOAD_TOTAL_SIZE_MB = 10;
+    const NUM_PARALLEL_CONNECTIONS = 4;
 
-    const PING_COUNT = 10;                           // 핑 테스트 횟수
-    const DOWNLOAD_TOTAL_SIZE_MB = 25;               // 총 다운로드 크기 (MB)
-    const UPLOAD_TOTAL_SIZE_MB = 10;                 // 총 업로드 크기 (MB)
-    const NUM_PARALLEL_CONNECTIONS = 4;              // 다운로드/업로드 병렬 연결 수
-
-    // --- UI 업데이트 함수 ---
     function updatePingUI(value, jitterVal) {
         pingResult.textContent = value;
         jitterResult.textContent = jitterVal;
@@ -341,15 +539,14 @@
         }
     }
 
-    function showError(message) {
-        errorMessage.textContent = message;
-        errorMessage.classList.add('visible');
-        console.error('Speedtest Error:', message); // 오류 메시지를 콘솔에도 출력
+    function showSpeedtestError(message) {
+        speedtestErrorMessage.textContent = message;
+        speedtestErrorMessage.classList.add('visible');
     }
 
-    function resetUI() {
-        errorMessage.textContent = '';
-        errorMessage.classList.remove('visible');
+    function resetSpeedtestUI() {
+        speedtestErrorMessage.textContent = '';
+        speedtestErrorMessage.classList.remove('visible');
         updatePingUI('-', '-');
         updateDownloadUI('-', 0);
         downloadProgressBar.classList.remove('error');
@@ -365,53 +562,39 @@
         testTimestamp.textContent = '-';
     }
 
-    function setButtonState(testing) {
+    function setSpeedtestButtonState(testing) {
         startTestBtn.disabled = testing;
         startTestBtn.innerHTML = testing ?
             '<i class="fas fa-spinner fa-spin"></i> 테스트 진행 중...' :
-            '<i class="fas fa-play"></i> 테스트 시작';
+            '<i class="fas fa-play"></i> 속도/핑 테스트 시작';
     }
 
-    // --- 핵심 테스트 함수 ---
     async function getClientIpFromServer() {
-        console.log('getClientIpFromServer started');
         const url = `${API_PREFIX}/ip`;
-        console.log('Requesting IP from:', url);
         try {
             const response = await fetch(url);
-            if (!response.ok) {
-                console.error(`IP 주소 확인 실패: ${response.status} ${response.statusText}`, await response.text());
-                throw new Error(`IP 주소 확인 실패: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`IP 주소 확인 실패: ${response.status}`);
             const data = await response.json();
             clientIp.textContent = data.ip || '확인 불가';
-            console.log('getClientIpFromServer successful:', data.ip);
         } catch (error) {
-            console.error('getClientIpFromServer error:', error);
             clientIp.textContent = '확인 실패';
-            showError(`IP 주소 확인 중 오류: ${error.message}`);
+            showSpeedtestError(`IP 주소 확인 중 오류: ${error.message}`);
             throw error;
         }
     }
 
     async function testPing() {
-        console.log('testPing started');
         updatePingUI('측정 중...', '-');
         let latencies = [];
         for (let i = 0; i < PING_COUNT; i++) {
             const startTime = performance.now();
             const url = `${API_PREFIX}/ping_target?t=${Date.now()}&i=${i}`;
-            console.log(`Ping request ${i + 1}:`, url);
             try {
                 const response = await fetch(url);
-                if (!response.ok) {
-                    console.warn(`Ping sample ${i} HTTP error: ${response.status} ${response.statusText}`);
-                    throw new Error(`Ping 요청 실패: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`Ping 요청 실패: ${response.status}`);
                 latencies.push(performance.now() - startTime);
             } catch (error) {
-                console.warn(`Ping sample ${i} fetch error:`, error);
-                latencies.push(5000); // 실패 시 높은 값으로 기록
+                latencies.push(5000); // 실패 시 높은 값
             }
             updatePingUI(`측정 중... (${((i + 1) / PING_COUNT * 100).toFixed(0)}%)`, '-');
             if (i < PING_COUNT - 1) await new Promise(resolve => setTimeout(resolve, 200));
@@ -419,33 +602,25 @@
 
         if (latencies.length === 0) {
              updatePingUI('실패', '실패');
-             console.error("모든 Ping 테스트에 실패했습니다.");
              throw new Error("모든 Ping 테스트에 실패했습니다.");
         }
-
-        if (latencies.length > 3) {
-            latencies.sort((a, b) => a - b);
-            latencies = latencies.slice(1, latencies.length - 1);
-        }
+        if (latencies.length > 3) latencies = latencies.sort((a, b) => a - b).slice(1, -1);
         
         const avgLatency = latencies.reduce((a, b) => a + b, 0) / latencies.length;
         let jitter = 0;
         if (latencies.length > 1) {
-            jitter = Math.sqrt(latencies.map(l => Math.pow(l - avgLatency, 2)).reduce((a,b) => a+b,0) / (latencies.length -1));
+            jitter = Math.sqrt(latencies.map(l => Math.pow(l - avgLatency, 2)).reduce((a, b) => a + b, 0) / (latencies.length - 1));
         }
         
         if (isNaN(avgLatency) || isNaN(jitter)) {
-            updatePingUI('계산 오류', '계산 오류');
-            console.error("Ping 또는 Jitter 값 계산에 실패했습니다.", {avgLatency, jitter, latencies});
-            throw new Error("Ping 또는 Jitter 값 계산에 실패했습니다.");
+            updatePingUI('오류', '오류');
+            throw new Error("Ping/Jitter 값 계산 실패");
         }
         updatePingUI(avgLatency.toFixed(2), jitter.toFixed(2));
-        console.log('testPing successful:', { ping: avgLatency, jitter });
         return avgLatency;
     }
 
     async function testDownloadSpeed() {
-        console.log('testDownloadSpeed started');
         updateDownloadUI('측정 중...', 0);
         const CHUNK_SIZE_MB = DOWNLOAD_TOTAL_SIZE_MB / NUM_PARALLEL_CONNECTIONS;
         let totalBytesDownloaded = 0;
@@ -454,12 +629,8 @@
 
         const downloadPromises = Array.from({ length: NUM_PARALLEL_CONNECTIONS }, (_, i) => {
             const url = `${API_PREFIX}/download?size_mb=${CHUNK_SIZE_MB}&r=${Date.now()}&c=${i}`;
-            console.log(`Download chunk ${i} request:`, url);
             return fetch(url).then(async response => {
-                if (!response.ok) {
-                    console.error(`다운로드 청크 ${i} 실패: ${response.status} ${response.statusText}`, await response.text());
-                    throw new Error(`다운로드 청크 ${i} 실패: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`다운로드 청크 ${i} 실패: ${response.status}`);
                 const reader = response.body.getReader();
                 while (true) {
                     const { done, value } = await reader.read();
@@ -468,28 +639,17 @@
                     const overallProgress = (totalBytesDownloaded / (DOWNLOAD_TOTAL_SIZE_MB * 1024 * 1024)) * 100;
                     updateDownloadUI('측정 중...', overallProgress);
                 }
-                console.log(`Download chunk ${i} successful`);
-            }).catch(err => {
-                console.error(`Download chunk ${i} fetch error:`, err);
-                throw err; 
             });
         });
 
         try {
             await Promise.all(downloadPromises);
-            const endTime = performance.now();
-            const durationSeconds = (endTime - startTime) / 1000;
-            if (durationSeconds <= 0.01) { 
-                 console.warn("다운로드 시간 측정이 너무 짧습니다.", durationSeconds);
-                 throw new Error("다운로드 시간 측정 오류 (너무 짧음)");
-            }
-
+            const durationSeconds = (performance.now() - startTime) / 1000;
+            if (durationSeconds <= 0.01) throw new Error("시간 측정 오류");
             const speedMbps = ((totalBytesDownloaded * 8) / durationSeconds / 1000000).toFixed(2);
             updateDownloadUI(speedMbps, 100);
-            console.log('testDownloadSpeed successful:', { speedMbps, totalBytesDownloaded, durationSeconds });
             return parseFloat(speedMbps);
         } catch (error) {
-            console.error('Download test error in outer catch:', error);
             updateDownloadUI('실패', 0);
             downloadProgressBar.classList.add('error');
             downloadProgressBar.textContent = '실패';
@@ -498,7 +658,6 @@
     }
 
     async function testUploadSpeed() {
-        console.log('testUploadSpeed started');
         updateUploadUI('측정 중...', 0);
         const CHUNK_SIZE_BYTES = Math.floor((UPLOAD_TOTAL_SIZE_MB / NUM_PARALLEL_CONNECTIONS) * 1024 * 1024);
         const TOTAL_BYTES_TO_UPLOAD = UPLOAD_TOTAL_SIZE_MB * 1024 * 1024;
@@ -506,10 +665,6 @@
         uploadDataSize.textContent = UPLOAD_TOTAL_SIZE_MB;
 
         const randomDataChunk = new Uint8Array(CHUNK_SIZE_BYTES);
-        // For performance, avoid filling with Math.random if not strictly needed for testing specific compression
-        // For just sending bytes, a pre-filled or even empty Uint8Array (if server handles it) can work.
-        // Keeping original logic for now.
-        for (let j = 0; j < CHUNK_SIZE_BYTES; j++) randomDataChunk[j] = Math.floor(Math.random() * 256);
         const dataBlob = new Blob([randomDataChunk], { type: 'application/octet-stream' });
 
         const startTime = performance.now();
@@ -517,42 +672,30 @@
             new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
                 const url = `${API_PREFIX}/upload?r=${Date.now()}&c=${i}`;
-                console.log(`Upload chunk ${i} request:`, url);
                 xhr.open('POST', url, true);
                 xhr.onload = () => {
                     if (xhr.status >= 200 && xhr.status < 300) {
                         totalBytesUploadedSuccessfully += CHUNK_SIZE_BYTES; 
                         const overallProgress = (totalBytesUploadedSuccessfully / TOTAL_BYTES_TO_UPLOAD) * 100;
                         updateUploadUI('측정 중...', overallProgress);
-                        console.log(`Upload chunk ${i} successful`);
                         resolve();
                     } else {
-                        console.error(`업로드 청크 ${i} 실패: ${xhr.status} ${xhr.statusText}`, xhr.responseText);
                         reject(new Error(`업로드 청크 ${i} 실패: ${xhr.status}`));
                     }
                 };
-                xhr.onerror = () => {
-                    console.error(`업로드 청크 ${i} 네트워크 오류`);
-                    reject(new Error(`업로드 청크 ${i} 네트워크 오류`));
-                };
+                xhr.onerror = () => reject(new Error(`업로드 청크 ${i} 네트워크 오류`));
                 xhr.send(dataBlob);
             })
         );
 
         try {
             await Promise.all(uploadPromises);
-            const endTime = performance.now();
-            const durationSeconds = (endTime - startTime) / 1000;
-             if (durationSeconds <= 0.01) { 
-                console.warn("업로드 시간 측정이 너무 짧습니다.", durationSeconds);
-                throw new Error("업로드 시간 측정 오류 (너무 짧음)");
-            }
+            const durationSeconds = (performance.now() - startTime) / 1000;
+            if (durationSeconds <= 0.01) throw new Error("시간 측정 오류");
             const speedMbps = ((totalBytesUploadedSuccessfully * 8) / durationSeconds / 1000000).toFixed(2);
             updateUploadUI(speedMbps, 100); 
-            console.log('testUploadSpeed successful:', { speedMbps, totalBytesUploadedSuccessfully, durationSeconds });
             return parseFloat(speedMbps);
         } catch (error) {
-            console.error('Upload test error in outer catch:', error);
             updateUploadUI('실패', Math.max(0, (totalBytesUploadedSuccessfully / TOTAL_BYTES_TO_UPLOAD) * 100)); 
             uploadProgressBar.classList.add('error');
             uploadProgressBar.textContent = '실패';
@@ -560,30 +703,245 @@
         }
     }
 
-    // --- 메인 테스트 실행 로직 ---
     startTestBtn.addEventListener('click', async () => {
-        console.log('Test started by button click');
-        setButtonState(true);
-        resetUI();
+        setSpeedtestButtonState(true);
+        resetSpeedtestUI();
         resultsSection.style.display = 'block';
         testTimestamp.textContent = new Date().toLocaleString('ko-KR', { hour12: false });
-
         try {
             await getClientIpFromServer();
             await testPing();
             await testDownloadSpeed();
             await testUploadSpeed();
-            console.log('All tests completed successfully.');
         } catch (error) {
-            console.error('Main test sequence error:', error);
-            // showError는 각 테스트 함수 내부에서도 호출될 수 있으므로, 여기서는 추가적인 일반 메시지를 보여줄 수 있습니다.
-            // 현재는 각 테스트 함수에서 spezifische 오류 메시지를 보여주므로 중복을 피할 수 있습니다.
-            // 만약 모든 테스트를 포괄하는 오류 메시지가 필요하다면 여기서 showError를 호출합니다.
-            // showError(`테스트 중 오류가 발생했습니다: ${error.message}. 잠시 후 다시 시도해주세요.`);
+            showSpeedtestError(`테스트 중 오류가 발생했습니다: ${error.message}. 잠시 후 다시 시도해주세요.`);
         } finally {
-            setButtonState(false);
-            console.log('Test sequence finished (finally block).');
+            setSpeedtestButtonState(false);
         }
     });
+
+    // ===============================================
+    //                 Whois Lookup
+    // ===============================================
+    const whoisDomainInput = document.getElementById('whoisDomainInput');
+    const whoisSearchBtn = document.getElementById('whoisSearchBtn');
+    const whoisResultCard = document.getElementById('whoisResultCard');
+    const whoisResultContent = document.getElementById('whoisResultContent');
+    const whoisErrorMessage = document.getElementById('whoisErrorMessage');
+
+    function setWhoisButtonState(searching) {
+        whoisSearchBtn.disabled = searching;
+        whoisSearchBtn.innerHTML = searching ? '<i class="fas fa-spinner fa-spin"></i> 조회 중...' : '<i class="fas fa-search"></i> 조회';
+    }
+
+    function showWhoisError(message) {
+        whoisErrorMessage.textContent = message;
+        whoisErrorMessage.classList.add('visible');
+    }
+
+    function formatWhoisResult(data) {
+        whoisResultContent.innerHTML = ''; // 이전 결과 초기화
+        const list = document.createElement('ul');
+
+        const keyMap = {
+            domain_name: '도메인 이름',
+            registrar: '등록 기관',
+            creation_date: '생성일',
+            expiration_date: '만료일',
+            updated_date: '최근 업데이트',
+            name_servers: '네임서버',
+            status: '상태',
+            emails: '관리자 이메일',
+        };
+        
+        for (const key in keyMap) {
+            if (data[key]) {
+                const li = document.createElement('li');
+                const strong = document.createElement('strong');
+                strong.textContent = keyMap[key] + ':';
+                
+                const span = document.createElement('span');
+                let value = data[key];
+                if (Array.isArray(value)) {
+                    value = value.join(', ');
+                }
+                span.textContent = value;
+
+                li.appendChild(strong);
+                li.appendChild(span);
+                list.appendChild(li);
+            }
+        }
+
+        if (list.children.length === 0) {
+            whoisResultContent.innerHTML = "<span>표시할 정보가 없습니다.</span>";
+        } else {
+            whoisResultContent.appendChild(list);
+        }
+    }
+
+    async function runWhoisLookup(domain) {
+        whoisResultContent.innerHTML = '<div style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> Whois 정보 조회 중...</div>';
+        whoisResultCard.style.display = 'block';
+
+        try {
+            const response = await fetch(`/api/whois/${domain}`);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || `Whois 조회 서버 오류: ${response.status}`);
+            }
+            
+            formatWhoisResult(data);
+        } catch (error) {
+            showWhoisError(error.message);
+            whoisResultCard.style.display = 'none';
+            throw error; // Promise.allSettled에서 처리할 수 있도록 에러 다시 던지기
+        }
+    }
+    
+    // ===============================================
+    //                  Port Scan
+    // ===============================================
+    const portScanHostInput = document.getElementById('portScanHostInput');
+    const portScanPortsInput = document.getElementById('portScanPortsInput');
+    const portScanBtn = document.getElementById('portScanBtn');
+    const portScanResultCard = document.getElementById('portScanResultCard');
+    const portScanResultContent = document.getElementById('portScanResultContent');
+    const portScanErrorMessage = document.getElementById('portScanErrorMessage');
+
+    function setPortScanButtonState(scanning) {
+        portScanBtn.disabled = scanning;
+        portScanBtn.innerHTML = scanning ? '<i class="fas fa-spinner fa-spin"></i>' : '<i class="fas fa-crosshairs"></i> 스캔 시작';
+    }
+
+    function showPortScanError(message) {
+        portScanErrorMessage.textContent = message;
+        portScanErrorMessage.classList.add('visible');
+    }
+
+    function formatPortScanResult(data) {
+        portScanResultContent.innerHTML = ''; 
+        
+        const grid = document.createElement('div');
+        grid.className = 'port-scan-grid';
+
+        if (data.open && data.open.length > 0) {
+            data.open.forEach(port => {
+                const item = document.createElement('div');
+                item.innerHTML = `<span>Port ${port}: </span><span class="port-status-open">Open</span>`;
+                grid.appendChild(item);
+            });
+        }
+        
+        if (data.closed && data.closed.length > 0) {
+             data.closed.forEach(port => {
+                const item = document.createElement('div');
+                item.innerHTML = `<span>Port ${port}: </span><span class="port-status-closed">Closed</span>`;
+                grid.appendChild(item);
+            });
+        }
+        
+        if (grid.children.length === 0) {
+             portScanResultContent.innerHTML = "<span>스캔 결과를 표시할 수 없습니다.</span>";
+        } else {
+             portScanResultContent.appendChild(grid);
+        }
+    }
+
+    async function runPortScan(host, ports) {
+        portScanResultContent.innerHTML = '<div style="text-align:center;"><i class="fas fa-spinner fa-spin"></i> 포트 스캔 중...</div>';
+        portScanResultCard.style.display = 'block';
+
+        try {
+            const response = await fetch(`/api/utils/port_scan?host=${encodeURIComponent(host)}&ports=${encodeURIComponent(ports)}`);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || `포트 스캔 서버 오류: ${response.status}`);
+            }
+            formatPortScanResult(data);
+        } catch (error) {
+            showPortScanError(error.message);
+            portScanResultCard.style.display = 'none';
+            throw error; 
+        }
+    }
+    
+    // --- 통합 실행 로직 ---
+    async function runCombinedDomainScan() {
+        const domain = whoisDomainInput.value.trim();
+        if (!domain) {
+            showWhoisError("조회할 도메인 이름을 입력해주세요.");
+            return;
+        }
+
+        setWhoisButtonState(true);
+        whoisErrorMessage.classList.remove('visible');
+        portScanErrorMessage.classList.remove('visible');
+        whoisResultCard.style.display = 'none';
+        portScanResultCard.style.display = 'none';
+
+        portScanHostInput.value = domain;
+        const defaultPorts = '80, 443, 8080'; 
+        
+        const [whoisResult, portScanResult] = await Promise.allSettled([
+            runWhoisLookup(domain),
+            runPortScan(domain, defaultPorts)
+        ]);
+        
+        if (whoisResult.status === 'rejected') {
+            console.error("Whois 조회 실패:", whoisResult.reason.message);
+        }
+        if (portScanResult.status === 'rejected') {
+            console.error("포트 스캔 실패:", portScanResult.reason.message);
+        }
+        
+        setWhoisButtonState(false);
+    }
+    
+    async function runStandalonePortScan() {
+        const host = portScanHostInput.value.trim();
+        const ports = portScanPortsInput.value.trim();
+
+        if (!host) {
+            showPortScanError("스캔할 호스트 이름을 입력해주세요.");
+            return;
+        }
+
+        if (!ports) {
+            portScanErrorMessage.classList.remove('visible');
+            portScanResultContent.innerHTML = '<div style="text-align:center; color: var(--text-tertiary);">스캔할 포트가 입력되지 않았습니다.</div>';
+            portScanResultCard.style.display = 'block';
+            return;
+        }
+
+        setPortScanButtonState(true);
+        portScanErrorMessage.classList.remove('visible');
+        portScanResultCard.style.display = 'none';
+        
+        try {
+            await runPortScan(host, ports);
+        } catch(error) {
+            console.error("단독 포트 스캔 실행 오류:", error.message);
+        } finally {
+            setPortScanButtonState(false);
+        }
+    }
+
+    // 이벤트 리스너 연결
+    whoisSearchBtn.addEventListener('click', runCombinedDomainScan);
+    whoisDomainInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') runCombinedDomainScan();
+    });
+
+    portScanBtn.addEventListener('click', runStandalonePortScan);
+    portScanPortsInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') runStandalonePortScan();
+    });
+    portScanHostInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') runStandalonePortScan();
+    });
+
 </script>
 {% endblock %}

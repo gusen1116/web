@@ -115,12 +115,18 @@ def register_blueprints(app):
     from app.routes.main_routes import main_bp
     from app.routes.simulation import simulation_bp
     from app.routes.posts_routes import posts_bp
-    from app.routes.speedtest_routes import speedtest_bp    
+    from app.routes.speedtest_routes import speedtest_bp
+    # `whois`와 `utils` 블루프린트를 임포트합니다.
+    from app.routes.whois_routes import whois_bp
+    from app.routes.utils_routes import utils_bp
     
     app.register_blueprint(main_bp)
     app.register_blueprint(simulation_bp)
     app.register_blueprint(posts_bp)
     app.register_blueprint(speedtest_bp)
+    # 임포트한 블루프린트를 애플리케이션에 등록합니다.
+    app.register_blueprint(whois_bp)
+    app.register_blueprint(utils_bp)
     app.logger.info('모든 블루프린트 등록 완료')
 
 def register_error_handlers(app):
