@@ -111,10 +111,15 @@ html.theme-8bit .theme-toggle:hover .icon-8bit {
     transform: scale(1.1);
 }
 
+/* --- 수정된 부분 시작 --- */
 /* 모바일 토글 버튼 아이콘 */
 html.theme-8bit .mobile-toggle {
-    background-image: url('/static/img/icon/menu.png');
+    background-image: url('/static/img/icon/menu.png') !important;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 24px 24px;
 }
+/* --- 수정된 부분 끝 --- */
 
 html.theme-8bit .mobile-toggle.active {
     background-image: url('/static/img/icon/close.png');
@@ -129,11 +134,15 @@ html.theme-8bit .mobile-nav-link .default-icon {
     display: none;
 }
 
+/* --- 수정된 부분 시작 --- */
 html.theme-8bit .mobile-nav-link .nav-icon-8bit {
     display: inline-block;
     filter: var(--icon-filter);
+    width: 24px; /* 아이콘 공간 확보 */
+    height: 24px; /* 아이콘 공간 확보 */
+    flex-shrink: 0; /* 아이콘 크기 고정 */
 }
-
+/* --- 수정된 부분 끝 --- */
 
 /* 포스트 내용 하이퍼링크 아이콘 */
 html.theme-8bit .post-content a {

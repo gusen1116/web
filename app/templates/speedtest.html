@@ -173,7 +173,7 @@
     background-color: var(--danger);
   }
 
-  /* --- 수정된 부분: 세부 정보 및 Whois 결과 레이아웃 --- */
+  /* --- 수정된 부분: Grid 레이아웃으로 변경 --- */
   .detailed-info-section, #whoisResultContent {
     font-family: var(--font-sans);
   }
@@ -185,8 +185,8 @@
   }
   
   .detailed-info-section li, #whoisResultContent li {
-    display: flex;
-    justify-content: flex-start;
+    display: grid; /* Flex 대신 Grid 사용 */
+    grid-template-columns: 120px 1fr; /* 레이블 고정 너비, 값은 나머지 공간 차지 */
     align-items: baseline;
     gap: var(--spacing-4);
     padding: var(--spacing-2) 0;
@@ -200,16 +200,15 @@
 
   .detailed-info-section li strong, #whoisResultContent li strong {
     color: var(--text-primary);
-    flex: 0 0 120px; /* 고정 너비, 줄어들지 않음 */
     text-align: right;
     font-weight: 600;
   }
   
   .detailed-info-section li span, #whoisResultContent li span {
     color: var(--text-secondary);
-    flex: 1 1 auto; /* 남은 공간 차지, 필요시 줄어듦 */
-    word-break: break-all;
-    white-space: pre-wrap;
+    overflow-wrap: break-word; /* 긴 단어(URL 등) 강제 줄바꿈 */
+    word-wrap: break-word; /* 이전 브라우저 호환성 */
+    white-space: pre-wrap; /* 소스의 줄바꿈 유지 */
     line-height: 1.5;
   }
   /* --- 수정 끝 --- */
@@ -384,13 +383,12 @@
       grid-template-columns: 1fr;
     }
     .detailed-info-section li, #whoisResultContent li {
-        flex-direction: column;
+        grid-template-columns: 1fr; /* 모바일에서 단일 열로 변경 */
         align-items: flex-start;
         gap: var(--spacing-1);
     }
     .detailed-info-section li strong, #whoisResultContent li strong {
-        text-align: left;
-        flex-basis: auto;
+        text-align: left; /* 모바일에서 왼쪽 정렬 */
     }
   }
 </style>
