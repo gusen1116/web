@@ -173,25 +173,32 @@
     background-color: var(--danger);
   }
 
-  /* --- 수정된 부분: Grid 레이아웃으로 변경 --- */
+  /* --- 수정된 부분: 폭 문제 해결 --- */
   .detailed-info-section, #whoisResultContent {
     font-family: var(--font-sans);
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .detailed-info-section ul, #whoisResultContent ul {
     list-style: none;
     padding: 0;
     margin: 0;
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .detailed-info-section li, #whoisResultContent li {
-    display: grid; /* Flex 대신 Grid 사용 */
-    grid-template-columns: 120px 1fr; /* 레이블 고정 너비, 값은 나머지 공간 차지 */
+    display: grid;
+    grid-template-columns: minmax(100px, 120px) 1fr;
     align-items: baseline;
     gap: var(--spacing-4);
     padding: var(--spacing-2) 0;
     border-bottom: 1px solid var(--border-color);
     font-size: var(--font-size-sm);
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
   }
 
   .detailed-info-section li:last-child, #whoisResultContent li:last-child {
@@ -202,14 +209,19 @@
     color: var(--text-primary);
     text-align: right;
     font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   
   .detailed-info-section li span, #whoisResultContent li span {
     color: var(--text-secondary);
-    overflow-wrap: break-word; /* 긴 단어(URL 등) 강제 줄바꿈 */
-    word-wrap: break-word; /* 이전 브라우저 호환성 */
-    white-space: pre-wrap; /* 소스의 줄바꿈 유지 */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: pre-wrap;
     line-height: 1.5;
+    min-width: 0;
   }
   /* --- 수정 끝 --- */
 
@@ -273,7 +285,10 @@
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
-    display: none; /* 기본 숨김 */
+    display: none;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
   }
   
   /* --- Port Scan 섹션 스타일 --- */
@@ -326,7 +341,7 @@
     border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
-    display: none; /* 기본 숨김 */
+    display: none;
   }
   
   #portScanResultContent {
@@ -374,7 +389,7 @@
 
   @media (max-width: 768px) {
     .results-grid {
-        grid-template-columns: 1fr; /* 모바일에서는 1열로 */
+        grid-template-columns: 1fr;
     }
     .result-card p {
         font-size: var(--font-size-xl);
@@ -383,12 +398,13 @@
       grid-template-columns: 1fr;
     }
     .detailed-info-section li, #whoisResultContent li {
-        grid-template-columns: 1fr; /* 모바일에서 단일 열로 변경 */
+        grid-template-columns: 1fr;
         align-items: flex-start;
         gap: var(--spacing-1);
     }
     .detailed-info-section li strong, #whoisResultContent li strong {
-        text-align: left; /* 모바일에서 왼쪽 정렬 */
+        text-align: left;
+        margin-bottom: var(--spacing-1);
     }
   }
 </style>
