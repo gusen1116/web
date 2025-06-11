@@ -6,6 +6,8 @@
 
 {% block head %}
 {{ super() }}
+{# CSRF 토큰을 JavaScript에서 쉽게 접근할 수 있도록 메타 태그로 추가 #}
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <style nonce="{{ csp_nonce() }}">
 	/* --- 공통 컨테이너 --- */
 	.diagnostic-container {
@@ -173,7 +175,6 @@
 		background-color: var(--danger);
 	}
 
-	/* --- 수정된 부분: 폭 문제 해결 --- */
 	.detailed-info-section, #whoisResultContent {
 		font-family: var(--font-sans);
 		width: 100%;
@@ -223,7 +224,6 @@
 		line-height: 1.5;
 		min-width: 0;
 	}
-	/* --- 수정 끝 --- */
 
 	.detailed-info-section h2 {
 		font-size: var(--font-size-lg);
@@ -350,18 +350,11 @@
 		line-height: 1.8;
 	}
 
-	.port-status-open {
-		color: var(--success);
-		font-weight: 600;
-	}
-
-	.port-status-closed {
-		color: var(--danger);
-	}
-
-    .port-status-error {
-        color: var(--warning);
-    }
+	.port-status-open { color: var(--success); font-weight: 600; }
+	.port-status-closed { color: var(--danger); }
+    .port-status-error { color: var(--warning); }
+    /* 추가된 스타일: 로딩 상태 */
+    .port-status-loading { color: var(--text-tertiary); font-style: italic; }
 
 	.port-scan-grid {
 		display: grid;
@@ -375,17 +368,49 @@
         border-radius: 4px;
         background-color: var(--bg-tertiary);
         border: 1px solid var(--border-color);
+        opacity: 0; /* 애니메이션을 위해 초기 투명도 설정 */
+        transform: translateY(10px); /* 애니메이션을 위해 초기 위치 설정 */
+        animation: fadeIn 0.5s ease forwards;
     }
 
-    .port-scan-grid > div:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
     
     #scanProgress {
         font-weight: normal;
         color: var(--text-secondary);
         margin-left: 0.5rem;
+    }
+
+    /* 추가된 스타일: 필터 버튼 */
+    .filter-controls {
+        display: flex;
+        gap: var(--spacing-3);
+        margin-bottom: var(--spacing-4);
+        padding-bottom: var(--spacing-4);
+        border-bottom: 1px solid var(--border-color);
+    }
+    .filter-btn {
+        background-color: var(--bg-tertiary);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: var(--spacing-1) var(--spacing-3);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: var(--font-sans);
+    }
+    .filter-btn:hover {
+        background-color: var(--neutral-200);
+    }
+    .filter-btn.active {
+        background-color: var(--github-accent);
+        color: white;
+        border-color: var(--github-accent);
     }
 
 	/* --- 테마 및 반응형 스타일 --- */
@@ -409,6 +434,20 @@
 	html.dark-theme #whoisResultContent li {
 		border-bottom-color: var(--neutral-700);
 	}
+
+    html.dark-theme .filter-btn {
+        background-color: var(--bg-tertiary);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+    html.dark-theme .filter-btn:hover {
+        background-color: var(--neutral-700);
+    }
+    html.dark-theme .filter-btn.active {
+        background-color: var(--text-accent);
+        color: var(--bg-primary);
+        border-color: var(--text-accent);
+    }
 
 	@media (max-width: 768px) {
 		.results-grid {
@@ -833,12 +872,12 @@
 		} catch (error) {
 			showWhoisError(error.message);
 			whoisResultCard.style.display = 'none';
-			throw error; // Promise.allSettled에서 처리할 수 있도록 에러 다시 던지기
+			throw error; 
 		}
 	}
 	
 	// ===============================================
-	//               Port Scan (Real-time)
+	//         Port Scan (Real-time) - 수정된 버전
 	// ===============================================
 	const portScanHostInput = document.getElementById('portScanHostInput');
 	const portScanPortsInput = document.getElementById('portScanPortsInput');
@@ -847,12 +886,12 @@
 	const portScanResultContent = document.getElementById('portScanResultContent');
 	const portScanErrorMessage = document.getElementById('portScanErrorMessage');
 
-	let eventSource = null; // SSE 연결을 위한 변수
+	let eventSource = null;
 
 	function setPortScanButtonState(scanning) {
 		portScanBtn.disabled = scanning;
-		portScanBtn.innerHTML = scanning ? 
-			'<i class="fas fa-spinner fa-spin"></i> 스캔 중... <span id="scanProgress"></span>' : 
+		portScanBtn.innerHTML = scanning ?
+			'<i class="fas fa-spinner fa-spin"></i> 스캔 중... <span id="scanProgress"></span>' :
 			'<i class="fas fa-crosshairs"></i> 스캔 시작';
 	}
 
@@ -860,35 +899,39 @@
 		portScanErrorMessage.textContent = message;
 		portScanErrorMessage.classList.add('visible');
 	}
+    
+    // 포트 필터링 로직
+    function applyPortFilter(filter) {
+        const portItems = document.querySelectorAll('.port-scan-grid > div');
+        portItems.forEach(item => {
+            const status = item.dataset.status;
+            if (filter === 'all' || status === filter) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
 
-	// 실시간으로 포트 스캔 결과를 표시하는 함수
-	function displayPortResult(data) {
+        // 필터 버튼 활성 상태 업데이트
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.filter === filter);
+        });
+    }
+
+	// 실시간으로 포트 스캔 결과를 업데이트하는 함수
+	function updatePortResult(data) {
 		let portDiv = document.getElementById(`port-${data.port}`);
+		if (!portDiv) return; // 미리 생성된 div가 없으면 아무것도 하지 않음
+
+		const status = data.error ? 'error' : data.status.toLowerCase();
+		const statusClass = `port-status-${status}`;
 		
-		if (!portDiv) {
-			// 새로운 포트 결과 생성
-			const grid = document.getElementById('portScanGrid') || createPortScanGrid();
-			portDiv = document.createElement('div');
-			portDiv.id = `port-${data.port}`;
-			portDiv.style.opacity = '0';
-			portDiv.style.transform = 'translateY(10px)';
-			portDiv.style.transition = 'all 0.3s ease';
-			grid.appendChild(portDiv);
-			
-			// 애니메이션 효과
-			setTimeout(() => {
-				portDiv.style.opacity = '1';
-				portDiv.style.transform = 'translateY(0)';
-			}, 10);
-		}
-		
-		// 상태에 따른 색상 설정
-		const statusClass = data.status === 'Open' ? 'port-status-open' :
-							data.error ? 'port-status-error' : 'port-status-closed';
-		
+        // 데이터 속성과 클래스 업데이트
+        portDiv.dataset.status = status;
+        portDiv.className = ''; // 기존 클래스 초기화
+        
 		portDiv.innerHTML = `<span>Port ${data.port}:</span> <span class="${statusClass}">${data.status}</span>`;
-		
-		// 진행률 업데이트
+
 		if (data.progress) {
 			const progressSpan = document.getElementById('scanProgress');
 			if (progressSpan) {
@@ -896,14 +939,39 @@
 			}
 		}
 	}
+    
+    // 스캔 시작 시 포트 그리드를 미리 생성하는 함수
+    function setupPortGrid(ports, host, ip, total) {
+        portScanResultContent.innerHTML = `
+            <div style="margin-bottom: 1rem;">
+                <strong>호스트:</strong> ${host} (${ip})<br>
+                <strong>총 포트 수:</strong> ${total}
+            </div>
+            <div class="filter-controls">
+                <button class="filter-btn active" data-filter="all">전체</button>
+                <button class="filter-btn" data-filter="open">열림</button>
+                <button class="filter-btn" data-filter="closed">닫힘</button>
+            </div>
+            <div id="portScanGrid" class="port-scan-grid"></div>
+        `;
 
-	function createPortScanGrid() {
-		const grid = document.createElement('div');
-		grid.id = 'portScanGrid';
-		grid.className = 'port-scan-grid';
-		portScanResultContent.appendChild(grid);
-		return grid;
-	}
+        const grid = document.getElementById('portScanGrid');
+        
+        ports.forEach(port => {
+            const portDiv = document.createElement('div');
+            portDiv.id = `port-${port}`;
+            portDiv.dataset.status = 'loading'; // 초기 상태
+            portDiv.innerHTML = `<span>Port ${port}:</span> <span class="port-status-loading">스캔 중...</span>`;
+            grid.appendChild(portDiv);
+        });
+        
+        // 필터 버튼에 이벤트 리스너 추가
+        document.querySelector('.filter-controls').addEventListener('click', (e) => {
+            if (e.target.classList.contains('filter-btn')) {
+                applyPortFilter(e.target.dataset.filter);
+            }
+        });
+    }
 
 	function parsePortRange(portString) {
 		const ports = [];
@@ -916,78 +984,125 @@
 				if (!isNaN(start) && !isNaN(end)) {
 					const rangeStart = Math.min(start, end);
 					const rangeEnd = Math.max(start, end);
-					
-					// 범위가 너무 크면 경고
 					if (rangeEnd - rangeStart > 2000) {
 						showPortScanError(`포트 범위 ${rangeStart}-${rangeEnd}가 너무 큽니다. 최대 2000개까지 가능합니다.`);
 						return null;
 					}
-					
 					for (let i = rangeStart; i <= rangeEnd; i++) {
-						if (i >= 1 && i <= 65535) {
-							ports.push(i);
-						}
+						if (i >= 1 && i <= 65535) ports.push(i);
 					}
 				}
 			} else {
 				const port = parseInt(trimmed);
-				if (!isNaN(port) && port >= 1 && port <= 65535) {
-					ports.push(port);
-				}
+				if (!isNaN(port) && port >= 1 && port <= 65535) ports.push(port);
 			}
 		}
 		
-		// 중복 제거
 		const uniquePorts = [...new Set(ports)];
-		
 		if (uniquePorts.length > 2000) {
 			showPortScanError('한 번에 스캔할 수 있는 최대 포트 수는 2000개입니다.');
 			return null;
 		}
-		
 		return uniquePorts.sort((a, b) => a - b);
 	}
 
+	// 수정된 포트 스캔 함수 - CSRF 토큰과 FormData 사용
 	async function runPortScanRealtime(host, ports) {
-		// 이전 EventSource 연결이 있으면 닫기
-		if (eventSource) {
-			eventSource.close();
-		}
+		if (eventSource) eventSource.close();
 		
-		portScanResultContent.innerHTML = '<div style="text-align:center; margin-bottom: 1rem;"><i class="fas fa-spinner fa-spin"></i> 포트 스캔을 시작합니다...</div>';
 		portScanResultCard.style.display = 'block';
+		portScanResultContent.innerHTML = '<div style="text-align:center; margin-bottom: 1rem;"><i class="fas fa-spinner fa-spin"></i> 포트 스캔을 시작합니다...</div>';
 		
-		const formData = new FormData();
-		formData.append('host', host);
-		formData.append('ports', JSON.stringify(ports)); // 포트 목록을 JSON 문자열로 전송
-		
-		try {
-			// Server-Sent Events를 사용한 실시간 스트리밍
-			// 백엔드 엔드포인트를 /start_portscan 으로 가정합니다.
-			const response = await fetch('/start_portscan', {
-				method: 'POST',
-				body: formData
-			});
+		// CSRF 토큰 가져오기 함수
+		function getCSRFToken() {
+			// 1. Meta 태그에서 가져오기 (가장 권장되는 방법)
+			const metaToken = document.querySelector('meta[name="csrf-token"]');
+			if (metaToken) return metaToken.getAttribute('content');
 			
-			if (!response.ok) {
-				const error = await response.json();
-				throw new Error(error.error || '포트 스캔 시작 실패');
+			// 2. Flask가 템플릿에 주입한 전역 변수에서 가져오기
+			if (typeof csrf_token !== 'undefined') return csrf_token;
+			
+			// 3. 쿠키에서 가져오기 (백업 방법)
+			const cookies = document.cookie.split(';');
+			for (let cookie of cookies) {
+				const [name, value] = cookie.trim().split('=');
+				if (name === 'csrf_token') return decodeURIComponent(value);
 			}
 			
-			// 텍스트 스트림으로 읽기
+			console.warn('CSRF 토큰을 찾을 수 없습니다');
+			return null;
+		}
+		
+		try {
+			// FormData를 사용하여 서버가 기대하는 형식으로 데이터 전송
+			const formData = new FormData();
+			formData.append('host', host);
+			formData.append('ports', JSON.stringify(ports));
+			
+			// CSRF 토큰이 있으면 추가 (선택사항, @csrf.exempt를 사용하고 있으므로)
+			const csrfToken = getCSRFToken();
+			if (csrfToken) {
+				formData.append('csrf_token', csrfToken);
+			}
+			
+			const response = await fetch('/start_portscan', {
+				method: 'POST',
+				body: formData,
+				credentials: 'same-origin', // 쿠키를 포함하여 전송
+				headers: {
+					'Accept': 'text/event-stream',
+					// FormData 사용 시 Content-Type은 브라우저가 자동으로 설정합니다
+				}
+			});
+			
+			// 응답 타입 확인
+			const contentType = response.headers.get('content-type');
+			
+			// 에러 응답 처리
+			if (!response.ok) {
+				let errorMessage;
+				try {
+					if (contentType && contentType.includes('application/json')) {
+						const error = await response.json();
+						errorMessage = error.error || `포트 스캔 시작 실패 (${response.status})`;
+					} else {
+						const text = await response.text();
+						console.error('서버 응답 (처음 500자):', text.substring(0, 500));
+						
+						// 에러 패턴을 확인하여 사용자에게 친화적인 메시지 제공
+						if (text.includes('CSRF') || text.includes('csrf')) {
+							errorMessage = 'CSRF 토큰 검증 실패. 페이지를 새로고침하고 다시 시도하세요.';
+						} else if (response.status === 404) {
+							errorMessage = '포트 스캔 엔드포인트를 찾을 수 없습니다. 서버 설정을 확인하세요.';
+						} else if (response.status === 405) {
+							errorMessage = '잘못된 요청 방식입니다. POST 메소드가 허용되는지 확인하세요.';
+						} else if (response.status === 400) {
+							errorMessage = '잘못된 요청입니다. 입력값을 확인하세요.';
+						} else {
+							errorMessage = `서버 오류: HTTP ${response.status}`;
+						}
+					}
+				} catch (e) {
+					errorMessage = `포트 스캔 시작 실패: ${response.status} (응답 파싱 실패)`;
+				}
+				throw new Error(errorMessage);
+			}
+			
+			// text/event-stream 응답인지 확인
+			if (!contentType || !contentType.includes('text/event-stream')) {
+				console.warn('예상한 content-type이 아님:', contentType);
+			}
+			
+			// SSE 스트림 읽기
 			const reader = response.body.getReader();
 			const decoder = new TextDecoder();
-			
 			let buffer = '';
 			
 			while (true) {
 				const { done, value } = await reader.read();
-				
 				if (done) break;
 				
 				buffer += decoder.decode(value, { stream: true });
-				
-				// 줄 단위로 처리
 				const lines = buffer.split('\n');
 				buffer = lines.pop() || '';
 				
@@ -997,21 +1112,19 @@
 							const data = JSON.parse(line.substring(6));
 							
 							if (data.status === 'start') {
-								portScanResultContent.innerHTML = `
-									<div style="margin-bottom: 1rem;">
-										<strong>호스트:</strong> ${data.host} (${data.ip})<br>
-										<strong>총 포트 수:</strong> ${data.total}
-									</div>
-								`;
-								createPortScanGrid();
+								// 스캔 시작 - 포트 그리드 설정
+                                setupPortGrid(ports, data.host, data.ip, data.total);
 							} else if (data.status === 'finished') {
+								// 스캔 완료
 								setPortScanButtonState(false);
 								const progressSpan = document.getElementById('scanProgress');
-								if (progressSpan) {
-									progressSpan.parentElement.innerHTML = '<i class="fas fa-check"></i> 완료!';
-								}
+								if (progressSpan) progressSpan.parentElement.innerHTML = '<i class="fas fa-check"></i> 완료!';
+							} else if (data.error) {
+								// 서버에서 보낸 에러 메시지
+								showPortScanError(`스캔 중 오류: ${data.error}`);
 							} else if (data.port) {
-								displayPortResult(data);
+								// 개별 포트 결과 업데이트
+								updatePortResult(data);
 							}
 						} catch (e) {
 							console.error('JSON 파싱 오류:', e, "받은 데이터:", line);
@@ -1020,8 +1133,10 @@
 				}
 			}
 		} catch (error) {
+			console.error('포트 스캔 오류:', error);
 			showPortScanError(error.message);
 			portScanResultCard.style.display = 'none';
+			setPortScanButtonState(false);
 			throw error;
 		}
 	}
@@ -1034,7 +1149,6 @@
 			showPortScanError("스캔할 호스트 이름을 입력해주세요.");
 			return;
 		}
-
 		if (!portsInput) {
 			portScanErrorMessage.classList.remove('visible');
 			portScanResultContent.innerHTML = '<div style="text-align:center; color: var(--text-tertiary);">스캔할 포트가 입력되지 않았습니다.</div>';
@@ -1042,11 +1156,8 @@
 			return;
 		}
 		
-		// 포트 범위 파싱
 		const ports = parsePortRange(portsInput);
-		if (!ports) {
-			return; // 파싱 오류는 parsePortRange에서 처리
-		}
+		if (!ports) return;
 
 		setPortScanButtonState(true);
 		portScanErrorMessage.classList.remove('visible');
@@ -1056,13 +1167,10 @@
 			await runPortScanRealtime(host, ports);
 		} catch(error) {
 			console.error("단독 포트 스캔 실행 오류:", error.message);
-			// 에러 발생 시 버튼 상태를 원복시킵니다.
 			setPortScanButtonState(false);
 		}
 	}
-
 	
-	// --- 통합 실행 로직 ---
 	async function runCombinedDomainScan() {
 		const domain = whoisDomainInput.value.trim();
 		if (!domain) {
@@ -1077,12 +1185,12 @@
 		portScanResultCard.style.display = 'none';
 
 		portScanHostInput.value = domain;
-		// Whois 조회 시 기본 포트 스캔 실행 (실시간으로)
-		const defaultPorts = '80,443,8080';
+		const defaultPorts = '21,22,23,25,53,80,110,143,443,465,587,993,995,3306,3389,5900,8080,8443';
 		portScanPortsInput.value = defaultPorts;
 		
 		const portsToScan = parsePortRange(defaultPorts);
 
+		setPortScanButtonState(true); // 포트 스캔 버튼도 비활성화
 		const [whoisResult, portScanResult] = await Promise.allSettled([
 			runWhoisLookup(domain),
 			portsToScan ? runPortScanRealtime(domain, portsToScan) : Promise.reject(new Error("기본 포트 파싱 실패"))
@@ -1093,7 +1201,6 @@
 		}
 		if (portScanResult.status === 'rejected') {
 			console.error("포트 스캔 실패:", portScanResult.reason.message);
-            // 포트 스캔만 실패했을 경우를 대비해 버튼 상태를 여기서도 제어
             setPortScanButtonState(false);
 		}
 		
@@ -1113,6 +1220,12 @@
 	portScanHostInput.addEventListener('keydown', (event) => {
 		if (event.key === 'Enter') runStandalonePortScan();
 	});
-
+	
+	// 페이지 언로드 시 이벤트 소스 정리
+	window.addEventListener('beforeunload', () => {
+		if (eventSource) {
+			eventSource.close();
+		}
+	});
 </script>
 {% endblock %}

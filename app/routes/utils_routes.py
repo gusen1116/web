@@ -1,11 +1,11 @@
 # app/routes/utils_routes.py
-
-from flask import Blueprint, render_template, request, Response, stream_with_context, jsonify
+from flask import Blueprint, render_template, request, Response, stream_with_context, jsonify, current_app
 import socket
 import concurrent.futures
 import json
+from app import csrf # CSRF 객체를 import 합니다.
 
-# 유틸리티 기능을 위한 블루프린트 생성
+# 유틸리티 기능을 위한 블루프린트 생성.
 utils_bp = Blueprint('utils_bp', __name__)
 
 def is_valid_host(host):
@@ -45,45 +45,68 @@ def port_scanner_page():
     # 이 페이지는 현재 사용되지 않으므로 필요 시 구현합니다.
     return render_template('port_scanner.html')
 
+# --- 수정된 부분: JSON과 FormData 모두 지원 ---
 @utils_bp.route('/start_portscan', methods=['POST'])
+@csrf.exempt
 def start_portscan():
     """
     포트 스캔을 시작하고 결과를 스트리밍합니다.
-    (클라이언트-서버 데이터 불일치 문제 해결 버전)
+    JSON 요청과 Form 데이터 모두 지원합니다.
     """
-    host = request.form.get('host')
-    ports_json_str = request.form.get('ports') # [핵심 수정 1] 'ports' 필드를 가져옵니다.
+    # Content-Type 확인하여 적절한 방식으로 데이터 추출
+    if request.is_json:
+        # JSON 요청 처리
+        data = request.get_json()
+        host = data.get('host')
+        ports_to_scan = data.get('ports', [])
+        
+        # ports가 문자열로 전달된 경우 JSON 파싱
+        if isinstance(ports_to_scan, str):
+            try:
+                ports_to_scan = json.loads(ports_to_scan)
+            except json.JSONDecodeError:
+                return Response(json.dumps({'error': '유효하지 않은 포트 형식입니다.'}), 
+                              status=400, mimetype='application/json')
+    else:
+        # Form 데이터 처리
+        host = request.form.get('host')
+        ports_json_str = request.form.get('ports')
+        
+        # 포트 목록 파싱
+        try:
+            if not ports_json_str:
+                return Response(json.dumps({'error': '포트 목록이 비어있습니다.'}), 
+                              status=400, mimetype='application/json')
+            
+            ports_to_scan = json.loads(ports_json_str)
+        except (json.JSONDecodeError, ValueError) as e:
+            return Response(json.dumps({'error': f'유효하지 않은 포트 형식입니다: {e}'}), 
+                          status=400, mimetype='application/json')
 
     # 호스트 이름 유효성 검사
     if not host or not is_valid_host(host):
-        return Response(json.dumps({'error': '유효하지 않거나 비어있는 호스트 이름/IP 주소입니다.'}), status=400, mimetype='application/json')
+        return Response(json.dumps({'error': '유효하지 않거나 비어있는 호스트 이름/IP 주소입니다.'}), 
+                      status=400, mimetype='application/json')
 
-    # [핵심 수정 2] 클라이언트에서 받은 JSON 형식의 포트 목록을 파싱합니다.
-    try:
-        if not ports_json_str:
-            return Response(json.dumps({'error': '포트 목록이 비어있습니다.'}), status=400, mimetype='application/json')
-        
-        ports_to_scan = json.loads(ports_json_str)
-
-        if not isinstance(ports_to_scan, list) or not all(isinstance(p, int) for p in ports_to_scan):
-             raise ValueError("포트 목록은 정수형 배열이어야 합니다.")
-
-    except (json.JSONDecodeError, ValueError) as e:
-        return Response(json.dumps({'error': f'유효하지 않은 포트 형식입니다: {e}'}), status=400, mimetype='application/json')
+    # 포트 목록 유효성 검사
+    if not isinstance(ports_to_scan, list) or not all(isinstance(p, int) for p in ports_to_scan):
+        return Response(json.dumps({'error': '포트 목록은 정수형 배열이어야 합니다.'}), 
+                      status=400, mimetype='application/json')
     
     # 스캔 전 호스트 이름을 IP로 한 번만 변환
     try:
         target_ip = socket.gethostbyname(host)
     except socket.gaierror:
-        return Response(json.dumps({'error': f"호스트 이름 '{host}'을(를) 확인할 수 없습니다."}), status=400, mimetype='application/json')
+        return Response(json.dumps({'error': f"호스트 이름 '{host}'을(를) 확인할 수 없습니다."}), 
+                      status=400, mimetype='application/json')
     
     # 포트 개수 제한 검사
     if len(ports_to_scan) > 2000:
-        return Response(json.dumps({'error': '한 번에 스캔할 수 있는 최대 포트 수는 2000개입니다.'}), status=400, mimetype='application/json')
+        return Response(json.dumps({'error': '한 번에 스캔할 수 있는 최대 포트 수는 2000개입니다.'}), 
+                      status=400, mimetype='application/json')
 
     def generate_results():
         """포트를 스캔하고 결과를 생성(yield)하는 제너레이터 함수입니다."""
-        # [핵심 수정 3] range 대신 파싱된 포트 리스트를 사용합니다.
         total_ports = len(ports_to_scan)
         
         # 스캔 시작 메시지
@@ -126,10 +149,40 @@ def start_portscan():
         # 모든 스캔이 완료되었음을 알리는 메시지 전송
         yield f"data: {json.dumps({'status': 'finished', 'total_scanned': scanned_count})}\n\n"
 
-    # 스트리밍 응답을 반환
-    return Response(stream_with_context(generate_results()), mimetype='text/event-stream')
+    # 스트리밍 응답을 반환 - SSE(Server-Sent Events) 형식
+    response = Response(stream_with_context(generate_results()), mimetype='text/event-stream')
+    response.headers['Cache-Control'] = 'no-cache'
+    response.headers['X-Accel-Buffering'] = 'no'
+    return response
+    
+@utils_bp.route('/api/dns-lookup/<domain_name>')
+def dns_lookup(domain_name):
+    """
+    주어진 도메인 이름에 대한 DNS 조회를 수행하여 연결된 모든 IP 주소를 찾습니다.
+    """
+    if not domain_name or not is_valid_host(domain_name):
+        return jsonify({'error': '유효하지 않거나 비어있는 도메인 이름입니다.'}), 400
 
-# API 엔드포인트는 기존 코드를 유지해도 좋습니다.
+    try:
+        # getaddrinfo는 IPv4와 IPv6 주소를 모두 확인할 수 있습니다.
+        results = socket.getaddrinfo(domain_name, None)
+        
+        # 고유한 IP 주소만 추출합니다.
+        ip_addresses = sorted(list(set(res[4][0] for res in results)))
+        
+        if not ip_addresses:
+            return jsonify({'error': f"'{domain_name}'에 대한 IP 주소를 찾을 수 없습니다."}), 404
+            
+        return jsonify({
+            'domain': domain_name,
+            'ip_addresses': ip_addresses
+        })
+    except socket.gaierror:
+        return jsonify({'error': f"호스트 이름 '{domain_name}'을(를) 확인할 수 없습니다."}), 404
+    except Exception as e:
+        current_app.logger.error(f"DNS 조회 중 오류 발생: {e}")
+        return jsonify({'error': 'DNS 조회 중 서버 오류가 발생했습니다.'}), 500
+
 @utils_bp.route('/api/utils/port_scan', methods=['GET'])
 def api_port_scan():
     """API 형태의 포트 스캔 엔드포인트"""
