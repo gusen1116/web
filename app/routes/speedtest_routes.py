@@ -34,9 +34,11 @@ def download_test_file():
     size_mb_str_from_request = request.args.get('size_mb', '10')
     try:
         size_mb_float = float(size_mb_str_from_request)
-        if not (0.1 <= size_mb_float <= 100):
+        # 아래 줄의 100을 150으로 수정했습니다.
+        if not (0.1 <= size_mb_float <= 150):
             current_app.logger.warning(f"다운로드 테스트: 요청된 파일 크기 범위를 벗어남 ({size_mb_float}MB)")
-            raise ValueError("크기 범위를 벗어났습니다 (0.1MB ~ 100MB).")
+            # 아래 에러 메시지의 100MB를 150MB로 수정했습니다.
+            raise ValueError("크기 범위를 벗어났습니다 (0.1MB ~ 150MB).")
 
         total_bytes_to_send = int(size_mb_float * 1024 * 1024)
         one_mb_chunk = b'0' * (1024 * 1024)

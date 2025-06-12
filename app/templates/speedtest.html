@@ -574,8 +574,9 @@
 
 	const API_PREFIX = "{{ url_for('speedtest.speedtest_page').rstrip('/') }}";
 	const PING_COUNT = 10;
-	const DOWNLOAD_TOTAL_SIZE_MB = 25;
-	const UPLOAD_TOTAL_SIZE_MB = 10;
+	// 아래 두 줄의 값을 150으로 수정했습니다.
+	const DOWNLOAD_TOTAL_SIZE_MB = 150;
+	const UPLOAD_TOTAL_SIZE_MB = 150;
 	const NUM_PARALLEL_CONNECTIONS = 4;
 
 	function updatePingUI(value, jitterVal) {

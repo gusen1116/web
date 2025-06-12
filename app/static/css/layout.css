@@ -131,6 +131,7 @@ h1, h2, h3, h4, h5, h6 { /* 기본 헤딩 z-index */
   border-radius: 0;
   height: 60px;
   margin: 0;
+  -webkit-tap-highlight-color: transparent; /* 터치 하이라이트 제거 */
 }
 
 .desktop-nav a:hover {
@@ -187,6 +188,7 @@ h1, h2, h3, h4, h5, h6 { /* 기본 헤딩 z-index */
   margin: 0;
   position: relative;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .theme-toggle:hover {
@@ -209,6 +211,7 @@ h1, h2, h3, h4, h5, h6 { /* 기본 헤딩 z-index */
   justify-content: center;
   flex-direction: column;
   gap: 4px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .mobile-toggle:hover {
@@ -236,26 +239,30 @@ h1, h2, h3, h4, h5, h6 { /* 기본 헤딩 z-index */
   transform: rotate(-45deg) translate(5px, -5px);
 }
 
-/* ===== 모바일 네비게이션 메뉴 (구조) ===== */
+/* ===== 모바일 네비게이션 메뉴 (애니메이션 최적화) ===== */
 .mobile-nav {
   position: fixed;
   top: 0;
-  right: -100%; /* 기본적으로 화면 밖에 위치 */
-  width: 320px; /* 너비 고정 또는 max-width 사용 */
-  max-width: 80vw; /* 화면 너비의 80%를 넘지 않도록 */
+  right: 0;
+  width: 320px;
+  max-width: 80vw;
   height: 100vh;
   background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
-  z-index: 1001; /* 헤더보다 위에 오도록 */
+  z-index: 1001;
   overflow-y: auto;
-  transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0.4s;
   box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
   border-left: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
+  transform: translateX(100%);
+  visibility: hidden;
+  will-change: transform; /* 애니메이션 힌트 */
 }
 
 .mobile-nav.active {
-  right: 0;
+  transform: translateX(0);
+  visibility: visible;
 }
 
 .mobile-nav-header {
@@ -278,6 +285,7 @@ h1, h2, h3, h4, h5, h6 { /* 기본 헤딩 z-index */
   padding: var(--spacing-2); border-radius: 6px;
   transition: all 0.2s ease; width: 36px; height: 36px;
   display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent;
 }
 .mobile-nav-close:hover { background-color: var(--bg-tertiary); transform: rotate(90deg); }
 
@@ -286,7 +294,6 @@ h1, h2, h3, h4, h5, h6 { /* 기본 헤딩 z-index */
 .mobile-nav-item { margin: 0; border-bottom: 1px solid rgba(var(--border-color), 0.3); }
 .mobile-nav-item:last-child { border-bottom: none; }
 
-/* ===== 수정된 부분: 모바일 내비게이션 링크 정렬 문제 해결 ===== */
 .mobile-nav-link {
   display: flex; 
   align-items: center; 
@@ -303,6 +310,7 @@ h1, h2, h3, h4, h5, h6 { /* 기본 헤딩 z-index */
   background: none; 
   cursor: pointer;
   width: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 .mobile-nav-link::before {
   content: ''; 
@@ -341,8 +349,6 @@ h1, h2, h3, h4, h5, h6 { /* 기본 헤딩 z-index */
 .mobile-nav-link:hover i:last-child { 
   transform: translateX(4px); 
 }
-/* ===== 수정 끝 ===== */
-
 
 .mobile-theme-item {
   border-top: 2px solid var(--border-color);
@@ -355,6 +361,7 @@ h1, h2, h3, h4, h5, h6 { /* 기본 헤딩 z-index */
   border-radius: 13px; position: relative;
   transition: background-color 0.3s ease;
   border: 2px solid var(--border-color);
+  -webkit-tap-highlight-color: transparent;
 }
 .theme-switch-slider {
   width: 20px; height: 20px;
@@ -382,6 +389,7 @@ h1, h2, h3, h4, h5, h6 { /* 기본 헤딩 z-index */
   background-color: var(--bg-tertiary); color: var(--text-primary);
   text-decoration: none; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   border: 1px solid var(--border-color);
+  -webkit-tap-highlight-color: transparent;
 }
 .mobile-nav-social a:hover {
   background-color: var(--github-accent); color: white;
@@ -400,6 +408,7 @@ h1, h2, h3, h4, h5, h6 { /* 기본 헤딩 z-index */
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
 
@@ -424,7 +433,7 @@ h1, h2, h3, h4, h5, h6 { /* 기본 헤딩 z-index */
 .footer-logo { margin-left: var(--spacing-3); display: flex; align-items: center; }
 .footer-logo img { height: 24px; width: auto; }
 .footer-links { display: flex; gap: var(--spacing-4); }
-.footer-links a { color: var(--text-tertiary); display: flex; align-items: center; gap: var(--spacing-2); transition: color var(--transition-fast); font-family: var(--font-sans); font-size: 0.85rem; }
+.footer-links a { color: var(--text-tertiary); display: flex; align-items: center; gap: var(--spacing-2); transition: color var(--transition-fast); font-family: var(--font-sans); font-size: 0.85rem; -webkit-tap-highlight-color: transparent;}
 .footer-links a:hover { color: var(--text-accent); }
 
 /* 섹션 간 일관된 간격 */
@@ -478,7 +487,7 @@ body.nav-open {
   main .container { padding: var(--spacing-6) var(--spacing-4); }
 
   @media (max-width: 400px) {
-    .mobile-nav { width: 100%; right: -100%; max-width: 100%; }
+    .mobile-nav { width: 100%; max-width: 100%; transform: translateX(100%); }
   }
 }
 
@@ -507,8 +516,33 @@ html.dark-theme .mobile-nav-header, html.dark-theme .mobile-nav-footer {
 }
 
 
-@media (max-width: 1200px) {
-  .top-header .container, .footer-content {
-    max-width: var(--header-width) !important;
+/* ... 기존 layout.css 코드 ... */
+
+/* ===== 추가된 부분: 왼쪽 헤더 컨트롤 ===== */
+.header-controls-left {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--spacing-4);
+  height: 100%;
+}
+
+/* 스페셜 테마 아이콘은 항상 보이도록 설정 */
+.header-controls-left .theme-toggle .theme-icon {
+  display: flex;
+}
+
+/* 데스크톱 네비게이션과 로고 영역 사이의 공간 조정 */
+.desktop-nav {
+  margin-left: var(--spacing-4);
+}
+
+@media (max-width: 768px) {
+  /* 모바일에서는 왼쪽 컨트롤 숨기기 (기존 토글 버튼만 사용) */
+  .header-controls-left {
+    display: none;
+  }
+  .desktop-nav {
+    margin-left: 0;
   }
 }

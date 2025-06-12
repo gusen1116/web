@@ -34,9 +34,10 @@ html.theme-8bit {
 html.theme-8bit body,
 html.theme-8bit img,
 html.theme-8bit .mobile-toggle {
-    image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast; /* Webkit 호환성 */
     image-rendering: crisp-edges;
+    image-rendering: pixelated;
 }
 
 html.theme-8bit .top-header,
@@ -44,8 +45,8 @@ html.theme-8bit .card,
 html.theme-8bit .post-card,
 html.theme-8bit .simulation-card,
 html.theme-8bit .intro-container,
-html.theme-8bit .speedtest-container,
-html.theme-8bit .footer-content {
+html.theme-8bit .diagnostic-container, /* speedtest 컨테이너 추가 */
+html.theme-8bit footer {
     border-style: solid;
     border-width: 2px;
     box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
@@ -61,7 +62,9 @@ html.theme-8bit .simulation-card:hover {
 
 html.theme-8bit .btn,
 html.theme-8bit #startTestBtn,
-html.theme-8bit .toggle-button {
+html.theme-8bit .toggle-button,
+html.theme-8bit #whoisSearchBtn,
+html.theme-8bit #portScanBtn {
     border-radius: 0;
     border-width: 2px;
     border-style: solid;
@@ -71,7 +74,9 @@ html.theme-8bit .toggle-button {
 
 html.theme-8bit .btn:hover,
 html.theme-8bit #startTestBtn:hover,
-html.theme-8bit .toggle-button:hover {
+html.theme-8bit .toggle-button:hover,
+html.theme-8bit #whoisSearchBtn:hover,
+html.theme-8bit #portScanBtn:hover {
     transform: translate(-2px, -2px);
     box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
 }
@@ -99,7 +104,7 @@ html.theme-8bit .slide-indicator.active {
 
 /* 4. 아이콘 관련 재정의 (Overrides) */
 
-/* 테마 토글 버튼: 8비트 모드일 때 아이콘 크기 확대 및 필터 적용 */
+/* 테마 토글 버튼 아이콘 */
 html.theme-8bit .theme-toggle .icon-8bit {
     width: 36px;
     height: 36px;
@@ -111,15 +116,13 @@ html.theme-8bit .theme-toggle:hover .icon-8bit {
     transform: scale(1.1);
 }
 
-/* --- 수정된 부분 시작 --- */
 /* 모바일 토글 버튼 아이콘 */
 html.theme-8bit .mobile-toggle {
-    background-image: url('/static/img/icon/menu.png') !important;
+    background-image: url('/static/img/icon/menu.png');
     background-repeat: no-repeat;
     background-position: center;
     background-size: 24px 24px;
 }
-/* --- 수정된 부분 끝 --- */
 
 html.theme-8bit .mobile-toggle.active {
     background-image: url('/static/img/icon/close.png');
@@ -134,15 +137,13 @@ html.theme-8bit .mobile-nav-link .default-icon {
     display: none;
 }
 
-/* --- 수정된 부분 시작 --- */
 html.theme-8bit .mobile-nav-link .nav-icon-8bit {
     display: inline-block;
     filter: var(--icon-filter);
-    width: 24px; /* 아이콘 공간 확보 */
-    height: 24px; /* 아이콘 공간 확보 */
-    flex-shrink: 0; /* 아이콘 크기 고정 */
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
 }
-/* --- 수정된 부분 끝 --- */
 
 /* 포스트 내용 하이퍼링크 아이콘 */
 html.theme-8bit .post-content a {
@@ -201,4 +202,30 @@ html.theme-8bit .progress-bar {
 @keyframes progress-bar-stripes {
   from { background-position: 40px 0; }
   to { background-position: 0 0; }
+}
+
+/* 5. 8비트 테마 푸터 아이콘 */
+html.theme-8bit .footer-links i {
+    /* Font Awesome 글자 아이콘 숨기기 */
+    font-size: 0;
+    /* 아이콘 이미지 표시를 위한 공간 확보 */
+    width: 24px;
+    height: 24px;
+    /* 배경 이미지 설정 */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    /* 다른 아이콘들과 색상 톤을 맞추기 위한 필터 적용 */
+    filter: var(--icon-filter);
+    display: inline-block; /* 이미지가 보이도록 display 속성 추가 */
+}
+
+/* GitHub 아이콘 설정 */
+html.theme-8bit .footer-links .footer-icon-github {
+    background-image: url('/static/img/icon/github.png');
+}
+
+/* 메일 아이콘 설정 */
+html.theme-8bit .footer-links .footer-icon-mail {
+    background-image: url('/static/img/icon/mail.png');
 }

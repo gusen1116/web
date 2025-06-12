@@ -200,7 +200,6 @@ figure.post-image.size-full img { max-width: 100%; }
 .video-embed { background-color: #000; }
 .audio-embed { padding: 1rem; background-color: #f6f8fa; border: 1px solid #d0d7de; }
 
-
 .video-embed figcaption, .audio-caption { /* audio-embed figcaption -> audio-caption */
   margin-top: 0.5rem;
   color: #57606a;
@@ -211,14 +210,14 @@ figure.post-image.size-full img { max-width: 100%; }
 
 /* ===== 5. 소셜 미디어 임베드 (social-embed.css 내용 통합) ===== */
 .social-embed {
-  width: 100%; /* 기존 55rem에서 변경 */
-  max-width: 880px; /* social-embed.css 와 동일하게 */
+  width: 100%;
+  max-width: 880px;
   margin: 2rem auto;
   border-radius: 6px;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
-  background-color: #ffffff; /* social-embed.css 에 있던 내용 추가 */
+  background-color: #ffffff;
 }
 
 html.dark-theme .social-embed {
@@ -227,7 +226,7 @@ html.dark-theme .social-embed {
 }
 
 .social-embed pre,
-.social-embed code { /* 코드 블록 충돌 방지 */
+.social-embed code {
   background: none !important;
   padding: 0 !important;
   margin: 0 !important;
@@ -236,42 +235,30 @@ html.dark-theme .social-embed {
   border-radius: 0 !important;
 }
 
-.youtube-embed { /* enhanced-content.css 기존 정의와 social-embed.css 정의가 유사. 하나로 통합 */
-  aspect-ratio: 16 / 9; /* social-embed.css 에서 가져옴 */
-  position: relative;
-  width: 100%; /* 기존 55rem 에서 변경 */
-  max-width: 880px; /* social-embed.css 와 동일하게 */
-  margin: 2rem auto;
-  padding-bottom: 0; /* aspect-ratio 사용시 padding-bottom 불필요 */
-  height: auto; /* aspect-ratio 사용시 height: auto */
-  overflow: hidden;
-  background-color: #000; /* social-embed.css 에서 가져옴 */
-  border-radius: 6px;
-}
-
-.youtube-embed iframe {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-.twitch-embed {
-  aspect-ratio: 16 / 9;
+/* YouTube, Twitch 임베드 - aspect-ratio 폴백 추가 */
+.youtube-embed, .twitch-embed {
   position: relative;
   width: 100%;
   max-width: 880px;
   margin: 2rem auto;
-  padding-bottom: 0;
-  height: auto;
   overflow: hidden;
-  background-color: #6441a5;
   border-radius: 6px;
+  height: 0;
+  padding-bottom: 56.25%; /* 16:9 비율 폴백 */
 }
 
-.twitch-embed iframe {
+@supports (aspect-ratio: 16 / 9) {
+  .youtube-embed, .twitch-embed {
+    aspect-ratio: 16 / 9;
+    padding-bottom: 0;
+    height: auto;
+  }
+}
+
+.youtube-embed { background-color: #000; }
+.twitch-embed { background-color: #6441a5; }
+
+.youtube-embed iframe, .twitch-embed iframe {
   position: absolute;
   top: 0;
   left: 0;
@@ -284,41 +271,40 @@ html.dark-theme .social-embed {
   width: 100%;
   max-width: 880px;
   margin: 2rem auto;
-  background-color: transparent !important; /* social-embed.css 에서 가져옴 */
-  box-shadow: none !important; /* social-embed.css 에서 가져옴 */
+  background-color: transparent !important;
+  box-shadow: none !important;
 }
 
-.twitter-embed blockquote { /* social-embed.css 에서 가져옴 */
+.twitter-embed blockquote {
   margin: 0 auto !important;
   width: 100% !important;
 }
 
 .instagram-embed {
   width: 100%;
-  max-width: 880px; /* social-embed.css 와 동일하게 */
+  max-width: 880px;
   margin: 2rem auto;
-  background-color: transparent !important; /* social-embed.css 에서 가져옴 */
-  box-shadow: none !important; /* social-embed.css 에서 가져옴 */
+  background-color: transparent !important;
+  box-shadow: none !important;
 }
 
-.instagram-embed blockquote { /* social-embed.css 에서 가져옴 */
+.instagram-embed blockquote {
   margin: 0 auto !important;
   width: 100% !important;
-  max-width: 880px !important; /* social-embed.css 와 동일하게 */
+  max-width: 880px !important;
 }
 
 .facebook-embed {
   width: 100%;
-  max-width: 880px; /* social-embed.css 와 동일하게 */
+  max-width: 880px;
   margin: 2rem auto;
-  background-color: transparent !important; /* social-embed.css 에서 가져옴 */
-  box-shadow: none !important; /* social-embed.css 에서 가져옴 */
+  background-color: transparent !important;
+  box-shadow: none !important;
 }
-
 
 /* 에러 메시지 */
 .error-embed {
-  width: 55rem; /* 기존 enhanced-content.css 유지 */
+  width: 55rem;
   max-width: 100%;
   margin: 1.5rem auto;
   padding: 1rem;
@@ -453,7 +439,7 @@ html.dark-theme .changelog-list li::before {
   .twitch-embed, .twitter-embed, .instagram-embed, .facebook-embed,
   .error-embed, .highlight-box, blockquote.styled-quote, 
   .pullquote, .gallery, .related-posts-box, .series-box, .changelog-box,
-  .social-embed { /* .social-embed 추가 */
+  .social-embed {
     width: 90%;
   }
 }
@@ -484,7 +470,7 @@ html.dark-theme .changelog-list li::before {
   .twitch-embed, .twitter-embed, .instagram-embed, .facebook-embed,
   .error-embed, .highlight-box, blockquote.styled-quote, 
   .pullquote, .gallery, .related-posts-box, .series-box, .changelog-box,
-  .social-embed { /* .social-embed 추가 */
+  .social-embed {
     width: 100%;
     margin: 1.5rem auto;
   }

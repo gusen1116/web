@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="format-detection" content="telephone=no">
     <title>{% block title %}와구센{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
@@ -14,6 +15,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/simulation.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/slide.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/8bit-theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/new-themes.css') }}">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -21,25 +23,18 @@
 
     <script nonce="{{ csp_nonce() }}">
         (function() {
-            try {
-                const themes = ['light', 'dark', '8bit'];
-                let theme = localStorage.getItem('theme');
+            // FOUC 방지를 위해 페이지 로드 시 저장된 테마를 우선 적용
+            const baseTheme = localStorage.getItem('theme');
+            const newTheme = localStorage.getItem('new_theme');
 
-                if (!theme || !themes.includes(theme)) {
-                    theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                }
-
-                if (theme === 'dark') {
-                    document.documentElement.classList.add('theme-dark', 'dark-theme');
-                } else if (theme === '8bit') {
-                    document.documentElement.classList.add('theme-8bit');
-                }
-            } catch (e) {}
-            function setRealViewportHeight() {
-                document.documentElement.style.setProperty('--real-vh', (window.innerHeight * 0.01) + 'px');
+            // 새 테마가 우선순위를 가짐
+            if (newTheme) {
+                const classMap = { 'royal-cream': 'theme-royal-cream', 'royal-pixel': 'theme-royal-pixel', 'future-pixel': 'theme-future-pixel' };
+                if(classMap[newTheme]) document.documentElement.classList.add(classMap[newTheme]);
+            } else if (baseTheme) {
+                 const classMap = { 'dark': ['theme-dark', 'dark-theme'], '8bit': 'theme-8bit' };
+                 if(classMap[baseTheme]) document.documentElement.classList.add(...(Array.isArray(classMap[baseTheme]) ? classMap[baseTheme] : [classMap[baseTheme]]));
             }
-            window.addEventListener('resize', setRealViewportHeight);
-            setRealViewportHeight();
         })();
     </script>
     
@@ -48,24 +43,23 @@
             position: absolute;
             font-size: 1.25rem;
             transition: all 0.3s ease;
-            display: none;
+            opacity: 0;
+            transform: scale(0.8);
+            display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .theme-toggle .theme-icon.icon-8bit {
-             width: 24px;
-             height: 24px;
+        /* 활성 테마에 따라 해당 아이콘만 표시 */
+        html:not([class*="theme-"]) .icon-light,
+        html.dark-theme .icon-dark,
+        html.theme-8bit .icon-8bit,
+        html.theme-royal-cream .icon-cream,
+        html.theme-royal-pixel .icon-pixel,
+        html.theme-future-pixel .icon-future-pixel {
+            opacity: 1;
+            transform: scale(1);
         }
-        
-        html:not(.theme-dark):not(.theme-8bit) .theme-toggle .icon-light,
-        html.theme-dark .theme-toggle .icon-dark,
-        html.theme-8bit .theme-toggle .icon-8bit {
-            display: flex;
-        }
-
-        .mobile-nav-link .nav-icon-8bit { display: none; }
-        .mobile-nav-link .nav-icon { width: 20px; height: 20px; }
     </style>
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -76,6 +70,15 @@
                     <img src="{{ url_for('static', filename='img/logo.png') }}" alt="로고 이미지" loading="lazy">
                     <span class="site-name">와구센</span>
                 </a>
+            </div>
+            
+            <div class="header-controls-left">
+                <button class="theme-toggle" id="newThemeToggle" title="새로운 테마 변경" aria-label="새로운 테마 전환">
+                    <i class="far fa-sun theme-icon icon-light"></i>
+                    <i class="fas fa-palette theme-icon icon-cream"></i>
+                    <i class="fas fa-ghost theme-icon icon-pixel"></i>
+                    <i class="fas fa-rocket theme-icon icon-future-pixel"></i>
+                </button>
             </div>
             
             <nav class="main-nav desktop-nav" id="desktopNav">
@@ -89,10 +92,10 @@
             
             <div class="header-controls">
                 <div class="theme-toggle-area">
-                    <button class="theme-toggle" id="themeToggle" title="테마 변경" aria-label="테마 전환">
-                        <i class="far fa-lightbulb theme-icon icon-light"></i>
-                        <i class="fas fa-lightbulb theme-icon icon-dark"></i>
-                        <img src="{{ url_for('static', filename='img/icon/light.png') }}" alt="8-bit Theme" class="theme-icon icon-8bit">
+                    <button class="theme-toggle" id="baseThemeToggle" title="기본 테마 변경" aria-label="기본 테마 전환">
+                        <i class="far fa-sun theme-icon icon-light"></i>
+                        <i class="fas fa-moon theme-icon icon-dark"></i>
+                        <img src="{{ url_for('static', filename='img/icon/light.png') }}" alt="8-bit Theme" class="theme-icon icon-8bit" style="width:24px; height:24px;">
                     </button>
                 </div>
                 <button class="mobile-toggle" id="mobileToggle" aria-label="메뉴 열기">
@@ -167,11 +170,11 @@
                 </div>
                 <div class="footer-links">
                     <a href="https://github.com/wagusen" target="_blank" rel="noopener noreferrer">
-                        <i class="fab fa-github"></i>
+                        <i class="fab fa-github footer-icon-github"></i>
                         <span>GitHub</span>
                     </a>
                     <a href="mailto:gusen@wagusen.com">
-                        <i class="fas fa-envelope"></i>
+                        <i class="fas fa-envelope footer-icon-mail"></i>
                         <span>메일</span>
                     </a>
                 </div>
