@@ -6,13 +6,21 @@
 /* 픽셀 기반 폰트들 */
 @import url('https://fastly.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css');
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+/* 8비트 숫자 전용 폰트 (0-9 범위만 적용) */
+@font-face {
+  font-family: 'GalmuriDigits';
+  src: url('https://fastly.jsdelivr.net/npm/galmuri@latest/dist/GalmuriMono9.woff2') format('woff2');
+  unicode-range: U+0030-0039;
+  font-weight: normal;
+  font-style: normal;
+}
 
 /* 루트 테마 변수 설정 */
 html.theme-pixel-fusion {
   --font-sans: 'Galmuri7', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-pixel: 'Press Start 2P', 'Galmuri7', monospace;
 
-  font-family: var(--font-sans);
+  font-family: 'GalmuriDigits', var(--font-sans);
   font-smooth: never;
   -webkit-font-smoothing: none;
 
@@ -103,7 +111,7 @@ html.theme-pixel-fusion,
 html.theme-pixel-fusion p,
 html.theme-pixel-fusion li,
 html.theme-pixel-fusion span {
-  font-family: var(--font-pixel);
+  font-family: 'GalmuriDigits', var(--font-pixel);
   font-size: 0.95rem;
   line-height: 1.6;
   color: var(--text-primary);
@@ -180,7 +188,7 @@ html.theme-pixel-fusion input[type="text"]:focus {
 
 /* 결과 강조 숫자 */
 html.theme-pixel-fusion .result-card p {
-  font-family: 'Galmuri7', monospace;
+  font-family: 'GalmuriDigits', 'Galmuri7', monospace;
   font-size: 2.5rem;
   color: var(--accent-orange);
   text-shadow: 0 0 4px var(--accent-orange), 0 0 8px var(--accent-orange), 0 0 12px #000;
@@ -242,6 +250,44 @@ html.theme-pixel-fusion .neon-box {
   border: 2px solid var(--text-accent);
   box-shadow: 0 0 8px var(--text-accent), inset 0 0 4px var(--text-accent);
   padding: 1rem;
+}
+
+/* 슬라이더 감성 스타일 */
+html.theme-pixel-fusion .slide-container {
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+  border: 2px solid var(--border-color);
+  box-shadow: 0 0 8px var(--github-accent);
+}
+
+html.theme-pixel-fusion .slide h2,
+html.theme-pixel-fusion .slide p {
+  color: var(--text-primary);
+  text-shadow: 0 0 4px var(--text-accent);
+}
+
+html.theme-pixel-fusion .slide-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 0;
+  border: 2px solid var(--github-accent);
+  background-color: var(--bg-primary);
+}
+
+html.theme-pixel-fusion .slide-indicator.active {
+  background-color: var(--text-accent);
+}
+
+/* 시뮬레이션 영역 스타일 */
+html.theme-pixel-fusion .simulation-container {
+  background-color: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+}
+
+html.theme-pixel-fusion #simulationCanvas {
+  background-color: var(--bg-tertiary);
+  border: 2px solid var(--github-accent);
+  box-shadow: inset 0 0 4px var(--github-accent);
 }
 
 /* 모바일 가독성 향상 */
