@@ -1,66 +1,68 @@
-// main.js - 2개의 독립적인 테마 토글 시스템 관리
+// main.js - 통합 테마 토글 시스템
 (function() {
     'use strict';
 
     const $ = (selector, context = document) => context.querySelector(selector);
+
+    // 관리할 모든 테마 정보
+    const THEMES = [
+        { name: 'light', className: '', displayName: '라이트' },
+        { name: 'dark', className: ['dark-theme', 'theme-dark'], displayName: '다크' },
+        { name: '8bit', className: 'theme-8bit', displayName: '8비트' },
+        { name: 'cyan-orange', className: 'theme-cyan-orange', displayName: '시안 오렌지' },
+        { name: 'purple-green', className: 'theme-purple-green', displayName: '퍼플 그린' },
+        { name: 'neon-dystopia', className: 'theme-neon-dystopia', displayName: '네온 디스토피아' },
+        { name: 'pixel-glitch', className: 'theme-pixel-glitch', displayName: '픽셀 글리치' },
+        { name: 'pixel-fusion', className: 'theme-pixel-fusion', displayName: '픽셀 퓨전' } // 신규 테마 추가
+    ];
     
-    // 관리할 모든 테마 클래스 목록
-    const ALL_THEME_CLASSES = ['theme-dark', 'dark-theme', 'theme-8bit', 'theme-royal-cream', 'theme-royal-pixel', 'theme-future-pixel'];
-    
-    // 테마 상태를 관리하는 범용 클래스
+    // 모든 테마 클래스 이름 목록 (초기화용)
+    const ALL_THEME_CLASSES = THEMES.flatMap(theme => Array.isArray(theme.className) ? theme.className : [theme.className]).filter(Boolean);
+
     class ThemeController {
-        constructor(themes, localStorageKey, otherController) {
-            this.themes = themes;
+        constructor(localStorageKey) {
             this.localStorageKey = localStorageKey;
-            this.otherController = otherController;
             this.currentThemeIndex = 0;
+            this.themeIndicator = $('#themeIndicator'); // 테마 이름 표시 요소
             this.init();
         }
 
         init() {
-            const savedTheme = localStorage.getItem(this.localStorageKey);
-            if (savedTheme && this.themes.includes(savedTheme)) {
-                this.currentThemeIndex = this.themes.indexOf(savedTheme);
+            const savedThemeName = localStorage.getItem(this.localStorageKey);
+            const savedThemeIndex = THEMES.findIndex(theme => theme.name === savedThemeName);
+            
+            if (savedThemeIndex !== -1) {
+                this.currentThemeIndex = savedThemeIndex;
             }
+            this.applyTheme(this.currentThemeIndex);
         }
 
-        applyTheme(themeName) {
+        applyTheme(index) {
             const html = document.documentElement;
+            const theme = THEMES[index];
+
+            // 1. 모든 테마 클래스 제거
             html.classList.remove(...ALL_THEME_CLASSES);
 
-            const classMap = {
-                'dark': ['theme-dark', 'dark-theme'],
-                '8bit': ['theme-8bit'],
-                'royal-cream': ['theme-royal-cream'],
-                'royal-pixel': ['theme-royal-pixel'],
-                'future-pixel': ['theme-future-pixel']
-            };
-
-            if (classMap[themeName]) {
-                html.classList.add(...(Array.isArray(classMap[themeName]) ? classMap[themeName] : [classMap[themeName]]));
+            // 2. 새 테마 클래스 추가
+            if (theme.className) {
+                const classesToAdd = Array.isArray(theme.className) ? theme.className : [theme.className];
+                html.classList.add(...classesToAdd);
             }
-
-            // 'light' 테마는 아무 클래스도 추가하지 않음
             
-            if (themeName !== 'light') {
-                localStorage.setItem(this.localStorageKey, themeName);
+            // 3. 로컬 스토리지에 저장
+            localStorage.setItem(this.localStorageKey, theme.name);
+
+            // 4. 헤더의 테마 표시기 업데이트
+            if (this.themeIndicator) {
+                this.themeIndicator.textContent = `테마: ${theme.displayName}`;
+                this.themeIndicator.dataset.theme = theme.name; // 데이터 속성으로 현재 테마 이름 저장
             }
         }
 
         toggle() {
-            // 다른 컨트롤러의 상태를 리셋하고 로컬 스토리지에서 제거
-            if (this.otherController) {
-                this.otherController.reset();
-                localStorage.removeItem(this.otherController.localStorageKey);
-            }
-
-            this.currentThemeIndex = (this.currentThemeIndex + 1) % this.themes.length;
-            const newTheme = this.themes[this.currentThemeIndex];
-            this.applyTheme(newTheme);
-        }
-        
-        reset() {
-            this.currentThemeIndex = 0;
+            this.currentThemeIndex = (this.currentThemeIndex + 1) % THEMES.length;
+            this.applyTheme(this.currentThemeIndex);
         }
     }
 
@@ -98,29 +100,17 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        // 모바일 내비게이션 초기화
         const mobileNav = new MobileNavigation();
         mobileNav.init();
 
-        // 두 개의 테마 컨트롤러 생성
-        const baseThemes = ['light', 'dark', '8bit'];
-        const newThemes = ['light', 'royal-cream', 'royal-pixel', 'future-pixel'];
+        // 통합 테마 컨트롤러 초기화
+        const themeController = new ThemeController('wagusen_theme_v2');
         
-        const baseThemeController = new ThemeController(baseThemes, 'theme');
-        const newThemeController = new ThemeController(newThemes, 'new_theme');
-        
-        // 서로를 참조하도록 설정하여 상호 리셋 기능 구현
-        baseThemeController.otherController = newThemeController;
-        newThemeController.otherController = baseThemeController;
-
-        const baseThemeToggle = $('#baseThemeToggle');
-        const newThemeToggle = $('#newThemeToggle');
-        
-        if (baseThemeToggle) {
-            baseThemeToggle.addEventListener('click', () => baseThemeController.toggle());
-        }
-        
-        if (newThemeToggle) {
-            newThemeToggle.addEventListener('click', () => newThemeController.toggle());
+        // 통합 테마 토글 버튼 이벤트 리스너
+        const unifiedThemeToggle = $('#unifiedThemeToggle');
+        if (unifiedThemeToggle) {
+            unifiedThemeToggle.addEventListener('click', () => themeController.toggle());
         }
     });
 

@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="format-detection" content="telephone=no">
     <title>{% block title %}와구센{% endblock %}</title>
+    
+    <!-- 기본 스타일시트 -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/typography.css') }}">
@@ -14,51 +16,67 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-links.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/simulation.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/slide.css') }}">
+    
+    <!-- 테마 스타일시트 -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/8bit-theme.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/new-themes.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom-themes.css') }}"> <!-- 새로 추가된 테마 -->
+
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     {% block head %}{% endblock %}
 
     <script nonce="{{ csp_nonce() }}">
+        // FOUC(Flash of Unstyled Content) 방지 스크립트
         (function() {
-            // FOUC 방지를 위해 페이지 로드 시 저장된 테마를 우선 적용
-            const baseTheme = localStorage.getItem('theme');
-            const newTheme = localStorage.getItem('new_theme');
-
-            // 새 테마가 우선순위를 가짐
-            if (newTheme) {
-                const classMap = { 'royal-cream': 'theme-royal-cream', 'royal-pixel': 'theme-royal-pixel', 'future-pixel': 'theme-future-pixel' };
-                if(classMap[newTheme]) document.documentElement.classList.add(classMap[newTheme]);
-            } else if (baseTheme) {
-                 const classMap = { 'dark': ['theme-dark', 'dark-theme'], '8bit': 'theme-8bit' };
-                 if(classMap[baseTheme]) document.documentElement.classList.add(...(Array.isArray(classMap[baseTheme]) ? classMap[baseTheme] : [classMap[baseTheme]]));
+            const THEMES = [
+                { name: 'light', className: '' },
+                { name: 'dark', className: ['dark-theme', 'theme-dark'] },
+                { name: '8bit', className: 'theme-8bit' },
+                { name: 'cyan-orange', className: 'theme-cyan-orange' },
+                { name: 'purple-green', className: 'theme-purple-green' },
+                { name: 'neon-dystopia', className: 'theme-neon-dystopia' },
+                { name: 'pixel-glitch', className: 'theme-pixel-glitch' }
+            ];
+            
+            const savedThemeName = localStorage.getItem('wagusen_theme_v2');
+            const theme = THEMES.find(t => t.name === savedThemeName);
+            
+            if (theme && theme.className) {
+                const classesToAdd = Array.isArray(theme.className) ? theme.className : [theme.className];
+                document.documentElement.classList.add(...classesToAdd);
             }
         })();
     </script>
     
     <style nonce="{{ csp_nonce() }}">
+        /* 테마 아이콘 표시 로직 (JavaScript로 제어되므로 단순화 또는 제거 가능) */
         .theme-toggle .theme-icon {
-            position: absolute;
             font-size: 1.25rem;
             transition: all 0.3s ease;
-            opacity: 0;
-            transform: scale(0.8);
+        }
+
+        /* 현재 테마 표시기 스타일 */
+        .theme-indicator {
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 0 var(--spacing-4);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-full);
+            height: 32px;
+            white-space: nowrap;
+            transition: all 0.3s ease;
         }
-
-        /* 활성 테마에 따라 해당 아이콘만 표시 */
-        html:not([class*="theme-"]) .icon-light,
-        html.dark-theme .icon-dark,
-        html.theme-8bit .icon-8bit,
-        html.theme-royal-cream .icon-cream,
-        html.theme-royal-pixel .icon-pixel,
-        html.theme-future-pixel .icon-future-pixel {
-            opacity: 1;
-            transform: scale(1);
+        @media (max-width: 900px) {
+            .theme-indicator {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -71,15 +89,8 @@
                     <span class="site-name">와구센</span>
                 </a>
             </div>
-            
-            <div class="header-controls-left">
-                <button class="theme-toggle" id="newThemeToggle" title="새로운 테마 변경" aria-label="새로운 테마 전환">
-                    <i class="far fa-sun theme-icon icon-light"></i>
-                    <i class="fas fa-palette theme-icon icon-cream"></i>
-                    <i class="fas fa-ghost theme-icon icon-pixel"></i>
-                    <i class="fas fa-rocket theme-icon icon-future-pixel"></i>
-                </button>
-            </div>
+
+            <div id="themeIndicator" class="theme-indicator">테마: 라이트</div>
             
             <nav class="main-nav desktop-nav" id="desktopNav">
                 <ul>
@@ -92,10 +103,9 @@
             
             <div class="header-controls">
                 <div class="theme-toggle-area">
-                    <button class="theme-toggle" id="baseThemeToggle" title="기본 테마 변경" aria-label="기본 테마 전환">
-                        <i class="far fa-sun theme-icon icon-light"></i>
-                        <i class="fas fa-moon theme-icon icon-dark"></i>
-                        <img src="{{ url_for('static', filename='img/icon/light.png') }}" alt="8-bit Theme" class="theme-icon icon-8bit" style="width:24px; height:24px;">
+                    <!-- 통합 테마 토글 버튼 -->
+                    <button class="theme-toggle" id="unifiedThemeToggle" title="테마 변경" aria-label="테마 전환">
+                        <i class="fas fa-palette theme-icon"></i>
                     </button>
                 </div>
                 <button class="mobile-toggle" id="mobileToggle" aria-label="메뉴 열기">
@@ -186,3 +196,4 @@
     {% block scripts %}{% endblock %}
 </body>
 </html>
+    

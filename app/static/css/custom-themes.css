@@ -1,0 +1,243 @@
+/*
+ * custom-themes.css
+ * PDF 및 Google Docs 기반 신규 테마 5종 정의 (픽셀 스타일 적용)
+ * A. 시안 + 네온 오렌지
+ * B. 네온 퍼플 + 네온 그린
+ * C. 네온 디스토피아 (짙은 보라 + 네온 옐로우)
+ * D. 픽셀 글리치 (다크 스틸 + 핫 핑크)
+ * E. 픽셀 퓨전 (8비트 + 픽셀 글리치 융합)
+ */
+
+/* Galmuri 폰트 임포트 (픽셀 테마용) */
+@import url('https://fastly.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css');
+
+/* ===== 테마 A: 시안 + 네온 오렌지 (PDF 기반) ===== */
+html.theme-cyan-orange {
+  --bg-primary: #0a0f1f; /* 어두운 남색 배경 */
+  --bg-secondary: #141a3c;
+  --bg-tertiary: #232a5c;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0c0;
+  --text-tertiary: #7070a0;
+  --text-accent: #00FFFF;      /* 시안 (밝은 파랑) */
+  --border-color: #303a7c;
+  --github-accent: #FF4500;     /* 네온 오렌지 */
+  color-scheme: dark;
+}
+
+/* ===== 테마 B: 네온 퍼플 + 네온 그린 (PDF 기반) ===== */
+html.theme-purple-green {
+  --bg-primary: #1a001a; /* 깊은 보라 배경 */
+  --bg-secondary: #2a003a;
+  --bg-tertiary: #3a005a;
+  --text-primary: #f0f0f0;
+  --text-secondary: #c0b0d0;
+  --text-tertiary: #9080a0;
+  --text-accent: #BE00FC;      /* 네온 퍼플 */
+  --border-color: #4a106a;
+  --github-accent: #00FD00;     /* 네온 그린 */
+  color-scheme: dark;
+}
+
+/* ===== 테마 C: 네온 디스토피아 (Docs 기반) ===== */
+html.theme-neon-dystopia {
+  --bg-primary: #2A0045; /* 짙은 보이드 퍼플 */
+  --bg-secondary: #3c0062;
+  --bg-tertiary: #4e0080;
+  --text-primary: #ffffff;
+  --text-secondary: #e0c8ff;
+  --text-tertiary: #c1a4f5;
+  --text-accent: #F8F32B;      /* 사이버 옐로우 */
+  --border-color: #6d1ca9;
+  --github-accent: #8CCDEB;     /* 페일 네온 블루 */
+  color-scheme: dark;
+}
+
+/* ===== 테마 D: 픽셀 글리치 (Docs 기반) ===== */
+html.theme-pixel-glitch {
+  --bg-primary: #1A1A1A;      /* 다크 스틸 그레이 */
+  --bg-secondary: #282828;
+  --bg-tertiary: #363636;
+  --text-primary: #FFFFFF;
+  --text-secondary: #e0e0e0;
+  --text-tertiary: #b0b0b0;
+  --text-accent: #FF007F;     /* 핫 핑크 */
+  --border-color: #444444;
+  --github-accent: #39FF14;     /* 라임 그린 */
+  color-scheme: dark;
+}
+
+/* ===== 신규 테마 E: 픽셀 퓨전 (8bit + Pixel Glitch) ===== */
+html.theme-pixel-fusion {
+  --bg-primary: #1A1A1A;      /* 8bit 테마의 배경 */
+  --bg-secondary: #2c2a4d;      /* 더 어두운 보조 배경 */
+  --bg-tertiary: #3a3864;      /* 가장 밝은 배경 요소 */
+  --text-primary: #FFFFFF;      /* Pixel Glitch의 선명한 텍스트 */
+  --text-secondary: #E0E0E0;
+  --text-tertiary: #BEBEBE;
+  --text-accent: #FF007F;     /* Pixel Glitch의 핫 핑크 */
+  --border-color: #5a5882;      /* 8bit과 Pixel Glitch의 중간 톤 */
+  --github-accent: #39FF14;     /* Pixel Glitch의 라임 그린 */
+  color-scheme: dark;
+}
+
+
+/* * ===================================================================
+ * 모든 픽셀/사이버펑크 테마 공통 스타일
+ * ===================================================================
+ */
+
+/* 1. 픽셀 폰트 및 기본 스타일 적용 */
+html.theme-cyan-orange,
+html.theme-purple-green,
+html.theme-neon-dystopia,
+html.theme-pixel-glitch,
+html.theme-pixel-fusion {
+  --font-sans: 'Galmuri7', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-sans);
+  font-smooth: never;
+  -webkit-font-smoothing: none;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-full: 0;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+}
+
+/* 2. 이미지 픽셀화 렌더링 */
+html.theme-cyan-orange body, html.theme-cyan-orange img,
+html.theme-purple-green body, html.theme-purple-green img,
+html.theme-neon-dystopia body, html.theme-neon-dystopia img,
+html.theme-pixel-glitch body, html.theme-pixel-glitch img,
+html.theme-pixel-fusion body, html.theme-pixel-fusion img {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+}
+
+/* 3. 각진 UI 요소 및 그림자 효과 */
+html.theme-cyan-orange .top-header, html.theme-cyan-orange .card, html.theme-cyan-orange .post-card, html.theme-cyan-orange .simulation-card, html.theme-cyan-orange .intro-container, html.theme-cyan-orange .diagnostic-container, html.theme-cyan-orange footer,
+html.theme-purple-green .top-header, html.theme-purple-green .card, html.theme-purple-green .post-card, html.theme-purple-green .simulation-card, html.theme-purple-green .intro-container, html.theme-purple-green .diagnostic-container, html.theme-purple-green footer,
+html.theme-neon-dystopia .top-header, html.theme-neon-dystopia .card, html.theme-neon-dystopia .post-card, html.theme-neon-dystopia .simulation-card, html.theme-neon-dystopia .intro-container, html.theme-neon-dystopia .diagnostic-container, html.theme-neon-dystopia footer,
+html.theme-pixel-glitch .top-header, html.theme-pixel-glitch .card, html.theme-pixel-glitch .post-card, html.theme-pixel-glitch .simulation-card, html.theme-pixel-glitch .intro-container, html.theme-pixel-glitch .diagnostic-container, html.theme-pixel-glitch footer,
+html.theme-pixel-fusion .top-header, html.theme-pixel-fusion .card, html.theme-pixel-fusion .post-card, html.theme-pixel-fusion .simulation-card, html.theme-pixel-fusion .intro-container, html.theme-pixel-fusion .diagnostic-container, html.theme-pixel-fusion footer {
+    border-style: solid;
+    border-width: 2px;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+    transition: none;
+    background-color: var(--bg-secondary) !important;
+}
+
+html.theme-cyan-orange .card:hover, html.theme-cyan-orange .post-card:hover, html.theme-cyan-orange .simulation-card:hover,
+html.theme-purple-green .card:hover, html.theme-purple-green .post-card:hover, html.theme-purple-green .simulation-card:hover,
+html.theme-neon-dystopia .card:hover, html.theme-neon-dystopia .post-card:hover, html.theme-neon-dystopia .simulation-card:hover,
+html.theme-pixel-glitch .card:hover, html.theme-pixel-glitch .post-card:hover, html.theme-pixel-glitch .simulation-card:hover,
+html.theme-pixel-fusion .card:hover, html.theme-pixel-fusion .post-card:hover, html.theme-pixel-fusion .simulation-card:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+}
+
+/* 4. 각진 버튼 및 입력 요소 스타일 */
+html.theme-cyan-orange .btn, html.theme-cyan-orange input, html.theme-cyan-orange select, html.theme-cyan-orange textarea,
+html.theme-purple-green .btn, html.theme-purple-green input, html.theme-purple-green select, html.theme-purple-green textarea,
+html.theme-neon-dystopia .btn, html.theme-neon-dystopia input, html.theme-neon-dystopia select, html.theme-neon-dystopia textarea,
+html.theme-pixel-glitch .btn, html.theme-pixel-glitch input, html.theme-pixel-glitch select, html.theme-pixel-glitch textarea,
+html.theme-pixel-fusion .btn, html.theme-pixel-fusion input, html.theme-pixel-fusion select, html.theme-pixel-fusion textarea {
+    border-radius: 0;
+    border-width: 2px;
+    border-style: solid;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+    transition: none;
+    font-family: var(--font-sans);
+}
+
+html.theme-cyan-orange .btn:hover, html.theme-cyan-orange input:focus, html.theme-cyan-orange select:focus, html.theme-cyan-orange textarea:focus,
+html.theme-purple-green .btn:hover, html.theme-purple-green input:focus, html.theme-purple-green select:focus, html.theme-purple-green textarea:focus,
+html.theme-neon-dystopia .btn:hover, html.theme-neon-dystopia input:focus, html.theme-neon-dystopia select:focus, html.theme-neon-dystopia textarea:focus,
+html.theme-pixel-glitch .btn:hover, html.theme-pixel-glitch input:focus, html.theme-pixel-glitch select:focus, html.theme-pixel-glitch textarea:focus,
+html.theme-pixel-fusion .btn:hover, html.theme-pixel-fusion input:focus, html.theme-pixel-fusion select:focus, html.theme-pixel-fusion textarea:focus {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+    outline: none;
+}
+
+/* 5. 텍스트 그림자(네온 효과) */
+html.theme-cyan-orange a, html.theme-cyan-orange .btn-primary, html.theme-cyan-orange h1, html.theme-cyan-orange h2,
+html.theme-purple-green a, html.theme-purple-green .btn-primary, html.theme-purple-green h1, html.theme-purple-green h2,
+html.theme-neon-dystopia a, html.theme-neon-dystopia .btn-primary, html.theme-neon-dystopia h1, html.theme-neon-dystopia h2,
+html.theme-pixel-glitch a, html.theme-pixel-glitch .btn-primary, html.theme-pixel-glitch h1, html.theme-pixel-glitch h2,
+html.theme-pixel-fusion a, html.theme-pixel-fusion .btn-primary, html.theme-pixel-fusion h1, html.theme-pixel-fusion h2 {
+    text-shadow: 0 0 2px var(--text-accent), 0 0 4px var(--github-accent);
+}
+
+/* 6. 슬라이더 및 프로그레스 바 등 세부 요소 스타일 */
+html.theme-cyan-orange .slide-container,
+html.theme-purple-green .slide-container,
+html.theme-neon-dystopia .slide-container,
+html.theme-pixel-glitch .slide-container,
+html.theme-pixel-fusion .slide-container {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+}
+html.theme-cyan-orange .slide h2,
+html.theme-purple-green .slide h2,
+html.theme-neon-dystopia .slide h2,
+html.theme-pixel-glitch .slide h2,
+html.theme-pixel-fusion .slide h2 {
+    text-shadow: 3px 3px 0px var(--bg-primary);
+}
+
+html.theme-cyan-orange .slide-indicator,
+html.theme-purple-green .slide-indicator,
+html.theme-neon-dystopia .slide-indicator,
+html.theme-pixel-glitch .slide-indicator,
+html.theme-pixel-fusion .slide-indicator {
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--border-color);
+    background-color: var(--text-tertiary);
+    border-radius: 0;
+}
+html.theme-cyan-orange .slide-indicator.active,
+html.theme-purple-green .slide-indicator.active,
+html.theme-neon-dystopia .slide-indicator.active,
+html.theme-pixel-glitch .slide-indicator.active,
+html.theme-pixel-fusion .slide-indicator.active {
+    background-color: var(--text-accent);
+}
+
+html.theme-cyan-orange .progress-bar,
+html.theme-purple-green .progress-bar,
+html.theme-neon-dystopia .progress-bar,
+html.theme-pixel-glitch .progress-bar,
+html.theme-pixel-fusion .progress-bar {
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+    background-size: 20px 20px;
+    animation: progress-bar-stripes 1s linear infinite;
+}
+@keyframes progress-bar-stripes {
+  from { background-position: 20px 0; }
+  to { background-position: 0 0; }
+}
+
+/* 7. 링크 스타일 */
+html.theme-cyan-orange .post-content a,
+html.theme-purple-green .post-content a,
+html.theme-neon-dystopia .post-content a,
+html.theme-pixel-glitch .post-content a,
+html.theme-pixel-fusion .post-content a {
+    border-bottom: 2px dotted var(--text-accent) !important;
+}
+html.theme-cyan-orange .post-content a:hover,
+html.theme-purple-green .post-content a:hover,
+html.theme-neon-dystopia .post-content a:hover,
+html.theme-pixel-glitch .post-content a:hover,
+html.theme-pixel-fusion .post-content a:hover {
+    color: var(--bg-primary) !important;
+    background-color: var(--text-accent) !important;
+    border-bottom-style: solid !important;
+}
