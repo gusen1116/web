@@ -69,17 +69,18 @@ html.theme-pixel-glitch {
 
 /* ===== 신규 테마 E: 픽셀 퓨전 (8bit + Pixel Glitch) ===== */
 html.theme-pixel-fusion {
-  --bg-primary: #1A1A1A;      /* 8bit 테마의 배경 */
-  --bg-secondary: #2c2a4d;      /* 더 어두운 보조 배경 */
-  --bg-tertiary: #3a3864;      /* 가장 밝은 배경 요소 */
-  --text-primary: #FFFFFF;      /* Pixel Glitch의 선명한 텍스트 */
-  --text-secondary: #E0E0E0;
-  --text-tertiary: #BEBEBE;
-  --text-accent: #FF007F;     /* Pixel Glitch의 핫 핑크 */
-  --border-color: #5a5882;      /* 8bit과 Pixel Glitch의 중간 톤 */
-  --github-accent: #39FF14;     /* Pixel Glitch의 라임 그린 */
+  --bg-primary: #120414;      /* 어두운 보라 계열 배경 */
+  --bg-secondary: #1d0836;    /* 보조 배경 */
+  --bg-tertiary: #2a0d52;     /* 대비용 밝은 배경 */
+  --text-primary: #f4f4ff;    /* 가독성 높은 밝은 텍스트 */
+  --text-secondary: #c3b8ff;  /* 연보라 */
+  --text-tertiary: #8a7bcc;   /* 부드러운 보라 */
+  --text-accent: #ff00cc;     /* 네온 핑크 */
+  --border-color: #7f1aff;    /* 선명한 보라 테두리 */
+  --github-accent: #00ffe7;   /* 네온 시안 */
   color-scheme: dark;
 }
+
 
 
 /* * ===================================================================
@@ -240,4 +241,46 @@ html.theme-pixel-fusion .post-content a:hover {
     color: var(--bg-primary) !important;
     background-color: var(--text-accent) !important;
     border-bottom-style: solid !important;
+}
+/* ===== 픽셀 퓨전: 사이버펑크 네온 업그레이드 ===== */
+html.theme-pixel-fusion .btn,
+html.theme-pixel-fusion #startTestBtn {
+    background-color: var(--bg-tertiary);
+    border-color: var(--text-accent);
+    color: var(--text-primary);
+    box-shadow: 0 0 4px var(--text-accent);
+}
+
+html.theme-pixel-fusion .btn-primary,
+html.theme-pixel-fusion #startTestBtn {
+    background-color: var(--text-accent);
+    color: var(--bg-primary);
+    text-shadow: 0 0 2px var(--text-accent), 0 0 6px var(--text-accent);
+}
+
+html.theme-pixel-fusion .btn:hover,
+html.theme-pixel-fusion #startTestBtn:hover {
+    background-color: var(--github-accent);
+    box-shadow: 0 0 6px var(--github-accent), 0 0 12px var(--text-accent);
+}
+
+html.theme-pixel-fusion .result-card {
+    border-color: var(--text-accent);
+    background-color: var(--bg-secondary);
+    box-shadow: 0 0 6px var(--border-color);
+}
+
+html.theme-pixel-fusion .result-card h2 {
+    color: var(--github-accent);
+    text-shadow: 0 0 4px var(--github-accent);
+}
+
+html.theme-pixel-fusion .result-card p {
+    color: var(--text-accent);
+    text-shadow: 0 0 2px var(--text-accent);
+}
+
+html.theme-pixel-fusion .progress-bar {
+    background-color: var(--github-accent);
+    color: var(--bg-primary);
 }
