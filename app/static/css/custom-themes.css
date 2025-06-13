@@ -1,286 +1,254 @@
 /*
- * custom-themes.css
- * PDF 및 Google Docs 기반 신규 테마 5종 정의 (픽셀 스타일 적용)
- * A. 시안 + 네온 오렌지
- * B. 네온 퍼플 + 네온 그린
- * C. 네온 디스토피아 (짙은 보라 + 네온 옐로우)
- * D. 픽셀 글리치 (다크 스틸 + 핫 핑크)
- * E. 픽셀 퓨전 (8비트 + 픽셀 글리치 융합)
+ * custom-themes.css - 통합 테마: Pixel Fusion (개선 버전)
+ * 스타일: 8비트 픽셀아트 + 사이버펑크 + 감성 게임 + 가독성 향상
  */
 
-/* Galmuri 폰트 임포트 (픽셀 테마용) */
+/* 픽셀 기반 폰트들 */
 @import url('https://fastly.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-/* ===== 테마 A: 시안 + 네온 오렌지 (PDF 기반) ===== */
-html.theme-cyan-orange {
-  --bg-primary: #0a0f1f; /* 어두운 남색 배경 */
-  --bg-secondary: #141a3c;
-  --bg-tertiary: #232a5c;
-  --text-primary: #e0e0e0;
-  --text-secondary: #a0a0c0;
-  --text-tertiary: #7070a0;
-  --text-accent: #00FFFF;      /* 시안 (밝은 파랑) */
-  --border-color: #303a7c;
-  --github-accent: #FF4500;     /* 네온 오렌지 */
-  color-scheme: dark;
-}
-
-/* ===== 테마 B: 네온 퍼플 + 네온 그린 (PDF 기반) ===== */
-html.theme-purple-green {
-  --bg-primary: #1a001a; /* 깊은 보라 배경 */
-  --bg-secondary: #2a003a;
-  --bg-tertiary: #3a005a;
-  --text-primary: #f0f0f0;
-  --text-secondary: #c0b0d0;
-  --text-tertiary: #9080a0;
-  --text-accent: #BE00FC;      /* 네온 퍼플 */
-  --border-color: #4a106a;
-  --github-accent: #00FD00;     /* 네온 그린 */
-  color-scheme: dark;
-}
-
-/* ===== 테마 C: 네온 디스토피아 (Docs 기반) ===== */
-html.theme-neon-dystopia {
-  --bg-primary: #2A0045; /* 짙은 보이드 퍼플 */
-  --bg-secondary: #3c0062;
-  --bg-tertiary: #4e0080;
-  --text-primary: #ffffff;
-  --text-secondary: #e0c8ff;
-  --text-tertiary: #c1a4f5;
-  --text-accent: #F8F32B;      /* 사이버 옐로우 */
-  --border-color: #6d1ca9;
-  --github-accent: #8CCDEB;     /* 페일 네온 블루 */
-  color-scheme: dark;
-}
-
-/* ===== 테마 D: 픽셀 글리치 (Docs 기반) ===== */
-html.theme-pixel-glitch {
-  --bg-primary: #1A1A1A;      /* 다크 스틸 그레이 */
-  --bg-secondary: #282828;
-  --bg-tertiary: #363636;
-  --text-primary: #FFFFFF;
-  --text-secondary: #e0e0e0;
-  --text-tertiary: #b0b0b0;
-  --text-accent: #FF007F;     /* 핫 핑크 */
-  --border-color: #444444;
-  --github-accent: #39FF14;     /* 라임 그린 */
-  color-scheme: dark;
-}
-
-/* ===== 신규 테마 E: 픽셀 퓨전 (8bit + Pixel Glitch) ===== */
+/* 루트 테마 변수 설정 */
 html.theme-pixel-fusion {
-  --bg-primary: #120414;      /* 어두운 보라 계열 배경 */
-  --bg-secondary: #1d0836;    /* 보조 배경 */
-  --bg-tertiary: #2a0d52;     /* 대비용 밝은 배경 */
-  --text-primary: #f4f4ff;    /* 가독성 높은 밝은 텍스트 */
-  --text-secondary: #c3b8ff;  /* 연보라 */
-  --text-tertiary: #8a7bcc;   /* 부드러운 보라 */
-  --text-accent: #ff00cc;     /* 네온 핑크 */
-  --border-color: #7f1aff;    /* 선명한 보라 테두리 */
-  --github-accent: #00ffe7;   /* 네온 시안 */
-  color-scheme: dark;
-}
+  --font-sans: 'Galmuri7', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-pixel: 'Press Start 2P', 'Galmuri7', monospace;
 
-
-
-/* * ===================================================================
- * 모든 픽셀/사이버펑크 테마 공통 스타일
- * ===================================================================
- */
-
-/* 1. 픽셀 폰트 및 기본 스타일 적용 */
-html.theme-cyan-orange,
-html.theme-purple-green,
-html.theme-neon-dystopia,
-html.theme-pixel-glitch,
-html.theme-pixel-fusion {
-  --font-sans: 'Galmuri7', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   font-family: var(--font-sans);
   font-smooth: never;
   -webkit-font-smoothing: none;
+
   --radius-sm: 0;
   --radius-md: 0;
   --radius-lg: 0;
   --radius-xl: 0;
   --radius-full: 0;
+
   --shadow-sm: none;
   --shadow-md: none;
   --shadow-lg: none;
+
+  --bg-primary: #100814;
+  --bg-secondary: #1d0f2a;
+  --bg-tertiary: #2c1a40;
+
+  --text-primary: #f5f5ff;
+  --text-secondary: #E9A6A6;
+  --text-tertiary: #7c72bb;
+
+  --text-accent: #00ffe7;
+  --github-accent: #00ffe7;
+  --accent-orange: #FF7F00;
+
+  --border-color: #7f1aff;
+
+  --cyberpunk-bg: radial-gradient(ellipse at 50% 0%, var(--bg-tertiary) 0%, var(--bg-primary) 70%);
+
+  color-scheme: dark;
 }
 
-/* 2. 이미지 픽셀화 렌더링 */
-html.theme-cyan-orange body, html.theme-cyan-orange img,
-html.theme-purple-green body, html.theme-purple-green img,
-html.theme-neon-dystopia body, html.theme-neon-dystopia img,
-html.theme-pixel-glitch body, html.theme-pixel-glitch img,
-html.theme-pixel-fusion body, html.theme-pixel-fusion img {
-    image-rendering: -moz-crisp-edges;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-    image-rendering: pixelated;
+/* 배경 스타일 */
+html.theme-pixel-fusion body {
+  background-color: var(--bg-primary);
+  background-image: var(--cyberpunk-bg);
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
 }
 
-/* 3. 각진 UI 요소 및 그림자 효과 */
-html.theme-cyan-orange .top-header, html.theme-cyan-orange .card, html.theme-cyan-orange .post-card, html.theme-cyan-orange .simulation-card, html.theme-cyan-orange .intro-container, html.theme-cyan-orange .diagnostic-container, html.theme-cyan-orange footer,
-html.theme-purple-green .top-header, html.theme-purple-green .card, html.theme-purple-green .post-card, html.theme-purple-green .simulation-card, html.theme-purple-green .intro-container, html.theme-purple-green .diagnostic-container, html.theme-purple-green footer,
-html.theme-neon-dystopia .top-header, html.theme-neon-dystopia .card, html.theme-neon-dystopia .post-card, html.theme-neon-dystopia .simulation-card, html.theme-neon-dystopia .intro-container, html.theme-neon-dystopia .diagnostic-container, html.theme-neon-dystopia footer,
-html.theme-pixel-glitch .top-header, html.theme-pixel-glitch .card, html.theme-pixel-glitch .post-card, html.theme-pixel-glitch .simulation-card, html.theme-pixel-glitch .intro-container, html.theme-pixel-glitch .diagnostic-container, html.theme-pixel-glitch footer,
-html.theme-pixel-fusion .top-header, html.theme-pixel-fusion .card, html.theme-pixel-fusion .post-card, html.theme-pixel-fusion .simulation-card, html.theme-pixel-fusion .intro-container, html.theme-pixel-fusion .diagnostic-container, html.theme-pixel-fusion footer {
-    border-style: solid;
-    border-width: 2px;
-    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
-    transition: none;
-    background-color: var(--bg-secondary) !important;
+html.theme-pixel-fusion img {
+  image-rendering: pixelated;
 }
 
-html.theme-cyan-orange .card:hover, html.theme-cyan-orange .post-card:hover, html.theme-cyan-orange .simulation-card:hover,
-html.theme-purple-green .card:hover, html.theme-purple-green .post-card:hover, html.theme-purple-green .simulation-card:hover,
-html.theme-neon-dystopia .card:hover, html.theme-neon-dystopia .post-card:hover, html.theme-neon-dystopia .simulation-card:hover,
-html.theme-pixel-glitch .card:hover, html.theme-pixel-glitch .post-card:hover, html.theme-pixel-glitch .simulation-card:hover,
-html.theme-pixel-fusion .card:hover, html.theme-pixel-fusion .post-card:hover, html.theme-pixel-fusion .simulation-card:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
-}
-
-/* 4. 각진 버튼 및 입력 요소 스타일 */
-html.theme-cyan-orange .btn, html.theme-cyan-orange input, html.theme-cyan-orange select, html.theme-cyan-orange textarea,
-html.theme-purple-green .btn, html.theme-purple-green input, html.theme-purple-green select, html.theme-purple-green textarea,
-html.theme-neon-dystopia .btn, html.theme-neon-dystopia input, html.theme-neon-dystopia select, html.theme-neon-dystopia textarea,
-html.theme-pixel-glitch .btn, html.theme-pixel-glitch input, html.theme-pixel-glitch select, html.theme-pixel-glitch textarea,
-html.theme-pixel-fusion .btn, html.theme-pixel-fusion input, html.theme-pixel-fusion select, html.theme-pixel-fusion textarea {
-    border-radius: 0;
-    border-width: 2px;
-    border-style: solid;
-    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
-    transition: none;
-    font-family: var(--font-sans);
-}
-
-html.theme-cyan-orange .btn:hover, html.theme-cyan-orange input:focus, html.theme-cyan-orange select:focus, html.theme-cyan-orange textarea:focus,
-html.theme-purple-green .btn:hover, html.theme-purple-green input:focus, html.theme-purple-green select:focus, html.theme-purple-green textarea:focus,
-html.theme-neon-dystopia .btn:hover, html.theme-neon-dystopia input:focus, html.theme-neon-dystopia select:focus, html.theme-neon-dystopia textarea:focus,
-html.theme-pixel-glitch .btn:hover, html.theme-pixel-glitch input:focus, html.theme-pixel-glitch select:focus, html.theme-pixel-glitch textarea:focus,
-html.theme-pixel-fusion .btn:hover, html.theme-pixel-fusion input:focus, html.theme-pixel-fusion select:focus, html.theme-pixel-fusion textarea:focus {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
-    outline: none;
-}
-
-/* 5. 텍스트 그림자(네온 효과) */
-html.theme-cyan-orange a, html.theme-cyan-orange .btn-primary, html.theme-cyan-orange h1, html.theme-cyan-orange h2,
-html.theme-purple-green a, html.theme-purple-green .btn-primary, html.theme-purple-green h1, html.theme-purple-green h2,
-html.theme-neon-dystopia a, html.theme-neon-dystopia .btn-primary, html.theme-neon-dystopia h1, html.theme-neon-dystopia h2,
-html.theme-pixel-glitch a, html.theme-pixel-glitch .btn-primary, html.theme-pixel-glitch h1, html.theme-pixel-glitch h2,
-html.theme-pixel-fusion a, html.theme-pixel-fusion .btn-primary, html.theme-pixel-fusion h1, html.theme-pixel-fusion h2 {
-    text-shadow: 0 0 2px var(--text-accent), 0 0 4px var(--github-accent);
-}
-
-/* 6. 슬라이더 및 프로그레스 바 등 세부 요소 스타일 */
-html.theme-cyan-orange .slide-container,
-html.theme-purple-green .slide-container,
-html.theme-neon-dystopia .slide-container,
-html.theme-pixel-glitch .slide-container,
-html.theme-pixel-fusion .slide-container {
-    background: var(--bg-secondary);
-    border: 2px solid var(--border-color);
-}
-html.theme-cyan-orange .slide h2,
-html.theme-purple-green .slide h2,
-html.theme-neon-dystopia .slide h2,
-html.theme-pixel-glitch .slide h2,
-html.theme-pixel-fusion .slide h2 {
-    text-shadow: 3px 3px 0px var(--bg-primary);
-}
-
-html.theme-cyan-orange .slide-indicator,
-html.theme-purple-green .slide-indicator,
-html.theme-neon-dystopia .slide-indicator,
-html.theme-pixel-glitch .slide-indicator,
-html.theme-pixel-fusion .slide-indicator {
-    width: 12px;
-    height: 12px;
-    border: 2px solid var(--border-color);
-    background-color: var(--text-tertiary);
-    border-radius: 0;
-}
-html.theme-cyan-orange .slide-indicator.active,
-html.theme-purple-green .slide-indicator.active,
-html.theme-neon-dystopia .slide-indicator.active,
-html.theme-pixel-glitch .slide-indicator.active,
-html.theme-pixel-fusion .slide-indicator.active {
-    background-color: var(--text-accent);
-}
-
-html.theme-cyan-orange .progress-bar,
-html.theme-purple-green .progress-bar,
-html.theme-neon-dystopia .progress-bar,
-html.theme-pixel-glitch .progress-bar,
-html.theme-pixel-fusion .progress-bar {
-    background-image: linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-    background-size: 20px 20px;
-    animation: progress-bar-stripes 1s linear infinite;
-}
-@keyframes progress-bar-stripes {
-  from { background-position: 20px 0; }
-  to { background-position: 0 0; }
-}
-
-/* 7. 링크 스타일 */
-html.theme-cyan-orange .post-content a,
-html.theme-purple-green .post-content a,
-html.theme-neon-dystopia .post-content a,
-html.theme-pixel-glitch .post-content a,
-html.theme-pixel-fusion .post-content a {
-    border-bottom: 2px dotted var(--text-accent) !important;
-}
-html.theme-cyan-orange .post-content a:hover,
-html.theme-purple-green .post-content a:hover,
-html.theme-neon-dystopia .post-content a:hover,
-html.theme-pixel-glitch .post-content a:hover,
-html.theme-pixel-fusion .post-content a:hover {
-    color: var(--bg-primary) !important;
-    background-color: var(--text-accent) !important;
-    border-bottom-style: solid !important;
-}
-/* ===== 픽셀 퓨전: 사이버펑크 네온 업그레이드 ===== */
+/* 공통 UI 스타일 */
+html.theme-pixel-fusion .top-header,
+html.theme-pixel-fusion .card,
+html.theme-pixel-fusion .post-card,
+html.theme-pixel-fusion .simulation-card,
+html.theme-pixel-fusion .intro-container,
+html.theme-pixel-fusion .diagnostic-container,
+html.theme-pixel-fusion footer,
 html.theme-pixel-fusion .btn,
-html.theme-pixel-fusion #startTestBtn {
-    background-color: var(--bg-tertiary);
-    border-color: var(--text-accent);
-    color: var(--text-primary);
-    box-shadow: 0 0 4px var(--text-accent);
+html.theme-pixel-fusion input,
+html.theme-pixel-fusion select,
+html.theme-pixel-fusion textarea {
+  border-radius: 0;
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--border-color);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease-out;
+  font-family: var(--font-sans);
 }
 
-html.theme-pixel-fusion .btn-primary,
-html.theme-pixel-fusion #startTestBtn {
-    background-color: var(--text-accent);
-    color: var(--bg-primary);
-    text-shadow: 0 0 2px var(--text-accent), 0 0 6px var(--text-accent);
+html.theme-pixel-fusion .card:hover,
+html.theme-pixel-fusion .post-card:hover,
+html.theme-pixel-fusion .simulation-card:hover,
+html.theme-pixel-fusion .btn:hover,
+html.theme-pixel-fusion input:focus,
+html.theme-pixel-fusion select:focus,
+html.theme-pixel-fusion textarea:focus {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+  outline: none;
+  transition: all 0.2s ease-in-out;
+}
+
+/* 헤더 네온 효과 */
+html.theme-pixel-fusion h1,
+html.theme-pixel-fusion h2 {
+  color: var(--text-primary);
+  text-shadow: 0 0 2px var(--github-accent), 0 0 4px var(--github-accent), 1px 1px 2px #000;
+}
+
+/* 일반 텍스트 및 링크 */
+html.theme-pixel-fusion,
+html.theme-pixel-fusion p,
+html.theme-pixel-fusion li,
+html.theme-pixel-fusion span {
+  font-family: var(--font-pixel);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+html.theme-pixel-fusion a {
+  color: var(--text-accent);
+  text-shadow: 0 0 4px var(--text-accent);
+  transition: all 0.2s ease;
+}
+
+html.theme-pixel-fusion a:hover {
+  color: var(--text-primary);
+  text-shadow: 0 0 6px var(--text-accent);
+}
+
+/* 감성 핑크 텍스트 */
+html.theme-pixel-fusion .post-card-meta,
+html.theme-pixel-fusion .post-card-date {
+  color: var(--text-secondary) !important;
+}
+
+/* 진단 카드 / 효과 강조 */
+html.theme-pixel-fusion .diagnostic-container,
+html.theme-pixel-fusion .result-card {
+  box-shadow: 0 0 5px var(--border-color), inset 0 0 5px rgba(127, 26, 255, 0.6);
+}
+
+/* 버튼 스타일 */
+html.theme-pixel-fusion .btn,
+html.theme-pixel-fusion #whoisSearchBtn,
+html.theme-pixel-fusion #portScanBtn {
+  background-color: transparent;
+  border-color: var(--github-accent);
+  color: var(--github-accent);
+  text-shadow: 0 0 3px var(--github-accent);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4), inset 0 0 5px rgba(0, 255, 231, 0.4);
 }
 
 html.theme-pixel-fusion .btn:hover,
+html.theme-pixel-fusion #whoisSearchBtn:hover,
+html.theme-pixel-fusion #portScanBtn:hover {
+  background-color: var(--github-accent);
+  color: var(--bg-primary);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4), 0 0 10px var(--github-accent), 0 0 20px var(--github-accent);
+  text-shadow: none;
+}
+
+html.theme-pixel-fusion #startTestBtn {
+  background-color: transparent;
+  border-color: var(--accent-orange);
+  color: var(--accent-orange);
+  text-shadow: 0 0 3px var(--accent-orange);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4), inset 0 0 5px rgba(255, 127, 0, 0.4);
+}
+
 html.theme-pixel-fusion #startTestBtn:hover {
-    background-color: var(--github-accent);
-    box-shadow: 0 0 6px var(--github-accent), 0 0 12px var(--text-accent);
+  background-color: var(--accent-orange);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4), 0 0 10px var(--accent-orange), 0 0 20px var(--accent-orange);
+  color: var(--bg-primary);
+  text-shadow: none;
 }
 
-html.theme-pixel-fusion .result-card {
-    border-color: var(--text-accent);
-    background-color: var(--bg-secondary);
-    box-shadow: 0 0 6px var(--border-color);
+/* 입력 필드 */
+html.theme-pixel-fusion input[type="text"] {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
-html.theme-pixel-fusion .result-card h2 {
-    color: var(--github-accent);
-    text-shadow: 0 0 4px var(--github-accent);
+html.theme-pixel-fusion input[type="text"]:focus {
+  border-color: var(--text-accent);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4), 0 0 8px var(--text-accent);
 }
 
+/* 결과 강조 숫자 */
 html.theme-pixel-fusion .result-card p {
-    color: var(--text-accent);
-    text-shadow: 0 0 2px var(--text-accent);
+  font-family: 'Galmuri7', monospace;
+  font-size: 2.5rem;
+  color: var(--accent-orange);
+  text-shadow: 0 0 4px var(--accent-orange), 0 0 8px var(--accent-orange), 0 0 12px #000;
+}
+
+html.theme-pixel-fusion .result-card .unit {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  text-shadow: none;
+}
+
+/* 프로그레스 바 */
+html.theme-pixel-fusion .progress-bar-container {
+  background-color: #000;
+  padding: 2px;
 }
 
 html.theme-pixel-fusion .progress-bar {
-    background-color: var(--github-accent);
-    color: var(--bg-primary);
+  color: var(--bg-primary);
+  font-weight: bold;
+  background: linear-gradient(90deg, var(--github-accent), var(--accent-orange));
+  animation: progressBarPulse 2s ease-in-out infinite;
+}
+
+@keyframes progressBarPulse {
+  0%   { box-shadow: 0 0 3px var(--github-accent); }
+  50%  { box-shadow: 0 0 7px var(--accent-orange); }
+  100% { box-shadow: 0 0 3px var(--github-accent); }
+}
+
+/* 인용구 */
+html.theme-pixel-fusion blockquote {
+  background-color: var(--bg-tertiary);
+  border-color: var(--text-secondary);
+  color: var(--text-secondary);
+  padding: 1rem;
+  position: relative;
+}
+
+html.theme-pixel-fusion blockquote::before {
+  content: "MSG:";
+  position: absolute;
+  top: -12px;
+  left: -2px;
+  background: var(--text-secondary);
+  color: var(--bg-primary);
+  padding: 2px 4px;
+  font-size: 0.8rem;
+}
+
+/* 네온 glow 효과 */
+html.theme-pixel-fusion .glow {
+  color: var(--text-accent);
+  text-shadow: 0 0 6px var(--text-accent), 0 0 12px var(--text-accent), 0 0 20px var(--text-accent);
+}
+
+/* 네온 박스 */
+html.theme-pixel-fusion .neon-box {
+  border: 2px solid var(--text-accent);
+  box-shadow: 0 0 8px var(--text-accent), inset 0 0 4px var(--text-accent);
+  padding: 1rem;
+}
+
+/* 모바일 가독성 향상 */
+@media (max-width: 600px) {
+  html.theme-pixel-fusion p,
+  html.theme-pixel-fusion li {
+    font-size: 1rem;
+    line-height: 1.8;
+  }
 }
