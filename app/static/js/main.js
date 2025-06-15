@@ -4,16 +4,11 @@
 
     const $ = (selector, context = document) => context.querySelector(selector);
 
-    // 관리할 모든 테마 정보
+    // 관리할 모든 테마 정보 (라이트, 다크, 픽셀 퓨전)
     const THEMES = [
         { name: 'light', className: '', displayName: '라이트' },
         { name: 'dark', className: ['dark-theme', 'theme-dark'], displayName: '다크' },
-        { name: '8bit', className: 'theme-8bit', displayName: '8비트' },
-        { name: 'cyan-orange', className: 'theme-cyan-orange', displayName: '시안 오렌지' },
-        { name: 'purple-green', className: 'theme-purple-green', displayName: '퍼플 그린' },
-        { name: 'neon-dystopia', className: 'theme-neon-dystopia', displayName: '네온 디스토피아' },
-        { name: 'pixel-glitch', className: 'theme-pixel-glitch', displayName: '픽셀 글리치' },
-        { name: 'pixel-fusion', className: 'theme-pixel-fusion', displayName: '픽셀 퓨전' } // 신규 테마 추가
+        { name: 'pixel-fusion', className: 'theme-pixel-fusion', displayName: '픽셀 퓨전' }
     ];
     
     // 모든 테마 클래스 이름 목록 (초기화용)
@@ -23,7 +18,6 @@
         constructor(localStorageKey) {
             this.localStorageKey = localStorageKey;
             this.currentThemeIndex = 0;
-            this.themeIndicator = $('#themeIndicator'); // 테마 이름 표시 요소
             this.init();
         }
 
@@ -52,12 +46,6 @@
             
             // 3. 로컬 스토리지에 저장
             localStorage.setItem(this.localStorageKey, theme.name);
-
-            // 4. 헤더의 테마 표시기 업데이트
-            if (this.themeIndicator) {
-                this.themeIndicator.textContent = `테마: ${theme.displayName}`;
-                this.themeIndicator.dataset.theme = theme.name; // 데이터 속성으로 현재 테마 이름 저장
-            }
         }
 
         toggle() {

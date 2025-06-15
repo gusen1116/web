@@ -17,10 +17,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/simulation.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/slide.css') }}">
     
-    <!-- 테마 스타일시트 -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/8bit-theme.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/new-themes.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom-themes.css') }}"> <!-- 새로 추가된 테마 -->
+    <!-- 테마 스타일시트 (통합) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom-themes.css') }}">
 
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -33,11 +31,7 @@
             const THEMES = [
                 { name: 'light', className: '' },
                 { name: 'dark', className: ['dark-theme', 'theme-dark'] },
-                { name: '8bit', className: 'theme-8bit' },
-                { name: 'cyan-orange', className: 'theme-cyan-orange' },
-                { name: 'purple-green', className: 'theme-purple-green' },
-                { name: 'neon-dystopia', className: 'theme-neon-dystopia' },
-                { name: 'pixel-glitch', className: 'theme-pixel-glitch' }
+                { name: 'pixel-fusion', className: 'theme-pixel-fusion' }
             ];
             
             const savedThemeName = localStorage.getItem('wagusen_theme_v2');
@@ -50,35 +44,6 @@
         })();
     </script>
     
-    <style nonce="{{ csp_nonce() }}">
-        /* 테마 아이콘 표시 로직 (JavaScript로 제어되므로 단순화 또는 제거 가능) */
-        .theme-toggle .theme-icon {
-            font-size: 1.25rem;
-            transition: all 0.3s ease;
-        }
-
-        /* 현재 테마 표시기 스타일 */
-        .theme-indicator {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 var(--spacing-4);
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            background-color: var(--bg-tertiary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-full);
-            height: 32px;
-            white-space: nowrap;
-            transition: all 0.3s ease;
-        }
-        @media (max-width: 900px) {
-            .theme-indicator {
-                display: none;
-            }
-        }
-    </style>
 </head>
 <body class="{% block body_class %}{% endblock %}">
     <header class="top-header" id="siteHeader">
@@ -89,8 +54,6 @@
                     <span class="site-name">와구센</span>
                 </a>
             </div>
-
-            <div id="themeIndicator" class="theme-indicator">테마: 라이트</div>
             
             <nav class="main-nav desktop-nav" id="desktopNav">
                 <ul>
@@ -196,4 +159,3 @@
     {% block scripts %}{% endblock %}
 </body>
 </html>
-    

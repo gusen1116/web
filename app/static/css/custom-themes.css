@@ -10,7 +10,7 @@
 /* 8비트 숫자 전용 폰트 (0-9 범위만 적용) */
 @font-face {
   font-family: 'GalmuriDigits';
-  src: url('https://fastly.jsdelivr.net/npm/galmuri@latest/dist/GalmuriMono9.woff2') format('woff2');
+  src: url('https://fastly.jsdelivr.net/npm/galmuri@latest/dist/Galmuri9.woff2') format('woff2');
   unicode-range: U+0030-0039;
   font-weight: normal;
   font-style: normal;
@@ -35,19 +35,22 @@ html.theme-pixel-fusion {
   --shadow-md: none;
   --shadow-lg: none;
 
-  --bg-primary: #100814;
-  --bg-secondary: #1d0f2a;
-  --bg-tertiary: #2c1a40;
+  /* 색상 변경: 사이버펑크 -> 인디고/바이올렛 계열 */
+  --bg-primary: #19182D;      /* Very Dark Indigo */
+  --bg-secondary: #282A49;     /* Dark Indigo/Slate */
+  --bg-tertiary: #393B6B;     /* Lighter Indigo/Slate */
 
   --text-primary: #f5f5ff;
-  --text-secondary: #E9A6A6;
-  --text-tertiary: #7c72bb;
+  --text-secondary: #9CA3AF;   /* Grayish Blue */
+  --text-tertiary: #6B7280;    /* Darker Grayish Blue */
 
-  --text-accent: #00ffe7;
-  --github-accent: #00ffe7;
-  --accent-orange: #FF7F00;
+  --text-accent: #00ffe7;      /* Cyan - 유지 */
+  --github-accent: #00ffe7;    /* Cyan - 유지 */
+  --accent-orange: #FF7F00;     /* Orange - 유지 */
+  --danger: #FF6B6B;          /* Red - 유지 */
 
-  --border-color: #7f1aff;
+
+  --border-color: #4F46E5;     /* Vibrant Indigo Border */
 
   --cyberpunk-bg: radial-gradient(ellipse at 50% 0%, var(--bg-tertiary) 0%, var(--bg-primary) 70%);
 
@@ -66,7 +69,7 @@ html.theme-pixel-fusion img {
   image-rendering: pixelated;
 }
 
-/* 공통 UI 스타일 */
+/* 공통 UI 스타일 (버튼 제외) */
 html.theme-pixel-fusion .top-header,
 html.theme-pixel-fusion .card,
 html.theme-pixel-fusion .post-card,
@@ -74,7 +77,6 @@ html.theme-pixel-fusion .simulation-card,
 html.theme-pixel-fusion .intro-container,
 html.theme-pixel-fusion .diagnostic-container,
 html.theme-pixel-fusion footer,
-html.theme-pixel-fusion .btn,
 html.theme-pixel-fusion input,
 html.theme-pixel-fusion select,
 html.theme-pixel-fusion textarea {
@@ -90,7 +92,6 @@ html.theme-pixel-fusion textarea {
 html.theme-pixel-fusion .card:hover,
 html.theme-pixel-fusion .post-card:hover,
 html.theme-pixel-fusion .simulation-card:hover,
-html.theme-pixel-fusion .btn:hover,
 html.theme-pixel-fusion input:focus,
 html.theme-pixel-fusion select:focus,
 html.theme-pixel-fusion textarea:focus {
@@ -129,7 +130,7 @@ html.theme-pixel-fusion a:hover {
   text-shadow: 0 0 6px var(--text-accent);
 }
 
-/* 감성 핑크 텍스트 */
+/* 감성 텍스트 */
 html.theme-pixel-fusion .post-card-meta,
 html.theme-pixel-fusion .post-card-date {
   color: var(--text-secondary) !important;
@@ -138,43 +139,108 @@ html.theme-pixel-fusion .post-card-date {
 /* 진단 카드 강조 */
 html.theme-pixel-fusion .diagnostic-container,
 html.theme-pixel-fusion .result-card {
-  box-shadow: 0 0 5px var(--border-color), inset 0 0 5px rgba(127, 26, 255, 0.6);
+  box-shadow: 0 0 5px var(--border-color), inset 0 0 5px rgba(79, 70, 229, 0.4);
 }
 
-/* 버튼 스타일 */
+/* ===== 모든 버튼에 대한 픽셀 아트 스타일 ===== */
 html.theme-pixel-fusion .btn,
+html.theme-pixel-fusion button,
+html.theme-pixel-fusion input[type="button"],
+html.theme-pixel-fusion input[type="submit"],
+html.theme-pixel-fusion #startTestBtn,
 html.theme-pixel-fusion #whoisSearchBtn,
-html.theme-pixel-fusion #portScanBtn {
-  background-color: transparent;
-  border-color: var(--github-accent);
-  color: var(--github-accent);
-  text-shadow: 0 0 3px var(--github-accent);
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4), inset 0 0 5px rgba(0, 255, 231, 0.4);
+html.theme-pixel-fusion #portScanBtn,
+html.theme-pixel-fusion .toggle-button,
+html.theme-pixel-fusion .error-btn,
+html.theme-pixel-fusion .filter-btn {
+    font-family: 'Press Start 2P', 'Galmuri7', monospace;
+    background-color: var(--bg-secondary);
+    color: var(--text-accent);
+    border: 2px solid var(--border-color);
+    border-radius: 0;
+    padding: 10px 18px;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 0px #000;
+    transition: none;
+    position: relative;
+    cursor: pointer;
+    image-rendering: pixelated;
+    box-shadow: inset -2px -2px 0px 0px #000000, inset 2px 2px 0px 0px rgba(255, 255, 255, 0.2);
 }
 
 html.theme-pixel-fusion .btn:hover,
+html.theme-pixel-fusion button:hover,
+html.theme-pixel-fusion input[type="button"]:hover,
+html.theme-pixel-fusion input[type="submit"]:hover,
+html.theme-pixel-fusion #startTestBtn:hover,
 html.theme-pixel-fusion #whoisSearchBtn:hover,
+html.theme-pixel-fusion #portScanBtn:hover,
+html.theme-pixel-fusion .toggle-button:hover,
+html.theme-pixel-fusion .error-btn:hover,
+html.theme-pixel-fusion .filter-btn:hover {
+    background-color: var(--bg-tertiary);
+    color: #fff;
+    text-shadow: 0 0 5px var(--text-accent);
+}
+
+html.theme-pixel-fusion .btn:active,
+html.theme-pixel-fusion button:active,
+html.theme-pixel-fusion input[type="button"]:active,
+html.theme-pixel-fusion input[type="submit"]:active,
+html.theme-pixel-fusion #startTestBtn:active,
+html.theme-pixel-fusion #whoisSearchBtn:active,
+html.theme-pixel-fusion #portScanBtn:active,
+html.theme-pixel-fusion .toggle-button:active,
+html.theme-pixel-fusion .error-btn:active,
+html.theme-pixel-fusion .filter-btn:active {
+    top: 2px;
+    left: 2px;
+    box-shadow: inset 2px 2px 0px 0px #000000, inset -2px -2px 0px 0px rgba(255, 255, 255, 0.2);
+}
+
+/* 버튼 비활성화 상태 */
+html.theme-pixel-fusion .btn:disabled,
+html.theme-pixel-fusion button:disabled {
+    color: var(--text-tertiary);
+    border-color: var(--text-tertiary);
+    background-color: var(--bg-primary);
+    cursor: not-allowed;
+    box-shadow: inset -1px -1px 0px 0px #000000;
+}
+html.theme-pixel-fusion .btn:disabled:hover,
+html.theme-pixel-fusion button:disabled:hover {
+    top: 0;
+    left: 0;
+    text-shadow: 1px 1px 0px #000;
+}
+
+
+/* 특정 버튼 색상 오버라이드 */
+html.theme-pixel-fusion #startTestBtn,
+html.theme-pixel-fusion #portScanBtn {
+    color: var(--accent-orange);
+    border-color: var(--accent-orange);
+}
+html.theme-pixel-fusion #startTestBtn:hover,
 html.theme-pixel-fusion #portScanBtn:hover {
-  background-color: var(--github-accent);
-  color: var(--bg-primary);
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4), 0 0 10px var(--github-accent), 0 0 20px var(--github-accent);
-  text-shadow: none;
+    text-shadow: 0 0 5px var(--accent-orange);
 }
 
-html.theme-pixel-fusion #startTestBtn {
-  background-color: transparent;
-  border-color: var(--accent-orange);
-  color: var(--accent-orange);
-  text-shadow: 0 0 3px var(--accent-orange);
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4), inset 0 0 5px rgba(255, 127, 0, 0.4);
+html.theme-pixel-fusion .error-btn {
+    color: var(--danger);
+    border-color: var(--danger);
+}
+html.theme-pixel-fusion .error-btn:hover {
+    text-shadow: 0 0 5px var(--danger);
 }
 
-html.theme-pixel-fusion #startTestBtn:hover {
-  background-color: var(--accent-orange);
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4), 0 0 10px var(--accent-orange), 0 0 20px var(--accent-orange);
-  color: var(--bg-primary);
-  text-shadow: none;
+html.theme-pixel-fusion .filter-btn.active {
+    background-color: var(--text-accent);
+    color: var(--bg-primary);
+    text-shadow: none;
+    border-color: var(--text-primary);
 }
+
 
 /* 입력 필드 */
 html.theme-pixel-fusion input[type="text"] {
