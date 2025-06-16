@@ -1,8 +1,9 @@
-/*
- * components.css - GitHub 스타일 컴포넌트, 타이포그래피 유지
+/* 
+ * components.css - 모든 재사용 가능한 UI 컴포넌트 통합
+ * 이전: components.css, simulation.css의 UI 컴포넌트 부분 통합
  */
 
-/* ===== 버튼 컴포넌트 - GitHub 스타일 ===== */
+/* ===== 버튼 컴포넌트 ===== */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -53,7 +54,7 @@
   font-size: var(--font-size-sm);
 }
 
-/* ===== 카드 컴포넌트 - GitHub 스타일 ===== */
+/* ===== 카드 컴포넌트 ===== */
 .card {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
@@ -83,7 +84,7 @@
   padding: var(--spacing-4) 0;
 }
 
-/* ===== 태그 클라우드 - GitHub 스타일 ===== */
+/* ===== 태그 클라우드 ===== */
 .tags-container {
   display: flex;
   flex-wrap: wrap;
@@ -123,54 +124,7 @@ html.dark-theme .tag:hover {
   background-color: rgba(56, 139, 253, 0.25);
 }
 
-/* ===== 테마 토글 버튼 - GitHub 스타일 ===== */
-.theme-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  background-color: transparent;
-  color: var(--text-primary);
-  border: none;
-  cursor: pointer;
-  transition: background-color var(--transition-fast);
-  position: relative;
-  overflow: hidden;
-}
-
-.theme-toggle:hover {
-  background-color: var(--bg-tertiary);
-}
-
-.theme-toggle .dark-icon,
-.theme-toggle .light-icon {
-  position: absolute;
-  transition: opacity var(--transition-normal), transform var(--transition-normal);
-}
-
-.dark-theme .dark-icon {
-  opacity: 0;
-  transform: rotate(-180deg) scale(0.5);
-}
-
-.dark-theme .light-icon {
-  opacity: 1;
-  transform: rotate(0) scale(1);
-}
-
-:not(.dark-theme) .dark-icon {
-  opacity: 1;
-  transform: rotate(0) scale(1);
-}
-
-:not(.dark-theme) .light-icon {
-  opacity: 0;
-  transform: rotate(180deg) scale(0.5);
-}
-
-/* ===== 관련 포스트 컴포넌트 - GitHub 스타일 ===== */
+/* ===== 관련 포스트 컴포넌트 ===== */
 .post-navigation {
   margin-top: var(--spacing-8);
   padding-top: var(--spacing-4);
@@ -247,4 +201,264 @@ html.dark-theme .related-post-card .tag-item {
   background-color: rgba(56, 139, 253, 0.15);
   color: #58a6ff;
   border-color: rgba(56, 139, 253, 0.4);
+}
+
+/* ===== 시뮬레이션 컨트롤 ===== */
+.simulation-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+  padding: var(--spacing-4);
+  background-color: var(--bg-primary);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.control-group {
+  margin-bottom: var(--spacing-4);
+}
+
+.control-group label {
+  display: block;
+  margin-bottom: var(--spacing-2);
+  font-weight: 500;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+}
+
+.control-group input[type="range"] {
+  width: 100%;
+  margin-bottom: var(--spacing-2);
+  font-family: var(--font-sans);
+  padding: var(--spacing-2) 0;
+  background-color: transparent;
+}
+
+.form-select {
+  width: 100%;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='currentColor' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 12px;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: var(--github-accent);
+  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
+}
+
+.checkbox-group {
+  margin-bottom: var(--spacing-2);
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 400;
+  margin-bottom: 0;
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin-right: var(--spacing-2);
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+/* ===== 시뮬레이션 버튼 영역 ===== */
+.button-group {
+  display: flex;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-4);
+}
+
+.button-group .btn {
+  flex: 1;
+  min-width: 80px;
+  padding: 5px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.button-group .btn:hover {
+  transform: translateY(-2px);
+}
+
+.button-group .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ===== 진단/결과 카드 컴포넌트 ===== */
+.diagnostic-container {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: var(--spacing-6);
+  margin: var(--spacing-8) auto;
+  max-width: 800px;
+  box-shadow: var(--shadow-md);
+}
+
+.result-card {
+  background-color: var(--bg-primary);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.result-card h2 {
+  font-size: var(--font-size-lg);
+  color: var(--text-accent);
+  margin-top: 0;
+  margin-bottom: var(--spacing-3);
+  padding-bottom: var(--spacing-2);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  font-family: var(--font-sans);
+  width: auto;
+  text-align: center;
+}
+
+.result-card h2 i {
+  margin-right: var(--spacing-2);
+  font-size: 1.2em;
+}
+
+.result-card p {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-1);
+  text-align: center;
+  font-family: var(--font-sans);
+  width: auto;
+  line-height: 1.2;
+}
+
+.result-card .unit {
+  font-size: var(--font-size-md);
+  color: var(--text-tertiary);
+  text-align: center;
+  display: block;
+  font-family: var(--font-sans);
+}
+
+.result-card .details {
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  margin-top: var(--spacing-3);
+  text-align: center;
+  font-family: var(--font-sans);
+}
+
+/* ===== 프로그레스 바 ===== */
+.progress-bar-container {
+  width: 100%;
+  max-width: 200px;
+  background-color: var(--neutral-200);
+  border-radius: var(--radius-md);
+  margin: var(--spacing-2) auto var(--spacing-4);
+  height: 24px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.progress-bar {
+  width: 0%;
+  height: 100%;
+  background-color: var(--success);
+  border-radius: var(--radius-md);
+  text-align: center;
+  line-height: 24px;
+  color: white;
+  font-size: 0.8em;
+  font-weight: 500;
+  transition: width 0.1s ease-out;
+}
+
+.progress-bar.error {
+  background-color: var(--danger);
+}
+
+html.dark-theme .progress-bar-container {
+  background-color: var(--neutral-700);
+  border-color: var(--neutral-600);
+}
+
+/* ===== 8비트 테마에서의 컴포넌트 오버라이드 ===== */
+html.theme-8bit .btn,
+html.theme-8bit .card,
+html.theme-8bit .post-card,
+html.theme-8bit .simulation-card,
+html.theme-8bit .intro-container,
+html.theme-8bit .diagnostic-container,
+html.theme-8bit footer,
+html.theme-8bit input,
+html.theme-8bit select,
+html.theme-8bit textarea {
+  border-radius: 0;
+  border-width: 2px;
+  border-style: solid;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+  transition: none;
+  font-family: var(--font-sans);
+}
+
+html.theme-8bit .card:hover,
+html.theme-8bit .post-card:hover,
+html.theme-8bit .simulation-card:hover,
+html.theme-8bit input:focus,
+html.theme-8bit select:focus,
+html.theme-8bit textarea:focus {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+  outline: none;
+  transition: all 0.2s ease-in-out;
+}
+
+/* ===== 반응형 조정 ===== */
+@media (max-width: 768px) {
+  .simulation-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .form-select {
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+  }
+
+  .result-card p {
+    font-size: var(--font-size-xl);
+  }
 }

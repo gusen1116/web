@@ -7,18 +7,13 @@
     <meta name="format-detection" content="telephone=no">
     <title>{% block title %}와구센{% endblock %}</title>
     
-    <!-- 기본 스타일시트 -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/typography.css') }}">
+    <!-- 수정된 CSS 파일 구조 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/core.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-content.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-links.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/simulation.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/slide.css') }}">
-    
-    <!-- 테마 스타일시트 (통합) -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom-themes.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/content.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout-modules.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/themes.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/error-pages.css') }}">
 
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
