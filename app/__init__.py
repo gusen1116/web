@@ -10,6 +10,7 @@ from flask import Flask, g, request, render_template
 from flask_compress import Compress
 from flask_talisman import Talisman
 from flask_wtf.csrf import CSRFProtect
+from flask_assets import Environment, Bundle # Flask-Assets 임포트
 
 # --- 설정 파일 로드 (더 안정적인 방식으로 변경) ---
 try:
@@ -22,6 +23,7 @@ except ImportError:
 compress = Compress()
 talisman = Talisman()
 csrf = CSRFProtect()
+assets = Environment() # Assets 환경 초기화
 
 def create_app(config_name=None):
     """
@@ -36,21 +38,30 @@ def create_app(config_name=None):
         config[config_name].init_app(app)
 
     # --- CSRF 설정 추가 (JSON 요청 처리를 위해) ---
-    # JSON 요청에 대해서는 CSRF 검사를 하지 않도록 설정
-    app.config['WTF_CSRF_EXEMPT_METHODS'] = []  # 기본값 유지
-    # AJAX 요청에서 CSRF 토큰을 헤더로 전송할 때 사용할 헤더 이름
+    app.config['WTF_CSRF_EXEMPT_METHODS'] = []
     app.config['WTF_CSRF_HEADERS'] = ['X-CSRFToken', 'X-CSRF-Token']
-    # CSRF 토큰의 유효 시간 (None은 무제한)
     app.config['WTF_CSRF_TIME_LIMIT'] = None
-    # SSL 사용 시에만 CSRF 쿠키를 전송하도록 설정 (프로덕션용)
-    app.config['WTF_CSRF_SSL_STRICT'] = False  # 개발 환경에서는 False
+    app.config['WTF_CSRF_SSL_STRICT'] = False
 
     # --- Flask 확장 등록 ---
     compress.init_app(app)
     csrf.init_app(app)
-    
+    assets.init_app(app) # 애플리케이션에 Assets 등록
+
+    # --- CSS 번들 정의 및 등록 ---
+    css_bundle = Bundle(
+        'css/core.css',
+        'css/components.css',
+        'css/content.css',
+        'css/layout-modules.css',
+        'css/themes.css',
+        'css/error-pages.css',
+        filters='cssmin',
+        output='gen/packed.css'
+    )
+    assets.register('all_css', css_bundle)
+
     # --- CSRF 보호에서 제외할 뷰 함수들을 정의 ---
-    # JSON API 엔드포인트들은 CSRF 보호에서 제외
     @csrf.exempt
     def exempt_views():
         """CSRF 보호에서 제외할 뷰 목록"""
@@ -71,13 +82,10 @@ def create_app(config_name=None):
         return response
 
     # --- Talisman 보안 설정 (안정성 강화) ---
-    # app_config.py 에서 CSP 설정을 가져옵니다.
     csp_config = app.config.get('CONTENT_SECURITY_POLICY')
     
-    # 개발 환경에서는 WebSocket 연결을 허용 (포트 스캔 SSE를 위해)
     if app.config.get('DEBUG', False):
         if csp_config and 'connect-src' in csp_config:
-            # EventSource/SSE 연결을 위해 'self'를 추가
             if isinstance(csp_config['connect-src'], list):
                 if "'self'" not in csp_config['connect-src']:
                     csp_config['connect-src'].append("'self'")
@@ -85,7 +93,6 @@ def create_app(config_name=None):
                 if "'self'" not in csp_config['connect-src']:
                     csp_config['connect-src'] = f"{csp_config['connect-src']} 'self'"
     
-    # Flask-Talisman 초기화
     talisman.init_app(
         app,
         force_https=app.config.get('TALISMAN_FORCE_HTTPS', False),
@@ -110,8 +117,6 @@ def create_app(config_name=None):
     # --- JSON 요청 처리를 위한 미들웨어 추가 ---
     @app.before_request
     def handle_json_request():
-        """JSON 요청에 대한 전처리"""
-        # Content-Type이 application/json인 경우 request.json이 자동으로 파싱됨
         if request.is_json:
             app.logger.debug(f"JSON 요청 수신: {request.path}")
     
@@ -161,7 +166,6 @@ def register_blueprints(app):
     from app.routes.simulation import simulation_bp
     from app.routes.posts_routes import posts_bp
     from app.routes.speedtest_routes import speedtest_bp
-    # `whois`와 `utils` 블루프린트를 임포트합니다.
     from app.routes.whois_routes import whois_bp
     from app.routes.utils_routes import utils_bp
     
@@ -169,7 +173,6 @@ def register_blueprints(app):
     app.register_blueprint(simulation_bp)
     app.register_blueprint(posts_bp)
     app.register_blueprint(speedtest_bp)
-    # 임포트한 블루프린트를 애플리케이션에 등록합니다.
     app.register_blueprint(whois_bp)
     app.register_blueprint(utils_bp)
     app.logger.info('모든 블루프린트 등록 완료')
@@ -202,12 +205,10 @@ def register_template_helpers(app):
     
     @app.context_processor
     def inject_csp_nonce():
-        """CSP nonce를 템플릿에 주입"""
         return dict(csp_nonce=lambda: g.get('csp_nonce', ''))
     
     @app.context_processor
     def inject_csrf_token():
-        """CSRF 토큰을 템플릿에 주입 (JavaScript에서 사용하기 위해)"""
         from flask_wtf.csrf import generate_csrf
         return dict(csrf_token=generate_csrf)
 
@@ -215,10 +216,7 @@ def verify_startup(app):
     """애플리케이션 시작 시 검증 작업"""
     app.logger.info("애플리케이션 시작 검증...")
     
-    # 포트 스캔 기능을 위한 설정 확인
-    app.logger.info("포트 스캔 엔드포인트 확인...")
     with app.test_client() as client:
-        # OPTIONS 요청으로 엔드포인트 존재 여부 확인
         response = client.options('/start_portscan')
         if response.status_code == 404:
             app.logger.warning("/start_portscan 엔드포인트를 찾을 수 없습니다!")
