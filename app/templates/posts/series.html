@@ -1,85 +1,53 @@
 {% extends "base.html" %}
 
-{% block title %}{{ series_name }} 시리즈 - 와구센{% endblock %}
-
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/blog-grid.css') }}">
-{% endblock %}
+{% block title %}시뮬레이션 - 와구센{% endblock %}
 
 {% block content %}
-<div class="blog-header">
-    <h1>"{{ series_name }}" 시리즈 글 모음</h1>
-    <p class="series-description">이 시리즈에 속한 모든 포스트를 시간순으로 볼 수 있습니다.</p>
+<div class="simulation-page-header">
+    <h1>인터랙티브 시뮬레이션</h1>
+    <p class="simulation-page-description">다양한 물리 및 현상들을 직접 체험해보세요. 각 카드를 클릭하여 시뮬레이션을 시작할 수 있습니다.</p>
 </div>
 
-<div class="posts-container">
-    <div class="posts-grid">
-        {% if posts %}
-            {% for post in posts %}
-                <a href="{{ url_for('posts.view_by_slug', slug=post.id) }}" class="post-card-link">
-                    <article class="post-card fade-in">
-                        <div class="post-card-header">
-                            <h2 class="post-card-title">{{ post.title }}</h2>
-                            <div class="post-card-meta">
-                                <div class="post-card-date">
-                                    {{ post.date.strftime('%Y년 %m월 %d일') }}
-                                </div>
-                                {% if post.series_part %}
-                                <div class="post-card-part">
-                                    파트 {{ post.series_part }}
-                                </div>
-                                {% endif %}
-                            </div>
+<div class="simulations-container">
+    <div class="simulation-grid">
+        {% if simulations %}
+            {% for sim in simulations %}
+                <a href="{{ url_for('simulation.dynamic_simulation', simulation_type=sim.type) }}" class="simulation-card-link">
+                    <article class="simulation-card fade-in">
+                        <div class="simulation-card-header">
+                            <h2>{{ sim.title }}</h2>
                         </div>
-                        <div class="post-card-content">
-                            <div class="post-card-preview">{{ post.get_preview(150) }}</div>
+                        <div class="simulation-card-preview">
+                            {% set placeholder_img_url = url_for('static', filename='img/simulation-placeholder.png') %}
+                            <img src="{{ url_for('static', filename=sim.thumbnail.replace('/static/', '')) if sim.thumbnail else placeholder_img_url }}" 
+                                 alt="{{ sim.title }} 미리보기"
+                                 loading="lazy"
+                                 onerror="this.onerror=null; this.src='{{ placeholder_img_url | e }}'; this.alt='미리보기 이미지를 사용할 수 없습니다';"
+                                 data-placeholder-url="{{ placeholder_img_url | e }}">
                         </div>
-                        <div class="post-card-footer">
-                            <div class="post-card-tags">
-                                {% for tag in post.tags[:2] %}
-                                    <span class="post-card-tag">{{ tag }}</span>
-                                {% endfor %}
-                                {% if post.tags|length > 2 %}
-                                    <span class="post-card-tag">+{{ post.tags|length - 2 }}</span>
-                                {% endif %}
-                            </div>
+                        <div class="simulation-card-description">
+                            <p>{{ sim.description | truncate(100, True) }}</p>
+                        </div>
+                        <div class="simulation-card-footer">
+                            <span class="btn btn-primary">
+                                시작하기 <i class="fas fa-play" style="margin-left: 8px;"></i>
+                            </span>
                         </div>
                     </article>
                 </a>
             {% endfor %}
         {% else %}
             <div class="empty-state">
-                <p>시리즈에 속한 게시글이 없습니다.</p>
+                <p>현재 사용 가능한 시뮬레이션이 없습니다.</p>
+                {% if error %}
+                <p class="error-message">시뮬레이션 목록을 불러오는 중 오류가 발생했습니다.</p>
+                {% endif %}
             </div>
         {% endif %}
     </div>
 </div>
-
-<div class="page-navigation">
-    <a href="{{ url_for('posts.index') }}" class="btn btn-secondary">
-        <i class="fas fa-arrow-left"></i> 모든 포스트로 돌아가기
-    </a>
-</div>
 {% endblock %}
 
 {% block scripts %}
-<script nonce="{{ csp_nonce() }}"> // 인라인 스크립트에 nonce 추가
-    document.addEventListener('DOMContentLoaded', function() {
-        const fadeElements = document.querySelectorAll('.fade-in');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = 1;
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, { threshold: 0.1 });
-        fadeElements.forEach(element => {
-            element.style.opacity = 0;
-            element.style.transform = 'translateY(20px)';
-            element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-            observer.observe(element);
-        });
-    });
-</script>
+<script nonce="{{ csp_nonce() }}" src="{{ url_for('static', filename='js/animations.js') }}"></script>
 {% endblock %}

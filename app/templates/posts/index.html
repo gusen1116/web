@@ -119,56 +119,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script nonce="{{ csp_nonce() }}">
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleButton = document.getElementById('toggleButton');
-        const additionalPosts = document.getElementById('additionalPosts');
-        if (toggleButton && additionalPosts) {
-            toggleButton.addEventListener('click', function() {
-                additionalPosts.classList.toggle('hidden');
-                if (additionalPosts.classList.contains('hidden')) {
-                    toggleButton.innerHTML = '<span>더 많은 포스트 보기</span><i class="fas fa-chevron-down"></i>';
-                } else {
-                    toggleButton.innerHTML = '<span>포스트 접기</span><i class="fas fa-chevron-up"></i>';
-                }
-            });
-        }
-        const tagItems = document.querySelectorAll('.tag-item');
-        const postCards = document.querySelectorAll('.post-card-link');
-        let activeTag = null;
-        tagItems.forEach(tag => {
-            tag.addEventListener('click', function() {
-                const selectedTag = this.getAttribute('data-tag');
-                if (activeTag === selectedTag) {
-                    activeTag = null;
-                    tagItems.forEach(t => t.classList.remove('active'));
-                    postCards.forEach(post => {
-                        post.style.display = '';
-                    });
-                    return;
-                }
-                activeTag = selectedTag;
-                tagItems.forEach(t => {
-                    t.classList.toggle('active', t.getAttribute('data-tag') === selectedTag);
-                });
-                let visibleCount = 0;
-                postCards.forEach(post => {
-                    const postTags = post.getAttribute('data-tags').split(',');
-                    if (postTags.includes(selectedTag)) {
-                        post.style.display = '';
-                        visibleCount++;
-                    } else {
-                        post.style.display = 'none';
-                    }
-                });
-                if (additionalPosts) {
-                    additionalPosts.classList.remove('hidden');
-                    if (toggleButton) {
-                        toggleButton.innerHTML = '<span>포스트 접기</span><i class="fas fa-chevron-up"></i>';
-                    }
-                }
-            });
-        });
-    });
-</script>
+<script nonce="{{ csp_nonce() }}" src="{{ url_for('static', filename='js/post-list.js') }}"></script>
 {% endblock %}
