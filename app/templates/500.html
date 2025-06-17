@@ -3,34 +3,6 @@
 {% block title %}서버 오류 - 와구센{% endblock %}
 
 {% block head %}
-<style nonce="{{ csp_nonce() }}"> /* 인라인 스타일에 nonce 추가 */
-  .error-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: calc(var(--real-vh, 1vh) * 60);
-    text-align: center;
-    padding: 2rem 1rem;
-  }
-  .error-container h1 {
-    font-size: 2.5rem;
-    color: var(--danger);
-    margin-bottom: 1rem;
-    font-family: var(--font-sans);
-  }
-  .error-container p {
-    font-size: 1.2rem;
-    color: var(--text-secondary);
-    margin-bottom: 2rem;
-    font-family: var(--font-sans);
-  }
-  .error-container .btn {
-    min-width: 180px;
-    padding: 0.8rem 1.5rem;
-  }
-  /* 404.html과 유사한 스타일을 여기에 추가하거나, 공통 error.css 파일을 만들 수 있습니다. */
-</style>
 {% endblock %}
 
 {% block content %}
@@ -41,5 +13,4 @@
 </div>
 {% endblock %}
 
-{# scripts 블록은 500 페이지에서 특별히 필요하지 않을 수 있지만, base.html 구조를 따름 #}
 {% block scripts %}{% endblock %}
