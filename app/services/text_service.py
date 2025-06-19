@@ -1,4 +1,4 @@
-# app/services/text_service.py
+# app/services/text_service.py (보안 강화 버전)
 import os
 import re
 import hashlib
@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, Tuple, Union, Set
 from dataclasses import dataclass, field
 from flask import url_for, current_app
 from markupsafe import escape, Markup
+from werkzeug.utils import secure_filename
 
 # 마크다운 처리를 위한 임포트 (선택적)
 try:
@@ -87,7 +88,7 @@ class TextPost:
     # 캐시된 값들
     _hash: Optional[str] = field(default=None, init=False)
     _word_count: Optional[int] = field(default=None, init=False)
-    _preview: Optional[str] = field(default=None, init=False) # 기존 텍스트 미리보기 캐시
+    _preview: Optional[str] = field(default=None, init=False)
     
     def __post_init__(self):
         """초기화 후 처리"""
@@ -103,17 +104,17 @@ class TextPost:
     
     @staticmethod
     def _validate_filename(filename: str) -> bool:
-        """파일명 보안 검증 강화 - 공백 제거"""
+        """파일명 보안 검증 강화"""
         if not isinstance(filename, str) or not filename:
             return False
         
-        # 위험한 패턴 검사
-        dangerous_patterns = [
-            '..', '/', '\\', ':', '*', '?', '"', '<', '>', '|',
-            '\x00', '\n', '\r', '\t'
-        ]
+        # secure_filename으로 검증
+        secure_name = secure_filename(filename)
+        if secure_name != filename:
+            return False
         
-        if any(pattern in filename for pattern in dangerous_patterns):
+        # 위험한 패턴 검사
+        if '..' in filename or '/' in filename or '\\' in filename:
             return False
         
         # 파일명 길이 검사
@@ -123,10 +124,6 @@ class TextPost:
         # 허용된 확장자만 허용
         allowed_extensions = current_app.config.get('ALLOWED_TEXT_EXTENSIONS', {'txt', 'md'})
         if not any(filename.lower().endswith(f'.{ext}') for ext in allowed_extensions):
-            return False
-        
-        # 안전한 문자만 허용 (공백 제거)
-        if not re.match(r'^[\w\-가-힣.]+$', filename):
             return False
         
         return True
@@ -170,11 +167,11 @@ class TextPost:
             if re.match(r'^[a-zA-Z0-9_\-가-힣]+$', slug):
                 self.slug = slug
         
-        # 날짜 파싱 - 예외 처리 강화
+        # 날짜 파싱
         if 'date' in metadata:
             self._parse_date(metadata['date'])
         
-        # 태그 파싱 - 보안 및 검증 강화
+        # 태그 파싱
         if 'tags' in metadata:
             self._parse_tags(metadata['tags'])
         
@@ -213,12 +210,12 @@ class TextPost:
         self.tags = []
         raw_tags = str(tags_str).split(',')
         
-        for tag in raw_tags[:max_tags]:  # 태그 수 제한
+        for tag in raw_tags[:max_tags]:
             tag = tag.strip()
             if not tag or len(tag) > max_tag_length:
                 continue
             
-            # 태그 문자 검증 - 안전한 문자만 허용
+            # 태그 문자 검증
             if re.match(r'^[가-힣a-zA-Z0-9\s\-_]+$', tag):
                 self.tags.append(escape(tag))
     
@@ -232,7 +229,7 @@ class TextPost:
         if 'series-part' in metadata:
             try:
                 part = int(metadata['series-part'])
-                if 0 < part < 1000:  # 합리적인 범위
+                if 0 < part < 1000:
                     self.series_part = part
             except (ValueError, TypeError):
                 current_app.logger.warning(f"시리즈 파트 파싱 실패: {metadata['series-part']}")
@@ -240,8 +237,8 @@ class TextPost:
     def _parse_changelog(self, changelog_str: str) -> None:
         """수정 이력 파싱"""
         self.changelog = []
-        for item in str(changelog_str).split(',')[:10]:  # 최대 10개 항목
-            item = item.strip()[:200]  # 길이 제한
+        for item in str(changelog_str).split(',')[:10]:
+            item = item.strip()[:200]
             if item:
                 self.changelog.append(escape(item))
     
@@ -263,7 +260,7 @@ class TextPost:
         return preview
     
     def _generate_preview_text(self, length: int) -> str:
-        """미리보기 텍스트 생성 (get_preview에서 호출)"""
+        """미리보기 텍스트 생성"""
         # 특수 태그 제거 패턴들
         patterns_to_remove = [
             r'\[img:[^\]]+\]',
@@ -272,11 +269,11 @@ class TextPost:
             r'\[youtube:[^\]]+\]',
             r'\[highlight\].*?\[/highlight\]',
             r'\[quote.*?\].*?\[/quote\]',
-            r'\[.*?\]',  # 기타 태그
-            r'#+\s+',    # 마크다운 헤더
-            r'\*\*|\*|__|_',  # 마크다운 강조
-            r'!\[.*?\]\(.*?\)',  # 마크다운 이미지
-            r'\[.*?\]\(.*?\)',   # 마크다운 링크
+            r'\[.*?\]',
+            r'#+\s+',
+            r'\*\*|\*|__|_',
+            r'!\[.*?\]\(.*?\)',
+            r'\[.*?\]\(.*?\)',
         ]
         
         text = self.content
@@ -290,54 +287,41 @@ class TextPost:
         if len(text) <= length:
             return escape(text)
         
-        preview_text = text[:length] # preview 변수명 변경
+        preview_text = text[:length]
         last_space = preview_text.rfind(' ')
-        if last_space > length * 0.8:  # 80% 이상 위치에 공백이 있으면
+        if last_space > length * 0.8:
             preview_text = preview_text[:last_space]
         
         return escape(preview_text) + "..."
 
     def get_rich_preview(self, text_length: int = 150) -> Dict[str, Optional[str]]:
-        """
-        본문 미리보기 텍스트와 첫 번째 이미지 파일명 및 alt 텍스트를 반환합니다.
-        """
-        # 1. 텍스트 미리보기 생성 (기존 _generate_preview_text 활용)
+        """본문 미리보기 텍스트와 첫 번째 이미지 파일명 및 alt 텍스트를 반환"""
+        # 1. 텍스트 미리보기 생성
         text_preview_content = self._generate_preview_text(text_length)
 
         # 2. 첫 번째 이미지 파일명 및 alt 텍스트 찾기
         first_image_filename: Optional[str] = None
         first_image_alt: str = ""
 
-        # [img:파일명|대체텍스트|옵션] 형식에서 파일명과 대체텍스트를 추출하는 정규식
-        # 옵션 부분은 미리보기에서는 직접 사용하지 않지만, 패턴에는 포함시켜 올바르게 파싱되도록 합니다.
+        # 이미지 태그 패턴
         img_match = re.search(r'\[img:([^\]|]+)(?:\|([^\]|]*))?(?:\|[^\]]*)?\]', self.content)
 
         if img_match:
             filename_from_tag = img_match.group(1).strip()
             alt_text_from_tag = img_match.group(2).strip() if img_match.group(2) and img_match.group(2).strip() else filename_from_tag
             
-            # 파일명 유효성 검사 (간단한 확장자 및 경로 조작 방지)
-            # app_config.py에서 ALLOWED_EXTENSIONS 가져오기
-            allowed_img_extensions = current_app.config.get('ALLOWED_EXTENSIONS', {}).get('image', {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'})
-
-            if any(filename_from_tag.lower().endswith(f".{ext}") for ext in allowed_img_extensions):
-                # 기본적인 경로 조작 시도 방지
-                if '..' not in filename_from_tag and '/' not in filename_from_tag and '\\' not in filename_from_tag:
+            # secure_filename으로 파일명 검증
+            secure_name = secure_filename(filename_from_tag)
+            if secure_name == filename_from_tag:
+                allowed_img_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'}
+                if any(filename_from_tag.lower().endswith(f".{ext}") for ext in allowed_img_extensions):
                     first_image_filename = filename_from_tag
                     first_image_alt = alt_text_from_tag
-                else:
-                    current_app.logger.warning(
-                        f"미리보기 이미지 생성 중 경로 조작 의심: {filename_from_tag} (포스트: {self.filename})"
-                    )
-            else:
-                current_app.logger.debug(
-                    f"미리보기 이미지 생성 중 허용되지 않는 확장자: {filename_from_tag} (포스트: {self.filename})"
-                )
         
         return {
             "text": text_preview_content,
             "image_filename": first_image_filename,
-            "image_alt": escape(first_image_alt) # Alt text는 escape 처리
+            "image_alt": escape(first_image_alt)
         }
 
     def get_word_count(self) -> int:
@@ -353,7 +337,7 @@ class TextPost:
         words = re.findall(r'\w+', text)
         korean_chars = len(re.findall(r'[가-힣]', text))
         
-        self._word_count = len(words) + korean_chars // 2  # 한글은 2글자당 1단어로 계산
+        self._word_count = len(words) + korean_chars // 2
         return self._word_count
     
     def get_file_hash(self) -> str:
@@ -365,20 +349,7 @@ class TextPost:
 
 
 def parse_text_file(file_path: Union[str, Path]) -> Tuple[Dict[str, str], str]:
-    """
-    텍스트 파일 파싱 - 보안 및 성능 강화
-    
-    Args:
-        file_path: 파일 경로
-    
-    Returns:
-        Tuple[Dict[str, str], str]: (메타데이터, 본문)
-    
-    Raises:
-        ValueError: 잘못된 파일 경로
-        FileNotFoundError: 파일을 찾을 수 없음
-        PermissionError: 파일 접근 권한 없음
-    """
+    """텍스트 파일 파싱 - 보안 및 성능 강화"""
     file_path = Path(file_path)
     
     # 경로 보안 검증
@@ -398,7 +369,7 @@ def parse_text_file(file_path: Union[str, Path]) -> Tuple[Dict[str, str], str]:
         raise ValueError(f"파일 크기 초과: {file_size} > {max_size}")
     
     try:
-        # 파일 읽기 - 인코딩 안전성 강화
+        # 파일 읽기
         content = _read_file_safe(file_path)
         
         # 메타데이터 추출
@@ -438,7 +409,7 @@ def _validate_file_path(file_path: Path) -> bool:
 
 
 def _read_file_safe(file_path: Path) -> str:
-    """파일 안전 읽기 - 다양한 인코딩 시도"""
+    """파일 안전 읽기"""
     encodings = ['utf-8', 'utf-8-sig', 'cp949', 'euc-kr', 'latin-1']
     
     for encoding in encodings:
@@ -448,7 +419,7 @@ def _read_file_safe(file_path: Path) -> str:
         except UnicodeDecodeError:
             continue
     
-    # 모든 인코딩 실패 시 바이너리로 읽고 오류 문자 대체
+    # 모든 인코딩 실패 시
     with open(file_path, 'rb') as file:
         content = file.read()
         return content.decode('utf-8', errors='replace')
@@ -460,7 +431,7 @@ def _extract_metadata_and_body(content: str) -> Tuple[Dict[str, str], str]:
     metadata = {}
     content_start = 0
     
-    # 메타데이터 패턴: [key: value] (보안 강화)
+    # 메타데이터 패턴
     meta_pattern = re.compile(r'^\[([a-zA-Z\-_]+):\s*(.+?)\]$')
     
     for i, line in enumerate(lines):
@@ -486,16 +457,7 @@ def _extract_metadata_and_body(content: str) -> Tuple[Dict[str, str], str]:
 
 
 def get_all_text_posts(posts_dir: Optional[str] = None, tag: Optional[str] = None) -> List[TextPost]:
-    """
-    모든 텍스트 파일 로드 - 성능 및 보안 최적화
-    
-    Args:
-        posts_dir: 포스트 디렉토리 경로
-        tag: 필터링할 태그
-    
-    Returns:
-        List[TextPost]: 포스트 목록
-    """
+    """모든 텍스트 파일 로드"""
     if posts_dir is None:
         posts_dir = current_app.config.get('POSTS_DIR')
     
@@ -511,7 +473,7 @@ def get_all_text_posts(posts_dir: Optional[str] = None, tag: Optional[str] = Non
         allowed_extensions = current_app.config.get('ALLOWED_TEXT_EXTENSIONS', {'txt', 'md'})
         max_posts = current_app.config.get('MAX_POSTS_TOTAL', 2000)
         
-        # 파일 목록 가져오기 - 보안 필터링 적용
+        # 파일 목록 가져오기
         files = []
         for ext in allowed_extensions:
             pattern = f"*.{ext}"
@@ -544,16 +506,7 @@ def get_all_text_posts(posts_dir: Optional[str] = None, tag: Optional[str] = Non
 
 
 def get_text_post(posts_dir: Union[str, Path], filename: str) -> Optional[TextPost]:
-    """
-    특정 텍스트 파일 로드 - 보안 강화
-    
-    Args:
-        posts_dir: 포스트 디렉토리
-        filename: 파일명
-    
-    Returns:
-        Optional[TextPost]: 포스트 객체 또는 None
-    """
+    """특정 텍스트 파일 로드"""
     try:
         # 파일명 사전 검증
         if not TextPost._validate_filename(filename):
@@ -580,13 +533,13 @@ def get_text_post(posts_dir: Union[str, Path], filename: str) -> Optional[TextPo
 
 
 def get_tags_count(posts_dir: Optional[str] = None) -> Dict[str, int]:
-    """모든 포스트의 태그 카운트 반환 - 성능 최적화"""
+    """모든 포스트의 태그 카운트 반환"""
     try:
         posts = get_all_text_posts(posts_dir)
         tags_count = {}
         
         for post in posts:
-            for tag_item in post.tags: # 변수명 변경 (tag -> tag_item)
+            for tag_item in post.tags:
                 tags_count[tag_item] = tags_count.get(tag_item, 0) + 1
         
         return tags_count
@@ -597,7 +550,7 @@ def get_tags_count(posts_dir: Optional[str] = None) -> Dict[str, int]:
 
 
 def get_series_posts(posts_dir: Union[str, Path], series_name: str) -> List[TextPost]:
-    """시리즈에 속한 모든 포스트 검색 - 정렬 개선"""
+    """시리즈에 속한 모든 포스트 검색"""
     if not series_name or not isinstance(series_name, str):
         return []
     
@@ -616,7 +569,7 @@ def get_series_posts(posts_dir: Union[str, Path], series_name: str) -> List[Text
 
 
 def get_adjacent_posts(posts_dir: Union[str, Path], current_post: TextPost) -> Tuple[Optional[TextPost], Optional[TextPost]]:
-    """현재 포스트의 이전/다음 포스트 반환 - 시간순 정렬 기준"""
+    """현재 포스트의 이전/다음 포스트 반환"""
     if not isinstance(current_post, TextPost):
         return None, None
     
@@ -633,9 +586,7 @@ def get_adjacent_posts(posts_dir: Union[str, Path], current_post: TextPost) -> T
         if current_index is None:
             return None, None
         
-        # 포스트가 최신순으로 정렬되어 있으므로:
-        # - 이전 글 (시간상 더 이전) = 인덱스가 더 큰 것 (더 오래된 글)
-        # - 다음 글 (시간상 더 최신) = 인덱스가 더 작은 것 (더 최신 글)
+        # 이전/다음 포스트
         prev_post = all_posts[current_index + 1] if current_index < len(all_posts) - 1 else None
         next_post = all_posts[current_index - 1] if current_index > 0 else None
         
@@ -646,15 +597,13 @@ def get_adjacent_posts(posts_dir: Union[str, Path], current_post: TextPost) -> T
         return None, None
 
 
-# ===== 콘텐츠 렌더링 함수들 =====
+# ===== 콘텐츠 렌더링 함수들 (보안 강화) =====
 
 def render_content(content: str, 
                   base_url_images: str = '/posts/images', 
                   base_url_videos: str = '/posts/videos', 
                   base_url_audios: str = '/posts/audios') -> Markup:
-    """
-    특수 태그를 HTML로 변환 후 마크다운 처리 - HTML Parser 기반 URL 링크 변환
-    """
+    """특수 태그를 HTML로 변환 후 마크다운 처리"""
     if not isinstance(content, str) or not content.strip():
         return Markup("")
     
@@ -674,51 +623,49 @@ def render_content(content: str,
         else:
             html_content = _process_content_fallback(processed_content)
         
-        # HTML 정제 및 보안 검사
+        # HTML 정제
         clean_content = _sanitize_html_preserve_links(html_content)
         
-        # URL 링크 변환 (HTML Parser 사용)
+        # URL 링크 변환
         final_content = _auto_linkify_urls_safe(clean_content)
         
         return Markup(final_content)
         
     except Exception as e:
         current_app.logger.error(f"콘텐츠 렌더링 오류: {e}")
-        # 오류 발생시에도 기본 텍스트와 함께 반환
         return Markup(f'<div class="content-error">일부 기능이 제한되었습니다.</div><div class="post-content">{escape(content)}</div>')
 
 
 def _process_special_tags(content: str, base_url_images: str, base_url_videos: str, base_url_audios: str) -> str:
-    """특수 태그 처리 - 보안 강화 및 이미지 크기 옵션 추가"""
+    """특수 태그 처리 - 보안 강화"""
     
     # 안전한 태그 변환 매핑
     replacements = [
-        # YouTube 임베드 - ID 검증 강화
+        # YouTube 임베드
         (r'\[youtube:([^\]]+)\]', 
          lambda m: _create_youtube_embed(m.group(1))),
         
-        # 이미지 - 경로 검증 강화 및 크기 옵션 추가
-        # 변경된 정규식: [img:파일명|대체텍스트|옵션]
+        # 이미지 - secure_filename 적용
         (r'\[img:([^\]|]+)(?:\|([^\]|]*))?(?:\|([^\]]*))?\]', 
-         lambda m: _create_image_tag(m.group(1), m.group(2), m.group(3), base_url_images)),
+         lambda m: _create_image_tag_secure(m.group(1), m.group(2), m.group(3), base_url_images)),
         
-        # 비디오
+        # 비디오 - secure_filename 적용
         (r'\[video:([^\]|]+)(?:\|([^\]]*))?\]',
-         lambda m: _create_video_tag(m.group(1), m.group(2), base_url_videos)),
+         lambda m: _create_video_tag_secure(m.group(1), m.group(2), base_url_videos)),
         
-        # 오디오
+        # 오디오 - secure_filename 적용
         (r'\[audio:([^\]|]+)(?:\|([^\]]*))?\]',
-         lambda m: _create_audio_tag(m.group(1), m.group(2), base_url_audios)),
+         lambda m: _create_audio_tag_secure(m.group(1), m.group(2), base_url_audios)),
         
         # 하이라이트 박스
         (r'\[highlight\](.*?)\[/highlight\]', 
          lambda m: f'<div class="highlight-box">{escape(m.group(1))}</div>'),
         
-        # 인용구 - 작성자 속성 보안 강화
+        # 인용구
         (r'\[quote(?:\s+author="([^"]*)")?\](.*?)\[/quote\]', 
          lambda m: _create_quote_block(m.group(2), m.group(1))),
         
-        # 코드 블록 - 언어 검증 추가
+        # 코드 블록
         (r'\[code(?:\s+lang="([^"]*)")?\](.*?)\[/code\]',
          lambda m: _create_code_block(m.group(2), m.group(1))),
     ]
@@ -731,7 +678,7 @@ def _process_special_tags(content: str, base_url_images: str, base_url_videos: s
 
 
 def _create_youtube_embed(youtube_input: str) -> str:
-    """유튜브 임베드 HTML 생성 - 보안 강화"""
+    """유튜브 임베드 HTML 생성"""
     if not isinstance(youtube_input, str):
         return '<div class="error-embed">잘못된 YouTube URL</div>'
     
@@ -740,11 +687,10 @@ def _create_youtube_embed(youtube_input: str) -> str:
     if not youtube_id:
         return '<div class="error-embed">잘못된 YouTube ID</div>'
     
-    # YouTube ID 보안 검증 (11자리 영숫자, 하이픈, 언더스코어만)
+    # YouTube ID 보안 검증
     if not re.match(r'^[a-zA-Z0-9_\-]{11}$', youtube_id):
         return '<div class="error-embed">잘못된 YouTube ID 형식</div>'
     
-    # 안전한 임베드 HTML 생성
     return f'''
 <div class="social-embed youtube-embed">
     <iframe src="https://www.youtube.com/embed/{escape(youtube_id)}" 
@@ -780,63 +726,55 @@ def _extract_youtube_id(url_or_id: str) -> Optional[str]:
     return None
 
 
-def _create_image_tag(src: str, alt: Optional[str], options_str: Optional[str], base_url: str) -> str:
-    """안전한 이미지 태그 생성 - 크기 옵션 추가"""
+def _create_image_tag_secure(src: str, alt: Optional[str], options_str: Optional[str], base_url: str) -> str:
+    """안전한 이미지 태그 생성 - secure_filename 적용"""
     if not isinstance(src, str) or not src.strip():
         return '<div class="error-embed">이미지 경로가 없습니다</div>'
     
     src = src.strip()
     
-    # 파일명 보안 검증
-    allowed_img_extensions = current_app.config.get('ALLOWED_EXTENSIONS', {}).get('image', {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'})
-    if not any(src.lower().endswith(f".{ext}") for ext in allowed_img_extensions):
-        return '<div class="error-embed">잘못된 이미지 파일 확장자</div>'
-
-    # Path(src).name을 사용하여 순수 파일명만 검사
-    if not re.match(r'^[a-zA-Z0-9_\-가-힣.]+$', Path(src).name):
-        return '<div class="error-embed">잘못된 이미지 파일명 형식</div>'
+    # secure_filename으로 파일명 정제
+    secure_src = secure_filename(src)
+    if not secure_src:
+        return '<div class="error-embed">잘못된 이미지 파일명</div>'
     
-    # 경로 조작 시도 차단
-    if '..' in src or ('/' in src and not src.startswith('/')) or ('\\' in src and not src.startswith('\\')): # 절대 경로도 고려
-        # 단순하게 '/'나 '\'가 있다고 차단하는 대신, '..'만 확인하거나,
-        # 또는 base_url과 결합 후 최종 경로에 대한 보안 검사를 강화하는 것이 더 나을 수 있습니다.
-        # 여기서는 일단 '..' 포함 여부만으로 간소화합니다.
-        if '..' in src :
-             return '<div class="error-embed">잘못된 이미지 경로 포함 (상대 경로 접근 시도)</div>'
+    # 파일 확장자 검증
+    allowed_img_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'}
+    if not any(secure_src.lower().endswith(f".{ext}") for ext in allowed_img_extensions):
+        return '<div class="error-embed">지원하지 않는 이미지 형식</div>'
     
-    safe_src = escape(src)
-    safe_alt = escape(alt.strip()) if alt and alt.strip() else escape(Path(src).stem)
+    safe_src = escape(secure_src)
+    safe_alt = escape(alt.strip()) if alt and alt.strip() else escape(Path(secure_src).stem)
     safe_base_url = escape(base_url.rstrip('/'))
 
-    # 옵션 파싱 및 스타일 적용
-    style_attribute = "width: auto; max-width: 100%;" # 기본 스타일
+    # 옵션 파싱
+    style_attribute = "width: auto; max-width: 100%;"
     if options_str:
         options = {}
-        # 옵션은 'key=value' 형태로 가정, 첫번째 유효 옵션만 처리
-        parts = options_str.split('|') 
+        parts = options_str.split('|')
         for part in parts:
             if '=' in part:
                 key, value = part.split('=', 1)
                 key = key.strip().lower()
                 value = value.strip()
-                if key in ['width', 'scale']: 
+                if key in ['width', 'scale']:
                     options[key] = value
-                    break 
+                    break
 
         if 'width' in options:
             try:
                 width_val = int(options['width'])
-                if 10 <= width_val <= 200: 
+                if 10 <= width_val <= 2000:
                     style_attribute = f"width: {width_val}px; max-width: 100%; height: auto;"
             except ValueError:
-                pass 
+                pass
         elif 'scale' in options:
             try:
                 scale_val = int(options['scale'])
-                if 10 <= scale_val <= 200: 
+                if 10 <= scale_val <= 100:
                     style_attribute = f"width: {scale_val}%; max-width: 100%; height: auto;"
             except ValueError:
-                pass 
+                pass
     
     return f'''
 <figure class="post-image">
@@ -846,37 +784,36 @@ def _create_image_tag(src: str, alt: Optional[str], options_str: Optional[str], 
          loading="lazy"
          decoding="async"
          style="{style_attribute}">
-    {f'<figcaption>{escape(safe_alt)}</figcaption>' if alt and alt.strip() else ''}
+    {f'<figcaption>{safe_alt}</figcaption>' if alt and alt.strip() else ''}
 </figure>
 '''
 
 
-def _create_video_tag(src: str, title: Optional[str], base_url: str) -> str:
-    """안전한 비디오 태그 생성"""
+def _create_video_tag_secure(src: str, title: Optional[str], base_url: str) -> str:
+    """안전한 비디오 태그 생성 - secure_filename 적용"""
     if not isinstance(src, str) or not src.strip():
         return '<div class="error-embed">비디오 경로가 없습니다</div>'
     
     src = src.strip()
     
-    # 파일명 보안 검증
-    allowed_video_extensions = current_app.config.get('ALLOWED_EXTENSIONS', {}).get('video', {'mp4', 'webm', 'ogg', 'mov'})
-    if not any(src.lower().endswith(f".{ext}") for ext in allowed_video_extensions):
-        return '<div class="error-embed">잘못된 비디오 파일 확장자</div>'
-
-    if not re.match(r'^[a-zA-Z0-9_\-가-힣.]+$', Path(src).name):
-        return '<div class="error-embed">잘못된 비디오 파일명 형식</div>'
+    # secure_filename으로 파일명 정제
+    secure_src = secure_filename(src)
+    if not secure_src:
+        return '<div class="error-embed">잘못된 비디오 파일명</div>'
     
-    # 경로 조작 시도 차단
-    if '..' in src :
-             return '<div class="error-embed">잘못된 비디오 경로 포함 (상대 경로 접근 시도)</div>'
+    # 파일 확장자 검증
+    allowed_video_extensions = {'mp4', 'webm', 'ogg', 'mov'}
+    if not any(secure_src.lower().endswith(f".{ext}") for ext in allowed_video_extensions):
+        return '<div class="error-embed">지원하지 않는 비디오 형식</div>'
     
-    safe_src = escape(src)
+    safe_src = escape(secure_src)
     safe_title = escape(title.strip()) if title and title.strip() else "비디오"
     safe_base_url = escape(base_url.rstrip('/'))
     
-    ext = src.split(".")[-1].lower()
+    ext = secure_src.split(".")[-1].lower()
     video_type = f"video/{ext}"
-    if ext == "ogv": video_type = "video/ogg" 
+    if ext == "ogv": 
+        video_type = "video/ogg"
 
     return f'''
 <div class="video-container">
@@ -888,32 +825,31 @@ def _create_video_tag(src: str, title: Optional[str], base_url: str) -> str:
 '''
 
 
-def _create_audio_tag(src: str, title: Optional[str], base_url: str) -> str:
-    """안전한 오디오 태그 생성"""
+def _create_audio_tag_secure(src: str, title: Optional[str], base_url: str) -> str:
+    """안전한 오디오 태그 생성 - secure_filename 적용"""
     if not isinstance(src, str) or not src.strip():
         return '<div class="error-embed">오디오 경로가 없습니다</div>'
     
     src = src.strip()
     
-    # 파일명 보안 검증
-    allowed_audio_extensions = current_app.config.get('ALLOWED_EXTENSIONS', {}).get('audio', {'mp3', 'wav', 'ogg', 'flac', 'm4a'})
-    if not any(src.lower().endswith(f".{ext}") for ext in allowed_audio_extensions):
-        return '<div class="error-embed">잘못된 오디오 파일 확장자</div>'
-
-    if not re.match(r'^[a-zA-Z0-9_\-가-힣.]+$', Path(src).name):
-        return '<div class="error-embed">잘못된 오디오 파일명 형식</div>'
+    # secure_filename으로 파일명 정제
+    secure_src = secure_filename(src)
+    if not secure_src:
+        return '<div class="error-embed">잘못된 오디오 파일명</div>'
     
-    # 경로 조작 시도 차단
-    if '..' in src :
-             return '<div class="error-embed">잘못된 오디오 경로 포함 (상대 경로 접근 시도)</div>'
+    # 파일 확장자 검증
+    allowed_audio_extensions = {'mp3', 'wav', 'ogg', 'flac', 'm4a'}
+    if not any(secure_src.lower().endswith(f".{ext}") for ext in allowed_audio_extensions):
+        return '<div class="error-embed">지원하지 않는 오디오 형식</div>'
     
-    safe_src = escape(src)
+    safe_src = escape(secure_src)
     safe_title = escape(title.strip()) if title and title.strip() else "오디오"
     safe_base_url = escape(base_url.rstrip('/'))
 
-    ext = src.split(".")[-1].lower()
+    ext = secure_src.split(".")[-1].lower()
     audio_type = f"audio/{ext}"
-    if ext == "oga": audio_type = "audio/ogg"
+    if ext == "oga": 
+        audio_type = "audio/ogg"
 
     return f'''
 <div class="audio-container">
@@ -944,10 +880,11 @@ def _create_code_block(code_text: str, language: Optional[str]) -> str:
     """코드 블록 생성"""
     safe_code = escape(code_text) if code_text else ""
     
-    # 언어 검증 - 허용된 언어만
+    # 언어 검증
     allowed_languages = {
         'python', 'javascript', 'html', 'css', 'sql', 'bash', 'shell',
-        'json', 'xml', 'yaml', 'markdown', 'text', 'plaintext'
+        'json', 'xml', 'yaml', 'markdown', 'text', 'plaintext',
+        'java', 'c', 'cpp', 'csharp', 'php', 'ruby', 'go', 'rust'
     }
     
     safe_language = 'plaintext'
@@ -958,7 +895,7 @@ def _create_code_block(code_text: str, language: Optional[str]) -> str:
 
 
 def _linkify_text_urls(text: str) -> str:
-    """텍스트 내의 URL을 링크로 변환 (HTML 태그 제외)"""
+    """텍스트 내의 URL을 링크로 변환"""
     if not isinstance(text, str):
         return text
     
@@ -1003,7 +940,6 @@ def _linkify_text_urls(text: str) -> str:
 def _auto_linkify_urls_safe(html_content: str) -> str:
     """HTML Parser를 사용한 안전한 URL 자동 링크 변환"""
     if not HTML_PARSER_ENABLED:
-        # HTML Parser가 없으면 기존 방식 사용
         return _auto_linkify_urls(html_content)
     
     try:
@@ -1012,7 +948,6 @@ def _auto_linkify_urls_safe(html_content: str) -> str:
         return ''.join(parser.result)
     except Exception as e:
         current_app.logger.error(f"HTML Parser 오류: {e}")
-        # 파싱 실패시 원본 반환
         return html_content
 
 
@@ -1021,9 +956,8 @@ def _auto_linkify_urls(text: str) -> str:
     if not isinstance(text, str):
         return text
     
-    # 이미 링크가 있는지 간단히 확인
+    # 이미 링크가 있는지 확인
     if '<a ' in text and '</a>' in text:
-        # 복잡한 HTML이면 그대로 반환
         return text
     
     # 간단한 텍스트에만 URL 변환 적용
@@ -1050,13 +984,13 @@ def _is_safe_url(url: str) -> bool:
     try:
         from urllib.parse import urlparse
         parsed = urlparse(url)
-        return bool(parsed.netloc)  # 도메인이 있는지만 확인
+        return bool(parsed.netloc)
     except Exception:
         return False
 
 
 def _process_markdown(content: str) -> str:
-    """마크다운 처리 - 보안 설정 강화"""
+    """마크다운 처리"""
     try:
         # 마크다운 확장 프로그램 설정
         extensions = current_app.config.get('MARKDOWN_EXTENSIONS', [
@@ -1070,7 +1004,7 @@ def _process_markdown(content: str) -> str:
                 'codehilite': {
                     'css_class': 'highlight',
                     'linenums': False,
-                    'guess_lang': False,  # 보안상 언어 추측 비활성화
+                    'guess_lang': False,
                     'use_pygments': True
                 },
                 'toc': {
@@ -1093,63 +1027,31 @@ def _process_markdown(content: str) -> str:
 
 def _sanitize_html_preserve_links(html_content: str) -> str:
     """HTML 정제 - 링크 보존"""
-    if not MARKDOWN_ENABLED: # MARKDOWN_ENABLED 대신 bleach 존재 여부 확인이 더 적절할 수 있습니다.
+    if not MARKDOWN_ENABLED:
         return html_content
     
     try:
         # 허용된 태그
-        allowed_tags = current_app.config.get('ALLOWED_HTML_TAGS', [
-            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-            'p', 'br', 'hr', 'a', 'strong', 'em', 'b', 'i', 'u', 's', 'strike', 'del', 'ins',
-            'code', 'pre', 'blockquote', 'img',
-            'ul', 'ol', 'li', 'dl', 'dt', 'dd',
-            'span', 'div', 'figure', 'figcaption', 'iframe',
-            'video', 'audio', 'source', 'track',
-            'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td', 'caption', 'col', 'colgroup',
-            'sub', 'sup', 'mark', 'small', 'details', 'summary', 'wbr'
-        ])
+        allowed_tags = current_app.config.get('ALLOWED_HTML_TAGS')
         
         # 허용된 속성
-        allowed_attrs = current_app.config.get('ALLOWED_HTML_ATTRIBUTES', {
-            '*': ['class', 'id', 'style', 'title', 'lang', 'dir', 'data-*'], # style 속성 추가, data-* 와일드카드 추가
-            'a': ['href', 'target', 'rel', 'download'],
-            'img': ['src', 'alt', 'width', 'height', 'loading', 'decoding', 'style'], # style 속성 추가
-            'iframe': ['src', 'width', 'height', 'frameborder', 
-                       'allowfullscreen', 'allow', 'sandbox', 'loading'],
-            'video': ['src', 'controls', 'width', 'height', 'poster', 'preload', 'autoplay', 'loop', 'muted'],
-            'audio': ['src', 'controls', 'preload', 'autoplay', 'loop', 'muted'],
-            'source': ['src', 'type', 'media', 'sizes', 'srcset'],
-            'track': ['src', 'kind', 'srclang', 'label', 'default'],
-            'table': ['summary'],
-            'th': ['scope', 'abbr', 'colspan', 'rowspan'],
-            'td': ['colspan', 'rowspan', 'headers'],
-            'li': ['value'], # for ordered lists
-            'ol': ['start', 'type', 'reversed'],
-            'ul': ['type'],
-            'code': [], # 언어 클래스는 pre 태그에 적용
-            'pre': [],
-            'blockquote': ['cite'],
-            'q': ['cite'],
-            'del': ['cite', 'datetime'],
-            'ins': ['cite', 'datetime'],
-            'time': ['datetime']
-        })
+        allowed_attrs = current_app.config.get('ALLOWED_HTML_ATTRIBUTES')
         
         # HTML 정제
         clean_html = bleach.clean(
             html_content,
             tags=allowed_tags,
             attributes=allowed_attrs,
-            protocols=bleach.sanitizer.ALLOWED_PROTOCOLS, 
-            strip=True,       
-            strip_comments=True 
+            protocols=bleach.sanitizer.ALLOWED_PROTOCOLS,
+            strip=True,
+            strip_comments=True
         )
         
         return clean_html
         
     except Exception as e:
         current_app.logger.error(f"HTML 정제 오류: {e}")
-        return escape(html_content) 
+        return escape(html_content)
 
 
 def _process_content_fallback(content: str) -> str:
@@ -1188,7 +1090,7 @@ def _process_content_fallback(content: str) -> str:
                 processed_lines.append('</code></pre>')
             continue
         
-        # 코드 블록 내부 - URL 변환 안함
+        # 코드 블록 내부
         if in_code_block:
             processed_lines.append(escape(line))
             continue
@@ -1204,7 +1106,7 @@ def _process_content_fallback(content: str) -> str:
             if header_match:
                 level = min(max(len(header_match.group(1)), 1), 6)
                 header_text = escape(header_match.group(2))
-                header_id = re.sub(r'[^\w가-힣\-]', '-', header_text.lower())[:50] 
+                header_id = re.sub(r'[^\w가-힣\-]', '-', header_text.lower())[:50]
                 processed_lines.append(f'<h{level} id="{header_id}">{header_text}</h{level}>')
                 continue
         

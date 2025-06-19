@@ -1,4 +1,4 @@
-# app/routes/main_routes.py
+# app/routes/main_routes.py (태그 중심으로 개편)
 from flask import Blueprint, render_template, current_app, jsonify, request
 from typing import List, Dict, Any
 from app.services.cache_service import CacheService
@@ -57,18 +57,14 @@ def api_status():
         status_info = {
             'status': 'healthy',
             'version': '2.0.0',
-            'environment': 'production'
+            'environment': current_app.config.get('FLASK_ENV', 'production'),
+            'cache_type': current_app.config.get('CACHE_TYPE', 'unknown')
         }
         
         # 캐시 통계 추가
         try:
             cache_stats = CacheService.get_cache_stats()
-            status_info['cache'] = {
-                'hit_rate': cache_stats.get('hit_rate', 0),
-                'posts_cached': cache_stats.get('posts_cached', 0),
-                'tags_cached': cache_stats.get('tags_cached', 0),
-                'memory_usage': cache_stats.get('memory_usage', 'unknown')
-            }
+            status_info['cache'] = cache_stats
         except Exception as cache_error:
             current_app.logger.warning(f'캐시 통계 수집 실패: {cache_error}')
             status_info['cache'] = {'status': 'unavailable'}
@@ -97,44 +93,90 @@ def api_status():
         }), 500
 
 
-@main_bp.route('/api/search')
-def api_search():
-    """개선된 검색 API - 성능 최적화"""
+@main_bp.route('/api/tags')
+def api_tags():
+    """태그 관련 API - 태그 목록과 통계 제공"""
     try:
-        # 검색어 추출 및 검증
-        query = request.args.get('q', '').strip()
-        limit = min(request.args.get('limit', 10, type=int), 50)
+        tags_count = CacheService.get_tags_with_cache()
         
-        if not query:
-            return jsonify({
-                'query': '',
-                'results': [],
-                'total': 0,
-                'message': '검색어를 입력해주세요'
+        # 태그를 인기도순으로 정렬
+        sorted_tags = sorted(
+            tags_count.items(), 
+            key=lambda x: x[1], 
+            reverse=True
+        )
+        
+        # 태그 클라우드를 위한 데이터 생성
+        max_count = sorted_tags[0][1] if sorted_tags else 1
+        min_count = sorted_tags[-1][1] if sorted_tags else 1
+        
+        tag_cloud = []
+        for tag, count in sorted_tags:
+            # 태그 크기 계산 (1-5 레벨)
+            if max_count == min_count:
+                size = 3
+            else:
+                size = int(1 + (count - min_count) * 4 / (max_count - min_count))
+            
+            tag_cloud.append({
+                'name': tag,
+                'count': count,
+                'size': size,
+                'url': f'/posts/tag/{tag}'
             })
         
-        # 검색어 길이 제한
-        if len(query) > 100:
-            return jsonify({
-                'error': '검색어가 너무 깁니다'
-            }), 400
-        
-        # 검색 실행 - 개선된 알고리즘
-        search_results = _perform_optimized_search(query, limit)
-        
         return jsonify({
-            'query': query,
-            'results': search_results['results'],
-            'total': search_results['total'],
-            'limit': limit,
-            'search_time': search_results.get('search_time', 0)
+            'tags': tag_cloud,
+            'total': len(tag_cloud),
+            'stats': {
+                'most_used': sorted_tags[0] if sorted_tags else None,
+                'least_used': sorted_tags[-1] if sorted_tags else None,
+                'average_count': sum(count for _, count in sorted_tags) / len(sorted_tags) if sorted_tags else 0
+            }
         })
         
     except Exception as e:
-        current_app.logger.error(f'검색 API 오류: {e}')
+        current_app.logger.error(f'태그 API 오류: {e}')
+        return jsonify({'error': '태그 정보를 가져올 수 없습니다'}), 500
+
+
+@main_bp.route('/api/related-tags/<tag>')
+def api_related_tags(tag):
+    """특정 태그와 함께 자주 사용되는 태그 찾기"""
+    try:
+        all_posts = CacheService.get_posts_with_cache()
+        
+        # 해당 태그를 가진 포스트 찾기
+        posts_with_tag = [p for p in all_posts if tag in p.tags]
+        
+        if not posts_with_tag:
+            return jsonify({'related_tags': []})
+        
+        # 관련 태그 카운트
+        related_tags = {}
+        for post in posts_with_tag:
+            for other_tag in post.tags:
+                if other_tag != tag:  # 자기 자신 제외
+                    related_tags[other_tag] = related_tags.get(other_tag, 0) + 1
+        
+        # 빈도순 정렬
+        sorted_related = sorted(
+            related_tags.items(), 
+            key=lambda x: x[1], 
+            reverse=True
+        )[:10]  # 상위 10개
+        
         return jsonify({
-            'error': '검색 중 오류가 발생했습니다'
-        }), 500
+            'tag': tag,
+            'related_tags': [
+                {'name': t, 'count': c, 'url': f'/posts/tag/{t}'} 
+                for t, c in sorted_related
+            ]
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f'관련 태그 API 오류: {e}')
+        return jsonify({'error': '관련 태그를 가져올 수 없습니다'}), 500
 
 
 def _get_popular_tags(limit: int = 10) -> List[Dict[str, Any]]:
@@ -153,7 +195,7 @@ def _get_popular_tags(limit: int = 10) -> List[Dict[str, Any]]:
             result.append({
                 'name': tag,
                 'count': count,
-                'url': f'/posts?tag={tag}'
+                'url': f'/posts/tag/{tag}'
             })
         
         return result
@@ -161,124 +203,6 @@ def _get_popular_tags(limit: int = 10) -> List[Dict[str, Any]]:
     except Exception as e:
         current_app.logger.error(f'인기 태그 처리 오류: {e}')
         return []
-
-
-def _perform_optimized_search(query: str, limit: int) -> Dict[str, Any]:
-    """
-    최적화된 검색 실행 - 성능 개선
-    
-    개선사항:
-    1. 캐시된 데이터 사용
-    2. 검색어 전처리
-    3. 점수 계산 최적화
-    4. 조기 종료 조건
-    """
-    import time
-    start_time = time.time()
-    
-    try:
-        all_posts = CacheService.get_posts_with_cache()
-        query_lower = query.lower()
-        
-        # 검색어 전처리 - 여러 단어 지원
-        search_terms = [term.strip() for term in query_lower.split() if term.strip()]
-        
-        results = []
-        
-        for post in all_posts:
-            score = 0
-            
-            # 캐시된 소문자 텍스트 사용 (성능 향상)
-            title_lower = post.title.lower()
-            content_lower = post.content.lower()
-            author_lower = post.author.lower()
-            tags_lower = [tag.lower() for tag in post.tags]
-            
-            # 각 검색어에 대해 점수 계산
-            for term in search_terms:
-                term_score = 0
-                
-                # 제목 매칭 (가중치 5)
-                if term in title_lower:
-                    term_score += 5
-                    # 정확한 단어 매칭은 추가 점수
-                    if f' {term} ' in f' {title_lower} ':
-                        term_score += 2
-                
-                # 태그 매칭 (가중치 3)
-                for tag_lower in tags_lower:
-                    if term in tag_lower:
-                        term_score += 3
-                        break
-                
-                # 작성자 매칭 (가중치 2)
-                if term in author_lower:
-                    term_score += 2
-                
-                # 내용 매칭 (가중치 1)
-                if term in content_lower:
-                    term_score += 1
-                    # 내용에서 여러 번 나타나는 경우 추가 점수 (최대 3점)
-                    count = content_lower.count(term)
-                    term_score += min(count - 1, 2)
-                
-                score += term_score
-            
-            # 모든 검색어가 포함된 경우 보너스 점수
-            if len(search_terms) > 1:
-                all_terms_found = all(
-                    any(term in text for text in [title_lower, content_lower, author_lower] + tags_lower)
-                    for term in search_terms
-                )
-                if all_terms_found:
-                    score += 3
-            
-            # 점수가 있는 경우만 결과에 포함
-            if score > 0:
-                results.append({
-                    'post': post,
-                    'score': score
-                })
-                
-                # 성능을 위한 조기 종료 (상위 100개만 계산)
-                if len(results) >= 100:
-                    break
-        
-        # 점수 기준 정렬
-        results.sort(key=lambda x: x['score'], reverse=True)
-        
-        # 제한된 결과 변환
-        limited_results = results[:limit]
-        formatted_results = []
-        
-        for item in limited_results:
-            post = item['post']
-            formatted_results.append({
-                'id': post.id,
-                'title': str(post.title),
-                'slug': post.slug,
-                'preview': post.get_preview(150),
-                'tags': post.tags[:3],
-                'date': post.date.isoformat(),
-                'url': post.get_url(),
-                'score': item['score']
-            })
-        
-        search_time = round((time.time() - start_time) * 1000, 2)  # ms
-        
-        return {
-            'results': formatted_results,
-            'total': len(results),
-            'search_time': search_time
-        }
-        
-    except Exception as e:
-        current_app.logger.error(f'검색 실행 오류: {e}')
-        return {
-            'results': [],
-            'total': 0,
-            'search_time': 0
-        }
 
 
 @main_bp.route('/robots.txt')
@@ -334,7 +258,7 @@ def sitemap_xml():
         # 포스트 페이지들 추가
         try:
             posts = CacheService.get_posts_with_cache()
-            for post in posts[:100]:  # 최대 100개만 사이트맵에 포함
+            for post in posts[:100]:
                 urls.append({
                     'loc': url_for('posts.view_by_slug', slug=post.slug, _external=True),
                     'lastmod': post.date.strftime('%Y-%m-%d'),

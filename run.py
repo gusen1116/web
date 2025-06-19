@@ -1,15 +1,29 @@
 # run.py
 import sys
 import os
-# 현재 작업 디렉토리와 프로젝트 루트를 sys.path에 추가 (필요한 경우)
-# sys.path.insert(0, os.path.abspath(os.path.dirname(__file__))) # 현재 파일(run.py)이 있는 디렉토리
-# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))) # 프로젝트 루트 (만약 run.py가 프로젝트 루트에 있다면 이 줄은 필요 없음)
+
+# 현재 디렉토리를 Python 경로에 추가
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
+
+# 개발 환경 기본 설정
+if not os.environ.get('SECRET_KEY'):
+    os.environ['SECRET_KEY'] = 'dev-only-secret-key-do-not-use-in-production'
+    os.environ['FLASK_ENV'] = 'development'
+    os.environ['CACHE_TYPE'] = 'simple'
 
 print("======== sys.path ========")
 for p in sys.path:
     print(p)
 print("==========================")
 print(f"Current working directory: {os.getcwd()}")
+print(f"Script directory: {current_dir}")
+
+# app 디렉토리 존재 확인
+app_dir = os.path.join(current_dir, 'app')
+if not os.path.exists(app_dir):
+    print(f"ERROR: 'app' directory not found at {app_dir}")
+    sys.exit(1)
 
 from app import create_app
 

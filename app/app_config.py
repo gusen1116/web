@@ -1,11 +1,10 @@
-# app_config.py
+# app/app_config.py
 import os
 import sys
 from datetime import timedelta
 from pathlib import Path
 
 # 베이스 디렉토리 (app_config.py 파일이 위치한 디렉토리, 즉 app/ 디렉토리)
-# POSTS_DIR 설정 시 이 경로를 기준으로 합니다.
 app_dir = Path(__file__).parent.resolve()
 
 class Config:
@@ -33,7 +32,20 @@ class Config:
     SESSION_COOKIE_SAMESITE = 'Lax'  # CSRF 방어
     PERMANENT_SESSION_LIFETIME = timedelta(hours=24)  # 세션 수명
     
-    # 보안 헤더 설정 강화 (최종 수정 버전)
+    # Flask-Caching 설정 (Redis 기반)
+    CACHE_TYPE = os.environ.get('CACHE_TYPE', 'simple')  # 개발: simple, 프로덕션: redis
+    CACHE_REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
+    CACHE_REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
+    CACHE_REDIS_DB = int(os.environ.get('REDIS_DB', 0))
+    CACHE_REDIS_PASSWORD = os.environ.get('REDIS_PASSWORD', None)
+    CACHE_DEFAULT_TIMEOUT = 600  # 10분
+    CACHE_KEY_PREFIX = 'flask_blog_'
+    
+    # 프로덕션에서 Redis 사용 권장
+    if FLASK_ENV == 'production' and CACHE_TYPE == 'simple':
+        print("WARNING: 프로덕션 환경에서 simple 캐시를 사용중입니다. Redis 사용을 권장합니다.")
+    
+    # 보안 헤더 설정 강화
     SECURITY_HEADERS = {
         'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
         'X-Content-Type-Options': 'nosniff',
@@ -41,7 +53,6 @@ class Config:
         'X-XSS-Protection': '1; mode=block',
         'Referrer-Policy': 'strict-origin-when-cross-origin',
         'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
-        # [수정] CSP(콘텐츠 보안 정책)의 각 지시어를 한 줄로 통합하고 필요한 소스를 추가
         'Content-Security-Policy': (
             "default-src 'self'; "
             "script-src 'self' 'nonce-{nonce}' https://cdnjs.cloudflare.com https://www.youtube.com https://s.ytimg.com; "
@@ -91,7 +102,7 @@ class Config:
     
     ALLOWED_HTML_ATTRIBUTES = {
         'a': ['href', 'title', 'target', 'rel', 'class'],
-        'img': ['src', 'alt', 'title', 'width', 'height', 'class', 'loading', 'decoding'],
+        'img': ['src', 'alt', 'title', 'width', 'height', 'class', 'loading', 'decoding', 'style'],
         'div': ['class', 'id', 'data-theme'],
         'span': ['class'],
         'code': ['class'],
@@ -110,7 +121,7 @@ class Config:
     # 외부 도메인 허용 목록 (보안 강화)
     ALLOWED_EXTERNAL_DOMAINS = {
         # 동영상/미디어
-        'youtube.com', 'www.youtube.com', 'youtu.be', # YouTube
+        'youtube.com', 'www.youtube.com', 'youtu.be',
         'vimeo.com', 'player.vimeo.com',
         
         # 기술/개발
@@ -128,7 +139,7 @@ class Config:
         
         # 클라우드/CDN
         'cloudflare.com', 'cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com',
-        'jsdelivr.net', 'unpkg.com', # fastly.jsdelivr.net은 font-src에 직접 추가
+        'jsdelivr.net', 'unpkg.com',
         
         # 이미지 호스팅
         'imgur.com', 'i.imgur.com',
@@ -143,6 +154,7 @@ class Config:
     LOG_FILE = 'logs/app.log'
     LOG_MAX_BYTES = 10 * 1024 * 1024  # 10MB
     LOG_BACKUP_COUNT = 10
+    LOGS_DIR = 'logs'
     
     # 프로덕션 환경에서는 stdout 로깅 권장
     if FLASK_ENV == 'production':
@@ -174,6 +186,7 @@ class DevelopmentConfig(Config):
     LOG_LEVEL = 'DEBUG'
     LOG_TO_STDOUT = True
     CACHE_TIMEOUT = 60
+    CACHE_TYPE = 'simple'  # 개발환경에서는 simple 캐시 사용
 
 class TestingConfig(Config):
     """테스트 환경 설정"""
@@ -185,6 +198,7 @@ class TestingConfig(Config):
     POSTS_DIR = str(TEST_BASE_DIR / 'tests' / 'test_posts')
     LOG_LEVEL = 'ERROR'
     LOG_TO_STDOUT = True
+    CACHE_TYPE = 'simple'
 
 class ProductionConfig(Config):
     """프로덕션 환경 설정"""
@@ -193,6 +207,7 @@ class ProductionConfig(Config):
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_NAME = '__Host-session'
     SEND_FILE_MAX_AGE_DEFAULT = 604800
+    CACHE_TYPE = 'redis'  # 프로덕션에서는 Redis 사용
     
     @classmethod
     def init_app(cls, app):

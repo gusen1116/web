@@ -10,7 +10,8 @@ from flask import Flask, g, request, render_template
 from flask_compress import Compress
 from flask_talisman import Talisman
 from flask_wtf.csrf import CSRFProtect
-from flask_assets import Environment, Bundle # Flask-Assets 임포트
+from flask_assets import Environment, Bundle
+from flask_caching import Cache
 
 # --- 설정 파일 로드 (더 안정적인 방식으로 변경) ---
 try:
@@ -23,7 +24,8 @@ except ImportError:
 compress = Compress()
 talisman = Talisman()
 csrf = CSRFProtect()
-assets = Environment() # Assets 환경 초기화
+assets = Environment()
+cache = Cache()  # Flask-Caching 추가
 
 def create_app(config_name=None):
     """
@@ -46,7 +48,8 @@ def create_app(config_name=None):
     # --- Flask 확장 등록 ---
     compress.init_app(app)
     csrf.init_app(app)
-    assets.init_app(app) # 애플리케이션에 Assets 등록
+    assets.init_app(app)
+    cache.init_app(app)  # 캐시 초기화
 
     # --- CSS 번들 정의 및 등록 ---
     css_bundle = Bundle(
@@ -60,12 +63,6 @@ def create_app(config_name=None):
         output='gen/packed.css'
     )
     assets.register('all_css', css_bundle)
-
-    # --- CSRF 보호에서 제외할 뷰 함수들을 정의 ---
-    @csrf.exempt
-    def exempt_views():
-        """CSRF 보호에서 제외할 뷰 목록"""
-        pass
     
     # --- CSP Nonce 생성 ---
     @app.before_request
@@ -123,6 +120,7 @@ def create_app(config_name=None):
     # --- 애플리케이션 시작 시 검증 작업 ---
     with app.app_context():
         verify_startup(app)
+        # 검색 인덱스 초기화는 제거 (태그만 사용)
     
     return app
 

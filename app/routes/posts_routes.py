@@ -1,5 +1,5 @@
-# app/routes/posts_routes.py
-from flask import Blueprint, render_template, send_from_directory, current_app, abort, url_for, request, redirect
+# app/routes/posts_routes.py (태그 기능 강화)
+from flask import Blueprint, render_template, send_from_directory, current_app, abort, url_for, request, redirect, jsonify
 import os
 import re
 from werkzeug.utils import secure_filename
@@ -92,7 +92,7 @@ def validate_media_filename(filename, media_type):
 
 @posts_bp.route('/')
 def index():
-    """텍스트 파일 목록 페이지 - 디버깅 강화"""
+    """텍스트 파일 목록 페이지"""
     try:
         current_app.logger.info("포스트 인덱스 페이지 로드 시작")
         
@@ -102,26 +102,6 @@ def index():
         
         current_app.logger.info(f"로드된 포스트 수: {len(posts) if posts else 0}")
         current_app.logger.info(f"로드된 태그 수: {len(tags_count) if tags_count else 0}")
-        
-        # 포스트가 없는 경우 직접 로드 시도
-        if not posts:
-            current_app.logger.warning("캐시에서 포스트를 찾을 수 없음, 직접 로드 시도")
-            posts_dir = current_app.config.get('POSTS_DIR')
-            current_app.logger.info(f"포스트 디렉토리: {posts_dir}")
-            
-            if posts_dir and os.path.exists(posts_dir):
-                posts = get_all_text_posts(posts_dir)
-                current_app.logger.info(f"직접 로드한 포스트 수: {len(posts) if posts else 0}")
-            else:
-                current_app.logger.error(f"포스트 디렉토리가 존재하지 않음: {posts_dir}")
-        
-        # 태그가 없는 경우 직접 로드 시도
-        if not tags_count:
-            current_app.logger.warning("캐시에서 태그를 찾을 수 없음, 직접 로드 시도")
-            posts_dir = current_app.config.get('POSTS_DIR')
-            if posts_dir and os.path.exists(posts_dir):
-                tags_count = get_tags_count(posts_dir)
-                current_app.logger.info(f"직접 로드한 태그 수: {len(tags_count) if tags_count else 0}")
         
         # 태그 정렬 및 제한
         tags = []
@@ -153,6 +133,57 @@ def index():
             error_message=f"포스트를 로드하는 중 오류가 발생했습니다: {str(e)}"
         )
 
+@posts_bp.route('/tags')
+def tags_overview():
+    """태그 전체 보기 페이지"""
+    try:
+        tags_count = CacheService.get_tags_with_cache()
+        
+        # 태그를 알파벳/가나다 순으로 그룹화
+        tag_groups = {}
+        for tag, count in tags_count.items():
+            first_char = tag[0].upper()
+            if first_char not in tag_groups:
+                tag_groups[first_char] = []
+            tag_groups[first_char].append({
+                'name': escape(tag),
+                'count': count,
+                'url': f'/posts/tag/{tag}'
+            })
+        
+        # 각 그룹 내에서 정렬
+        for char in tag_groups:
+            tag_groups[char].sort(key=lambda x: x['name'])
+        
+        # 통계 정보
+        total_tags = len(tags_count)
+        total_usage = sum(tags_count.values())
+        avg_usage = total_usage / total_tags if total_tags > 0 else 0
+        
+        # 인기 태그 TOP 10
+        popular_tags = sorted(
+            tags_count.items(), 
+            key=lambda x: x[1], 
+            reverse=True
+        )[:10]
+        
+        return render_template(
+            'posts/tags_overview.html',
+            tag_groups=sorted(tag_groups.items()),
+            stats={
+                'total_tags': total_tags,
+                'total_usage': total_usage,
+                'average_usage': round(avg_usage, 1)
+            },
+            popular_tags=[
+                {'name': escape(tag), 'count': count}
+                for tag, count in popular_tags
+            ]
+        )
+    except Exception as e:
+        current_app.logger.error(f'태그 개요 페이지 오류: {str(e)}')
+        abort(500)
+
 @posts_bp.route('/<slug>')
 def view_by_slug(slug):
     """슬러그로 포스트 찾기 - 성능 최적화"""
@@ -165,21 +196,6 @@ def view_by_slug(slug):
     try:
         # 캐시된 포스트 인덱스 사용 (O(1) 조회)
         matching_post = CacheService.get_post_by_slug(slug)
-        
-        if not matching_post:
-            # 캐시에 인덱스가 없으면 기존 방식으로 폴백
-            all_posts = CacheService.get_posts_with_cache()
-            
-            # 확장자가 있으면 제거
-            slug_no_ext = os.path.splitext(slug)[0]
-            
-            for post in all_posts:
-                if (hasattr(post, 'slug') and post.slug == slug) or \
-                   post.id == slug_no_ext or \
-                   post.filename == slug or \
-                   post.filename == slug + '.txt':
-                    matching_post = post
-                    break
         
         if not matching_post:
             abort(404, "포스트를 찾을 수 없습니다")
@@ -243,7 +259,7 @@ def view_post(filename):
 
 @posts_bp.route('/tag/<tag>')
 def filter_by_tag(tag):
-    """태그별 텍스트 파일 필터링"""
+    """태그별 텍스트 파일 필터링 - 개선된 버전"""
     # 태그 검증
     if not validate_tag(tag):
         abort(400, "잘못된 태그입니다")
@@ -256,24 +272,93 @@ def filter_by_tag(tag):
         
         # 태그 카운트
         tags_count = CacheService.get_tags_with_cache()
-        tags = [{"name": escape(t), "count": count} 
-                for t, count in sorted(tags_count.items(), 
-                key=lambda x: x[1], reverse=True)[:20]]
+        
+        # 현재 태그와 함께 자주 사용되는 태그 찾기
+        related_tags = []
+        for post in posts:
+            for other_tag in post.tags:
+                if other_tag != tag:
+                    related_tags.append(other_tag)
+        
+        # 관련 태그 빈도 계산
+        related_tag_counts = {}
+        for t in related_tags:
+            related_tag_counts[t] = related_tag_counts.get(t, 0) + 1
+        
+        # 상위 5개 관련 태그
+        top_related_tags = sorted(
+            related_tag_counts.items(), 
+            key=lambda x: x[1], 
+            reverse=True
+        )[:5]
+        
+        # 전체 태그 목록 (사이드바용)
+        all_tags = [{"name": escape(t), "count": count} 
+                    for t, count in sorted(tags_count.items(), 
+                    key=lambda x: x[1], reverse=True)[:20]]
         
         # 최신 포스트 목록
         all_posts = CacheService.get_posts_with_cache()
         recent_posts = all_posts[:5] if len(all_posts) > 5 else all_posts
         
         return render_template(
-            'posts/index.html', 
+            'posts/tag.html',
             posts=posts, 
-            tags=tags,
-            recent_posts=recent_posts,
-            current_tag=escape(tag)
+            current_tag=escape(tag),
+            tag_count=tags_count.get(tag, 0),
+            related_tags=[
+                {"name": escape(t), "count": c} 
+                for t, c in top_related_tags
+            ],
+            all_tags=all_tags,
+            recent_posts=recent_posts
         )
     except Exception as e:
         current_app.logger.error(f'태그 필터링 오류: {str(e)}')
         abort(500)
+
+@posts_bp.route('/api/tags/autocomplete')
+def tag_autocomplete():
+    """태그 자동완성 API"""
+    query = request.args.get('q', '').strip().lower()
+    
+    if not query or len(query) < 2:
+        return jsonify([])
+    
+    try:
+        tags_count = CacheService.get_tags_with_cache()
+        
+        # 쿼리로 시작하는 태그 찾기
+        matching_tags = [
+            {
+                'name': tag,
+                'count': count,
+                'url': f'/posts/tag/{tag}'
+            }
+            for tag, count in tags_count.items()
+            if tag.lower().startswith(query)
+        ]
+        
+        # 포함하는 태그도 찾기 (시작하는 것보다 후순위)
+        containing_tags = [
+            {
+                'name': tag,
+                'count': count,
+                'url': f'/posts/tag/{tag}'
+            }
+            for tag, count in tags_count.items()
+            if query in tag.lower() and not tag.lower().startswith(query)
+        ]
+        
+        # 합치고 카운트순 정렬
+        all_matches = matching_tags + containing_tags
+        all_matches.sort(key=lambda x: x['count'], reverse=True)
+        
+        return jsonify(all_matches[:10])  # 최대 10개
+        
+    except Exception as e:
+        current_app.logger.error(f'태그 자동완성 오류: {e}')
+        return jsonify([])
 
 @posts_bp.route('/series/<series_name>')
 def view_series(series_name):
