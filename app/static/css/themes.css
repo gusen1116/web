@@ -1,7 +1,29 @@
-/* 
+/*
  * themes.css - 모든 테마 스타일 통합
  * 이전: 8bit-theme.css, custom-themes.css, new-themes.css, pixel-fusion.css 통합
  */
+
+/* 폰트 정의 - unicode-range로 자동 분리 */
+@font-face {
+  font-family: 'MultiFont';
+  src: url('https://cdn.jsdelivr.net/gh/quiple/galmuri/dist/Galmuri7.woff2') format('woff2');
+  unicode-range: U+0030-0039; /* 숫자 */
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MultiFont';
+  src: url('https://cdn.jsdelivr.net/gh/quiple/galmuri/dist/Galmuri9.woff2') format('woff2');
+  unicode-range: U+AC00-D7AF, U+1100-11FF, U+3130-318F; /* 한글 */
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MultiFont';
+  src: url('https://fonts.gstatic.com/s/pressstart2p/v14/e3t4euO8T-267oIAQAu6jDQyK3nVivM.woff2') format('woff2');
+  unicode-range: U+0000-002F, U+003A-007F, U+00A0-00FF; /* 영문 및 기호 */
+  font-display: swap;
+}
 
 /* ===== 1. Galmuri 폰트 임포트 ===== */
 @import url('https://fastly.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css');
@@ -9,10 +31,13 @@
 
 /* ===== 2. 8비트 테마 ===== */
 html.theme-8bit {
-  --font-sans: 'Galmuri7', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'MultiFont', monospace;
   font-family: var(--font-sans);
-  font-smooth: never;
-  -webkit-font-smoothing: none;
+  font-smooth: never; /* 변경: 픽셀 퍼펙트 렌더링 */
+  -webkit-font-smoothing: none; /* 변경: 픽셀 퍼펙트 렌더링 */
+  -moz-osx-font-smoothing: grayscale; /* 변경: 픽셀 퍼펙트 렌더링 */
+  text-rendering: optimizeSpeed; /* 변경: 픽셀 퍼펙트 렌더링 */
+  
   --bg-primary: #1F1D36;
   --bg-secondary: #3F3351;
   --bg-tertiary: #4A405A;
@@ -32,6 +57,12 @@ html.theme-8bit {
   --radius-xl: 0;
   --radius-full: 0;
   --icon-filter: brightness(0) saturate(100%) invert(81%) sepia(13%) saturate(946%) hue-rotate(314deg) brightness(95%) contrast(92%);
+
+  /* 폰트 크기 및 라인하이트 조정 (기존 core.css 기준 유지 및 픽셀 최적화) */
+  font-weight: 400; /* 얇은 두께 시도 */
+  font-size: 1rem; /* 기본 폰트 크기 설정 */
+  line-height: 1.2; /* 픽셀 폰트는 타이트한 line-height */
+  letter-spacing: -0.02em; /* 한글은 약간 좁게 */
 }
 
 /* 픽셀화 스타일 적용 */
@@ -44,6 +75,18 @@ html.theme-8bit .mobile-toggle {
     image-rendering: pixelated;
 }
 
+/* 폰트 크기 조정: core.css rem 값에 근접하게 조정 */
+/* text-shadow 강도 약화 */
+html.theme-8bit h1 { font-size: 2.5rem; line-height: 1.2; text-shadow: 0.03125rem 0.03125rem 0px rgba(31, 29, 54, 0.3); } /* 40px = 2.5rem */
+html.theme-8bit h2 { font-size: 1.875rem; line-height: 1.2; text-shadow: 0.03125rem 0.03125rem 0px rgba(31, 29, 54, 0.3); } /* 30px = 1.875rem */
+html.theme-8bit h3 { font-size: 1.25rem; line-height: 1.2; text-shadow: 0.03125rem 0.03125rem 0px rgba(31, 29, 54, 0.3); } /* 20px = 1.25rem */
+html.theme-8bit h4 { font-size: 1rem; line-height: 1.2; }
+html.theme-8bit h5 { font-size: 1rem; line-height: 1.2; }
+html.theme-8bit h6 { font-size: 1rem; line-height: 1.2; }
+html.theme-8bit p, html.theme-8bit li { font-size: 1.25rem; line-height: 1.6; letter-spacing: -0.02em; } /* 20px = 1.25rem */
+html.theme-8bit .post-content a { font-size: 1rem; }
+
+
 /* 컴포넌트 8비트 스타일 */
 html.theme-8bit .top-header,
 html.theme-8bit .card,
@@ -53,16 +96,16 @@ html.theme-8bit .intro-container,
 html.theme-8bit .diagnostic-container,
 html.theme-8bit footer {
     border-style: solid;
-    border-width: 2px;
-    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+    border-width: 0.125rem; /* 2px = 0.125rem */
+    box-shadow: 0.25rem 0.25rem 0px rgba(0, 0, 0, 0.4); /* 4px = 0.25rem */
     transition: none;
 }
 
 html.theme-8bit .card:hover,
 html.theme-8bit .post-card:hover,
 html.theme-8bit .simulation-card:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+    transform: translate(-0.125rem, -0.125rem); /* 2px = 0.125rem */
+    box-shadow: 0.375rem 0.375rem 0px rgba(0, 0, 0, 0.4); /* 6px = 0.375rem */
 }
 
 html.theme-8bit .btn,
@@ -70,9 +113,9 @@ html.theme-8bit input,
 html.theme-8bit select,
 html.theme-8bit textarea {
     border-radius: 0;
-    border-width: 2px;
+    border-width: 0.125rem; /* 2px = 0.125rem */
     border-style: solid;
-    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+    box-shadow: 0.25rem 0.25rem 0px rgba(0, 0, 0, 0.4); /* 4px = 0.25rem */
     transition: none;
     font-family: var(--font-sans);
 }
@@ -81,25 +124,25 @@ html.theme-8bit .btn:hover,
 html.theme-8bit input:focus,
 html.theme-8bit select:focus,
 html.theme-8bit textarea:focus {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+    transform: translate(-0.125rem, -0.125rem); /* 2px = 0.125rem */
+    box-shadow: 0.375rem 0.375rem 0px rgba(0, 0, 0, 0.4); /* 6px = 0.375rem */
     outline: none;
 }
 
 html.theme-8bit .slide-container {
     background: var(--bg-secondary);
-    border: 2px solid var(--border-color);
+    border: 0.125rem solid var(--border-color); /* 2px = 0.125rem */
 }
 
 html.theme-8bit .slide h2 {
     color: #F8F8F8;
-    text-shadow: 3px 3px 0px #1F1D36;
+    text-shadow: 0.1875rem 0.1875rem 0px #1F1D36; /* 3px = 0.1875rem */
 }
 
 html.theme-8bit .slide-indicator {
-    width: 12px;
-    height: 12px;
-    border: 2px solid #1F1D36;
+    width: 0.75rem; /* 12px = 0.75rem */
+    height: 0.75rem; /* 12px = 0.75rem */
+    border: 0.125rem solid #1F1D36; /* 2px = 0.125rem */
     background-color: var(--text-tertiary);
     border-radius: 0;
 }
@@ -110,19 +153,19 @@ html.theme-8bit .slide-indicator.active {
 
 html.theme-8bit .progress-bar {
     background-image: linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-    background-size: 20px 20px;
+    background-size: 1.25rem 1.25rem; /* 20px = 1.25rem */
     animation: progress-bar-stripes 1s linear infinite;
 }
 
 @keyframes progress-bar-stripes {
-  from { background-position: 20px 0; }
+  from { background-position: 1.25rem 0; }
   to { background-position: 0 0; }
 }
 
 /* 아이콘 관련 재정의 */
 html.theme-8bit .theme-toggle .icon-8bit {
-    width: 36px;
-    height: 36px;
+    width: 2.25rem; /* 36px = 2.25rem */
+    height: 2.25rem; /* 36px = 2.25rem */
     filter: hue-rotate(220deg) saturate(3) brightness(1.2);
     transition: transform 0.2s ease;
 }
@@ -135,7 +178,7 @@ html.theme-8bit .mobile-toggle {
     background-image: url('/static/img/icon/menu.png');
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 24px 24px;
+    background-size: 1.5rem 1.5rem; /* 24px = 1.5rem */
 }
 
 html.theme-8bit .mobile-toggle.active {
@@ -153,15 +196,15 @@ html.theme-8bit .mobile-nav-link .default-icon {
 html.theme-8bit .mobile-nav-link .nav-icon-8bit {
     display: inline-block;
     filter: var(--icon-filter);
-    width: 24px;
-    height: 24px;
+    width: 1.5rem; /* 24px = 1.5rem */
+    height: 1.5rem;  /* 24px = 1.5rem */
     flex-shrink: 0;
 }
 
 /* 링크 및 푸터 아이콘 스타일 */
 html.theme-8bit .post-content a {
     font-family: var(--font-sans);
-    border-bottom: 2px dotted var(--text-accent) !important;
+    border-bottom: 0.125rem dotted var(--text-accent) !important; /* 2px = 0.125rem */
 }
 html.theme-8bit .post-content a:hover {
     color: var(--bg-primary) !important;
@@ -171,8 +214,8 @@ html.theme-8bit .post-content a:hover {
 
 html.theme-8bit .footer-links i {
     font-size: 0;
-    width: 24px;
-    height: 24px;
+    width: 1.5rem; /* 24px = 1.5rem */
+    height: 1.5rem; /* 24px = 1.5rem */
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
@@ -190,12 +233,14 @@ html.theme-8bit .footer-links .footer-icon-mail {
 
 /* ===== 3. Pixel Fusion 테마 ===== */
 html.theme-pixel-fusion {
-  --font-sans: 'Galmuri7', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-pixel: 'Press Start 2P', 'Galmuri7', monospace;
+  --font-sans: 'MultiFont', monospace;
+  --font-pixel: 'Press Start 2P', 'MultiFont', monospace;
 
   font-family: var(--font-sans);
   font-smooth: never;
   -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeSpeed;
 
   --radius-sm: 0;
   --radius-md: 0;
@@ -208,25 +253,42 @@ html.theme-pixel-fusion {
   --shadow-lg: none;
 
   /* 인디고/바이올렛 계열 */
-  --bg-primary: #19182D;      /* Very Dark Indigo */
-  --bg-secondary: #282A49;     /* Dark Indigo/Slate */
-  --bg-tertiary: #393B6B;     /* Lighter Indigo/Slate */
+  --bg-primary: #19182D;
+  --bg-secondary: #282A49;
+  --bg-tertiary: #393B6B;
 
   --text-primary: #f5f5ff;
-  --text-secondary: #9CA3AF;   /* Grayish Blue */
-  --text-tertiary: #6B7280;    /* Darker Grayish Blue */
+  --text-secondary: #9CA3AF;
+  --text-tertiary: #6B7280;
 
-  --text-accent: #00ffe7;      /* Cyan */
-  --github-accent: #00ffe7;    /* Cyan */
-  --accent-orange: #FF7F00;    /* Orange */
-  --danger: #FF6B6B;          /* Red */
+  --text-accent: #00ffe7;
+  --github-accent: #00ffe7;
+  --accent-orange: #FF7F00;
+  --danger: #FF6B6B;
 
-  --border-color: #4F46E5;     /* Vibrant Indigo Border */
+  --border-color: #4F46E5;
 
   --cyberpunk-bg: radial-gradient(ellipse at 50% 0%, var(--bg-tertiary) 0%, var(--bg-primary) 70%);
 
   color-scheme: dark;
+
+  /* 폰트 크기 및 라인하이트 조정 (기존 core.css 기준 유지 및 픽셀 최적화) */
+  font-weight: 400; /* 얇은 두께 시도 */
+  font-size: 1rem; /* 기본 폰트 크기 설정 */
+  line-height: 1.2; /* 픽셀 폰트는 타이트한 line-height */
+  letter-spacing: -0.02em; /* 한글은 약간 좁게 */
 }
+
+/* 폰트 크기 조정: core.css rem 값에 근접하게 조정 */
+/* text-shadow 강도 약화 */
+html.theme-pixel-fusion h1 { font-size: 2.5rem; line-height: 1.2; text-shadow: 0 0 0.03125rem var(--github-accent), 0 0 0.0625rem var(--github-accent), 0.03125rem 0.03125rem 0px #000; } /* 40px = 2.5rem */
+html.theme-pixel-fusion h2 { font-size: 1.875rem; line-height: 1.2; text-shadow: 0 0 0.03125rem var(--github-accent), 0 0 0.0625rem var(--github-accent), 0.03125rem 0.03125rem 0px #000; } /* 30px = 1.875rem */
+html.theme-pixel-fusion h3 { font-size: 1.25rem; line-height: 1.2; text-shadow: 0 0 0.03125rem var(--github-accent), 0 0 0.0625rem var(--github-accent), 0.03125rem 0.03125rem 0px #000; } /* 20px = 1.25rem */
+html.theme-pixel-fusion h4 { font-size: 1rem; line-height: 1.2; }
+html.theme-pixel-fusion h5 { font-size: 1rem; line-height: 1.2; }
+html.theme-pixel-fusion h6 { font-size: 1rem; line-height: 1.2; }
+html.theme-pixel-fusion p, html.theme-pixel-fusion li { font-size: 1.25rem; line-height: 1.6; letter-spacing: -0.02em; } /* 20px = 1.25rem */
+html.theme-pixel-fusion .post-content a { font-size: 1rem; }
 
 /* 배경 스타일 */
 html.theme-pixel-fusion body {
@@ -252,10 +314,10 @@ html.theme-pixel-fusion input,
 html.theme-pixel-fusion select,
 html.theme-pixel-fusion textarea {
   border-radius: 0;
-  border-width: 2px;
+  border-width: 0.125rem; /* 2px = 0.125rem */
   border-style: solid;
   border-color: var(--border-color);
-  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+  box-shadow: 0.25rem 0.25rem 0px rgba(0, 0, 0, 0.4); /* 4px = 0.25rem */
   transition: all 0.2s ease-out;
   font-family: var(--font-sans);
 }
@@ -266,8 +328,8 @@ html.theme-pixel-fusion .simulation-card:hover,
 html.theme-pixel-fusion input:focus,
 html.theme-pixel-fusion select:focus,
 html.theme-pixel-fusion textarea:focus {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+  transform: translate(-0.125rem, -0.125rem); /* 2px = 0.125rem */
+  box-shadow: 0.375rem 0.375rem 0px rgba(0, 0, 0, 0.4); /* 6px = 0.375rem */
   outline: none;
   transition: all 0.2s ease-in-out;
 }
@@ -276,7 +338,7 @@ html.theme-pixel-fusion textarea:focus {
 html.theme-pixel-fusion h1,
 html.theme-pixel-fusion h2 {
   color: var(--text-primary);
-  text-shadow: 0 0 2px var(--github-accent), 0 0 4px var(--github-accent), 1px 1px 2px #000;
+  /* text-shadow는 위에서 개별적으로 조정됨 */
 }
 
 /* 일반 텍스트 및 링크 */
@@ -285,20 +347,20 @@ html.theme-pixel-fusion p,
 html.theme-pixel-fusion li,
 html.theme-pixel-fusion span {
   font-family: var(--font-sans);
-  font-size: 0.95rem;
+  font-size: 1rem; /* 기존 rem 단위를 유지합니다. MultiFont의 unicode-range가 폰트를 결정합니다. */
   line-height: 1.6;
   color: var(--text-primary);
 }
 
 html.theme-pixel-fusion a {
   color: var(--text-accent);
-  text-shadow: 0 0 4px var(--text-accent);
+  text-shadow: 0 0 0.25rem var(--text-accent); /* 4px = 0.25rem */
   transition: all 0.2s ease;
 }
 
 html.theme-pixel-fusion a:hover {
   color: var(--text-primary);
-  text-shadow: 0 0 6px var(--text-accent);
+  text-shadow: 0 0 0.375rem var(--text-accent); /* 6px = 0.375rem */
 }
 
 /* 버튼 스타일 */
@@ -312,19 +374,19 @@ html.theme-pixel-fusion #portScanBtn,
 html.theme-pixel-fusion .toggle-button,
 html.theme-pixel-fusion .error-btn,
 html.theme-pixel-fusion .filter-btn {
-    font-family: 'Press Start 2P', 'Galmuri7', monospace;
+    font-family: 'Press Start 2P', 'MultiFont', monospace;
     background-color: var(--bg-secondary);
     color: var(--text-accent);
-    border: 2px solid var(--border-color);
+    border: 0.125rem solid var(--border-color); /* 2px = 0.125rem */
     border-radius: 0;
-    padding: 10px 18px;
+    padding: 0.625rem 1.125rem; /* 10px = 0.625rem, 18px = 1.125rem */
     text-transform: uppercase;
-    text-shadow: 1px 1px 0px #000;
+    text-shadow: 0.0625rem 0.0625rem 0px #000; /* 1px = 0.0625rem */
     transition: none;
     position: relative;
     cursor: pointer;
     image-rendering: pixelated;
-    box-shadow: inset -2px -2px 0px 0px #000000, inset 2px 2px 0px 0px rgba(255, 255, 255, 0.2);
+    box-shadow: inset -0.125rem -0.125rem 0px 0px #000000, inset 0.125rem 0.125rem 0px 0px rgba(255, 255, 255, 0.2); /* 2px = 0.125rem */
 }
 
 html.theme-pixel-fusion .btn:hover,
@@ -339,7 +401,7 @@ html.theme-pixel-fusion .error-btn:hover,
 html.theme-pixel-fusion .filter-btn:hover {
     background-color: var(--bg-tertiary);
     color: #fff;
-    text-shadow: 0 0 5px var(--text-accent);
+    text-shadow: 0 0 0.3125rem var(--text-accent); /* 5px = 0.3125rem */
 }
 
 html.theme-pixel-fusion .btn:active,
@@ -352,9 +414,9 @@ html.theme-pixel-fusion #portScanBtn:active,
 html.theme-pixel-fusion .toggle-button:active,
 html.theme-pixel-fusion .error-btn:active,
 html.theme-pixel-fusion .filter-btn:active {
-    top: 2px;
-    left: 2px;
-    box-shadow: inset 2px 2px 0px 0px #000000, inset -2px -2px 0px 0px rgba(255, 255, 255, 0.2);
+    top: 0.125rem; /* 2px = 0.125rem */
+    left: 0.125rem; /* 2px = 0.125rem */
+    box-shadow: inset 0.125rem 0.125rem 0px 0px #000000, inset -0.125rem -0.125rem 0px 0px rgba(255, 255, 255, 0.2); /* 2px = 0.125rem */
 }
 
 /* 버튼 비활성화 상태 */
@@ -364,13 +426,13 @@ html.theme-pixel-fusion button:disabled {
     border-color: var(--text-tertiary);
     background-color: var(--bg-primary);
     cursor: not-allowed;
-    box-shadow: inset -1px -1px 0px 0px #000000;
+    box-shadow: inset -0.0625rem -0.0625rem 0px 0px #000000; /* 1px = 0.0625rem */
 }
 html.theme-pixel-fusion .btn:disabled:hover,
 html.theme-pixel-fusion button:disabled:hover {
     top: 0;
     left: 0;
-    text-shadow: 1px 1px 0px #000;
+    text-shadow: 0.0625rem 0.0625rem 0px #000; /* 1px = 0.0625rem */
 }
 
 /* 특정 버튼 색상 오버라이드 */
@@ -381,7 +443,7 @@ html.theme-pixel-fusion #portScanBtn {
 }
 html.theme-pixel-fusion #startTestBtn:hover,
 html.theme-pixel-fusion #portScanBtn:hover {
-    text-shadow: 0 0 5px var(--accent-orange);
+    text-shadow: 0 0 0.3125rem var(--accent-orange); /* 5px = 0.3125rem */
 }
 
 html.theme-pixel-fusion .error-btn {
@@ -389,7 +451,7 @@ html.theme-pixel-fusion .error-btn {
     border-color: var(--danger);
 }
 html.theme-pixel-fusion .error-btn:hover {
-    text-shadow: 0 0 5px var(--danger);
+    text-shadow: 0 0 0.3125rem var(--danger); /* 5px = 0.3125rem */
 }
 
 html.theme-pixel-fusion .filter-btn.active {
@@ -407,35 +469,35 @@ html.theme-pixel-fusion input[type="text"] {
 
 html.theme-pixel-fusion input[type="text"]:focus {
   border-color: var(--text-accent);
-  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4), 0 0 8px var(--text-accent);
+  box-shadow: 0.375rem 0.375rem 0px rgba(0, 0, 0, 0.4), 0 0 0.5rem var(--text-accent); /* 6px = 0.375rem, 8px = 0.5rem */
 }
 
 /* 네온 glow 효과 */
 html.theme-pixel-fusion .glow {
   color: var(--text-accent);
-  text-shadow: 0 0 6px var(--text-accent), 0 0 12px var(--text-accent), 0 0 20px var(--text-accent);
+  text-shadow: 0 0 0.375rem var(--text-accent), 0 0 0.75rem var(--text-accent), 0 0 1.25rem var(--text-accent); /* 6px = 0.375rem, 12px = 0.75rem, 20px = 1.25rem */
 }
 
 /* 네온 박스 */
 html.theme-pixel-fusion .neon-box {
-  border: 2px solid var(--text-accent);
-  box-shadow: 0 0 8px var(--text-accent), inset 0 0 4px var(--text-accent);
+  border: 0.125rem solid var(--text-accent); /* 2px = 0.125rem */
+  box-shadow: 0 0 0.5rem var(--text-accent), inset 0 0 0.25rem var(--text-accent); /* 8px = 0.5rem, 4px = 0.25rem */
   padding: 1rem;
 }
 
 /* ===== 4. Royal Cream (모던) 테마 ===== */
 html.theme-royal-cream {
-  --bg-primary: #FAF3E0;        /* Light Cream */
+  --bg-primary: #FAF3E0;
   --bg-secondary: #FFFFFF;
   --bg-tertiary: #FDF8EE;
   
-  --text-primary: #144DA8;      /* Royal Blue */
-  --text-secondary: #2c5a9b;    /* 조금 더 부드러운 파란색 */
+  --text-primary: #144DA8;
+  --text-secondary: #2c5a9b;
   --text-tertiary: #576f92;
-  --text-accent: #144DA8;       /* Royal Blue */
+  --text-accent: #144DA8;
   
   --border-color: #E6DACE;
-  --github-accent: #144DA8;     /* Royal Blue */
+  --github-accent: #144DA8;
 
   color-scheme: light;
 }
@@ -451,10 +513,13 @@ html.theme-royal-cream .slide p {
 
 /* ===== 5. Royal Pixel (8비트) 테마 ===== */
 html.theme-royal-pixel {
-  --font-sans: 'Galmuri7', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'MultiFont', monospace;
   font-family: var(--font-sans);
   font-smooth: never;
   -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeSpeed;
+
   --radius-sm: 0;
   --radius-md: 0;
   --radius-lg: 0;
@@ -464,14 +529,14 @@ html.theme-royal-pixel {
   --shadow-md: none;
   --shadow-lg: none;
   
-  --bg-primary: #144DA8;      /* Royal Blue */
+  --bg-primary: #144DA8;
   --bg-secondary: #103D86;
   --bg-tertiary: #0C2E64;
   
-  --text-primary: #FAF3E0;    /* Light Cream */
+  --text-primary: #FAF3E0;
   --text-secondary: #d4cfc1;
   --text-tertiary: #a9a396;
-  --text-accent: #FFD700;     /* 8-bit Gold/Yellow */
+  --text-accent: #FFD700;
   
   --border-color: #2E6BC8;
   --github-accent: #FFD700;
@@ -479,121 +544,18 @@ html.theme-royal-pixel {
   --icon-filter: brightness(0) saturate(100%) invert(95%) sepia(8%) saturate(347%) hue-rotate(338deg) brightness(102%) contrast(97%);
   
   color-scheme: dark;
+
+  /* 폰트 크기 및 라인하이트 조정 (기존 core.css 기준 유지 및 픽셀 최적화) */
+  font-weight: 400; /* 얇은 두께 시도 */
+  font-size: 1rem; /* 기본 폰트 크기 설정 */
+  line-height: 1.2; /* 픽셀 폰트는 타이트한 line-height */
+  letter-spacing: -0.02em; /* 한글은 약간 좁게 */
 }
 
-/* ===== 6. Future Pixel (미래적 8비트) 테마 ===== */
-html.theme-future-pixel {
-  --font-sans: 'Galmuri7', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  font-family: var(--font-sans);
-  font-smooth: never;
-  -webkit-font-smoothing: none;
-  --radius-sm: 0;
-  --radius-md: 0;
-  --radius-lg: 0;
-  --radius-xl: 0;
-  --radius-full: 0;
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
-
-  --bg-primary: #1F1D36;        /* 기존 8비트의 어두운 보라 배경 */
-  --bg-secondary: #144DA8;      /* Royal Blue를 카드 배경으로 사용 */
-  --bg-tertiary: #103D86;
-  
-  --text-primary: #FAF3E0;    /* Light Cream을 주 텍스트 색상으로 */
-  --text-secondary: #d4cfc1;
-  --text-tertiary: #a9a396;
-  --text-accent: #3EC1D3;       /* 기존 8비트의 청록색을 악센트로 */
-  
-  --border-color: #3EC1D3;
-  --github-accent: #3EC1D3;
-
-  --icon-filter: brightness(0) saturate(100%) invert(95%) sepia(8%) saturate(347%) hue-rotate(338deg) brightness(102%) contrast(97%);
-  
-  color-scheme: dark;
-}
-
-/* Future Pixel 테마 추가 효과 */
-html.theme-future-pixel body {
-  background-image: linear-gradient(rgba(0, 0, 0, 0.2) 50%, transparent 50%);
-  background-size: 100% 4px;
-}
-
-html.theme-future-pixel a,
-html.theme-future-pixel .btn-primary,
-html.theme-future-pixel h1,
-html.theme-future-pixel h2 {
-    text-shadow: 0 0 3px var(--text-accent), 0 0 5px var(--github-accent);
-}
-
-/* 8비트 테마들의 공통 시각적 요소 */
-html.theme-royal-pixel body, html.theme-future-pixel body,
-html.theme-royal-pixel img, html.theme-future-pixel img {
-    image-rendering: -moz-crisp-edges;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-    image-rendering: pixelated;
-}
-
-html.theme-royal-pixel .top-header, html.theme-future-pixel .top-header,
-html.theme-royal-pixel .card, html.theme-future-pixel .card,
-html.theme-royal-pixel .post-card, html.theme-future-pixel .post-card,
-html.theme-royal-pixel .simulation-card, html.theme-future-pixel .simulation-card,
-html.theme-royal-pixel .intro-container, html.theme-future-pixel .intro-container,
-html.theme-royal-pixel .diagnostic-container, html.theme-future-pixel .diagnostic-container,
-html.theme-royal-pixel footer, html.theme-future-pixel footer {
-    border-style: solid;
-    border-width: 2px;
-    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
-    transition: none;
-    background-color: var(--bg-secondary) !important;
-}
-
-html.theme-royal-pixel .card:hover, html.theme-future-pixel .card:hover,
-html.theme-royal-pixel .post-card:hover, html.theme-future-pixel .post-card:hover,
-html.theme-royal-pixel .simulation-card:hover, html.theme-future-pixel .simulation-card:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
-}
-
-html.theme-royal-pixel .btn, html.theme-future-pixel .btn,
-html.theme-royal-pixel #startTestBtn, html.theme-future-pixel #startTestBtn,
-html.theme-royal-pixel .toggle-button, html.theme-future-pixel .toggle-button,
-html.theme-royal-pixel #whoisSearchBtn, html.theme-future-pixel #whoisSearchBtn,
-html.theme-royal-pixel #portScanBtn, html.theme-future-pixel #portScanBtn {
-    border-radius: 0;
-    border-width: 2px;
-    border-style: solid;
-    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
-    transition: none;
-}
-
-html.theme-royal-pixel .btn:hover, html.theme-future-pixel .btn:hover,
-html.theme-royal-pixel #startTestBtn:hover, html.theme-future-pixel #startTestBtn:hover,
-html.theme-royal-pixel .toggle-button:hover, html.theme-future-pixel .toggle-button:hover,
-html.theme-royal-pixel #whoisSearchBtn:hover, html.theme-future-pixel #whoisSearchBtn:hover,
-html.theme-royal-pixel #portScanBtn:hover, html.theme-future-pixel #portScanBtn:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
-}
-
-/* 8비트 테마들의 공통 아이콘 설정 */
-html.theme-royal-pixel .footer-links i,
-html.theme-future-pixel .footer-links i {
-    font-size: 0;
-    width: 24px;
-    height: 24px;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
-    filter: var(--icon-filter);
-    display: inline-block;
-}
-html.theme-royal-pixel .footer-links .footer-icon-github,
-html.theme-future-pixel .footer-links .footer-icon-github {
-    background-image: url('/static/img/icon/github.png');
-}
-html.theme-royal-pixel .footer-links .footer-icon-mail,
-html.theme-future-pixel .footer-links .footer-icon-mail {
-    background-image: url('/static/img/icon/mail.png');
-}
+/* 폰트 크기 조정: core.css rem 값에 근접하게 조정 */
+html.theme-royal-pixel h1 { font-size: 2.5rem; line-height: 1.2; } /* 40px = 2.5rem */
+html.theme-royal-pixel h2 { font-size: 1.875rem; line-height: 1.2; } /* 30px = 1.875rem */
+html.theme-royal-pixel h3 { font-size: 1.25rem; line-height: 1.2; } /* 20px = 1.25rem */
+html.theme-royal-pixel h4 { font-size: 1rem; line-height: 1.2; }
+html.theme-royal-pixel h5 { font-size: 1rem; line-height: 1.2; }
+html.theme-royal-pixel h6 { font-size: 1rem; line-height: 1.2; }
