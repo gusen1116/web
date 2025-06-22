@@ -1,6 +1,6 @@
 # app/routes/simulation.py
 from flask import Blueprint, render_template, current_app, abort, request
-from typing import Dict, List, Optional
+from typing import Dict
 import re
 
 # 블루프린트 생성

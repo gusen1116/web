@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, request, Response, stream_with_con
 import socket
 import concurrent.futures
 import json
-from flask_wtf.csrf import verify_csrf
+from flask_wtf.csrf import validate_csrf # Changed: Only import validate_csrf
 
 # 유틸리티 기능을 위한 블루프린트 생성
 utils_bp = Blueprint('utils_bp', __name__)
@@ -42,9 +42,8 @@ def start_portscan():
         # CSRF 토큰 검증 (헤더 우선)
         csrf_token = request.headers.get('X-CSRFToken') or request.headers.get('X-CSRF-Token')
         if csrf_token:
-            verify_csrf(csrf_token)
+            validate_csrf(csrf_token) # Changed: Use validate_csrf
         elif request.form.get('csrf_token'):
-            from flask_wtf.csrf import validate_csrf
             validate_csrf(request.form.get('csrf_token'))
         # JSON 요청의 경우 헤더에서만 CSRF 검증
         elif request.is_json:
