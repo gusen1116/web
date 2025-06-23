@@ -77,13 +77,13 @@ html.theme-8bit .mobile-toggle {
 
 /* 폰트 크기 조정: core.css rem 값에 근접하게 조정 */
 /* text-shadow 강도 약화 */
-html.theme-8bit h1 { font-size: 2.5rem; line-height: 1.2; text-shadow: 0.03125rem 0.03125rem 0px rgba(31, 29, 54, 0.3); } /* 40px = 2.5rem */
-html.theme-8bit h2 { font-size: 1.875rem; line-height: 1.2; text-shadow: 0.03125rem 0.03125rem 0px rgba(31, 29, 54, 0.3); } /* 30px = 1.875rem */
-html.theme-8bit h3 { font-size: 1.25rem; line-height: 1.2; text-shadow: 0.03125rem 0.03125rem 0px rgba(31, 29, 54, 0.3); } /* 20px = 1.25rem */
-html.theme-8bit h4 { font-size: 1rem; line-height: 1.2; }
-html.theme-8bit h5 { font-size: 1rem; line-height: 1.2; }
+html.theme-8bit h1 { font-size: 2.75rem; line-height: 1.2; text-shadow: 0.03125rem 0.03125rem 0px rgba(31, 29, 54, 0.3); }
+html.theme-8bit h2 { font-size: 1.9rem; line-height: 1.2; text-shadow: 0.03125rem 0.03125rem 0px rgba(31, 29, 54, 0.3); }
+html.theme-8bit h3 { font-size: 1.23rem; line-height: 1.2; text-shadow: 0.03125rem 0.03125rem 0px rgba(31, 29, 54, 0.3); }
+html.theme-8bit h4 { font-size: 1.15rem; line-height: 1.2; }
+html.theme-8bit h5 { font-size: 1.1rem; line-height: 1.2; }
 html.theme-8bit h6 { font-size: 1rem; line-height: 1.2; }
-html.theme-8bit p, html.theme-8bit li { font-size: 1.25rem; line-height: 1.6; letter-spacing: -0.02em; } /* 20px = 1.25rem */
+html.theme-8bit p, html.theme-8bit li { font-size: 1.23rem; line-height: 1.6; letter-spacing: -0.02em; }
 html.theme-8bit .post-content a { font-size: 1rem; }
 
 
@@ -98,7 +98,7 @@ html.theme-8bit footer {
     border-style: solid;
     border-width: 0.125rem; /* 2px = 0.125rem */
     box-shadow: 0.25rem 0.25rem 0px rgba(0, 0, 0, 0.4); /* 4px = 0.25rem */
-    transition: none;
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; /* 'all' 대신 특정 속성 명시 */
 }
 
 html.theme-8bit .card:hover,
@@ -116,7 +116,7 @@ html.theme-8bit textarea {
     border-width: 0.125rem; /* 2px = 0.125rem */
     border-style: solid;
     box-shadow: 0.25rem 0.25rem 0px rgba(0, 0, 0, 0.4); /* 4px = 0.25rem */
-    transition: none;
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; /* 'all' 대신 특정 속성 명시 */
     font-family: var(--font-sans);
 }
 
@@ -231,6 +231,34 @@ html.theme-8bit .footer-links .footer-icon-mail {
     background-image: url('/static/img/icon/mail.png');
 }
 
+/* 태그 및 날짜 가시성 향상 */
+html.theme-8bit .tag,
+html.theme-8bit .post-card-tag {
+  background-color: #3EC1D3 !important; /* 더 밝은 액센트 색상 */
+  color: #1F1D36 !important; /* 어두운 텍스트 색상 */
+  border-color: #3EC1D3 !important;
+}
+
+html.theme-8bit .tag:hover,
+html.theme-8bit .post-card-tag:hover {
+  background-color: #31a4b4 !important; /* 호버 시 약간 어둡게 */
+  border-color: #31a4b4 !important;
+}
+
+html.theme-8bit .post-card-date {
+  background-color: #9E7BB5 !important; /* 가시성 좋은 색상 */
+  color: #1F1D36 !important; /* 어두운 텍스트 색상 */
+  border-color: #9E7BB5 !important;
+}
+html.theme-8bit .post-card-date i {
+  color: #1F1D36 !important; /* 아이콘 색상도 텍스트와 맞춤 */
+}
+html.theme-8bit .post-card-date:hover {
+  background-color: #84689e !important;
+  border-color: #84689e !important;
+}
+
+
 /* ===== 3. Pixel Fusion 테마 ===== */
 html.theme-pixel-fusion {
   --font-sans: 'MultiFont', monospace;
@@ -281,13 +309,13 @@ html.theme-pixel-fusion {
 
 /* 폰트 크기 조정: core.css rem 값에 근접하게 조정 */
 /* text-shadow 강도 약화 */
-html.theme-pixel-fusion h1 { font-size: 2.5rem; line-height: 1.2; text-shadow: 0 0 0.03125rem var(--github-accent), 0 0 0.0625rem var(--github-accent), 0.03125rem 0.03125rem 0px #000; } /* 40px = 2.5rem */
-html.theme-pixel-fusion h2 { font-size: 1.875rem; line-height: 1.2; text-shadow: 0 0 0.03125rem var(--github-accent), 0 0 0.0625rem var(--github-accent), 0.03125rem 0.03125rem 0px #000; } /* 30px = 1.875rem */
-html.theme-pixel-fusion h3 { font-size: 1.25rem; line-height: 1.2; text-shadow: 0 0 0.03125rem var(--github-accent), 0 0 0.0625rem var(--github-accent), 0.03125rem 0.03125rem 0px #000; } /* 20px = 1.25rem */
-html.theme-pixel-fusion h4 { font-size: 1rem; line-height: 1.2; }
-html.theme-pixel-fusion h5 { font-size: 1rem; line-height: 1.2; }
+html.theme-pixel-fusion h1 { font-size: 2.75rem; line-height: 1.2; text-shadow: 0 0 0.03125rem var(--github-accent), 0 0 0.0625rem var(--github-accent), 0.03125rem 0.03125rem 0px #000; }
+html.theme-pixel-fusion h2 { font-size: 1.9rem; line-height: 1.2; text-shadow: 0 0 0.03125rem var(--github-accent), 0 0 0.0625rem var(--github-accent), 0.03125rem 0.03125rem 0px #000; }
+html.theme-pixel-fusion h3 { font-size: 1.23rem; line-height: 1.2; text-shadow: 0 0 0.03125rem var(--github-accent), 0 0 0.0625rem var(--github-accent), 0.03125rem 0.03125rem 0px #000; }
+html.theme-pixel-fusion h4 { font-size: 1.15rem; line-height: 1.2; }
+html.theme-pixel-fusion h5 { font-size: 1.1rem; line-height: 1.2; }
 html.theme-pixel-fusion h6 { font-size: 1rem; line-height: 1.2; }
-html.theme-pixel-fusion p, html.theme-pixel-fusion li { font-size: 1.25rem; line-height: 1.6; letter-spacing: -0.02em; } /* 20px = 1.25rem */
+html.theme-pixel-fusion p, html.theme-pixel-fusion li { font-size: 1.23rem; line-height: 1.6; letter-spacing: -0.02em; }
 html.theme-pixel-fusion .post-content a { font-size: 1rem; }
 
 /* 배경 스타일 */
@@ -318,7 +346,7 @@ html.theme-pixel-fusion textarea {
   border-style: solid;
   border-color: var(--border-color);
   box-shadow: 0.25rem 0.25rem 0px rgba(0, 0, 0, 0.4); /* 4px = 0.25rem */
-  transition: all 0.2s ease-out;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; /* 'all' 대신 특정 속성 명시 */
   font-family: var(--font-sans);
 }
 
@@ -331,7 +359,6 @@ html.theme-pixel-fusion textarea:focus {
   transform: translate(-0.125rem, -0.125rem); /* 2px = 0.125rem */
   box-shadow: 0.375rem 0.375rem 0px rgba(0, 0, 0, 0.4); /* 6px = 0.375rem */
   outline: none;
-  transition: all 0.2s ease-in-out;
 }
 
 /* 헤더 네온 효과 */
@@ -553,9 +580,202 @@ html.theme-royal-pixel {
 }
 
 /* 폰트 크기 조정: core.css rem 값에 근접하게 조정 */
-html.theme-royal-pixel h1 { font-size: 2.5rem; line-height: 1.2; } /* 40px = 2.5rem */
-html.theme-royal-pixel h2 { font-size: 1.875rem; line-height: 1.2; } /* 30px = 1.875rem */
-html.theme-royal-pixel h3 { font-size: 1.25rem; line-height: 1.2; } /* 20px = 1.25rem */
-html.theme-royal-pixel h4 { font-size: 1rem; line-height: 1.2; }
-html.theme-royal-pixel h5 { font-size: 1rem; line-height: 1.2; }
+html.theme-royal-pixel h1 { font-size: 2.75rem; line-height: 1.2; }
+html.theme-royal-pixel h2 { font-size: 1.9rem; line-height: 1.2; }
+html.theme-royal-pixel h3 { font-size: 1.23rem; line-height: 1.2; }
+html.theme-royal-pixel h4 { font-size: 1.15rem; line-height: 1.2; }
+html.theme-royal-pixel h5 { font-size: 1.1rem; line-height: 1.2; }
 html.theme-royal-pixel h6 { font-size: 1rem; line-height: 1.2; }
+html.theme-royal-pixel p, html.theme-royal-pixel li { font-size: 1.23rem; line-height: 1.6; letter-spacing: -0.02em; }
+html.theme-royal-pixel .post-content a { font-size: 1rem; }
+
+/* 태그 및 날짜 가시성 향상 (Royal Pixel) */
+html.theme-royal-pixel .tag,
+html.theme-royal-pixel .post-card-tag {
+  background-color: var(--text-accent) !important; /* 액센트 색상 사용 */
+  color: var(--bg-primary) !important; /* 배경색에 맞는 텍스트 색상 */
+  border-color: var(--text-accent) !important;
+}
+
+html.theme-royal-pixel .tag:hover,
+html.theme-royal-pixel .post-card-tag:hover {
+  background-color: #e5c300 !important; /* 호버 시 약간 어둡게 */
+  border-color: #e5c300 !important;
+}
+
+html.theme-royal-pixel .post-card-date {
+  background-color: var(--text-tertiary) !important; /* 더 잘 보이는 색상 */
+  color: var(--bg-primary) !important; /* 배경색에 맞는 텍스트 색상 */
+  border-color: var(--text-tertiary) !important;
+}
+html.theme-royal-pixel .post-card-date i {
+  color: var(--bg-primary) !important; /* 아이콘 색상도 텍스트와 맞춤 */
+}
+html.theme-royal-pixel .post-card-date:hover {
+  background-color: #928b7e !important;
+  border-color: #928b7e !important;
+}
+
+
+/* ===== 6. Future Pixel (미래적 8비트) 테마 ===== */
+html.theme-future-pixel {
+  --font-sans: 'MultiFont', monospace;
+  font-family: var(--font-sans);
+  font-smooth: never;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeSpeed;
+
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-full: 0;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+
+  --bg-primary: #1F1D36;
+  --bg-secondary: #144DA8;
+  --bg-tertiary: #103D86;
+  
+  --text-primary: #FAF3E0;
+  --text-secondary: #d4cfc1;
+  --text-tertiary: #a9a396;
+  --text-accent: #3EC1D3;
+  
+  --border-color: #3EC1D3;
+  --github-accent: #3EC1D3;
+
+  --icon-filter: brightness(0) saturate(100%) invert(95%) sepia(8%) saturate(347%) hue-rotate(338deg) brightness(102%) contrast(97%);
+  
+  color-scheme: dark;
+
+  /* 폰트 크기 및 라인하이트 조정 (기존 core.css 기준 유지 및 픽셀 최적화) */
+  font-weight: 400; /* 얇은 두께 시도 */
+  font-size: 1rem; /* 기본 폰트 크기 설정 */
+  line-height: 1.2; /* 픽셀 폰트는 타이트한 line-height */
+  letter-spacing: -0.02em; /* 한글은 약간 좁게 */
+}
+
+/* 폰트 크기 조정: core.css rem 값에 근접하게 조정 */
+html.theme-future-pixel h1 { font-size: 2.75rem; line-height: 1.2; }
+html.theme-future-pixel h2 { font-size: 1.9rem; line-height: 1.2; }
+html.theme-future-pixel h3 { font-size: 1.23rem; line-height: 1.2; }
+html.theme-future-pixel h4 { font-size: 1.15rem; line-height: 1.2; }
+html.theme-future-pixel h5 { font-size: 1.1rem; line-height: 1.2; }
+html.theme-future-pixel h6 { font-size: 1rem; line-height: 1.2; }
+html.theme-future-pixel p, html.theme-future-pixel li { font-size: 1.23rem; line-height: 1.6; letter-spacing: -0.02em; }
+html.theme-future-pixel .post-content a { font-size: 1rem; }
+
+/* Future Pixel 테마 추가 효과 */
+html.theme-future-pixel body {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.2) 50%, transparent 50%);
+  background-size: 100% 0.25rem; /* 4px = 0.25rem */
+}
+
+html.theme-future-pixel a,
+html.theme-future-pixel .btn-primary,
+html.theme-future-pixel h1,
+html.theme-future-pixel h2 {
+    text-shadow: 0 0 0.1875rem var(--text-accent), 0 0 0.3125rem var(--github-accent); /* 3px = 0.1875rem, 5px = 0.3125rem */
+}
+
+/* 태그 및 날짜 가시성 향상 (Future Pixel) */
+html.theme-future-pixel .tag,
+html.theme-future-pixel .post-card-tag {
+  background-color: var(--text-accent) !important; /* 액센트 색상 사용 */
+  color: #1F1D36 !important; /* 어두운 텍스트 색상 */
+  border-color: var(--text-accent) !important;
+}
+
+html.theme-future-pixel .tag:hover,
+html.theme-future-pixel .post-card-tag:hover {
+  background-color: #31a4b4 !important; /* 호버 시 약간 어둡게 */
+  border-color: #31a4b4 !important;
+}
+
+html.theme-future-pixel .post-card-date {
+  background-color: var(--text-tertiary) !important; /* 더 잘 보이는 색상 */
+  color: #1F1D36 !important; /* 어두운 텍스트 색상 */
+  border-color: var(--text-tertiary) !important;
+}
+html.theme-future-pixel .post-card-date i {
+  color: #1F1D36 !important; /* 아이콘 색상도 텍스트와 맞춤 */
+}
+html.theme-future-pixel .post-card-date:hover {
+  background-color: #928b7e !important;
+  border-color: #928b7e !important;
+}
+
+/* 8비트 테마들의 공통 시각적 요소 */
+html.theme-royal-pixel body, html.theme-future-pixel body,
+html.theme-royal-pixel img, html.theme-future-pixel img {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+}
+
+html.theme-royal-pixel .top-header, html.theme-future-pixel .top-header,
+html.theme-royal-pixel .card, html.theme-future-pixel .card,
+html.theme-royal-pixel .post-card, html.theme-future-pixel .post-card,
+html.theme-royal-pixel .simulation-card, html.theme-future-pixel .simulation-card,
+html.theme-royal-pixel .intro-container, html.theme-future-pixel .intro-container,
+html.theme-royal-pixel .diagnostic-container, html.theme-future-pixel .diagnostic-container,
+html.theme-royal-pixel footer, html.theme-future-pixel footer {
+    border-style: solid;
+    border-width: 0.125rem; /* 2px = 0.125rem */
+    box-shadow: 0.25rem 0.25rem 0px rgba(0, 0, 0, 0.4); /* 4px = 0.25rem */
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; /* 'all' 대신 특정 속성 명시 */
+    background-color: var(--bg-secondary) !important;
+}
+
+html.theme-royal-pixel .card:hover, html.theme-future-pixel .card:hover,
+html.theme-royal-pixel .post-card:hover, html.theme-future-pixel .post-card:hover,
+html.theme-royal-pixel .simulation-card:hover, html.theme-future-pixel .simulation-card:hover {
+    transform: translate(-0.125rem, -0.125rem); /* 2px = 0.125rem */
+    box-shadow: 0.375rem 0.375rem 0px rgba(0, 0, 0, 0.4); /* 6px = 0.375rem */
+}
+
+html.theme-royal-pixel .btn, html.theme-future-pixel .btn,
+html.theme-royal-pixel #startTestBtn, html.theme-future-pixel #startTestBtn,
+html.theme-royal-pixel .toggle-button, html.theme-future-pixel .toggle-button,
+html.theme-royal-pixel #whoisSearchBtn, html.theme-future-pixel #whoisSearchBtn,
+html.theme-royal-pixel #portScanBtn, html.theme-future-pixel #portScanBtn {
+    border-radius: 0;
+    border-width: 0.125rem; /* 2px = 0.125rem */
+    border-style: solid;
+    box-shadow: 0.25rem 0.25rem 0px rgba(0, 0, 0, 0.4); /* 4px = 0.25rem */
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out; /* 'all' 대신 특정 속성 명시 */
+}
+
+html.theme-royal-pixel .btn:hover, html.theme-future-pixel .btn:hover,
+html.theme-royal-pixel #startTestBtn:hover, html.theme-future-pixel #startTestBtn:hover,
+html.theme-royal-pixel .toggle-button:hover, html.theme-future-pixel .toggle-button:hover,
+html.theme-royal-pixel #whoisSearchBtn:hover, html.theme-future-pixel #whoisSearchBtn:hover,
+html.theme-royal-pixel #portScanBtn:hover, html.theme-future-pixel #portScanBtn:hover {
+    transform: translate(-0.125rem, -0.125rem); /* 2px = 0.125rem */
+    box-shadow: 0.375rem 0.375rem 0px rgba(0, 0, 0, 0.4); /* 6px = 0.375rem */
+}
+
+/* 8비트 테마들의 공통 아이콘 설정 */
+html.theme-royal-pixel .footer-links i,
+html.theme-future-pixel .footer-links i {
+    font-size: 0;
+    width: 1.5rem; /* 24px = 1.5rem */
+    height: 1.5rem; /* 24px = 1.5rem */
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    filter: var(--icon-filter);
+    display: inline-block;
+}
+html.theme-royal-pixel .footer-links .footer-icon-github,
+html.theme-future-pixel .footer-links .footer-icon-github {
+    background-image: url('/static/img/icon/github.png');
+}
+html.theme-royal-pixel .footer-links .footer-icon-mail,
+html.theme-future-pixel .footer-links .footer-icon-mail {
+    background-image: url('/static/img/icon/mail.png');
+}
