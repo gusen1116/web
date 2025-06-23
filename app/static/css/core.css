@@ -1,18 +1,17 @@
 /* 
- * core.css - 기본 스타일, 변수, 레이아웃, 타이포그래피 통합
- * 이전: base.css, layout.css, typography.css의 핵심 내용을 통합
+ * core.css - 최적화된 기본 스타일, 변수, 레이아웃, 타이포그래피 통합
+ * 성능 최적화 및 8비트 테마 크기 일관성 개선
  */
 
-/* ===== 1. 폰트 임포트 ===== */
-/* PyeojinGothic-Bold 폰트 정의 */
+/* ===== 1. 폰트 임포트 (최적화) ===== */
 @font-face {
   font-family: 'PyeojinGothic-Bold';
   src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2504-1@1.0/PyeojinGothic-Bold.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
+  font-display: swap; /* 성능 최적화 */
 }
 
-/* Cabin 폰트 import */
 @import url('https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap');
 
 /* ===== 2. 루트 변수 설정 - GitHub 스타일 ===== */
@@ -103,9 +102,9 @@
   --shadow-md: 0 3px 6px rgba(140, 149, 159, 0.15);
   --shadow-lg: 0 8px 24px rgba(140, 149, 159, 0.2);
 
-  /* 전환 */
-  --transition-fast: 150ms;
-  --transition-normal: 300ms;
+  /* 전환 - 성능 최적화 */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
 
   /* 레이아웃 변수 */
   --paragraph-width: 55rem;
@@ -135,7 +134,7 @@ html.dark-theme {
   color-scheme: dark;
 }
 
-/* ===== 기본 스타일 리셋 ===== */
+/* ===== 기본 스타일 리셋 (최적화) ===== */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -161,6 +160,12 @@ body {
   flex-direction: column;
   min-height: 100vh;
   transition: background-color 0.3s ease, color 0.3s ease;
+  
+  /* 성능 최적화 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  will-change: auto; /* 불필요한 will-change 제거 */
 }
 
 main {
@@ -197,9 +202,14 @@ footer {
   padding: 0 var(--spacing-4);
 }
 
+/* 이미지 최적화 */
 img {
   max-width: 100%;
   height: auto;
+  /* 이미지 로딩 최적화 */
+  loading: lazy;
+  decode: async;
+  will-change: auto;
 }
 
 a {
@@ -213,11 +223,12 @@ a:hover {
   text-decoration: underline;
 }
 
-/* 표준 .fade-in 애니메이션 */
+/* 표준 .fade-in 애니메이션 (성능 최적화) */
 .fade-in {
   opacity: 0;
   transform: translateY(20px);
   animation: fadeInAnimation 0.5s ease forwards;
+  will-change: opacity, transform;
 }
 
 @keyframes fadeInAnimation {
@@ -227,7 +238,12 @@ a:hover {
   }
 }
 
-/* ===== 헤더 스타일 ===== */
+/* 애니메이션 후 will-change 제거 */
+.fade-in.animation-complete {
+  will-change: auto;
+}
+
+/* ===== 헤더 스타일 (최적화) ===== */
 .top-header {
   background-color: var(--bg-secondary);
   border-bottom: 1px solid var(--border-color);
@@ -240,6 +256,9 @@ a:hover {
   align-items: center;
   width: 100%;
   height: 60px;
+  /* 성능 최적화 */
+  will-change: transform;
+  contain: layout style;
 }
 
 .top-header .container {
@@ -422,12 +441,11 @@ a:hover {
   transform: rotate(180deg) scale(0.5);
 }
 
-/* 스페셜 테마 아이콘은 항상 보이도록 설정 */
 .header-controls-left .theme-toggle .theme-icon {
   display: flex;
 }
 
-/* ===== 모바일 햄버거 버튼 ===== */
+/* ===== 모바일 햄버거 버튼 (최적화) ===== */
 .mobile-toggle {
   display: none;
   background: none;
@@ -435,7 +453,7 @@ a:hover {
   cursor: pointer;
   padding: 8px;
   border-radius: 6px;
-  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: background-color var(--transition-fast);
   position: relative;
   width: 44px;
   height: 44px;
@@ -444,6 +462,8 @@ a:hover {
   flex-direction: column;
   gap: 4px;
   -webkit-tap-highlight-color: transparent;
+  /* 성능 최적화 */
+  contain: layout style;
 }
 
 .mobile-toggle:hover {
@@ -458,6 +478,7 @@ a:hover {
   border-radius: 2px;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   transform-origin: center;
+  will-change: transform, opacity;
 }
 
 .mobile-toggle.active .hamburger-line:nth-child(1) {
@@ -471,7 +492,7 @@ a:hover {
   transform: rotate(-45deg) translate(5px, -5px);
 }
 
-/* ===== 모바일 네비게이션 메뉴 ===== */
+/* ===== 모바일 네비게이션 메뉴 (최적화) ===== */
 .mobile-nav {
   position: fixed;
   top: 0;
@@ -490,6 +511,9 @@ a:hover {
   transform: translateX(100%);
   visibility: hidden;
   will-change: transform;
+  /* 성능 최적화 */
+  contain: layout style;
+  -webkit-overflow-scrolling: touch;
 }
 
 .mobile-nav.active {
@@ -578,6 +602,8 @@ a:hover {
   width: 100%;
   -webkit-tap-highlight-color: transparent;
   min-height: 44px;
+  /* 성능 최적화 */
+  will-change: transform, background-color;
 }
 .mobile-nav-link::before {
   content: ''; 
@@ -621,6 +647,7 @@ a:hover {
   transform: translateX(4px); 
 }
 
+/* 나머지 모바일 nav 스타일들... */
 .mobile-theme-item {
   border-top: 2px solid var(--border-color);
   margin-top: var(--spacing-2);
@@ -790,7 +817,7 @@ body.nav-open {
   width: 100%;
 }
 
-/* ===== 기본 타이포그래피 ===== */
+/* ===== 기본 타이포그래피 (성능 최적화) ===== */
 h1, h2, h3, h4, h5, h6, p {
   font-family: var(--font-sans);
   color: inherit;
@@ -1108,7 +1135,7 @@ h6:hover::after {
   }
 }
 
-/* ===== 모바일 성능 최적화 ===== */
+/* ===== 성능 최적화를 위한 추가 설정 ===== */
 @media (max-width: 768px) {
   .mobile-nav {
     -webkit-overflow-scrolling: touch;
@@ -1120,7 +1147,6 @@ h6:hover::after {
   }
 }
 
-/* ===== 모바일 접근성 강화 ===== */
 @media (max-width: 768px) {
   @media (prefers-contrast: high) {
     .mobile-nav-link {
@@ -1129,7 +1155,6 @@ h6:hover::after {
   }
 }
 
-/* ===== 모바일 전용 유틸리티 클래스 ===== */
 @media (max-width: 768px) {
   .mobile-hidden {
     display: none !important;
@@ -1139,7 +1164,6 @@ h6:hover::after {
   }
 }
 
-/* ===== 모바일 전용 애니메이션 ===== */
 @media (max-width: 768px) {
   @keyframes mobileNavItemFadeIn {
     from {
@@ -1157,7 +1181,7 @@ h6:hover::after {
   }
 }
 
-/* ===== 모바일 반응형 (768px 이하) ===== */
+/* ===== 모바일 반응형 (768px 이하) - 최적화 ===== */
 @media (max-width: 768px) {
   html, body { 
     overflow-x: hidden; 
@@ -1168,7 +1192,6 @@ h6:hover::after {
     width: 100%; 
   }
 
-  /* 모바일 헤더 레이아웃 수정 */
   .top-header .container {
     justify-content: space-between;
   }
@@ -1190,7 +1213,6 @@ h6:hover::after {
     width: auto;
   }
   
-  /* 모바일에서는 왼쪽 컨트롤 숨기기 */
   .header-controls-left {
     display: none;
   }
@@ -1435,6 +1457,11 @@ h6:hover::after {
   .theme-switch-slider, .mobile-nav-link, .fade-in {
     transition: none !important;
     animation: none !important;
+  }
+  
+  /* will-change 제거 */
+  * {
+    will-change: auto !important;
   }
 }
 
