@@ -1,6 +1,6 @@
 /*
  * themes.css - 최적화된 모든 테마 스타일 통합
- * 성능 최적화 및 8비트 테마 크기 일관성 개선
+ * 성능 최적화 및 모든 테마에서 일관된 크기 유지
  */
 
 /* ===== 폰트 정의 (최적화) ===== */
@@ -32,7 +32,7 @@
 @import url('https://fastly.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css');
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-/* ===== 8비트 테마 (성능 및 크기 일관성 최적화) ===== */
+/* ===== 8비트 테마 (크기 일관성 개선) ===== */
 html.theme-8bit {
   --font-sans: 'MultiFont', monospace;
   font-family: var(--font-sans);
@@ -62,10 +62,10 @@ html.theme-8bit {
   --radius-full: 0;
   --icon-filter: brightness(0) saturate(100%) invert(81%) sepia(13%) saturate(946%) hue-rotate(314deg) brightness(95%) contrast(92%);
 
-  /* 폰트 크기 및 라인하이트 - 라이트모드와 일관성 유지 */
+  /* 폰트 크기 및 라인하이트 - 라이트모드와 완전히 동일하게 유지 */
   font-weight: 400;
   font-size: 1rem;
-  line-height: 1.2;
+  line-height: 1.6;
   letter-spacing: -0.02em;
 }
 
@@ -83,47 +83,54 @@ html.theme-8bit .mobile-toggle {
 
 /* 폰트 크기 조정 - 라이트모드와 정확히 동일한 크기 유지 */
 html.theme-8bit h1 { 
-  font-size: 2.75rem; 
-  line-height: 130%; 
+  font-size: 2.75rem !important; 
+  line-height: 130% !important; 
   text-shadow: 0.03125rem 0.03125rem 0px rgba(31, 29, 54, 0.3); 
-  font-weight: 700;
+  font-weight: 700 !important;
+  margin-top: 1rem !important;
+  margin-bottom: 0.75rem !important;
 }
 html.theme-8bit h2 { 
-  font-size: 1.9rem; 
-  line-height: 130%; 
+  font-size: 1.9rem !important; 
+  line-height: 130% !important; 
   text-shadow: 0.03125rem 0.03125rem 0px rgba(31, 29, 54, 0.3);
-  font-weight: 700;
+  font-weight: 700 !important;
+  margin-top: 2.5em !important;
+  margin-bottom: 1em !important;
 }
 html.theme-8bit h3 { 
-  font-size: 1.23rem; 
-  line-height: 203%; 
+  font-size: 1.23rem !important; 
+  line-height: 203% !important; 
   text-shadow: 0.03125rem 0.03125rem 0px rgba(31, 29, 54, 0.3);
-  font-weight: 700;
+  font-weight: 700 !important;
+  margin-top: 2em !important;
+  margin-bottom: 0.8em !important;
 }
 html.theme-8bit h4 { 
-  font-size: 1.15rem; 
-  line-height: 203%;
-  font-weight: 700;
+  font-size: 1.15rem !important; 
+  line-height: 203% !important;
+  font-weight: 700 !important;
 }
 html.theme-8bit h5 { 
-  font-size: 1.1rem; 
-  line-height: 203%;
-  font-weight: 700;
+  font-size: 1.1rem !important; 
+  line-height: 203% !important;
+  font-weight: 700 !important;
 }
 html.theme-8bit h6 { 
-  font-size: 1rem; 
-  line-height: 203%;
-  font-weight: 700;
+  font-size: 1rem !important; 
+  line-height: 203% !important;
+  font-weight: 700 !important;
 }
 html.theme-8bit p, html.theme-8bit li { 
-  font-size: 1.23rem; 
-  line-height: 203%; 
-  letter-spacing: -0.02em;
-  font-weight: 400;
+  font-size: 1.23rem !important; 
+  line-height: 203% !important; 
+  letter-spacing: -0.02em !important;
+  font-weight: 400 !important;
+  margin-bottom: 1.5em !important;
 }
 html.theme-8bit .post-content a { 
-  font-size: 1.0rem;
-  font-weight: 400;
+  font-size: 1.0rem !important;
+  font-weight: 400 !important;
 }
 
 /* 컴포넌트 8비트 스타일 (크기 일관성 개선) */
@@ -141,32 +148,42 @@ html.theme-8bit footer {
     /* 성능 최적화 */
     contain: layout style;
     will-change: transform;
-    /* 크기 일관성: 라이트모드와 동일한 패딩 유지 */
-    padding: var(--spacing-5); /* 기본 카드 패딩 */
+    /* 크기 일관성: 라이트모드와 완전히 동일한 패딩 유지 */
+    border-radius: 0 !important;
 }
 
-/* 개별 컴포넌트 크기 조정 */
+/* 개별 컴포넌트 크기 조정 - 라이트모드와 완전히 동일하게 */
 html.theme-8bit .post-card {
-  min-height: 420px; /* 라이트모드와 동일 */
+  min-height: 420px !important; /* 라이트모드와 동일 */
+  padding: var(--spacing-5) !important;
 }
 
 html.theme-8bit .simulation-card {
-  min-height: 380px; /* 라이트모드와 동일 */
+  min-height: 380px !important; /* 라이트모드와 동일 */
+  padding: var(--spacing-4) !important;
 }
 
 html.theme-8bit .post-card-header,
 html.theme-8bit .simulation-card-header {
-  padding: 1rem 1.25rem; /* 라이트모드와 동일 */
+  padding: 1rem 1.25rem !important; /* 라이트모드와 동일 */
 }
 
 html.theme-8bit .post-card-content,
 html.theme-8bit .simulation-card-description {
-  padding: 1rem 1.25rem; /* 라이트모드와 동일 */
+  padding: 1rem 1.25rem !important; /* 라이트모드와 동일 */
 }
 
 html.theme-8bit .post-card-footer,
 html.theme-8bit .simulation-card-footer {
-  padding: 0.75rem 1.25rem 1rem; /* 라이트모드와 동일 */
+  padding: 0.75rem 1.25rem 1rem !important; /* 라이트모드와 동일 */
+}
+
+html.theme-8bit .intro-container {
+  padding: var(--spacing-6) !important; /* 라이트모드와 동일 */
+}
+
+html.theme-8bit .card {
+  padding: var(--spacing-5) !important; /* 라이트모드와 동일 */
 }
 
 html.theme-8bit .card:hover,
@@ -186,7 +203,7 @@ html.theme-8bit .btn,
 html.theme-8bit input,
 html.theme-8bit select,
 html.theme-8bit textarea {
-    border-radius: 0;
+    border-radius: 0 !important;
     border-width: 0.125rem;
     border-style: solid;
     box-shadow: 0.25rem 0.25rem 0px rgba(0, 0, 0, 0.4);
@@ -194,6 +211,11 @@ html.theme-8bit textarea {
     font-family: var(--font-sans);
     /* 성능 최적화 */
     will-change: transform;
+    /* 크기 일관성: 라이트모드와 동일한 패딩 */
+    padding: 5px 16px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    line-height: 20px !important;
 }
 
 html.theme-8bit .btn:hover,
@@ -215,12 +237,27 @@ html.theme-8bit textarea:not(:focus) {
 html.theme-8bit .slide-container {
     background: var(--bg-secondary);
     border: 0.125rem solid var(--border-color);
-    border-radius: 0;
+    border-radius: 0 !important;
+    /* 크기 일관성: 라이트모드와 동일한 크기 */
+    height: 300px !important;
+    margin-bottom: 3rem !important;
+    margin-top: var(--spacing-8) !important;
 }
 
 html.theme-8bit .slide h2 {
     color: #F8F8F8;
     text-shadow: 0.1875rem 0.1875rem 0px #1F1D36;
+    /* 크기 일관성: 라이트모드와 동일한 크기 */
+    font-size: 2.5rem !important;
+    margin: 0 auto 1.5rem !important;
+}
+
+html.theme-8bit .slide p {
+    /* 크기 일관성: 라이트모드와 동일한 크기 */
+    font-size: 1.2rem !important;
+    max-width: 700px !important;
+    margin: 0 auto 2rem !important;
+    line-height: 1.5 !important;
 }
 
 html.theme-8bit .slide-indicator {
@@ -228,7 +265,7 @@ html.theme-8bit .slide-indicator {
     height: 0.75rem;
     border: 0.125rem solid #1F1D36;
     background-color: var(--text-tertiary);
-    border-radius: 0;
+    border-radius: 0 !important;
     /* 성능 최적화 */
     will-change: background-color, transform;
 }
@@ -300,6 +337,9 @@ html.theme-8bit .mobile-nav-link .nav-icon-8bit {
 html.theme-8bit .post-content a {
     font-family: var(--font-sans);
     border-bottom: 0.125rem dotted var(--text-accent) !important;
+    /* 크기 일관성: 라이트모드와 동일한 크기 */
+    font-size: 1.0rem !important;
+    font-weight: 400 !important;
 }
 html.theme-8bit .post-content a:hover {
     color: var(--bg-primary) !important;
@@ -332,6 +372,10 @@ html.theme-8bit .post-card-tag {
   background-color: #3EC1D3 !important;
   color: #1F1D36 !important;
   border-color: #3EC1D3 !important;
+  /* 크기 일관성: 라이트모드와 동일한 크기 */
+  padding: var(--spacing-1) var(--spacing-2) !important;
+  border-radius: 0 !important;
+  font-size: var(--font-size-xs) !important;
 }
 
 html.theme-8bit .tag:hover,
@@ -344,6 +388,10 @@ html.theme-8bit .post-card-date {
   background-color: #9E7BB5 !important;
   color: #1F1D36 !important;
   border-color: #9E7BB5 !important;
+  /* 크기 일관성: 라이트모드와 동일한 크기 */
+  padding: 0.3rem 0.7rem !important;
+  border-radius: 0 !important;
+  font-size: 0.85rem !important;
 }
 html.theme-8bit .post-card-date i {
   color: #1F1D36 !important;
@@ -353,7 +401,22 @@ html.theme-8bit .post-card-date:hover {
   border-color: #84689e !important;
 }
 
-/* ===== Pixel Fusion 테마 (성능 최적화) ===== */
+/* 포스트 메타 정보 크기 일관성 */
+html.theme-8bit .post-date, 
+html.theme-8bit .post-author, 
+html.theme-8bit .post-word-count {
+  font-size: 0.85rem !important;
+  padding: 0.3rem 0.7rem !important;
+  border-radius: 0 !important;
+}
+
+html.theme-8bit .post-tag {
+  font-size: 0.8rem !important;
+  padding: 0.25rem 0.6rem !important;
+  border-radius: 0 !important;
+}
+
+/* ===== Pixel Fusion 테마 (크기 일관성 개선) ===== */
 html.theme-pixel-fusion {
   --font-sans: 'MultiFont', monospace;
   --font-pixel: 'Press Start 2P', 'MultiFont', monospace;
@@ -394,56 +457,56 @@ html.theme-pixel-fusion {
 
   color-scheme: dark;
 
-  /* 폰트 크기 및 라인하이트 - 라이트모드와 일관성 유지 */
+  /* 폰트 크기 및 라인하이트 - 라이트모드와 완전히 동일하게 유지 */
   font-weight: 400;
   font-size: 1rem;
-  line-height: 1.2;
+  line-height: 1.6;
   letter-spacing: -0.02em;
 }
 
 /* 폰트 크기 조정 - 라이트모드와 정확히 동일한 크기 유지 */
 html.theme-pixel-fusion h1 { 
-  font-size: 2.75rem; 
-  line-height: 130%; 
+  font-size: 2.75rem !important; 
+  line-height: 130% !important; 
   text-shadow: 0 0 0.03125rem var(--github-accent), 0 0 0.0625rem var(--github-accent), 0.03125rem 0.03125rem 0px #000; 
-  font-weight: 700;
+  font-weight: 700 !important;
 }
 html.theme-pixel-fusion h2 { 
-  font-size: 1.9rem; 
-  line-height: 130%; 
+  font-size: 1.9rem !important; 
+  line-height: 130% !important; 
   text-shadow: 0 0 0.03125rem var(--github-accent), 0 0 0.0625rem var(--github-accent), 0.03125rem 0.03125rem 0px #000; 
-  font-weight: 700;
+  font-weight: 700 !important;
 }
 html.theme-pixel-fusion h3 { 
-  font-size: 1.23rem; 
-  line-height: 203%; 
+  font-size: 1.23rem !important; 
+  line-height: 203% !important; 
   text-shadow: 0 0 0.03125rem var(--github-accent), 0 0 0.0625rem var(--github-accent), 0.03125rem 0.03125rem 0px #000; 
-  font-weight: 700;
+  font-weight: 700 !important;
 }
 html.theme-pixel-fusion h4 { 
-  font-size: 1.15rem; 
-  line-height: 203%;
-  font-weight: 700;
+  font-size: 1.15rem !important; 
+  line-height: 203% !important;
+  font-weight: 700 !important;
 }
 html.theme-pixel-fusion h5 { 
-  font-size: 1.1rem; 
-  line-height: 203%;
-  font-weight: 700;
+  font-size: 1.1rem !important; 
+  line-height: 203% !important;
+  font-weight: 700 !important;
 }
 html.theme-pixel-fusion h6 { 
-  font-size: 1rem; 
-  line-height: 203%;
-  font-weight: 700;
+  font-size: 1rem !important; 
+  line-height: 203% !important;
+  font-weight: 700 !important;
 }
 html.theme-pixel-fusion p, html.theme-pixel-fusion li { 
-  font-size: 1.23rem; 
-  line-height: 203%; 
-  letter-spacing: -0.02em;
-  font-weight: 400;
+  font-size: 1.23rem !important; 
+  line-height: 203% !important; 
+  letter-spacing: -0.02em !important;
+  font-weight: 400 !important;
 }
 html.theme-pixel-fusion .post-content a { 
-  font-size: 1.0rem;
-  font-weight: 400;
+  font-size: 1.0rem !important;
+  font-weight: 400 !important;
 }
 
 /* 배경 스타일 (성능 최적화) */
@@ -471,7 +534,7 @@ html.theme-pixel-fusion footer,
 html.theme-pixel-fusion input,
 html.theme-pixel-fusion select,
 html.theme-pixel-fusion textarea {
-  border-radius: 0;
+  border-radius: 0 !important;
   border-width: 0.125rem;
   border-style: solid;
   border-color: var(--border-color);
@@ -481,32 +544,33 @@ html.theme-pixel-fusion textarea {
   /* 성능 최적화 */
   contain: layout style;
   will-change: transform;
-  /* 크기 일관성: 라이트모드와 동일한 패딩 유지 */
-  padding: var(--spacing-5);
+  /* 크기 일관성: 라이트모드와 완전히 동일한 패딩 유지 */
 }
 
-/* 개별 컴포넌트 크기 조정 */
+/* 개별 컴포넌트 크기 조정 - 라이트모드와 완전히 동일하게 */
 html.theme-pixel-fusion .post-card {
-  min-height: 420px; /* 라이트모드와 동일 */
+  min-height: 420px !important; /* 라이트모드와 동일 */
+  padding: var(--spacing-5) !important;
 }
 
 html.theme-pixel-fusion .simulation-card {
-  min-height: 380px; /* 라이트모드와 동일 */
+  min-height: 380px !important; /* 라이트모드와 동일 */
+  padding: var(--spacing-4) !important;
 }
 
 html.theme-pixel-fusion .post-card-header,
 html.theme-pixel-fusion .simulation-card-header {
-  padding: 1rem 1.25rem; /* 라이트모드와 동일 */
+  padding: 1rem 1.25rem !important; /* 라이트모드와 동일 */
 }
 
 html.theme-pixel-fusion .post-card-content,
 html.theme-pixel-fusion .simulation-card-description {
-  padding: 1rem 1.25rem; /* 라이트모드와 동일 */
+  padding: 1rem 1.25rem !important; /* 라이트모드와 동일 */
 }
 
 html.theme-pixel-fusion .post-card-footer,
 html.theme-pixel-fusion .simulation-card-footer {
-  padding: 0.75rem 1.25rem 1rem; /* 라이트모드와 동일 */
+  padding: 0.75rem 1.25rem 1rem !important; /* 라이트모드와 동일 */
 }
 
 html.theme-pixel-fusion .card:hover,
@@ -572,8 +636,8 @@ html.theme-pixel-fusion .filter-btn {
     background-color: var(--bg-secondary);
     color: var(--text-accent);
     border: 0.125rem solid var(--border-color);
-    border-radius: 0;
-    padding: 0.625rem 1.125rem;
+    border-radius: 0 !important;
+    padding: 0.625rem 1.125rem !important;
     text-transform: uppercase;
     text-shadow: 0.0625rem 0.0625rem 0px #000;
     transition: none;
@@ -584,6 +648,10 @@ html.theme-pixel-fusion .filter-btn {
     /* 성능 최적화 */
     contain: layout style;
     will-change: auto;
+    /* 크기 일관성 */
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    line-height: 20px !important;
 }
 
 html.theme-pixel-fusion .btn:hover,
@@ -742,53 +810,53 @@ html.theme-royal-pixel {
   
   color-scheme: dark;
 
-  /* 폰트 크기 및 라인하이트 - 라이트모드와 일관성 유지 */
+  /* 폰트 크기 및 라인하이트 - 라이트모드와 완전히 동일하게 유지 */
   font-weight: 400;
   font-size: 1rem;
-  line-height: 1.2;
+  line-height: 1.6;
   letter-spacing: -0.02em;
 }
 
 /* 폰트 크기 조정 - 라이트모드와 정확히 동일한 크기 유지 */
 html.theme-royal-pixel h1 { 
-  font-size: 2.75rem; 
-  line-height: 130%;
-  font-weight: 700;
+  font-size: 2.75rem !important; 
+  line-height: 130% !important;
+  font-weight: 700 !important;
 }
 html.theme-royal-pixel h2 { 
-  font-size: 1.9rem; 
-  line-height: 130%;
-  font-weight: 700;
+  font-size: 1.9rem !important; 
+  line-height: 130% !important;
+  font-weight: 700 !important;
 }
 html.theme-royal-pixel h3 { 
-  font-size: 1.23rem; 
-  line-height: 203%;
-  font-weight: 700;
+  font-size: 1.23rem !important; 
+  line-height: 203% !important;
+  font-weight: 700 !important;
 }
 html.theme-royal-pixel h4 { 
-  font-size: 1.15rem; 
-  line-height: 203%;
-  font-weight: 700;
+  font-size: 1.15rem !important; 
+  line-height: 203% !important;
+  font-weight: 700 !important;
 }
 html.theme-royal-pixel h5 { 
-  font-size: 1.1rem; 
-  line-height: 203%;
-  font-weight: 700;
+  font-size: 1.1rem !important; 
+  line-height: 203% !important;
+  font-weight: 700 !important;
 }
 html.theme-royal-pixel h6 { 
-  font-size: 1rem; 
-  line-height: 203%;
-  font-weight: 700;
+  font-size: 1rem !important; 
+  line-height: 203% !important;
+  font-weight: 700 !important;
 }
 html.theme-royal-pixel p, html.theme-royal-pixel li { 
-  font-size: 1.23rem; 
-  line-height: 203%; 
-  letter-spacing: -0.02em;
-  font-weight: 400;
+  font-size: 1.23rem !important; 
+  line-height: 203% !important; 
+  letter-spacing: -0.02em !important;
+  font-weight: 400 !important;
 }
 html.theme-royal-pixel .post-content a { 
-  font-size: 1.0rem;
-  font-weight: 400;
+  font-size: 1.0rem !important;
+  font-weight: 400 !important;
 }
 
 /* 태그 및 날짜 가시성 향상 (Royal Pixel) */
@@ -797,6 +865,10 @@ html.theme-royal-pixel .post-card-tag {
   background-color: var(--text-accent) !important;
   color: var(--bg-primary) !important;
   border-color: var(--text-accent) !important;
+  /* 크기 일관성 */
+  padding: var(--spacing-1) var(--spacing-2) !important;
+  border-radius: 0 !important;
+  font-size: var(--font-size-xs) !important;
 }
 
 html.theme-royal-pixel .tag:hover,
@@ -809,6 +881,10 @@ html.theme-royal-pixel .post-card-date {
   background-color: var(--text-tertiary) !important;
   color: var(--bg-primary) !important;
   border-color: var(--text-tertiary) !important;
+  /* 크기 일관성 */
+  padding: 0.3rem 0.7rem !important;
+  border-radius: 0 !important;
+  font-size: 0.85rem !important;
 }
 html.theme-royal-pixel .post-card-date i {
   color: var(--bg-primary) !important;
@@ -852,53 +928,53 @@ html.theme-future-pixel {
   
   color-scheme: dark;
 
-  /* 폰트 크기 및 라인하이트 - 라이트모드와 일관성 유지 */
+  /* 폰트 크기 및 라인하이트 - 라이트모드와 완전히 동일하게 유지 */
   font-weight: 400;
   font-size: 1rem;
-  line-height: 1.2;
+  line-height: 1.6;
   letter-spacing: -0.02em;
 }
 
 /* 폰트 크기 조정 - 라이트모드와 정확히 동일한 크기 유지 */
 html.theme-future-pixel h1 { 
-  font-size: 2.75rem; 
-  line-height: 130%;
-  font-weight: 700;
+  font-size: 2.75rem !important; 
+  line-height: 130% !important;
+  font-weight: 700 !important;
 }
 html.theme-future-pixel h2 { 
-  font-size: 1.9rem; 
-  line-height: 130%;
-  font-weight: 700;
+  font-size: 1.9rem !important; 
+  line-height: 130% !important;
+  font-weight: 700 !important;
 }
 html.theme-future-pixel h3 { 
-  font-size: 1.23rem; 
-  line-height: 203%;
-  font-weight: 700;
+  font-size: 1.23rem !important; 
+  line-height: 203% !important;
+  font-weight: 700 !important;
 }
 html.theme-future-pixel h4 { 
-  font-size: 1.15rem; 
-  line-height: 203%;
-  font-weight: 700;
+  font-size: 1.15rem !important; 
+  line-height: 203% !important;
+  font-weight: 700 !important;
 }
 html.theme-future-pixel h5 { 
-  font-size: 1.1rem; 
-  line-height: 203%;
-  font-weight: 700;
+  font-size: 1.1rem !important; 
+  line-height: 203% !important;
+  font-weight: 700 !important;
 }
 html.theme-future-pixel h6 { 
-  font-size: 1rem; 
-  line-height: 203%;
-  font-weight: 700;
+  font-size: 1rem !important; 
+  line-height: 203% !important;
+  font-weight: 700 !important;
 }
 html.theme-future-pixel p, html.theme-future-pixel li { 
-  font-size: 1.23rem; 
-  line-height: 203%; 
-  letter-spacing: -0.02em;
-  font-weight: 400;
+  font-size: 1.23rem !important; 
+  line-height: 203% !important; 
+  letter-spacing: -0.02em !important;
+  font-weight: 400 !important;
 }
 html.theme-future-pixel .post-content a { 
-  font-size: 1.0rem;
-  font-weight: 400;
+  font-size: 1.0rem !important;
+  font-weight: 400 !important;
 }
 
 /* Future Pixel 테마 추가 효과 */
@@ -920,6 +996,10 @@ html.theme-future-pixel .post-card-tag {
   background-color: var(--text-accent) !important;
   color: #1F1D36 !important;
   border-color: var(--text-accent) !important;
+  /* 크기 일관성 */
+  padding: var(--spacing-1) var(--spacing-2) !important;
+  border-radius: 0 !important;
+  font-size: var(--font-size-xs) !important;
 }
 
 html.theme-future-pixel .tag:hover,
@@ -932,6 +1012,10 @@ html.theme-future-pixel .post-card-date {
   background-color: var(--text-tertiary) !important;
   color: #1F1D36 !important;
   border-color: var(--text-tertiary) !important;
+  /* 크기 일관성 */
+  padding: 0.3rem 0.7rem !important;
+  border-radius: 0 !important;
+  font-size: 0.85rem !important;
 }
 html.theme-future-pixel .post-card-date i {
   color: #1F1D36 !important;
@@ -967,32 +1051,34 @@ html.theme-royal-pixel footer, html.theme-future-pixel footer {
     /* 성능 최적화 */
     contain: layout style;
     will-change: transform;
-    /* 크기 일관성: 라이트모드와 동일한 패딩 유지 */
-    padding: var(--spacing-5);
+    /* 크기 일관성: 라이트모드와 완전히 동일한 패딩 유지 */
+    border-radius: 0 !important;
 }
 
-/* 개별 컴포넌트 크기 조정 */
+/* 개별 컴포넌트 크기 조정 - 라이트모드와 완전히 동일하게 */
 html.theme-royal-pixel .post-card, html.theme-future-pixel .post-card {
-  min-height: 420px; /* 라이트모드와 동일 */
+  min-height: 420px !important; /* 라이트모드와 동일 */
+  padding: var(--spacing-5) !important;
 }
 
 html.theme-royal-pixel .simulation-card, html.theme-future-pixel .simulation-card {
-  min-height: 380px; /* 라이트모드와 동일 */
+  min-height: 380px !important; /* 라이트모드와 동일 */
+  padding: var(--spacing-4) !important;
 }
 
 html.theme-royal-pixel .post-card-header, html.theme-future-pixel .post-card-header,
 html.theme-royal-pixel .simulation-card-header, html.theme-future-pixel .simulation-card-header {
-  padding: 1rem 1.25rem; /* 라이트모드와 동일 */
+  padding: 1rem 1.25rem !important; /* 라이트모드와 동일 */
 }
 
 html.theme-royal-pixel .post-card-content, html.theme-future-pixel .post-card-content,
 html.theme-royal-pixel .simulation-card-description, html.theme-future-pixel .simulation-card-description {
-  padding: 1rem 1.25rem; /* 라이트모드와 동일 */
+  padding: 1rem 1.25rem !important; /* 라이트모드와 동일 */
 }
 
 html.theme-royal-pixel .post-card-footer, html.theme-future-pixel .post-card-footer,
 html.theme-royal-pixel .simulation-card-footer, html.theme-future-pixel .simulation-card-footer {
-  padding: 0.75rem 1.25rem 1rem; /* 라이트모드와 동일 */
+  padding: 0.75rem 1.25rem 1rem !important; /* 라이트모드와 동일 */
 }
 
 html.theme-royal-pixel .card:hover, html.theme-future-pixel .card:hover,
@@ -1013,13 +1099,18 @@ html.theme-royal-pixel #startTestBtn, html.theme-future-pixel #startTestBtn,
 html.theme-royal-pixel .toggle-button, html.theme-future-pixel .toggle-button,
 html.theme-royal-pixel #whoisSearchBtn, html.theme-future-pixel #whoisSearchBtn,
 html.theme-royal-pixel #portScanBtn, html.theme-future-pixel #portScanBtn {
-    border-radius: 0;
+    border-radius: 0 !important;
     border-width: 0.125rem;
     border-style: solid;
     box-shadow: 0.25rem 0.25rem 0px rgba(0, 0, 0, 0.4);
     transition: transform var(--transition-fast), box-shadow var(--transition-fast);
     /* 성능 최적화 */
     will-change: transform;
+    /* 크기 일관성 */
+    padding: 5px 16px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    line-height: 20px !important;
 }
 
 html.theme-royal-pixel .btn:hover, html.theme-future-pixel .btn:hover,
@@ -1058,6 +1149,72 @@ html.theme-future-pixel .footer-links .footer-icon-github {
 html.theme-royal-pixel .footer-links .footer-icon-mail,
 html.theme-future-pixel .footer-links .footer-icon-mail {
     background-image: url('/static/img/icon/mail.png');
+}
+
+/* ===== 모바일에서 모든 테마 크기 일관성 ===== */
+@media (max-width: 768px) {
+  /* 모든 테마에서 동일한 모바일 타이포그래피 적용 */
+  html.theme-8bit h1, html.theme-pixel-fusion h1, html.theme-royal-pixel h1, html.theme-future-pixel h1 { 
+    font-size: 2rem !important; 
+    line-height: 1.2 !important; 
+    padding: 0 1rem !important;
+    margin-top: 1rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+  
+  html.theme-8bit h2, html.theme-pixel-fusion h2, html.theme-royal-pixel h2, html.theme-future-pixel h2 { 
+    font-size: 1.5rem !important; 
+    line-height: 1.25 !important; 
+    padding: 0 1rem !important;
+    margin-top: 1.5rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  html.theme-8bit h3, html.theme-pixel-fusion h3, html.theme-royal-pixel h3, html.theme-future-pixel h3 { 
+    font-size: 1.2rem !important; 
+    line-height: 1.4 !important; 
+    padding: 0 1rem !important;
+    margin-top: 1.25rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+  
+  html.theme-8bit p, html.theme-pixel-fusion p, html.theme-royal-pixel p, html.theme-future-pixel p,
+  html.theme-8bit .post-content p, html.theme-pixel-fusion .post-content p, 
+  html.theme-royal-pixel .post-content p, html.theme-future-pixel .post-content p { 
+    font-size: 1.1rem !important; 
+    line-height: 1.6 !important; 
+    padding: 0 1rem !important;
+    margin-bottom: 1.2em !important;
+  }
+  
+  html.theme-8bit li, html.theme-pixel-fusion li, html.theme-royal-pixel li, html.theme-future-pixel li { 
+    font-size: 1.1rem !important; 
+    line-height: 1.6 !important; 
+    margin-bottom: 0.4em !important;
+  }
+}
+
+@media (max-width: 480px) {
+  /* 초소형 화면에서도 모든 테마 크기 일관성 */
+  html.theme-8bit h1, html.theme-pixel-fusion h1, html.theme-royal-pixel h1, html.theme-future-pixel h1 { 
+    font-size: 1.75rem !important; 
+    line-height: 1.15 !important; 
+    padding: 0 0.75rem !important;
+  }
+  
+  html.theme-8bit h2, html.theme-pixel-fusion h2, html.theme-royal-pixel h2, html.theme-future-pixel h2 { 
+    font-size: 1.35rem !important; 
+    line-height: 1.2 !important; 
+    padding: 0 0.75rem !important;
+  }
+  
+  html.theme-8bit p, html.theme-pixel-fusion p, html.theme-royal-pixel p, html.theme-future-pixel p,
+  html.theme-8bit .post-content p, html.theme-pixel-fusion .post-content p, 
+  html.theme-royal-pixel .post-content p, html.theme-future-pixel .post-content p { 
+    font-size: 1.05rem !important; 
+    line-height: 1.55 !important; 
+    padding: 0 0.75rem !important;
+  }
 }
 
 /* ===== 성능 최적화를 위한 추가 설정 ===== */

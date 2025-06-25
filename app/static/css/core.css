@@ -1,6 +1,6 @@
 /* 
  * core.css - 최적화된 기본 스타일, 변수, 레이아웃, 타이포그래피 통합
- * 성능 최적화 및 8비트 테마 크기 일관성 개선
+ * 성능 최적화 및 모든 테마에서 일관된 크기 유지
  */
 
 /* ===== 1. 폰트 임포트 (최적화) ===== */
@@ -70,7 +70,7 @@
   --font-mono: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
   --font-cabin: 'Cabin', sans-serif;
 
-  /* 글꼴 크기 */
+  /* 글꼴 크기 - 모든 테마에서 동일하게 사용 */
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-md: 1rem;
@@ -79,7 +79,7 @@
   --font-size-2xl: 1.5rem;
   --font-size-3xl: 1.875rem;
 
-  /* 간격 */
+  /* 간격 - 모든 테마에서 동일하게 사용 */
   --spacing-1: 0.25rem;
   --spacing-2: 0.5rem;
   --spacing-3: 0.75rem;
@@ -147,10 +147,12 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  /* 스크롤 문제 해결 */
+  overflow-x: hidden;
+  width: 100%;
 }
 
 body {
-  width: 100%;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-sans);
@@ -165,7 +167,11 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  will-change: auto; /* 불필요한 will-change 제거 */
+  will-change: auto;
+  
+  /* 스크롤 최적화 */
+  position: relative;
+  width: 100%;
 }
 
 main {
@@ -175,6 +181,7 @@ main {
   margin-top: 1rem;
   position: relative;
   z-index: 2;
+  width: 100%;
 }
 
 main .container {
@@ -183,6 +190,7 @@ main .container {
   max-width: var(--content-max-width);
   position: relative;
   z-index: 5;
+  width: 100%;
 }
 
 footer {
@@ -815,9 +823,10 @@ body.nav-open {
   overflow: hidden;
   position: fixed;
   width: 100%;
+  height: 100vh;
 }
 
-/* ===== 기본 타이포그래피 (성능 최적화) ===== */
+/* ===== 기본 타이포그래피 (모든 테마에서 일관된 크기) ===== */
 h1, h2, h3, h4, h5, h6, p {
   font-family: var(--font-sans);
   color: inherit;
@@ -834,6 +843,7 @@ h1, h2, h3, h4, h5, h6, p {
   visibility: visible !important;
 }
 
+/* 모든 테마에서 동일한 폰트 크기 */
 h1 {
   font-size: 2.75rem;
   line-height: 130%;
@@ -1258,7 +1268,7 @@ h6:hover::after {
     padding: var(--spacing-6) var(--spacing-4); 
   }
 
-  /* 모바일 타이포그래피 최적화 */
+  /* 모바일 타이포그래피 최적화 - 모든 테마에서 동일 */
   body { 
     font-weight: 400; 
     font-size: 16px; 
