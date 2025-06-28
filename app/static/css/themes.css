@@ -152,39 +152,9 @@ html.theme-8bit footer {
     border-radius: 0 !important;
 }
 
-/* 개별 컴포넌트 크기 조정 - 라이트모드와 완전히 동일하게 */
-html.theme-8bit .post-card {
-  min-height: 420px !important; /* 라이트모드와 동일 */
-  padding: var(--spacing-5) !important;
-}
-
-html.theme-8bit .simulation-card {
-  min-height: 380px !important; /* 라이트모드와 동일 */
-  padding: var(--spacing-4) !important;
-}
-
-html.theme-8bit .post-card-header,
-html.theme-8bit .simulation-card-header {
-  padding: 1rem 1.25rem !important; /* 라이트모드와 동일 */
-}
-
-html.theme-8bit .post-card-content,
-html.theme-8bit .simulation-card-description {
-  padding: 1rem 1.25rem !important; /* 라이트모드와 동일 */
-}
-
-html.theme-8bit .post-card-footer,
-html.theme-8bit .simulation-card-footer {
-  padding: 0.75rem 1.25rem 1rem !important; /* 라이트모드와 동일 */
-}
-
-html.theme-8bit .intro-container {
-  padding: var(--spacing-6) !important; /* 라이트모드와 동일 */
-}
-
-html.theme-8bit .card {
-  padding: var(--spacing-5) !important; /* 라이트모드와 동일 */
-}
+/* * 제거된 섹션: 이전에 문제가 되었던 .post-card에 대한 !important 패딩 및 최소 높이 규칙을 삭제했습니다.
+ * 이제 layout-modules.css가 레이아웃을 완전히 제어합니다.
+ */
 
 html.theme-8bit .card:hover,
 html.theme-8bit .post-card:hover,
@@ -544,34 +514,10 @@ html.theme-pixel-fusion textarea {
   /* 성능 최적화 */
   contain: layout style;
   will-change: transform;
-  /* 크기 일관성: 라이트모드와 완전히 동일한 패딩 유지 */
 }
 
-/* 개별 컴포넌트 크기 조정 - 라이트모드와 완전히 동일하게 */
-html.theme-pixel-fusion .post-card {
-  min-height: 420px !important; /* 라이트모드와 동일 */
-  padding: var(--spacing-5) !important;
-}
-
-html.theme-pixel-fusion .simulation-card {
-  min-height: 380px !important; /* 라이트모드와 동일 */
-  padding: var(--spacing-4) !important;
-}
-
-html.theme-pixel-fusion .post-card-header,
-html.theme-pixel-fusion .simulation-card-header {
-  padding: 1rem 1.25rem !important; /* 라이트모드와 동일 */
-}
-
-html.theme-pixel-fusion .post-card-content,
-html.theme-pixel-fusion .simulation-card-description {
-  padding: 1rem 1.25rem !important; /* 라이트모드와 동일 */
-}
-
-html.theme-pixel-fusion .post-card-footer,
-html.theme-pixel-fusion .simulation-card-footer {
-  padding: 0.75rem 1.25rem 1rem !important; /* 라이트모드와 동일 */
-}
+/* * 제거된 섹션: .post-card에 대한 !important 패딩 및 최소 높이 규칙을 삭제했습니다.
+ */
 
 html.theme-pixel-fusion .card:hover,
 html.theme-pixel-fusion .post-card:hover,
@@ -1026,8 +972,7 @@ html.theme-future-pixel .post-card-date:hover {
 }
 
 /* ===== 8비트 테마들의 공통 시각적 요소 (크기 일관성 개선) ===== */
-html.theme-royal-pixel body, html.theme-future-pixel body,
-html.theme-royal-pixel img, html.theme-future-pixel img {
+html.theme-royal-pixel body, html.theme-future-pixel body, html.theme-8bit body {
     image-rendering: -moz-crisp-edges;
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
@@ -1053,32 +998,6 @@ html.theme-royal-pixel footer, html.theme-future-pixel footer {
     will-change: transform;
     /* 크기 일관성: 라이트모드와 완전히 동일한 패딩 유지 */
     border-radius: 0 !important;
-}
-
-/* 개별 컴포넌트 크기 조정 - 라이트모드와 완전히 동일하게 */
-html.theme-royal-pixel .post-card, html.theme-future-pixel .post-card {
-  min-height: 420px !important; /* 라이트모드와 동일 */
-  padding: var(--spacing-5) !important;
-}
-
-html.theme-royal-pixel .simulation-card, html.theme-future-pixel .simulation-card {
-  min-height: 380px !important; /* 라이트모드와 동일 */
-  padding: var(--spacing-4) !important;
-}
-
-html.theme-royal-pixel .post-card-header, html.theme-future-pixel .post-card-header,
-html.theme-royal-pixel .simulation-card-header, html.theme-future-pixel .simulation-card-header {
-  padding: 1rem 1.25rem !important; /* 라이트모드와 동일 */
-}
-
-html.theme-royal-pixel .post-card-content, html.theme-future-pixel .post-card-content,
-html.theme-royal-pixel .simulation-card-description, html.theme-future-pixel .simulation-card-description {
-  padding: 1rem 1.25rem !important; /* 라이트모드와 동일 */
-}
-
-html.theme-royal-pixel .post-card-footer, html.theme-future-pixel .post-card-footer,
-html.theme-royal-pixel .simulation-card-footer, html.theme-future-pixel .simulation-card-footer {
-  padding: 0.75rem 1.25rem 1rem !important; /* 라이트모드와 동일 */
 }
 
 html.theme-royal-pixel .card:hover, html.theme-future-pixel .card:hover,
@@ -1132,7 +1051,8 @@ html.theme-royal-pixel #portScanBtn:not(:hover), html.theme-future-pixel #portSc
 
 /* 8비트 테마들의 공통 아이콘 설정 */
 html.theme-royal-pixel .footer-links i,
-html.theme-future-pixel .footer-links i {
+html.theme-future-pixel .footer-links i,
+html.theme-8bit .footer-links i {
     font-size: 0;
     width: 1.5rem;
     height: 1.5rem;
@@ -1143,11 +1063,13 @@ html.theme-future-pixel .footer-links i {
     display: inline-block;
 }
 html.theme-royal-pixel .footer-links .footer-icon-github,
-html.theme-future-pixel .footer-links .footer-icon-github {
+html.theme-future-pixel .footer-links .footer-icon-github,
+html.theme-8bit .footer-links .footer-icon-github {
     background-image: url('/static/img/icon/github.png');
 }
 html.theme-royal-pixel .footer-links .footer-icon-mail,
-html.theme-future-pixel .footer-links .footer-icon-mail {
+html.theme-future-pixel .footer-links .footer-icon-mail,
+html.theme-8bit .footer-links .footer-icon-mail {
     background-image: url('/static/img/icon/mail.png');
 }
 
@@ -1277,14 +1199,4 @@ html.theme-future-pixel {
   /* 메모리 사용량 최적화 */
   -webkit-perspective: 1000px;
   perspective: 1000px;
-}
-
-/* ===== 이미지 최적화 ===== */
-html.theme-8bit img,
-html.theme-pixel-fusion img,
-html.theme-royal-pixel img,
-html.theme-future-pixel img {
-  /* 이미지 로딩 최적화 */
-  loading: lazy;
-  decode: async;
 }

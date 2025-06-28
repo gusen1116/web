@@ -1,15 +1,14 @@
-/* 
- * layout-modules.css - 블로그 그리드, 시뮬레이션 그리드, 슬라이드 등 레이아웃 모듈 통합
+/* * layout-modules.css - 블로그 그리드, 시뮬레이션 그리드, 슬라이드 등 레이아웃 모듈 통합
  * 이전: blog-grid.css, simulation-grid.css, slide.css 통합
  * 모든 테마에서 일관된 크기 유지
  */
 
-/* ===== 1. 블로그 그리드 레이아웃 ===== */
+/* ===== 1. 블로그 그리드 레이아웃 (수정됨) ===== */
 .posts-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: stretch;
+  display: grid; /* Flexbox 대신 Grid를 기본으로 사용 */
+  grid-template-columns: repeat(3, 1fr); /* 항상 3개의 동일한 너비의 열 생성 */
+  gap: var(--spacing-6);
+  align-items: stretch; /* 아이템들이 셀의 전체 높이를 채우도록 함 */
   margin-bottom: var(--spacing-12);
   width: 100%;
   max-width: var(--content-max-width); 
@@ -17,73 +16,38 @@
   margin-right: auto;
   padding: 0;
   box-sizing: border-box;
-  gap: var(--spacing-6);
-}
-
-/* CSS Grid enhancement for modern browsers */
-@supports (display: grid) {
-  .posts-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--spacing-6);
-    justify-content: center; 
-    align-items: stretch; 
-  }
 }
 
 .posts-grid > * { 
   display: block; 
   box-sizing: border-box;
-  flex-shrink: 0;
+  width: auto; /* Grid 아이템의 너비를 자동으로 설정 */
+  margin: 0;
   height: 100%; 
 }
 
-@supports (display: grid) {
-  .posts-grid > * {
-    width: auto; 
-    margin: 0;
-    height: 100%; 
-  }
-}
-
-/* 메인 페이지 중앙 정렬 포스트 그리드 */
+/* 메인 페이지 중앙 정렬 포스트 그리드 (수정됨) */
 .posts-grid-center {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center; 
-  align-items: stretch;
+  display: grid; /* Flexbox 대신 Grid를 기본으로 사용 */
+  grid-template-columns: repeat(3, 1fr); /* 항상 3개의 동일한 너비의 열 생성 */
+  gap: var(--spacing-6);
+  justify-content: center;
+  align-items: stretch; /* 아이템들이 셀의 전체 높이를 채우도록 함 */
   width: 100%;
   max-width: var(--content-max-width); 
   margin: 0 auto var(--spacing-12);
   padding: 0;
   box-sizing: border-box;
-  gap: var(--spacing-6);
-}
-
-@supports (display: grid) {
-  .posts-grid-center {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); 
-    gap: var(--spacing-6);
-    justify-content: center;
-    align-items: stretch;
-  }
 }
 
 .posts-grid-center > * {
   display: block;
   box-sizing: border-box;
-  flex-shrink: 0;
+  width: auto; /* Grid 아이템의 너비를 자동으로 설정 */
+  margin: 0;
   height: 100%;
 }
 
-@supports (display: grid) {
-  .posts-grid-center > * {
-    width: auto;
-    margin: 0;
-    height: 100%;
-  }
-}
 
 /* ===== 2. 슬라이드 컨테이너 ===== */
 .slide-container {
@@ -801,9 +765,7 @@ html.dark-theme .top-tag-navigation .tag-item.active {
 @media (max-width: 1024px) {
   .posts-grid,
   .posts-grid-center {
-    @supports (display: grid) {
-      grid-template-columns: repeat(2, 1fr);
-    }
+    grid-template-columns: repeat(2, 1fr);
   }
   
   .simulation-grid {
@@ -820,9 +782,7 @@ html.dark-theme .top-tag-navigation .tag-item.active {
 @media (max-width: 768px) {
   .posts-grid,
   .posts-grid-center {
-    @supports (display: grid) {
-      grid-template-columns: 1fr;
-    }
+    grid-template-columns: 1fr;
     padding-left: var(--spacing-4);
     padding-right: var(--spacing-4);
   }

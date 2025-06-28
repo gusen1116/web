@@ -776,6 +776,7 @@ def _create_image_tag_secure(src: str, alt: Optional[str], options_str: Optional
             except ValueError:
                 pass
     
+    # loading="lazy"와 decoding="async" 속성 추가
     return f'''
 <figure class="post-image">
     <img src="{safe_base_url}/{safe_src}" 
