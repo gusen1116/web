@@ -2,6 +2,24 @@
 from flask import Blueprint, jsonify, current_app
 import whois
 from whois.parser import PywhoisError
+from datetime import datetime
+
+def _serialize(value):
+    """Recursively convert WHOIS objects into JSON serialisable types."""
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, (int, float, bool, type(None), str)):
+        return value
+    if isinstance(value, bytes):
+        try:
+            return value.decode('utf-8')
+        except Exception:
+            return value.decode('latin-1', 'ignore')
+    if isinstance(value, (list, tuple, set)):
+        return [_serialize(v) for v in value]
+    if isinstance(value, dict):
+        return {k: _serialize(v) for k, v in value.items()}
+    return str(value)
 
 whois_bp = Blueprint('whois', __name__, url_prefix='/api/whois')
 
@@ -12,21 +30,7 @@ def get_whois_info(domain_name):
         # 여기에서 도메인 이름 유효성 검사를 추가할 수 있습니다.
         w = whois.whois(domain_name)
 
-        # whois 라이브러리가 날짜를 리스트로 반환하는 경우가 있어 처리
-        creation_date = w.creation_date[0] if isinstance(w.creation_date, list) else w.creation_date
-        expiration_date = w.expiration_date[0] if isinstance(w.expiration_date, list) else w.expiration_date
-
-        # 필요한 정보만 가공하여 반환
-        result = {
-            'domain_name': w.domain_name,
-            'registrar': w.registrar,
-            'creation_date': creation_date.isoformat() if creation_date else None,
-            'expiration_date': expiration_date.isoformat() if expiration_date else None,
-            'name_servers': w.name_servers,
-            'status': w.status,
-            'emails': w.emails,
-            'updated_date': w.updated_date[0].isoformat() if isinstance(w.updated_date, list) else w.updated_date.isoformat() if w.updated_date else None,
-        }
+        result = {k: _serialize(v) for k, v in w.__dict__.items() if not k.startswith('_')}
         return jsonify(result)
     except PywhoisError:
         return jsonify({'error': f"'{domain_name}' 도메인 정보를 찾을 수 없습니다."}), 404
