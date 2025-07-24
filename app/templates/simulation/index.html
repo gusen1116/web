@@ -2,6 +2,51 @@
 
 {% block title %}시뮬레이션 - 와구센{% endblock %}
 
+{% block head %}
+    {{ super() }}
+    <style>
+        .leaderboard-section {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--border-color);
+        }
+        .leaderboard-grid {
+            display: grid;
+            grid-template-columns: 80px 1fr 120px; /* 순위, 이름, 점수 너비 조정 */
+            gap: 0.5rem 1rem;
+            background-color: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            max-width: 700px;
+            margin: 1rem auto;
+            font-family: var(--font-sans);
+        }
+        .leaderboard-header {
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .leaderboard-cell {
+            padding: 0.6rem 0;
+            text-align: left;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+        }
+        .leaderboard-cell.rank { text-align: center; font-weight: bold; }
+        .leaderboard-cell.score { text-align: right; font-weight: 500; font-family: var(--font-mono), monospace; }
+        .leaderboard-empty-row {
+            grid-column: 1 / 4;
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-tertiary);
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
 <div class="simulation-page-header">
     <h1>인터랙티브 시뮬레이션</h1>
@@ -35,6 +80,31 @@
                     </article>
                 </a>
             {% endfor %}
+            {# 테트리스 게임 카드를 동적으로 추가 #}
+            <a href="{{ url_for('tetris_game') }}" class="simulation-card-link">
+                <article class="simulation-card fade-in">
+                    <div class="simulation-card-header">
+                        <h2>웹 테트리스</h2>
+                    </div>
+                    <div class="simulation-card-preview">
+                        {# 테트리스 아이콘이나 미리보기 이미지 경로 (없으면 플레이스홀더 사용) #}
+                        {% set tetris_img_url = url_for('static', filename='img/simulation-tetris.png') %}
+                        {% set placeholder_img_url = url_for('static', filename='img/simulation-placeholder.png') %}
+                        <img src="{{ tetris_img_url }}" 
+                             alt="테트리스 미리보기"
+                             loading="lazy"
+                             onerror="this.onerror=null; this.src='{{ placeholder_img_url | e }}'; this.alt='미리보기 이미지를 사용할 수 없습니다';">
+                    </div>
+                    <div class="simulation-card-description">
+                        <p>클래식 블록 쌓기 게임, 테트리스를 웹에서 즐겨보세요. 최고 점수에 도전하고 리더보드에 이름을 남겨보세요!</p>
+                    </div>
+                    <div class="simulation-card-footer">
+                        <span class="btn btn-primary">
+                            게임 시작 <i class="fas fa-gamepad" style="margin-left: 8px;"></i>
+                        </span>
+                    </div>
+                </article>
+            </a>
         {% else %}
             <div class="empty-state">
                 <p>현재 사용 가능한 시뮬레이션이 없습니다.</p>
@@ -45,42 +115,71 @@
         {% endif %}
     </div>
 </div>
+
+{# --- 테트리스 리더보드 섹션 추가 --- #}
+<section class="leaderboard-section">
+    <h2 class="section-title">테트리스 리더보드</h2>
+    <div id="leaderboard" class="leaderboard-grid">
+        <div class="leaderboard-header leaderboard-cell rank">순위</div>
+        <div class="leaderboard-header leaderboard-cell">이름</div>
+        <div class="leaderboard-header leaderboard-cell score">점수</div>
+        </div>
+</section>
 {% endblock %}
 
 {% block scripts %}
-<script nonce="{{ csp_nonce() }}">
-document.addEventListener('DOMContentLoaded', function() {
-    const fadeElements = document.querySelectorAll('.fade-in');
-    if (typeof IntersectionObserver === 'function') {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = 1;
-                    entry.target.style.transform = 'translateY(0)';
-                    observer.unobserve(entry.target);
+    {{ super() }}
+    <script nonce="{{ csp_nonce() }}">
+        document.addEventListener('DOMContentLoaded', () => {
+            const leaderboard = document.getElementById('leaderboard');
+
+            async function fetchScores() {
+                try {
+                    const response = await fetch('/api/score');
+                    if (!response.ok) {
+                        throw new Error(`API 응답 오류: ${response.status}`);
+                    }
+                    const scores = await response.json();
+                    
+                    const cells = leaderboard.querySelectorAll('.leaderboard-cell:not(.leaderboard-header), .leaderboard-empty-row');
+                    cells.forEach(cell => cell.remove());
+
+                    if (scores.length === 0) {
+                        const emptyRow = document.createElement('div');
+                        emptyRow.className = 'leaderboard-empty-row';
+                        emptyRow.textContent = '아직 등록된 점수가 없습니다. 테트리스를 플레이하고 첫 순위를 기록해보세요!';
+                        leaderboard.appendChild(emptyRow);
+                    } else {
+                        scores.forEach((item, index) => {
+                            const rankCell = document.createElement('div');
+                            rankCell.className = 'leaderboard-cell rank';
+                            rankCell.textContent = index + 1;
+                            
+                            const playerCell = document.createElement('div');
+                            playerCell.className = 'leaderboard-cell';
+                            playerCell.textContent = item.player;
+
+                            const scoreCell = document.createElement('div');
+                            scoreCell.className = 'leaderboard-cell score';
+                            scoreCell.textContent = item.score.toLocaleString();
+
+                            leaderboard.appendChild(rankCell);
+                            leaderboard.appendChild(playerCell);
+                            leaderboard.appendChild(scoreCell);
+                        });
+                    }
+                } catch (error) {
+                    console.error('리더보드 로딩 실패:', error);
+                    const cells = leaderboard.querySelectorAll('.leaderboard-cell:not(.leaderboard-header), .leaderboard-empty-row');
+                    cells.forEach(cell => cell.remove());
+                    const errorRow = document.createElement('div');
+                    errorRow.className = 'leaderboard-empty-row';
+                    errorRow.textContent = '리더보드를 불러오는 중 오류가 발생했습니다.';
+                    leaderboard.appendChild(errorRow);
                 }
-            });
-        }, { threshold: 0.1 });
-        fadeElements.forEach(element => {
-            element.style.opacity = 0;
-            element.style.transform = 'translateY(20px)';
-            element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-            observer.observe(element);
+            }
+
+            fetchScores();
         });
-    } else {
-        fadeElements.forEach(element => {
-            element.style.opacity = 1;
-            element.style.transform = 'translateY(0)';
-        });
-    }
-    const previewImages = document.querySelectorAll('.simulation-card-preview img');
-    const placeholderSrc = "{{ placeholder_img_url | e }}"; 
-    previewImages.forEach(img => {
-        if (img.complete && img.naturalWidth === 0 && img.src !== placeholderSrc && !img.getAttribute('data-error-handled')) {
-        img.dispatchEvent(new Event('error')); 
-        img.setAttribute('data-error-handled', 'true');
-        }
-    });
-});
-</script>
+    </script>
 {% endblock %}

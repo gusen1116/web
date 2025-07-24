@@ -7,7 +7,6 @@
     <meta name="format-detection" content="telephone=no">
     <title>{% block title %}와구센{% endblock %}</title>
     
-    <!-- 수정된 CSS 파일 구조 -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/core.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/content.css') }}">
@@ -25,11 +24,15 @@
         (function() {
             const THEMES = [
                 { name: 'light', className: '' },
-                { name: 'dark', className: ['dark-theme', 'theme-dark'] },
-                { name: 'pixel-fusion', className: 'theme-pixel-fusion' }
+                { name: 'dark', className: 'dark-theme' }, // General dark theme
+                { name: '8bit', className: 'theme-8bit' },
+                { name: 'pixel-fusion', className: 'theme-pixel-fusion' },
+                { name: 'royal-cream', className: 'theme-royal-cream' },
+                { name: 'royal-pixel', className: ['dark-theme', 'theme-royal-pixel'] }, // Depends on dark-theme
+                { name: 'future-pixel', className: ['dark-theme', 'theme-future-pixel'] } // Depends on dark-theme
             ];
             
-            const savedThemeName = localStorage.getItem('wagusen_theme_v2');
+            const savedThemeName = localStorage.getItem('wagusen_theme_v2'); // Correct key
             const theme = THEMES.find(t => t.name === savedThemeName);
             
             if (theme && theme.className) {
@@ -61,7 +64,6 @@
             
             <div class="header-controls">
                 <div class="theme-toggle-area">
-                    <!-- 통합 테마 토글 버튼 -->
                     <button class="theme-toggle" id="unifiedThemeToggle" title="테마 변경" aria-label="테마 전환">
                         <i class="fas fa-palette theme-icon"></i>
                     </button>
@@ -99,7 +101,8 @@
                 <li class="mobile-nav-item">
                     <a href="{{ url_for('simulation.index') }}" class="mobile-nav-link">
                         <i class="fas fa-atom default-icon"></i>
-                        <span class="nav-icon nav-icon-8bit"></span> <span>시뮬레이션</span>
+                        <img src="{{ url_for('static', filename='img/icon/simulation.png') }}" class="nav-icon nav-icon-8bit" alt="시뮬레이션 아이콘">
+                        <span>시뮬레이션</span>
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 </li>

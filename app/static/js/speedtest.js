@@ -283,34 +283,53 @@
         whoisResultContent.innerHTML = ''; // 이전 결과 초기화
         const list = document.createElement('ul');
 
+        // 알려진 키에 대한 한글 레이블 맵
         const keyMap = {
             domain_name: '도메인 이름',
             registrar: '등록 기관',
-            creation_date: '생성일',
+            creation_date: '등록일',
             expiration_date: '만료일',
-            updated_date: '최근 업데이트',
+            updated_date: '최근 업데이트일',
             name_servers: '네임서버',
-            status: '상태',
+            status: '도메인 상태',
             emails: '관리자 이메일',
+            dnssec: 'DNSSEC',
+            org: '등록자 (단체)',
+            name: '등록자 (이름)',
+            address: '주소',
+            city: '도시',
+            state: '주/도',
+            zipcode: '우편번호',
+            country: '국가',
+            registrar_iana_id: '등록 기관 ID (IANA)',
         };
         
-        for (const key in keyMap) {
-            if (data[key]) {
-                const li = document.createElement('li');
-                const strong = document.createElement('strong');
-                strong.textContent = keyMap[key] + ':';
-                
-                const span = document.createElement('span');
-                let value = data[key];
-                if (Array.isArray(value)) {
-                    value = value.join(', ');
-                }
-                span.textContent = value;
-
-                li.appendChild(strong);
-                li.appendChild(span);
-                list.appendChild(li);
+        // 서버에서 받은 모든 키에 대해 반복
+        for (const key in data) {
+            let value = data[key];
+            
+            // 값이 비어있으면 건너뛰기
+            if (value === null || value === undefined || (Array.isArray(value) && value.length === 0)) {
+                continue;
             }
+
+            // 레이블 결정: keyMap에 있으면 한글 레이블, 없으면 키를 보기 좋게 변환
+            const label = keyMap[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+            const li = document.createElement('li');
+            const strong = document.createElement('strong');
+            strong.textContent = label + ':';
+            
+            const span = document.createElement('span');
+            // 값이 배열이면 줄바꿈으로 표시
+            if (Array.isArray(value)) {
+                value = value.join('\n');
+            }
+            span.textContent = value;
+
+            li.appendChild(strong);
+            li.appendChild(span);
+            list.appendChild(li);
         }
 
         if (list.children.length === 0) {

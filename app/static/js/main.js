@@ -180,6 +180,7 @@
         constructor(localStorageKey) {
             this.localStorageKey = localStorageKey;
             this.currentThemeIndex = 0;
+            this.toggleButton = $('#unifiedThemeToggle');
             this.init();
         }
 
@@ -188,6 +189,10 @@
             const idx = THEMES.findIndex(t => t.name === saved);
             if (idx !== -1) this.currentThemeIndex = idx;
             this.applyTheme(this.currentThemeIndex);
+
+            if(this.toggleButton) {
+                this.toggleButton.addEventListener('click', () => this.toggle());
+            }
         }
 
         applyTheme(index) {
@@ -340,7 +345,7 @@
     }
 
     // 인스턴스 생성 및 초기화
-    new ThemeController('themeKey');
+    new ThemeController('wagusen_theme_v2'); // 'themeKey'를 'wagusen_theme_v2'로 수정
     new ImageOptimizer();
     new PerformanceOptimizer();
     const mobileNav = new MobileNavigation();
