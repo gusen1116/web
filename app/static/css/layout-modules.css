@@ -1001,3 +1001,494 @@ html.dark-theme .toggle-button {
 html.dark-theme .toggle-button:hover {
   background-color: #58a6ff; 
 }
+/* 갤러리 전용 스타일 추가 - layout-modules.css에 추가할 내용 */
+
+/* ===== 갤러리 그리드 레이아웃 ===== */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-6);
+  align-items: stretch;
+  margin-bottom: var(--spacing-12);
+  width: 100%;
+  max-width: var(--content-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.gallery-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: all 0.25s cubic-bezier(0.1, 0.7, 0.1, 1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  min-height: 420px;
+  padding: 0;
+}
+
+.gallery-card:hover {
+  border-color: var(--github-accent);
+  box-shadow: 0 8px 24px rgba(149, 157, 165, 0.2);
+  transform: translateY(-4px);
+}
+
+.gallery-card-link {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+}
+
+.gallery-card-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.gallery-card-title {
+  font-size: 1.5rem;
+  line-height: 1.3;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  width: 100%;
+}
+
+.gallery-card-meta {
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  font-family: var(--font-sans);
+}
+
+.gallery-card-date {
+  display: inline-block;
+  color: var(--text-tertiary);
+  font-size: 0.8rem;
+  padding: 0.2rem 0.6rem;
+  background-color: var(--bg-tertiary);
+  border-radius: 20px;
+}
+
+.gallery-card-content {
+  padding: 1rem 1.25rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.gallery-card-thumbnail {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+  background-color: var(--bg-tertiary);
+  border-radius: 4px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.gallery-card-preview {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-sans);
+}
+
+.gallery-card-footer {
+  padding: 0.75rem 1.25rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border-color);
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
+.gallery-card-stats {
+  display: flex;
+  gap: var(--spacing-3);
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+}
+
+.gallery-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* ===== 갤러리 카테고리 카드 ===== */
+.gallery-category-card {
+  background: linear-gradient(135deg, #2A2A2A, #1A1A1A);
+  border: 2px solid #333;
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  height: 100%;
+}
+
+.gallery-category-card:hover {
+  border-color: #FFD700;
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(255, 215, 0, 0.3);
+  text-decoration: none;
+  color: inherit;
+}
+
+.gallery-category-thumbnail {
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(45deg, #333, #444, #333);
+  border-bottom: 1px solid #444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  color: #666;
+  position: relative;
+}
+
+.gallery-category-info {
+  padding: 1.5rem;
+  color: #E0E0E0;
+}
+
+.gallery-category-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.gallery-category-description {
+  color: #AAAAAA;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+/* ===== 라이트박스 스타일 ===== */
+.lightbox-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-container {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-image-placeholder {
+  max-width: 100%;
+  max-height: 100%;
+  background: linear-gradient(45deg, #333, #555);
+  border: 2px solid #FFD700;
+  border-radius: 8px;
+  width: 600px;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  color: #666;
+}
+
+.lightbox-controls {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(26, 26, 26, 0.8);
+  color: #FFD700;
+  border: none;
+  padding: 1rem;
+  font-size: 1.5rem;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.lightbox-controls:hover {
+  background: rgba(255, 215, 0, 0.2);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: -50px;
+  right: 0;
+  background: none;
+  color: #FFD700;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+/* ===== 갤러리 필터 컨트롤 ===== */
+.gallery-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: var(--content-max-width);
+  margin: 0 auto var(--spacing-6);
+  padding: 0 var(--spacing-4);
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+}
+
+.filter-buttons {
+  display: flex;
+  gap: var(--spacing-3);
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  font-family: var(--font-sans);
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+  background: var(--github-accent);
+  color: white;
+  border-color: var(--github-accent);
+}
+
+.sort-select {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+
+.layout-toggle {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.layout-btn {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: var(--font-sans);
+}
+
+.layout-btn:hover,
+.layout-btn.active {
+  background: var(--github-accent);
+  color: white;
+  border-color: var(--github-accent);
+}
+
+/* ===== 반응형 갤러리 스타일 ===== */
+@media (max-width: 1024px) {
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 var(--spacing-4);
+  }
+  
+  .gallery-category-card {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .gallery-grid {
+    grid-template-columns: 1fr;
+    padding: 0 var(--spacing-4);
+  }
+  
+  .gallery-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-3);
+  }
+  
+  .filter-buttons {
+    justify-content: center;
+  }
+  
+  .gallery-card {
+    min-height: auto;
+  }
+  
+  .gallery-category-thumbnail {
+    height: 160px;
+    font-size: 3rem;
+  }
+  
+  .lightbox-controls {
+    position: fixed;
+    top: 50%;
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-grid,
+  .gallery-controls {
+    padding: 0 var(--spacing-2);
+  }
+  
+  .gallery-category-info {
+    padding: 1rem;
+  }
+  
+  .gallery-category-title {
+    font-size: 1.2rem;
+  }
+  
+  .gallery-category-description {
+    font-size: 0.8rem;
+  }
+}
+
+/* ===== 다크모드 스타일 ===== */
+html.dark-theme .gallery-card {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+html.dark-theme .gallery-card:hover {
+  border-color: var(--github-accent);
+}
+
+html.dark-theme .gallery-card-header {
+  border-bottom-color: var(--border-color);
+}
+
+html.dark-theme .gallery-card-footer {
+  border-top-color: var(--border-color);
+}
+
+html.dark-theme .filter-btn {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+html.dark-theme .filter-btn:hover,
+html.dark-theme .filter-btn.active {
+  background-color: var(--text-accent);
+  color: var(--bg-primary);
+  border-color: var(--text-accent);
+}
+
+html.dark-theme .sort-select,
+html.dark-theme .layout-btn {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+html.dark-theme .layout-btn:hover,
+html.dark-theme .layout-btn.active {
+  background-color: var(--text-accent);
+  color: var(--bg-primary);
+  border-color: var(--text-accent);
+}
+
+/* ===== 8비트 테마 갤러리 스타일 ===== */
+html.theme-8bit .gallery-card,
+html.theme-pixel-fusion .gallery-card,
+html.theme-royal-pixel .gallery-card,
+html.theme-future-pixel .gallery-card {
+  border-radius: 0 !important;
+  border-width: 2px;
+  border-style: solid;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+html.theme-8bit .gallery-card:hover,
+html.theme-pixel-fusion .gallery-card:hover,
+html.theme-royal-pixel .gallery-card:hover,
+html.theme-future-pixel .gallery-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+}
+
+html.theme-8bit .filter-btn,
+html.theme-8bit .layout-btn,
+html.theme-8bit .sort-select,
+html.theme-pixel-fusion .filter-btn,
+html.theme-pixel-fusion .layout-btn,
+html.theme-pixel-fusion .sort-select,
+html.theme-royal-pixel .filter-btn,
+html.theme-royal-pixel .layout-btn,
+html.theme-royal-pixel .sort-select,
+html.theme-future-pixel .filter-btn,
+html.theme-future-pixel .layout-btn,
+html.theme-future-pixel .sort-select {
+  border-radius: 0 !important;
+  border-width: 2px;
+  border-style: solid;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+html.theme-8bit .filter-btn:hover,
+html.theme-8bit .layout-btn:hover,
+html.theme-pixel-fusion .filter-btn:hover,
+html.theme-pixel-fusion .layout-btn:hover,
+html.theme-royal-pixel .filter-btn:hover,
+html.theme-royal-pixel .layout-btn:hover,
+html.theme-future-pixel .filter-btn:hover,
+html.theme-future-pixel .layout-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.4);
+}

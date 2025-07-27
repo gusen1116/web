@@ -161,14 +161,14 @@ def setup_logging(app):
 def register_blueprints(app):
     """블루프린트 등록"""
     from app.routes.main_routes import main_bp
-    from app.routes.simulation import simulation_bp
+    from app.routes.gallery import gallery_bp  # 갤러리 블루프린트 추가
     from app.routes.posts_routes import posts_bp
     from app.routes.speedtest_routes import speedtest_bp
     from app.routes.whois_routes import whois_bp
     from app.routes.utils_routes import utils_bp
     
     app.register_blueprint(main_bp)
-    app.register_blueprint(simulation_bp)
+    app.register_blueprint(gallery_bp)  # 갤러리 블루프린트 등록
     app.register_blueprint(posts_bp)
     app.register_blueprint(speedtest_bp)
     app.register_blueprint(whois_bp)

@@ -1,185 +1,408 @@
 {% extends "base.html" %}
 
-{% block title %}시뮬레이션 - 와구센{% endblock %}
+{% block title %}포토 갤러리 - 와구센{% endblock %}
 
 {% block head %}
-    {{ super() }}
-    <style>
-        .leaderboard-section {
-            margin-top: 3rem;
-            padding-top: 2rem;
-            border-top: 2px solid var(--border-color);
-        }
-        .leaderboard-grid {
-            display: grid;
-            grid-template-columns: 80px 1fr 120px; /* 순위, 이름, 점수 너비 조정 */
-            gap: 0.5rem 1rem;
-            background-color: var(--bg-secondary);
-            padding: 1rem 1.5rem;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            max-width: 700px;
-            margin: 1rem auto;
-            font-family: var(--font-sans);
-        }
-        .leaderboard-header {
-            font-weight: 600;
-            color: var(--text-primary);
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 0.8rem;
-            margin-bottom: 0.5rem;
-        }
-        .leaderboard-cell {
-            padding: 0.6rem 0;
-            text-align: left;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-        }
-        .leaderboard-cell.rank { text-align: center; font-weight: bold; }
-        .leaderboard-cell.score { text-align: right; font-weight: 500; font-family: var(--font-mono), monospace; }
-        .leaderboard-empty-row {
-            grid-column: 1 / 4;
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-tertiary);
-        }
-    </style>
+{{ super() }}
+<style nonce="{{ csp_nonce() }}">
+/* 갤러리 전용 다크 테마 스타일 */
+.gallery-container {
+    background-color: #121212;
+    color: #E0E0E0;
+    min-height: 100vh;
+    padding: 0;
+    margin: 0;
+}
+
+/* 메인 배너/슬라이더 영역 */
+.hero-banner {
+    width: 100%;
+    height: 70vh;
+    background: linear-gradient(45deg, #1A1A1A, #2A2A2A);
+    border: 3px solid #FFD700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-content {
+    text-align: center;
+    z-index: 2;
+}
+
+.hero-title {
+    font-size: 3rem;
+    color: #FFD700;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    color: #AAAAAA;
+    margin-bottom: 2rem;
+}
+
+.spotlight-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 50% 50%, transparent 30%, rgba(0,0,0,0.8) 70%);
+}
+
+/* 갤러리 카테고리 그리드 */
+.gallery-categories {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.categories-title {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #E0E0E0;
+    margin-bottom: 3rem;
+    border-bottom: 2px solid #FFD700;
+    padding-bottom: 1rem;
+}
+
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.category-card {
+    background: linear-gradient(135deg, #2A2A2A, #1A1A1A);
+    border: 2px solid #333;
+    border-radius: 12px;
+    padding: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+}
+
+.category-card:hover {
+    border-color: #FFD700;
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(255, 215, 0, 0.3);
+    text-decoration: none;
+    color: inherit;
+}
+
+.category-thumbnail {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(45deg, #333, #444, #333);
+    border-bottom: 1px solid #444;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    color: #666;
+    position: relative;
+}
+
+.category-thumbnail::after {
+    content: "📷";
+    position: absolute;
+}
+
+.category-info {
+    padding: 1.5rem;
+}
+
+.category-title {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #E0E0E0;
+    margin-bottom: 0.5rem;
+}
+
+.category-description {
+    color: #AAAAAA;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.category-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #888;
+    font-size: 0.8rem;
+}
+
+/* 작가 소개 섹션 */
+.artist-section {
+    background: linear-gradient(135deg, #1A1A1A, #2A2A2A);
+    border: 2px solid #333;
+    margin: 3rem 2rem;
+    padding: 3rem;
+    border-radius: 12px;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.artist-content {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 3rem;
+    align-items: center;
+}
+
+.artist-photo {
+    width: 250px;
+    height: 250px;
+    background: linear-gradient(45deg, #333, #444);
+    border-radius: 50%;
+    border: 3px solid #FFD700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+    color: #666;
+}
+
+.artist-photo::after {
+    content: "👤";
+}
+
+.artist-info h2 {
+    color: #FFD700;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.artist-info p {
+    color: #AAAAAA;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+/* 갤러리 통계 */
+.gallery-stats {
+    background: #1A1A1A;
+    border: 1px solid #333;
+    padding: 2rem;
+    margin: 2rem;
+    border-radius: 8px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 2rem;
+    text-align: center;
+}
+
+.stat-item {
+    padding: 1rem;
+    border: 1px solid #444;
+    border-radius: 8px;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #FFD700;
+    display: block;
+}
+
+.stat-label {
+    color: #AAAAAA;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .categories-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 0 1rem;
+    }
+    
+    .artist-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 2rem;
+    }
+    
+    .artist-photo {
+        margin: 0 auto;
+    }
+    
+    .gallery-stats {
+        margin: 1rem;
+        padding: 1rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-banner {
+        height: 50vh;
+    }
+    
+    .hero-title {
+        font-size: 1.5rem;
+    }
+    
+    .categories-title {
+        font-size: 2rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="simulation-page-header">
-    <h1>인터랙티브 시뮬레이션</h1>
-    <p class="simulation-page-description">다양한 물리 및 현상들을 직접 체험해보세요. 각 카드를 클릭하여 시뮬레이션을 시작할 수 있습니다.</p>
-</div>
-
-<div class="simulations-container">
-    <div class="simulation-grid">
-        {% if simulations %}
-            {% for sim in simulations %}
-                <a href="{{ url_for('simulation.dynamic_simulation', simulation_type=sim.type) }}" class="simulation-card-link">
-                    <article class="simulation-card fade-in">
-                        <div class="simulation-card-header">
-                            <h2>{{ sim.title }}</h2>
-                        </div>
-                        <div class="simulation-card-preview">
-                            {% set placeholder_img_url = url_for('static', filename='img/simulation-placeholder.png') %}
-                            <img src="{{ url_for('static', filename=sim.thumbnail.replace('/static/', '')) if sim.thumbnail else placeholder_img_url }}" 
-                                 alt="{{ sim.title }} 미리보기"
-                                 loading="lazy"
-                                 onerror="this.onerror=null; this.src='{{ placeholder_img_url | e }}'; this.alt='미리보기 이미지를 사용할 수 없습니다';">
-                        </div>
-                        <div class="simulation-card-description">
-                            <p>{{ sim.description | truncate(100, True) }}</p>
-                        </div>
-                        <div class="simulation-card-footer">
-                            <span class="btn btn-primary">
-                                시작하기 <i class="fas fa-play" style="margin-left: 8px;"></i>
-                            </span>
-                        </div>
-                    </article>
-                </a>
-            {% endfor %}
-            {# 테트리스 게임 카드를 동적으로 추가 #}
-            <a href="{{ url_for('tetris_game') }}" class="simulation-card-link">
-                <article class="simulation-card fade-in">
-                    <div class="simulation-card-header">
-                        <h2>웹 테트리스</h2>
-                    </div>
-                    <div class="simulation-card-preview">
-                        {# 테트리스 아이콘이나 미리보기 이미지 경로 (없으면 플레이스홀더 사용) #}
-                        {% set tetris_img_url = url_for('static', filename='img/simulation-tetris.png') %}
-                        {% set placeholder_img_url = url_for('static', filename='img/simulation-placeholder.png') %}
-                        <img src="{{ tetris_img_url }}" 
-                             alt="테트리스 미리보기"
-                             loading="lazy"
-                             onerror="this.onerror=null; this.src='{{ placeholder_img_url | e }}'; this.alt='미리보기 이미지를 사용할 수 없습니다';">
-                    </div>
-                    <div class="simulation-card-description">
-                        <p>클래식 블록 쌓기 게임, 테트리스를 웹에서 즐겨보세요. 최고 점수에 도전하고 리더보드에 이름을 남겨보세요!</p>
-                    </div>
-                    <div class="simulation-card-footer">
-                        <span class="btn btn-primary">
-                            게임 시작 <i class="fas fa-gamepad" style="margin-left: 8px;"></i>
-                        </span>
-                    </div>
-                </article>
-            </a>
-        {% else %}
-            <div class="empty-state">
-                <p>현재 사용 가능한 시뮬레이션이 없습니다.</p>
-                 {% if error %}
-                 <p class="error-message">시뮬레이션 목록을 불러오는 중 오류가 발생했습니다.</p>
-                 {% endif %}
+<div class="gallery-container">
+    <!-- 메인 배너/대표 이미지 슬라이더 영역 -->
+    <section class="hero-banner">
+        <div class="spotlight-effect"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">포토 포트폴리오</h1>
+            <p class="hero-subtitle">순간을 담는 예술, 빛과 그림자의 이야기</p>
+            <div style="background: #333; width: 300px; height: 40px; margin: 0 auto; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: #888;">
+                [ 대표 사진 슬라이더 영역 ]
             </div>
-        {% endif %}
-    </div>
-</div>
-
-{# --- 테트리스 리더보드 섹션 추가 --- #}
-<section class="leaderboard-section">
-    <h2 class="section-title">테트리스 리더보드</h2>
-    <div id="leaderboard" class="leaderboard-grid">
-        <div class="leaderboard-header leaderboard-cell rank">순위</div>
-        <div class="leaderboard-header leaderboard-cell">이름</div>
-        <div class="leaderboard-header leaderboard-cell score">점수</div>
         </div>
-</section>
+    </section>
+
+    <!-- 갤러리 카테고리 그리드 -->
+    <section class="gallery-categories">
+        <h2 class="categories-title">갤러리 컬렉션</h2>
+        
+        <div class="categories-grid">
+            {% if galleries %}
+                {% for gallery in galleries %}
+                <a href="{{ gallery.url }}" class="category-card">
+                    <div class="category-thumbnail">
+                        <!-- 썸네일 이미지 영역 (도형으로 표시) -->
+                    </div>
+                    <div class="category-info">
+                        <h3 class="category-title">{{ gallery.title }}</h3>
+                        <p class="category-description">{{ gallery.description }}</p>
+                        <div class="category-meta">
+                            <span>{{ gallery.photo_count }}장</span>
+                            <span>{{ gallery.type }}</span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+                <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #666; border: 2px dashed #444; border-radius: 8px;">
+                    {% if error %}
+                    <p>갤러리를 불러오는 중 오류가 발생했습니다.</p>
+                    {% else %}
+                    <p>현재 사용 가능한 갤러리가 없습니다.</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- 갤러리 통계 -->
+    <section class="gallery-stats">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-number">150+</span>
+                <span class="stat-label">총 사진 수</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">4</span>
+                <span class="stat-label">갤러리 카테고리</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">25</span>
+                <span class="stat-label">촬영 장소</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">2</span>
+                <span class="stat-label">활동 연차</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 작가 소개 섹션 -->
+    <section class="artist-section">
+        <div class="artist-content">
+            <div class="artist-photo">
+                <!-- 작가 사진 영역 (도형으로 표시) -->
+            </div>
+            <div class="artist-info">
+                <h2>Photographer 구센</h2>
+                <p>빛과 그림자, 순간과 영원 사이에서 찾은 아름다움을 렌즈에 담습니다. 
+                   일상 속 특별함부터 자연의 웅장함까지, 모든 순간이 가진 고유한 이야기를 사진으로 전달하고자 합니다.</p>
+                <p>주로 인물, 풍경, 스트리트, 매크로 사진을 촬영하며, 
+                   각각의 장르에서 새로운 시각과 감성을 발견하는 것을 즐깁니다.</p>
+                <div style="margin-top: 1.5rem;">
+                    <span style="background: #333; padding: 8px 16px; border-radius: 20px; margin-right: 10px; font-size: 0.9rem;">Contact</span>
+                    <span style="background: #333; padding: 8px 16px; border-radius: 20px; margin-right: 10px; font-size: 0.9rem;">Instagram</span>
+                    <span style="background: #333; padding: 8px 16px; border-radius: 20px; font-size: 0.9rem;">Email</span>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
 {% endblock %}
 
 {% block scripts %}
-    {{ super() }}
-    <script nonce="{{ csp_nonce() }}">
-        document.addEventListener('DOMContentLoaded', () => {
-            const leaderboard = document.getElementById('leaderboard');
-
-            async function fetchScores() {
-                try {
-                    const response = await fetch('/api/score');
-                    if (!response.ok) {
-                        throw new Error(`API 응답 오류: ${response.status}`);
-                    }
-                    const scores = await response.json();
-                    
-                    const cells = leaderboard.querySelectorAll('.leaderboard-cell:not(.leaderboard-header), .leaderboard-empty-row');
-                    cells.forEach(cell => cell.remove());
-
-                    if (scores.length === 0) {
-                        const emptyRow = document.createElement('div');
-                        emptyRow.className = 'leaderboard-empty-row';
-                        emptyRow.textContent = '아직 등록된 점수가 없습니다. 테트리스를 플레이하고 첫 순위를 기록해보세요!';
-                        leaderboard.appendChild(emptyRow);
-                    } else {
-                        scores.forEach((item, index) => {
-                            const rankCell = document.createElement('div');
-                            rankCell.className = 'leaderboard-cell rank';
-                            rankCell.textContent = index + 1;
-                            
-                            const playerCell = document.createElement('div');
-                            playerCell.className = 'leaderboard-cell';
-                            playerCell.textContent = item.player;
-
-                            const scoreCell = document.createElement('div');
-                            scoreCell.className = 'leaderboard-cell score';
-                            scoreCell.textContent = item.score.toLocaleString();
-
-                            leaderboard.appendChild(rankCell);
-                            leaderboard.appendChild(playerCell);
-                            leaderboard.appendChild(scoreCell);
-                        });
-                    }
-                } catch (error) {
-                    console.error('리더보드 로딩 실패:', error);
-                    const cells = leaderboard.querySelectorAll('.leaderboard-cell:not(.leaderboard-header), .leaderboard-empty-row');
-                    cells.forEach(cell => cell.remove());
-                    const errorRow = document.createElement('div');
-                    errorRow.className = 'leaderboard-empty-row';
-                    errorRow.textContent = '리더보드를 불러오는 중 오류가 발생했습니다.';
-                    leaderboard.appendChild(errorRow);
-                }
-            }
-
-            fetchScores();
+{{ super() }}
+<script nonce="{{ csp_nonce() }}">
+document.addEventListener('DOMContentLoaded', function() {
+    // 갤러리 카드 호버 효과 개선
+    const categoryCards = document.querySelectorAll('.category-card');
+    
+    categoryCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.boxShadow = '0 20px 40px rgba(255, 215, 0, 0.4)';
         });
-    </script>
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.boxShadow = '0 15px 30px rgba(255, 215, 0, 0.3)';
+        });
+    });
+
+    // 스포트라이트 효과 마우스 추적 (선택적)
+    const heroBanner = document.querySelector('.hero-banner');
+    const spotlight = document.querySelector('.spotlight-effect');
+    
+    if (heroBanner && spotlight) {
+        heroBanner.addEventListener('mousemove', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            
+            spotlight.style.background = `radial-gradient(circle at ${x}% ${y}%, transparent 30%, rgba(0,0,0,0.8) 70%)`;
+        });
+    }
+});
+</script>
 {% endblock %}

@@ -1,0 +1,727 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }} - 포토 갤러리{% endblock %}
+
+{% block head %}
+{{ super() }}
+<style nonce="{{ csp_nonce() }}">
+/* 갤러리 카테고리 페이지 다크 테마 */
+.gallery-category-container {
+    background-color: #121212;
+    color: #E0E0E0;
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+/* 헤더 영역 */
+.gallery-header {
+    text-align: center;
+    padding: 3rem 2rem;
+    border-bottom: 2px solid #333;
+    margin-bottom: 3rem;
+}
+
+.gallery-title {
+    font-size: 3rem;
+    color: #FFD700;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.gallery-description {
+    font-size: 1.2rem;
+    color: #AAAAAA;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    line-height: 1.6;
+}
+
+/* 필터 및 정렬 컨트롤 */
+.gallery-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto 2rem;
+    padding: 0 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: #2A2A2A;
+    color: #E0E0E0;
+    border: 1px solid #444;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+    background: #FFD700;
+    color: #121212;
+    border-color: #FFD700;
+}
+
+.sort-select {
+    background: #2A2A2A;
+    color: #E0E0E0;
+    border: 1px solid #444;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.layout-toggle {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.layout-btn {
+    background: #2A2A2A;
+    color: #E0E0E0;
+    border: 1px solid #444;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.layout-btn:hover,
+.layout-btn.active {
+    background: #FFD700;
+    color: #121212;
+    border-color: #FFD700;
+}
+
+/* 메인 갤러리 영역 */
+.gallery-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* 그리드 레이아웃 */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.gallery-grid.masonry {
+    columns: 4;
+    column-gap: 1.5rem;
+}
+
+.gallery-grid.timeline {
+    display: block;
+}
+
+/* 사진 카드 */
+.photo-card {
+    background: #1A1A1A;
+    border: 1px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    break-inside: avoid;
+    margin-bottom: 1.5rem;
+}
+
+.photo-card:hover {
+    border-color: #FFD700;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+}
+
+.photo-thumbnail {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(45deg, #333, #444, #333);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: #666;
+    position: relative;
+    overflow: hidden;
+}
+
+.photo-thumbnail::after {
+    content: "🖼️";
+    position: absolute;
+}
+
+.photo-thumbnail.portrait {
+    height: 250px;
+}
+
+.photo-thumbnail.landscape {
+    height: 180px;
+}
+
+.photo-thumbnail.square {
+    height: 280px;
+}
+
+/* 사진 메타데이터 */
+.photo-meta {
+    padding: 1rem;
+}
+
+.photo-title {
+    color: #E0E0E0;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.photo-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: #AAAAAA;
+}
+
+.photo-info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.photo-info-item i {
+    color: #FFD700;
+    font-size: 0.7rem;
+}
+
+/* 타임라인 레이아웃 */
+.timeline-section {
+    margin-bottom: 3rem;
+}
+
+.timeline-date {
+    font-size: 1.5rem;
+    color: #FFD700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #444;
+}
+
+.timeline-photos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+/* 라이트박스 모달 */
+.lightbox-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-container {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-image {
+    max-width: 100%;
+    max-height: 100%;
+    background: linear-gradient(45deg, #333, #555);
+    border: 2px solid #FFD700;
+    border-radius: 8px;
+    width: 600px;
+    height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    color: #666;
+}
+
+.lightbox-image::after {
+    content: "🖼️";
+}
+
+.lightbox-meta {
+    position: absolute;
+    bottom: -80px;
+    left: 0;
+    right: 0;
+    background: rgba(26, 26, 26, 0.9);
+    padding: 1rem;
+    border-radius: 8px;
+    color: #E0E0E0;
+}
+
+.lightbox-controls {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(26, 26, 26, 0.8);
+    color: #FFD700;
+    border: none;
+    padding: 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.lightbox-controls:hover {
+    background: rgba(255, 215, 0, 0.2);
+}
+
+.lightbox-prev {
+    left: -60px;
+}
+
+.lightbox-next {
+    right: -60px;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: -50px;
+    right: 0;
+    background: none;
+    color: #FFD700;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+/* 페이지네이션 */
+.gallery-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 3rem;
+}
+
+.pagination-btn {
+    background: #2A2A2A;
+    color: #E0E0E0;
+    border: 1px solid #444;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.pagination-btn:hover,
+.pagination-btn.active {
+    background: #FFD700;
+    color: #121212;
+    border-color: #FFD700;
+    text-decoration: none;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .gallery-title {
+        font-size: 2rem;
+    }
+    
+    .gallery-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    
+    .filter-buttons {
+        justify-content: center;
+    }
+    
+    .gallery-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+    
+    .gallery-grid.masonry {
+        columns: 2;
+    }
+    
+    .timeline-photos {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+    
+    .lightbox-controls {
+        position: fixed;
+        top: 50%;
+    }
+    
+    .lightbox-prev {
+        left: 10px;
+    }
+    
+    .lightbox-next {
+        right: 10px;
+    }
+    
+    .lightbox-meta {
+        bottom: 10px;
+        left: 10px;
+        right: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .gallery-grid {
+        grid-template-columns: 1fr;
+        padding: 0 1rem;
+    }
+    
+    .gallery-grid.masonry {
+        columns: 1;
+    }
+    
+    .timeline-photos {
+        grid-template-columns: 1fr;
+    }
+    
+    .photo-meta {
+        padding: 0.8rem;
+    }
+    
+    .photo-info {
+        grid-template-columns: 1fr;
+        gap: 0.3rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="gallery-category-container">
+    <!-- 갤러리 헤더 -->
+    <header class="gallery-header">
+        <h1 class="gallery-title">{{ page_title }}</h1>
+        <p class="gallery-description">
+            {% if gallery_type == 'portrait' %}
+            사람들의 감정과 표정을 담은 인물 사진 컬렉션입니다. 자연스러운 순간부터 연출된 포트레이트까지 다양한 인물 사진을 만나보세요.
+            {% elif gallery_type == 'landscape' %}
+            자연의 아름다움과 도시의 풍경을 담은 사진들입니다. 황금시간의 빛부터 극적인 날씨까지 풍경의 모든 면을 담았습니다.
+            {% elif gallery_type == 'street' %}
+            일상 속 특별한 순간들을 포착한 거리 사진입니다. 도시의 리듬과 사람들의 이야기가 담긴 스트리트 포토그래피를 감상하세요.
+            {% elif gallery_type == 'macro' %}
+            작은 세계의 디테일을 확대해서 담은 근접 사진입니다. 육안으로는 보기 어려운 미시세계의 아름다움을 발견해보세요.
+            {% else %}
+            {{ description or "다양한 순간과 감정을 담은 사진 컬렉션입니다." }}
+            {% endif %}
+        </p>
+    </header>
+
+    <!-- 갤러리 컨트롤 -->
+    <div class="gallery-controls">
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">전체</button>
+            <button class="filter-btn" data-filter="recent">최신</button>
+            <button class="filter-btn" data-filter="featured">추천</button>
+            {% if gallery_type == 'portrait' %}
+            <button class="filter-btn" data-filter="studio">스튜디오</button>
+            <button class="filter-btn" data-filter="outdoor">야외</button>
+            {% elif gallery_type == 'landscape' %}
+            <button class="filter-btn" data-filter="nature">자연</button>
+            <button class="filter-btn" data-filter="urban">도시</button>
+            {% elif gallery_type == 'street' %}
+            <button class="filter-btn" data-filter="people">인물</button>
+            <button class="filter-btn" data-filter="architecture">건축</button>
+            {% elif gallery_type == 'macro' %}
+            <button class="filter-btn" data-filter="nature">자연</button>
+            <button class="filter-btn" data-filter="objects">오브젝트</button>
+            {% endif %}
+        </div>
+        
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <select class="sort-select">
+                <option value="date-desc">최신순</option>
+                <option value="date-asc">오래된순</option>
+                <option value="name">이름순</option>
+                <option value="popular">인기순</option>
+            </select>
+            
+            <div class="layout-toggle">
+                <button class="layout-btn active" data-layout="grid">⊞</button>
+                <button class="layout-btn" data-layout="masonry">⊡</button>
+                {% if gallery_type == 'street' %}
+                <button class="layout-btn" data-layout="timeline">⊜</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 갤러리 영역 -->
+    <main class="gallery-main">
+        <!-- 그리드 레이아웃 -->
+        <div class="gallery-grid" id="photoGrid">
+            {% for i in range(12) %}
+            <div class="photo-card" data-photo-id="{{ i }}" data-filter="all recent">
+                <div class="photo-thumbnail {{ gallery_type }}">
+                    <!-- 사진 썸네일 영역 (도형으로 표시) -->
+                </div>
+                <div class="photo-meta">
+                    <h3 class="photo-title">사진 제목 {{ i + 1 }}</h3>
+                    <div class="photo-info">
+                        <div class="photo-info-item">
+                            <i class="fas fa-camera"></i>
+                            <span>Canon EOS R5</span>
+                        </div>
+                        <div class="photo-info-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>2024.01.{{ (i % 30) + 1 }}</span>
+                        </div>
+                        {% if gallery_type == 'portrait' %}
+                        <div class="photo-info-item">
+                            <i class="fas fa-user"></i>
+                            <span>85mm f/1.8</span>
+                        </div>
+                        <div class="photo-info-item">
+                            <i class="fas fa-map-marker"></i>
+                            <span>스튜디오</span>
+                        </div>
+                        {% elif gallery_type == 'landscape' %}
+                        <div class="photo-info-item">
+                            <i class="fas fa-mountain"></i>
+                            <span>24mm f/8</span>
+                        </div>
+                        <div class="photo-info-item">
+                            <i class="fas fa-cloud"></i>
+                            <span>맑음</span>
+                        </div>
+                        {% elif gallery_type == 'street' %}
+                        <div class="photo-info-item">
+                            <i class="fas fa-city"></i>
+                            <span>35mm f/2.8</span>
+                        </div>
+                        <div class="photo-info-item">
+                            <i class="fas fa-clock"></i>
+                            <span>{{ ['오전', '오후'][i % 2] }}</span>
+                        </div>
+                        {% elif gallery_type == 'macro' %}
+                        <div class="photo-info-item">
+                            <i class="fas fa-search"></i>
+                            <span>100mm Macro</span>
+                        </div>
+                        <div class="photo-info-item">
+                            <i class="fas fa-expand"></i>
+                            <span>{{ [1.5, 2.0, 3.0][i % 3] }}:1</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- 타임라인 레이아웃 (street 갤러리용) -->
+        {% if gallery_type == 'street' %}
+        <div class="timeline-layout" id="timelineLayout" style="display: none;">
+            <div class="timeline-section">
+                <h3 class="timeline-date">2024년 1월</h3>
+                <div class="timeline-photos">
+                    {% for i in range(6) %}
+                    <div class="photo-card">
+                        <div class="photo-thumbnail">
+                            <!-- 타임라인 사진 썸네일 -->
+                        </div>
+                        <div class="photo-meta">
+                            <h3 class="photo-title">거리 사진 {{ i + 1 }}</h3>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="timeline-section">
+                <h3 class="timeline-date">2023년 12월</h3>
+                <div class="timeline-photos">
+                    {% for i in range(6) %}
+                    <div class="photo-card">
+                        <div class="photo-thumbnail">
+                            <!-- 타임라인 사진 썸네일 -->
+                        </div>
+                        <div class="photo-meta">
+                            <h3 class="photo-title">거리 사진 {{ i + 7 }}</h3>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 페이지네이션 -->
+        <div class="gallery-pagination">
+            <button class="pagination-btn" disabled>‹ 이전</button>
+            <button class="pagination-btn active">1</button>
+            <button class="pagination-btn">2</button>
+            <button class="pagination-btn">3</button>
+            <button class="pagination-btn">다음 ›</button>
+        </div>
+    </main>
+
+    <!-- 라이트박스 모달 -->
+    <div class="lightbox-overlay" id="lightboxOverlay">
+        <div class="lightbox-container">
+            <button class="lightbox-close" id="lightboxClose">×</button>
+            <button class="lightbox-controls lightbox-prev" id="lightboxPrev">‹</button>
+            <div class="lightbox-image" id="lightboxImage">
+                <!-- 라이트박스 이미지 영역 -->
+            </div>
+            <button class="lightbox-controls lightbox-next" id="lightboxNext">›</button>
+            <div class="lightbox-meta" id="lightboxMeta">
+                <h3>사진 제목</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-top: 0.5rem; font-size: 0.9rem; color: #AAAAAA;">
+                    <div><i class="fas fa-camera"></i> Canon EOS R5</div>
+                    <div><i class="fas fa-aperture"></i> f/2.8</div>
+                    <div><i class="fas fa-stopwatch"></i> 1/125s</div>
+                    <div><i class="fas fa-sun"></i> ISO 400</div>
+                    <div><i class="fas fa-calendar"></i> 2024.01.15</div>
+                    <div><i class="fas fa-map-marker"></i> 서울, 한국</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script nonce="{{ csp_nonce() }}">
+document.addEventListener('DOMContentLoaded', function() {
+    // 레이아웃 전환
+    const layoutBtns = document.querySelectorAll('.layout-btn');
+    const photoGrid = document.getElementById('photoGrid');
+    const timelineLayout = document.getElementById('timelineLayout');
+    
+    layoutBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            layoutBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const layout = this.dataset.layout;
+            
+            if (layout === 'grid') {
+                photoGrid.className = 'gallery-grid';
+                if (timelineLayout) timelineLayout.style.display = 'none';
+                photoGrid.style.display = 'grid';
+            } else if (layout === 'masonry') {
+                photoGrid.className = 'gallery-grid masonry';
+                if (timelineLayout) timelineLayout.style.display = 'none';
+                photoGrid.style.display = 'block';
+            } else if (layout === 'timeline' && timelineLayout) {
+                photoGrid.style.display = 'none';
+                timelineLayout.style.display = 'block';
+            }
+        });
+    });
+    
+    // 필터 기능
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const photoCards = document.querySelectorAll('.photo-card');
+    
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            const filter = this.dataset.filter;
+            
+            photoCards.forEach(card => {
+                if (filter === 'all' || card.dataset.filter.includes(filter)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+    
+    // 라이트박스 기능
+    const lightboxOverlay = document.getElementById('lightboxOverlay');
+    const lightboxClose = document.getElementById('lightboxClose');
+    const lightboxPrev = document.getElementById('lightboxPrev');
+    const lightboxNext = document.getElementById('lightboxNext');
+    let currentPhotoIndex = 0;
+    
+    photoCards.forEach((card, index) => {
+        card.addEventListener('click', function() {
+            currentPhotoIndex = index;
+            lightboxOverlay.style.display = 'flex';
+            updateLightboxContent();
+        });
+    });
+    
+    lightboxClose.addEventListener('click', () => {
+        lightboxOverlay.style.display = 'none';
+    });
+    
+    lightboxOverlay.addEventListener('click', (e) => {
+        if (e.target === lightboxOverlay) {
+            lightboxOverlay.style.display = 'none';
+        }
+    });
+    
+    lightboxPrev.addEventListener('click', () => {
+        currentPhotoIndex = (currentPhotoIndex - 1 + photoCards.length) % photoCards.length;
+        updateLightboxContent();
+    });
+    
+    lightboxNext.addEventListener('click', () => {
+        currentPhotoIndex = (currentPhotoIndex + 1) % photoCards.length;
+        updateLightboxContent();
+    });
+    
+    function updateLightboxContent() {
+        // 라이트박스 내용 업데이트 로직
+        console.log('라이트박스 사진 인덱스:', currentPhotoIndex);
+    }
+    
+    // 키보드 단축키
+    document.addEventListener('keydown', function(e) {
+        if (lightboxOverlay.style.display === 'flex') {
+            if (e.key === 'Escape') {
+                lightboxOverlay.style.display = 'none';
+            } else if (e.key === 'ArrowLeft') {
+                lightboxPrev.click();
+            } else if (e.key === 'ArrowRight') {
+                lightboxNext.click();
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

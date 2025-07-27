@@ -53,10 +53,11 @@
                 </a>
             </div>
             
+            <!-- 수정된 메인 네비게이션 -->
             <nav class="main-nav desktop-nav" id="desktopNav">
                 <ul>
                     <li><a href="{{ url_for('posts.index') }}">블로그</a></li>
-                    <li><a href="{{ url_for('simulation.index') }}">시뮬레이션</a></li>
+                    <li><a href="{{ url_for('gallery.index') }}">갤러리</a></li>
                     <li><a href="{{ url_for('speedtest.speedtest_page') }}">네트워크</a></li>
                     <li><a href="{{ url_for('main.about') }}">소개</a></li>
                 </ul>
@@ -77,6 +78,7 @@
         </div>
     </header>
 
+    <!-- 수정된 모바일 네비게이션 -->
     <nav class="mobile-nav" id="mobileNav">
         <div class="mobile-nav-header">
             <div class="mobile-nav-logo">
@@ -99,10 +101,10 @@
                     </a>
                 </li>
                 <li class="mobile-nav-item">
-                    <a href="{{ url_for('simulation.index') }}" class="mobile-nav-link">
-                        <i class="fas fa-atom default-icon"></i>
-                        <img src="{{ url_for('static', filename='img/icon/simulation.png') }}" class="nav-icon nav-icon-8bit" alt="시뮬레이션 아이콘">
-                        <span>시뮬레이션</span>
+                    <a href="{{ url_for('gallery.index') }}" class="mobile-nav-link">
+                        <i class="fas fa-camera default-icon"></i>
+                        <img src="{{ url_for('static', filename='img/icon/camera.png') }}" class="nav-icon nav-icon-8bit" alt="갤러리 아이콘">
+                        <span>갤러리</span>
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 </li>
@@ -125,6 +127,7 @@
         </div>
     </nav>
     <div class="mobile-overlay" id="mobileOverlay"></div>
+
     <main>
         <div class="container">
             {% block content %}{% endblock %}
