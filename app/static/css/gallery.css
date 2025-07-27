@@ -1,0 +1,208 @@
+/* app/static/css/gallery.css */
+
+/* 1. 폰트 설정 (Google Fonts - Noto Sans KR) */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap');
+
+/* 2. 기본 스타일 및 타이포그래피 */
+body.gallery-body {
+    margin: 0;
+    background-color: #121212;
+    font-family: 'Noto Sans KR', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.gallery-container {
+    --gallery-bg: #121212;
+    --gallery-card-bg: #1A1A1A;
+    --gallery-border: #333;
+    --gallery-text-primary: #E0E0E0;
+    --gallery-text-secondary: #AAAAAA;
+    --gallery-accent: #FFD700;
+    --gallery-accent-shadow: rgba(255, 215, 0, 0.3);
+
+    background-color: var(--gallery-bg);
+    color: var(--gallery-text-primary);
+    min-height: 100vh;
+}
+
+/* 3. 독립 헤더 */
+.gallery-standalone-header {
+    background-color: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    padding: 1rem 2rem;
+    border-bottom: 1px solid var(--gallery-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.gallery-logo a {
+    color: var(--gallery-text-primary);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+.back-to-main-site {
+    color: var(--gallery-accent);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border: 1px solid var(--gallery-accent);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+.back-to-main-site:hover {
+    background-color: var(--gallery-accent);
+    color: var(--gallery-bg);
+}
+
+/* 4. 페이지 헤더 */
+.gallery-header {
+    text-align: center;
+    padding: 4rem 2rem;
+    border-bottom: 1px solid var(--gallery-border);
+}
+.gallery-title {
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--gallery-text-primary);
+    margin-bottom: 1rem;
+}
+.gallery-description {
+    font-size: 1.2rem;
+    color: var(--gallery-text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* 5. 태그 필터 네비게이션 */
+.top-tag-navigation {
+    background-color: rgba(26, 26, 26, 0.5);
+    padding: 1rem;
+    margin: 0 auto 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    position: sticky;
+    top: 61px;
+    z-index: 99;
+    border-bottom: 1px solid var(--gallery-border);
+    backdrop-filter: blur(10px);
+}
+.tag-item {
+    background: #2A2A2A;
+    color: var(--gallery-text-primary);
+    border: 1px solid #444;
+    padding: 8px 18px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.tag-item:hover {
+    background-color: var(--gallery-accent);
+    color: var(--gallery-bg);
+    border-color: var(--gallery-accent);
+    transform: translateY(-2px);
+}
+.tag-item.active {
+    background-color: var(--gallery-accent);
+    color: var(--gallery-bg);
+    border-color: var(--gallery-accent);
+    box-shadow: 0 0 15px var(--gallery-accent-shadow);
+}
+
+/* 6. 메인 사진 그리드 */
+.gallery-main {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+.photo-card {
+    background: var(--gallery-card-bg);
+    border: 1px solid var(--gallery-border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    break-inside: avoid;
+}
+.photo-card.hidden {
+    display: none;
+}
+.photo-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.photo-thumbnail img {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background-color: #333;
+}
+.photo-meta {
+    padding: 1rem;
+}
+.photo-title {
+    color: var(--gallery-text-primary);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem 0;
+}
+
+/* EXIF 메타데이터 표시를 위한 스타일 */
+.photo-exif-info {
+    font-size: 0.8rem;
+    color: var(--gallery-text-secondary);
+    margin-bottom: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.exif-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.exif-item i {
+    color: var(--gallery-accent);
+    width: 12px;
+    text-align: center;
+}
+.exif-item span {
+    margin-right: 0.5rem;
+}
+
+.photo-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.photo-tag {
+    background-color: #333;
+    color: var(--gallery-text-secondary);
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 10px;
+}
+
+/* 7. 반응형 */
+@media (max-width: 768px) {
+    .gallery-title { font-size: 2.5rem; }
+    .gallery-main { padding: 1rem; }
+    .gallery-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+}

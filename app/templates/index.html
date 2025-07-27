@@ -3,7 +3,6 @@
 {% block title %}홈 - 와구센{% endblock %}
 
 {% block head %}
-<!-- 불필요한 CSS 링크 제거 - core.css와 layout-modules.css에 이미 포함됨 -->
 {% endblock %}
 
 {% block content %}
@@ -39,8 +38,7 @@
       <p>다양한 주제의 글과 시뮬레이션을 만나보세요. 흥미로운 이야기가 여러분을 기다리고 있습니다.</p>
       <div class="intro-links">
           <a href="{{ url_for('posts.index') }}" class="intro-link primary">블로그 바로가기</a>
-          <a href="{{ url_for('simulation.index') }}" class="intro-link secondary">시뮬레이션 보기</a>
-      </div>
+          </div>
     </div>
   </div>
 </section>
@@ -104,22 +102,5 @@
   {% endif %}
 </section>
 
-<section class="simulation-section">
-  <h2 class="section-title">팅팅 탱탱</h2>
-  <p>팅팅탱탱 중력과 함께하기</p>
-  
-  <div class="simulation-container">
-    <canvas id="simulationCanvas"></canvas>
-  </div>
-  <div style="text-align: center; margin-top: 2rem;">
-      <a href="{{ url_for('simulation.index') }}" class="btn btn-secondary">시뮬레이션 더 보기</a>
-  </div>
-</section>
-
 <div class="spacer"></div>
-{% endblock %}
-
-{% block scripts %}
-<script src="{{ url_for('static', filename='js/slide-minimal.js') }}"></script>
-<script src="{{ url_for('static', filename='js/simulation.js') }}"></script>
 {% endblock %}

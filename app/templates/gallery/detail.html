@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ photo.title }} - 포토 갤러리</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="gallery-body">
+    <div class="gallery-container">
+        <header class="gallery-standalone-header">
+            <div class="gallery-logo">
+                <a href="{{ url_for('gallery.index') }}">포토 갤러리</a>
+            </div>
+            <a href="{{ url_for('main.index') }}" class="back-to-main-site">메인 사이트로 돌아가기 &rarr;</a>
+        </header>
+
+        <main class="photo-detail-container">
+            <!-- 왼쪽 사이드 패널 (태그 등) -->
+            <aside class="photo-side-panel left">
+                <div class="panel-section">
+                    <h3>태그</h3>
+                    <div class="photo-tags-detail">
+                        {% for tag in photo.tags %}
+                        <a href="{{ url_for('gallery.index') }}?tag={{ tag }}" class="photo-tag">{{ tag }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                 <div class="panel-section">
+                    <h3>관련 사진</h3>
+                    <!-- 관련 사진 목록 (추후 구현) -->
+                    <p class="coming-soon">추후 제공될 예정입니다.</p>
+                </div>
+            </aside>
+
+            <!-- 중앙 사진 뷰어 -->
+            <div class="photo-main-view">
+                <div class="photo-title-area">
+                    <h1>{{ photo.title }}</h1>
+                </div>
+                <div class="photo-spotlight">
+                    <div class="spotlight-effect-top"></div>
+                    <img src="{{ photo.url }}" alt="{{ photo.title }}">
+                </div>
+                <div class="photo-description-area">
+                    <p>여기에 사진에 대한 설명을 추가할 수 있습니다. 이 설명은 txt 파일이나 다른 데이터 소스에서 가져올 수 있습니다.</p>
+                </div>
+            </div>
+
+            <!-- 오른쪽 사이드 패널 (메타데이터) -->
+            <aside class="photo-side-panel right">
+                <div class="panel-section">
+                    <h3>촬영 정보 (EXIF)</h3>
+                    <div class="exif-meta-list">
+                        {% if photo.exif.date_taken %}
+                        <div class="meta-item"><strong>촬영일</strong><span>{{ photo.exif.date_taken }}</span></div>
+                        {% endif %}
+                        {% if photo.exif.camera_model %}
+                        <div class="meta-item"><strong>카메라</strong><span>{{ photo.exif.camera_model }}</span></div>
+                        {% endif %}
+                        {% if photo.exif.lens_model %}
+                        <div class="meta-item"><strong>렌즈</strong><span>{{ photo.exif.lens_model }}</span></div>
+                        {% endif %}
+                        {% if photo.exif.focal_length %}
+                        <div class="meta-item"><strong>초점거리</strong><span>{{ photo.exif.focal_length }}</span></div>
+                        {% endif %}
+                        {% if photo.exif.aperture %}
+                        <div class="meta-item"><strong>조리개</strong><span>{{ photo.exif.aperture }}</span></div>
+                        {% endif %}
+                        {% if photo.exif.shutter_speed %}
+                        <div class="meta-item"><strong>셔터스피드</strong><span>{{ photo.exif.shutter_speed }}</span></div>
+                        {% endif %}
+                        {% if photo.exif.iso %}
+                        <div class="meta-item"><strong>ISO</strong><span>{{ photo.exif.iso }}</span></div>
+                        {% endif %}
+                    </div>
+                </div>
+            </aside>
+        </main>
+        
+        <!-- 이전/다음 사진 네비게이션 -->
+        <nav class="photo-navigation">
+            {% if prev_photo %}
+            <a href="{{ url_for('gallery.view_photo', filename=prev_photo.id) }}" class="nav-button prev">
+                <i class="fas fa-arrow-left"></i>
+                <span>{{ prev_photo.title }}</span>
+            </a>
+            {% else %}
+            <div class="nav-button disabled"></div>
+            {% endif %}
+            
+            {% if next_photo %}
+            <a href="{{ url_for('gallery.view_photo', filename=next_photo.id) }}" class="nav-button next">
+                <span>{{ next_photo.title }}</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            {% else %}
+            <div class="nav-button disabled"></div>
+            {% endif %}
+        </nav>
+    </div>
+</body>
+</html>

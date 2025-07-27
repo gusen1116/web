@@ -71,6 +71,8 @@ class Config:
     
     # 파일 및 콘텐츠 설정
     POSTS_DIR = os.environ.get('POSTS_DIR', str(app_dir / 'content' / 'posts'))
+    # 사진을 저장할 디렉토리 경로를 추가합니다.
+    GALLERY_PHOTOS_DIR = os.environ.get('GALLERY_PHOTOS_DIR', str(app_dir.parent / 'app' / 'static' / 'gallery_photos'))
     ALLOWED_TEXT_EXTENSIONS = {'txt', 'md'}
     MAX_FILE_READ_SIZE = 10 * 1024 * 1024  # 10MB
     
