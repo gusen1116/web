@@ -206,3 +206,480 @@ body.gallery-body {
     .gallery-main { padding: 1rem; }
     .gallery-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
 }
+/* 갤러리 상세 페이지 레이아웃 - gallery.css에 추가할 CSS */
+
+/* 메인 상세 페이지 컨테이너 */
+.photo-detail-container {
+    display: grid;
+    grid-template-columns: 250px 1fr 250px;
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: calc(100vh - 200px);
+}
+
+/* 사이드 패널 공통 스타일 */
+.photo-side-panel {
+    background-color: rgba(26, 26, 26, 0.5);
+    border: 1px solid var(--gallery-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    height: fit-content;
+    position: sticky;
+    top: 120px;
+}
+
+.photo-side-panel.left {
+    border-left: 3px solid var(--gallery-accent);
+}
+
+.photo-side-panel.right {
+    border-right: 3px solid var(--gallery-accent);
+}
+
+.panel-section {
+    margin-bottom: 2rem;
+}
+
+.panel-section:last-child {
+    margin-bottom: 0;
+}
+
+.panel-section h3 {
+    color: var(--gallery-accent);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--gallery-border);
+}
+
+/* 중앙 사진 뷰어 */
+.photo-main-view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.photo-title-area h1 {
+    color: var(--gallery-text-primary);
+    font-size: 2rem;
+    font-weight: 900;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.photo-spotlight {
+    position: relative;
+    background: linear-gradient(135deg, #1A1A1A, #2A2A2A);
+    border: 2px solid var(--gallery-accent);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.photo-spotlight::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+    animation: spotlight 3s ease-in-out infinite alternate;
+}
+
+@keyframes spotlight {
+    0% { transform: rotate(0deg) scale(1); }
+    100% { transform: rotate(5deg) scale(1.05); }
+}
+
+.photo-spotlight img {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+    max-height: 500px;
+    width: auto;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.photo-description-area {
+    max-width: 600px;
+    text-align: center;
+    color: var(--gallery-text-secondary);
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+/* 태그 영역 */
+.photo-tags-detail {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.photo-tags-detail .photo-tag {
+    background-color: #333;
+    color: var(--gallery-accent);
+    padding: 0.4rem 0.8rem;
+    border-radius: 15px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid var(--gallery-border);
+    transition: all 0.3s ease;
+}
+
+.photo-tags-detail .photo-tag:hover {
+    background-color: var(--gallery-accent);
+    color: var(--gallery-bg);
+    transform: translateY(-2px);
+}
+
+/* EXIF 메타데이터 */
+.exif-meta-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.8rem;
+    background-color: rgba(51, 51, 51, 0.3);
+    border-radius: 6px;
+    border-left: 3px solid var(--gallery-accent);
+}
+
+.meta-item strong {
+    color: var(--gallery-accent);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.meta-item span {
+    color: var(--gallery-text-primary);
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+/* 관련 사진 */
+.coming-soon {
+    color: var(--gallery-text-secondary);
+    font-style: italic;
+    text-align: center;
+    padding: 2rem;
+    background-color: rgba(51, 51, 51, 0.2);
+    border-radius: 6px;
+    border: 1px dashed var(--gallery-border);
+}
+
+/* 사진 네비게이션 */
+.photo-navigation {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 2rem;
+    z-index: 100;
+    background: rgba(26, 26, 26, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    border: 1px solid var(--gallery-border);
+}
+
+.nav-button {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.8rem 1.5rem;
+    background-color: transparent;
+    color: var(--gallery-text-primary);
+    text-decoration: none;
+    border-radius: 25px;
+    border: 1px solid var(--gallery-border);
+    transition: all 0.3s ease;
+    font-weight: 600;
+    min-width: 120px;
+}
+
+.nav-button:hover {
+    background-color: var(--gallery-accent);
+    color: var(--gallery-bg);
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+.nav-button.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    border-color: var(--gallery-border);
+}
+
+.nav-button.disabled:hover {
+    background-color: transparent;
+    transform: none;
+}
+
+.nav-button.prev {
+    flex-direction: row;
+}
+
+.nav-button.next {
+    flex-direction: row-reverse;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1200px) {
+    .photo-detail-container {
+        grid-template-columns: 200px 1fr 200px;
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+    
+    .photo-spotlight img {
+        max-width: 500px;
+        max-height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .photo-detail-container {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .photo-side-panel {
+        position: static;
+        order: 2;
+    }
+    
+    .photo-main-view {
+        order: 1;
+    }
+    
+    .photo-side-panel.right {
+        order: 3;
+    }
+    
+    .photo-spotlight {
+        padding: 1rem;
+    }
+    
+    .photo-spotlight img {
+        max-width: 100%;
+        max-height: 300px;
+    }
+    
+    .photo-navigation {
+        position: static;
+        transform: none;
+        margin: 2rem auto 0;
+        width: fit-content;
+    }
+}
+/* app/static/css/gallery.css */
+
+/* ... (기존 CSS 내용은 그대로 유지) ... */
+
+/* 7. 상세 페이지 레이아웃 (새로 추가) */
+.photo-detail-container {
+    display: grid;
+    grid-template-columns: 2fr 8fr 2fr; /* 왼쪽, 중앙, 오른쪽 패널 비율 */
+    gap: 2rem;
+    max-width: 1800px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+.photo-main-view {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.photo-title-area {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.photo-title-area h1 {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--gallery-text-primary);
+    margin: 0;
+}
+
+.photo-spotlight {
+    position: relative;
+    width: 100%;
+    padding: 2rem;
+    background: #000;
+    border-radius: 8px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+}
+
+.spotlight-effect-top {
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 100px;
+    background: 
+        radial-gradient(ellipse at 30% 0, rgba(220, 220, 200, 0.2) 0%, transparent 40%),
+        radial-gradient(ellipse at 70% 0, rgba(220, 220, 200, 0.2) 0%, transparent 40%);
+    pointer-events: none;
+}
+
+.photo-spotlight img {
+    max-width: 100%;
+    max-height: 80vh;
+    display: block;
+    margin: 0 auto;
+    border-radius: 4px;
+}
+
+.photo-description-area {
+    margin-top: 2rem;
+    max-width: 800px;
+    color: var(--gallery-text-secondary);
+    line-height: 1.8;
+    text-align: center;
+}
+
+.photo-side-panel {
+    padding-top: 4rem; /* 제목 영역과 높이를 맞추기 위함 */
+}
+
+.panel-section {
+    background-color: var(--gallery-card-bg);
+    border: 1px solid var(--gallery-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.panel-section h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--gallery-accent);
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--gallery-border);
+}
+
+.photo-tags-detail {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.photo-tags-detail .photo-tag {
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+.photo-tags-detail .photo-tag:hover {
+    background-color: #555;
+}
+
+.exif-meta-list .meta-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--gallery-border);
+}
+.exif-meta-list .meta-item:last-child {
+    border-bottom: none;
+}
+.exif-meta-list .meta-item strong {
+    color: var(--gallery-text-secondary);
+    font-weight: 400;
+}
+.exif-meta-list .meta-item span {
+    color: var(--gallery-text-primary);
+    font-weight: 700;
+}
+
+.coming-soon {
+    color: var(--gallery-text-meta);
+    font-size: 0.9rem;
+}
+
+/* 8. 이전/다음 사진 네비게이션 */
+.photo-navigation {
+    display: flex;
+    justify-content: space-between;
+    max-width: 1800px;
+    margin: 1rem auto;
+    padding: 0 2rem 3rem;
+}
+.nav-button {
+    color: var(--gallery-text-secondary);
+    text-decoration: none;
+    font-weight: 700;
+    padding: 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-basis: 45%;
+}
+.nav-button:hover {
+    background-color: var(--gallery-card-bg);
+    color: var(--gallery-text-primary);
+}
+.nav-button.next {
+    justify-content: flex-end;
+    text-align: right;
+}
+.nav-button.disabled {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+/* 9. 반응형 (상세 페이지) */
+@media (max-width: 1200px) {
+    .photo-detail-container {
+        grid-template-columns: 1fr; /* 모바일에서는 1단 레이아웃으로 변경 */
+        padding: 0 1rem;
+    }
+    .photo-side-panel {
+        padding-top: 1rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    .photo-side-panel.right {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 768px) {
+    .photo-side-panel {
+        grid-template-columns: 1fr;
+    }
+    .photo-title-area h1 {
+        font-size: 2rem;
+    }
+    .photo-spotlight {
+        padding: 1rem;
+    }
+    .photo-navigation {
+        padding: 0 1rem 2rem;
+    }
+    .nav-button span {
+        display: none; /* 모바일에서는 아이콘만 보이게 */
+    }
+}
