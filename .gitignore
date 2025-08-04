@@ -1,5 +1,3 @@
-migrations
-node_modules
 .env
 app/__pycache__
 app/routes/__pycache__
@@ -7,3 +5,4 @@ app/static/gallery_photos
 app/__pycache__
 app/routes/__pycache__
 app/static/img
+app/static/gallery_thumbnails
