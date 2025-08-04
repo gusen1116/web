@@ -1,97 +1,38 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>포토 갤러리 - 와구센</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
-    <!-- 공통 헤더 -->
-    <header class="site-header">
-        <div class="logo">
-            <a href="{{ url_for('gallery.index') }}">포토 갤러리</a>
-        </div>
-        <a class="nav-link" href="{{ url_for('main.index') }}">메인 사이트로 돌아가기 &rarr;</a>
-    </header>
+{% extends "gallery/base-gallery.html" %}
 
-    <!-- 갤러리 본문 -->
-    <div class="gallery-container">
-        <h1>갤러리 컬렉션</h1>
-        <p>모든 순간의 기록들</p>
+{% block title %}컬렉션{% endblock %}
 
-        <!-- 태그 필터 네비게이션 -->
-        <nav class="top-tag-navigation">
-            <div class="tag-item active" data-tag="all">전체보기</div>
-            {% for tag in tags %}
-            <div class="tag-item" data-tag="{{ tag }}">{{ tag }}</div>
-            {% endfor %}
-        </nav>
+{% block content %}
+<div class="gallery-container">
+    <h1>갤러리 컬렉션</h1>
+    <p>모든 순간의 기록들</p>
 
-        <!-- 사진 그리드 -->
-        <div class="gallery-grid" id="photoGrid">
-            {% if photos %}
-                {% for photo in photos %}
-                <a href="{{ url_for('gallery.view_photo', filename=photo.id) }}">
-                    <article class="photo-card" data-tags="{{ photo.tags|join(',') }}">
-                        <img src="{{ photo.url }}" alt="{{ photo.title }}" loading="lazy">
-                        <div class="photo-meta">
-                            <h3 class="photo-title">{{ photo.title }}</h3>
-                            <div class="photo-exif-info">
-                                {% if photo.exif.shutter_speed or photo.exif.aperture or photo.exif.iso %}
-                                <div class="exif-item">
-                                    <i class="fas fa-camera"></i>
-                                    <span>{{ photo.exif.shutter_speed or 'N/A' }}</span>
-                                    <span>{{ photo.exif.aperture or 'N/A' }}</span>
-                                    <span>{{ photo.exif.iso or 'N/A' }}</span>
-                                </div>
-                                {% endif %}
-                                {% if photo.exif.date_taken %}
-                                <div class="exif-item">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    <span>{{ photo.exif.date_taken }}</span>
-                                </div>
-                                {% endif %}
-                            </div>
-                            <div class="photo-tags">
-                                {% for tag in photo.tags %}
-                                <span class="photo-tag">{{ tag }}</span>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </article>
-                </a>
-                {% endfor %}
-            {% else %}
-                <p style="text-align:center;">표시할 사진이 없습니다.</p>
-            {% endif %}
-        </div>
+    {% if tags %}
+    <nav class="top-tag-navigation">
+        <div class="tag-item active" data-tag="all">전체보기</div>
+        {% for tag in tags %}
+        <div class="tag-item" data-tag="{{ tag }}">{{ tag }}</div>
+        {% endfor %}
+    </nav>
+    {% endif %}
+
+    <div class="gallery-grid" id="photoGrid">
+        {% for photo in photos %}
+        <a href="{{ url_for('gallery.view_photo', filename=photo.id) }}" class="photo-card-link">
+            <article class="photo-card" data-tags="{{ photo.tags|join(',') }}">
+                <img src="{{ photo.thumbnail_url }}" alt="{{ photo.title }}" loading="lazy">
+                <div class="photo-card-info">
+                    <h3 class="photo-title">{{ photo.title }}</h3>
+                </div>
+            </article>
+        </a>
+        {% else %}
+            <p>표시할 사진이 없습니다.</p>
+        {% endfor %}
     </div>
+</div>
+{% endblock %}
 
-    <script>
-        /* 태그 필터 기능 */
-        document.addEventListener('DOMContentLoaded', function() {
-            const tagItems = document.querySelectorAll('.tag-item');
-            const photoCards = document.querySelectorAll('.photo-card');
-
-            tagItems.forEach(tagButton => {
-                tagButton.addEventListener('click', function() {
-                    tagItems.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    const selectedTag = this.getAttribute('data-tag');
-
-                    photoCards.forEach(card => {
-                        const photoTags = card.getAttribute('data-tags').split(',');
-                        if (selectedTag === 'all' || photoTags.includes(selectedTag)) {
-                            card.classList.remove('hidden');
-                        } else {
-                            card.classList.add('hidden');
-                        }
-                    });
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
+{% endblock %}

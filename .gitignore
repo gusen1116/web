@@ -4,3 +4,6 @@ node_modules
 app/__pycache__
 app/routes/__pycache__
 app/static/gallery_photos
+app/__pycache__
+app/routes/__pycache__
+app/static/img

@@ -1,42 +1,43 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ photo.title }} - 포토 갤러리</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/gallery.css') }}">
-</head>
-<body>
-    <!-- 공통 헤더 -->
-    <header class="site-header">
-        <div class="logo">
-            <a href="{{ url_for('gallery.index') }}">포토 갤러리</a>
-        </div>
-        <a class="nav-link" href="{{ url_for('main.index') }}">메인 사이트로 돌아가기 &rarr;</a>
-    </header>
+{% extends "gallery/base-gallery.html" %}
 
-    <!-- 상세 페이지 본문 -->
-    <div class="detail-container">
-        <div class="detail-image-card">
-            <img src="{{ photo.url }}" alt="{{ photo.title }}" loading="lazy">
+{% block title %}{{ photo.title }}{% endblock %}
+
+{% block content %}
+<div class="detail-page-container">
+    <div class="detail-main">
+        <div class="detail-image-wrapper">
+            <img src="{{ photo.url }}" alt="{{ photo.title }}">
         </div>
-        <aside class="detail-meta-card">
+        <aside class="detail-meta-wrapper">
             <h2 class="detail-title">{{ photo.title }}</h2>
             <dl>
-                {% if photo.exif.date_taken %}<dt>촬영일</dt><dd>{{ photo.exif.date_taken }}</dd>{% endif %}
-                {% if photo.exif.camera_model %}<dt>카메라</dt><dd>{{ photo.exif.camera_model }}</dd>{% endif %}
-                {% if photo.exif.lens_model %}<dt>렌즈</dt><dd>{{ photo.exif.lens_model }}</dd>{% endif %}
-                {% if photo.exif.focal_length %}<dt>초점거리</dt><dd>{{ photo.exif.focal_length }}</dd>{% endif %}
-                {% if photo.exif.aperture %}<dt>조리개</dt><dd>{{ photo.exif.aperture }}</dd>{% endif %}
-                {% if photo.exif.shutter_speed %}<dt>셔터스피드</dt><dd>{{ photo.exif.shutter_speed }}</dd>{% endif %}
-                {% if photo.exif.iso %}<dt>ISO</dt><dd>{{ photo.exif.iso }}</dd>{% endif %}
-                {% if photo.exif.date_taken %}<dt>연도</dt><dd>{{ photo.exif.date_taken.split(':')[0] }}</dd>{% endif %}
+                {% if photo.exif.date_taken %}<dt><i class="fas fa-calendar-alt"></i> 촬영일</dt><dd>{{ photo.exif.date_taken }}</dd>{% endif %}
+                {% if photo.exif.camera_model %}<dt><i class="fas fa-camera-retro"></i> 카메라</dt><dd>{{ photo.exif.camera_model }}</dd>{% endif %}
+                {% if photo.exif.lens_model %}<dt><i class="fas fa-bullseye"></i> 렌즈</dt><dd>{{ photo.exif.lens_model }}</dd>{% endif %}
+                {% if photo.exif.focal_length %}<dt><i class="fas fa-ruler-combined"></i> 초점거리</dt><dd>{{ photo.exif.focal_length }}</dd>{% endif %}
+                {% if photo.exif.aperture %}<dt><i class="far fa-circle"></i> 조리개</dt><dd>{{ photo.exif.aperture }}</dd>{% endif %}
+                {% if photo.exif.shutter_speed %}<dt><i class="fas fa-stopwatch"></i> 셔터스피드</dt><dd>{{ photo.exif.shutter_speed }}</dd>{% endif %}
+                {% if photo.exif.iso %}<dt><i class="fas fa-adjust"></i> ISO</dt><dd>{{ photo.exif.iso }}</dd>{% endif %}
             </dl>
-            <!-- 연도 태그를 별도로 표시하려면 아래 주석을 해제 -->
-            {# <div class="detail-tags">
-                <span class="detail-tag">{{ photo.tags[0] }}</span>
-            </div> #}
         </aside>
     </div>
-</body>
-</html>
+
+    <nav class="photo-navigation">
+        {% if prev_photo %}
+            <a href="{{ url_for('gallery.view_photo', filename=prev_photo.id) }}" class="nav-button prev">
+                <i class="fas fa-arrow-left"></i> 이전 사진
+            </a>
+        {% else %}
+            <span class="nav-button prev disabled"><i class="fas fa-arrow-left"></i> 이전 사진</span>
+        {% endif %}
+
+        {% if next_photo %}
+            <a href="{{ url_for('gallery.view_photo', filename=next_photo.id) }}" class="nav-button next">
+                다음 사진 <i class="fas fa-arrow-right"></i>
+            </a>
+        {% else %}
+            <span class="nav-button next disabled">다음 사진 <i class="fas fa-arrow-right"></i></span>
+        {% endif %}
+    </nav>
+</div>
+{% endblock %}
