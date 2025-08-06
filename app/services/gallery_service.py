@@ -57,20 +57,31 @@ def _get_exif_data(image_path):
         current_app.logger.warning(f"메타데이터 읽기 오류 {os.path.basename(image_path)}: {e}")
         return {}
 
-def _format_exif_value(data, key):
+def _format_exif_value(key, value):
     """EXIF 값을 사람이 읽기 좋은 형태로 변환합니다."""
-    value = data.get(key)
-    if not value: return None
+    if not value:
+        return None
     try:
-        if key == 'ExposureTime' and isinstance(value, (float, int)) and value > 0:
-            return f"1/{int(1/value)}s" if value < 1.0 else f"{int(value)}s"
-        if key == 'FNumber': return f"f/{value}"
-        if key == 'ISOSpeedRatings': return f"ISO {value}"
-        if key == 'FocalLength':
+        if key == 'ExposureTime':
+            if isinstance(value, (float, int)) and value > 0:
+                return f"1/{int(1/value)}s" if value < 1.0 else f"{int(value)}s"
+        elif key == 'FNumber':
+            return f"f/{value}"
+        elif key == 'ISOSpeedRatings':
+            return f"ISO {value}"
+        elif key == 'FocalLength':
             f_val = value[0] / value[1] if isinstance(value, tuple) else value
             return f"{int(f_val)}mm"
-    except (ValueError, TypeError, ZeroDivisionError): return str(value)
+        elif isinstance(value, bytes):
+            return value.decode('utf-8', 'ignore').strip()
+        elif isinstance(value, tuple) and all(isinstance(x, int) for x in value):
+             # 간단한 숫자 튜플은 문자열로 변환
+            return ", ".join(map(str, value))
+
+    except (ValueError, TypeError, ZeroDivisionError, IndexError):
+        return str(value)
     return str(value)
+
 
 def get_all_photos():
     """모든 사진 정보와 썸네일 URL을 포함하여 반환합니다."""
@@ -89,7 +100,6 @@ def get_all_photos():
         file_path = os.path.join(photos_dir, filename)
         thumb_path = _get_thumbnail_path(filename)
 
-        # 썸네일이 없으면 생성
         if not os.path.exists(thumb_path):
             _create_thumbnail(file_path, thumb_path)
 
@@ -97,40 +107,46 @@ def get_all_photos():
         date_taken = exif_data.get('DateTimeOriginal') or exif_data.get('DateTimeDigitized')
         year_tag = date_taken.split(':')[0] if date_taken and ':' in date_taken else '날짜정보없음'
 
+        # 모든 EXIF 데이터를 포매팅하여 저장
+        formatted_exif = {}
+        for key, value in exif_data.items():
+            if key not in ['MakerNote', 'UserComment']: # 너무 길거나 깨지는 정보 제외
+                 formatted_value = _format_exif_value(key, value)
+                 if formatted_value:
+                    formatted_exif[key] = formatted_value
+
         photo_list.append({
             'id': filename,
             'url': url_for('static', filename=f'gallery_photos/{filename}'),
             'thumbnail_url': url_for('static', filename=f'gallery_thumbnails/{filename}'),
             'title': os.path.splitext(filename)[0].replace('_', ' ').replace('-', ' ').title(),
             'tags': [year_tag],
-            'exif': {
-                'camera_model': exif_data.get('Model'),
-                'lens_model': exif_data.get('LensModel'),
-                'iso': _format_exif_value(exif_data, 'ISOSpeedRatings'),
-                'shutter_speed': _format_exif_value(exif_data, 'ExposureTime'),
-                'aperture': _format_exif_value(exif_data, 'FNumber'),
-                'focal_length': _format_exif_value(exif_data, 'FocalLength'),
-                'date_taken': date_taken,
-            }
+            'exif': formatted_exif
         })
     return photo_list
 
 def get_photo_by_id(filename):
     """파일 이름으로 특정 사진 정보를 찾습니다."""
-    # 전체 목록을 다시 스캔하는 대신, 단일 파일에 대한 정보만 생성
     photos_dir = current_app.config.get('GALLERY_PHOTOS_DIR')
     file_path = os.path.join(photos_dir, filename)
     if not os.path.exists(file_path):
         return None
-    
-    # get_all_photos와 동일한 로직을 단일 파일에 적용
+
     thumb_path = _get_thumbnail_path(filename)
     if not os.path.exists(thumb_path):
         _create_thumbnail(file_path, thumb_path)
-    
+
     exif_data = _get_exif_data(file_path)
     date_taken = exif_data.get('DateTimeOriginal') or exif_data.get('DateTimeDigitized')
     year_tag = date_taken.split(':')[0] if date_taken and ':' in date_taken else '날짜정보없음'
+
+    # 모든 EXIF 데이터를 포매팅하여 저장
+    formatted_exif = {}
+    for key, value in exif_data.items():
+        if key not in ['MakerNote', 'UserComment']: # 너무 길거나 깨지는 정보 제외
+            formatted_value = _format_exif_value(key, value)
+            if formatted_value:
+                formatted_exif[key] = formatted_value
 
     return {
         'id': filename,
@@ -138,13 +154,5 @@ def get_photo_by_id(filename):
         'thumbnail_url': url_for('static', filename=f'gallery_thumbnails/{filename}'),
         'title': os.path.splitext(filename)[0].replace('_', ' ').replace('-', ' ').title(),
         'tags': [year_tag],
-        'exif': {
-            'camera_model': exif_data.get('Model'),
-            'lens_model': exif_data.get('LensModel'),
-            'iso': _format_exif_value(exif_data, 'ISOSpeedRatings'),
-            'shutter_speed': _format_exif_value(exif_data, 'ExposureTime'),
-            'aperture': _format_exif_value(exif_data, 'FNumber'),
-            'focal_length': _format_exif_value(exif_data, 'FocalLength'),
-            'date_taken': date_taken,
-        }
+        'exif': formatted_exif
     }

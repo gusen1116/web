@@ -11,13 +11,11 @@
         <aside class="detail-meta-wrapper">
             <h2 class="detail-title">{{ photo.title }}</h2>
             <dl>
-                {% if photo.exif.date_taken %}<dt><i class="fas fa-calendar-alt"></i> 촬영일</dt><dd>{{ photo.exif.date_taken }}</dd>{% endif %}
-                {% if photo.exif.camera_model %}<dt><i class="fas fa-camera-retro"></i> 카메라</dt><dd>{{ photo.exif.camera_model }}</dd>{% endif %}
-                {% if photo.exif.lens_model %}<dt><i class="fas fa-bullseye"></i> 렌즈</dt><dd>{{ photo.exif.lens_model }}</dd>{% endif %}
-                {% if photo.exif.focal_length %}<dt><i class="fas fa-ruler-combined"></i> 초점거리</dt><dd>{{ photo.exif.focal_length }}</dd>{% endif %}
-                {% if photo.exif.aperture %}<dt><i class="far fa-circle"></i> 조리개</dt><dd>{{ photo.exif.aperture }}</dd>{% endif %}
-                {% if photo.exif.shutter_speed %}<dt><i class="fas fa-stopwatch"></i> 셔터스피드</dt><dd>{{ photo.exif.shutter_speed }}</dd>{% endif %}
-                {% if photo.exif.iso %}<dt><i class="fas fa-adjust"></i> ISO</dt><dd>{{ photo.exif.iso }}</dd>{% endif %}
+                {# photo.exif 딕셔너리의 모든 아이템을 동적으로 표시 #}
+                {% for key, value in photo.exif.items() %}
+                    <dt><i class="fas fa-info-circle"></i> {{ key }}</dt>
+                    <dd>{{ value }}</dd>
+                {% endfor %}
             </dl>
         </aside>
     </div>
