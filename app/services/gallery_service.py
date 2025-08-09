@@ -1,11 +1,11 @@
-# app/services/gallery_service.py
-
 import os
 from PIL import Image, ImageOps
 from PIL.ExifTags import TAGS
 from flask import current_app, url_for
 
-# HEIC/HEIF 포맷 지원 (pip install pillow-heif)
+# Attempt to enable HEIC/HEIF support via pillow‑heif.  If the
+# dependency is missing the module gracefully continues without
+# support.
 try:
     from pillow_heif import register_heif_opener
     register_heif_opener()
@@ -13,39 +13,58 @@ try:
 except ImportError:
     HEIF_ENABLED = False
 
-def _get_thumbnail_path(filename):
-    """썸네일 이미지의 전체 경로를 반환합니다."""
+
+def _get_thumbnail_path(filename: str) -> str:
+    """Return the absolute path of the thumbnail for ``filename``.
+
+    The function ensures that the thumbnail directory exists before
+    returning the path.  It uses the ``gallery_thumbnails`` folder
+    inside Flask’s static directory.
+    """
     thumb_dir = os.path.join(current_app.static_folder, 'gallery_thumbnails')
     if not os.path.exists(thumb_dir):
         os.makedirs(thumb_dir)
     return os.path.join(thumb_dir, filename)
 
-def _create_thumbnail(image_path, thumb_path):
-    """썸네일 이미지를 생성하고 저장합니다."""
+
+def _create_thumbnail(image_path: str, thumb_path: str) -> bool:
+    """Generate a thumbnail for ``image_path`` and save it to
+    ``thumb_path``.
+
+    The thumbnail is limited to 400×400 pixels, preserves aspect ratio
+    and uses JPEG format with reasonable quality.  Any errors are
+    logged and ``False`` is returned.
+    """
     try:
         with Image.open(image_path) as img:
-            # EXIF 데이터를 기반으로 이미지 회전 보정
+            # Correct orientation using EXIF data
             img = ImageOps.exif_transpose(img)
             img.thumbnail((400, 400))
             img.save(thumb_path, "JPEG", quality=85, optimize=True)
         return True
-    except Exception as e:
+    except Exception as e:  # pragma: no cover - logging only
         current_app.logger.error(f"썸네일 생성 실패 {os.path.basename(image_path)}: {e}")
         return False
 
-def _get_exif_data(image_path):
-    """다양한 포맷의 이미지에서 메타데이터를 안전하게 추출합니다."""
+
+def _get_exif_data(image_path: str) -> dict:
+    """Extract EXIF and other metadata from an image.
+
+    Supports JPEG/HEIC/PNG formats.  For PNG, falls back to
+    ``image.info`` for basic metadata keys (title, description, author).
+    Returns a dictionary keyed by human‑readable EXIF tag names.
+    """
     try:
         with Image.open(image_path) as image:
-            exif_data = {}
-            # 1. EXIF 데이터 추출
+            exif_data: dict = {}
+            # 1. Extract EXIF data
             exif_raw = image.getexif()
             if exif_raw:
                 for tag_id, value in exif_raw.items():
                     tag = TAGS.get(tag_id, tag_id)
                     exif_data[tag] = value
 
-            # 2. PNG 메타데이터 추출
+            # 2. Extract PNG metadata
             if image.format == 'PNG' and image.info:
                 for key, value in image.info.items():
                     if key.lower() in ['title', 'description']:
@@ -53,12 +72,18 @@ def _get_exif_data(image_path):
                     elif key.lower() == 'author':
                         exif_data['Artist'] = value
             return exif_data
-    except Exception as e:
+    except Exception as e:  # pragma: no cover - logging only
         current_app.logger.warning(f"메타데이터 읽기 오류 {os.path.basename(image_path)}: {e}")
         return {}
 
-def _format_exif_value(key, value):
-    """EXIF 값을 사람이 읽기 좋은 형태로 변환합니다."""
+
+def _format_exif_value(key: str, value) -> str | None:
+    """Format specific EXIF values into a human‑readable string.
+
+    Handles shutter speed (ExposureTime), aperture (FNumber), ISO,
+    focal length and byte/tuple formats.  Falls back to ``str``
+    representation for unknown types.
+    """
     if not value:
         return None
     try:
@@ -75,22 +100,27 @@ def _format_exif_value(key, value):
         elif isinstance(value, bytes):
             return value.decode('utf-8', 'ignore').strip()
         elif isinstance(value, tuple) and all(isinstance(x, int) for x in value):
-             # 간단한 숫자 튜플은 문자열로 변환
+            # Convert simple numeric tuples to comma‑separated strings
             return ", ".join(map(str, value))
-
     except (ValueError, TypeError, ZeroDivisionError, IndexError):
+        # Fall through to return str(value)
         return str(value)
     return str(value)
 
 
-def get_all_photos():
-    """모든 사진 정보와 썸네일 URL을 포함하여 반환합니다."""
+def get_all_photos() -> list[dict]:
+    """Return metadata for all photos in the configured gallery directory.
+
+    The returned list of dictionaries includes keys: ``id``, ``url``,
+    ``thumbnail_url``, ``title``, ``tags`` and ``exif``.  It
+    automatically generates thumbnails as needed.
+    """
     photos_dir = current_app.config.get('GALLERY_PHOTOS_DIR')
     if not os.path.isdir(photos_dir):
         current_app.logger.error(f"갤러리 디렉토리 없음: {photos_dir}")
         return []
 
-    photo_list = []
+    photo_list: list[dict] = []
     allowed_ext = {'.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'}
 
     for filename in sorted(os.listdir(photos_dir), reverse=True):
@@ -107,12 +137,12 @@ def get_all_photos():
         date_taken = exif_data.get('DateTimeOriginal') or exif_data.get('DateTimeDigitized')
         year_tag = date_taken.split(':')[0] if date_taken and ':' in date_taken else '날짜정보없음'
 
-        # 모든 EXIF 데이터를 포매팅하여 저장
-        formatted_exif = {}
+        # Format and filter EXIF data
+        formatted_exif: dict = {}
         for key, value in exif_data.items():
-            if key not in ['MakerNote', 'UserComment']: # 너무 길거나 깨지는 정보 제외
-                 formatted_value = _format_exif_value(key, value)
-                 if formatted_value:
+            if key not in ['MakerNote', 'UserComment']:
+                formatted_value = _format_exif_value(key, value)
+                if formatted_value:
                     formatted_exif[key] = formatted_value
 
         photo_list.append({
@@ -125,8 +155,13 @@ def get_all_photos():
         })
     return photo_list
 
-def get_photo_by_id(filename):
-    """파일 이름으로 특정 사진 정보를 찾습니다."""
+
+def get_photo_by_id(filename: str) -> dict | None:
+    """Return metadata for a single photo identified by ``filename``.
+
+    Returns ``None`` if the photo does not exist.  This function is
+    primarily used by the gallery detail route.
+    """
     photos_dir = current_app.config.get('GALLERY_PHOTOS_DIR')
     file_path = os.path.join(photos_dir, filename)
     if not os.path.exists(file_path):
@@ -140,10 +175,10 @@ def get_photo_by_id(filename):
     date_taken = exif_data.get('DateTimeOriginal') or exif_data.get('DateTimeDigitized')
     year_tag = date_taken.split(':')[0] if date_taken and ':' in date_taken else '날짜정보없음'
 
-    # 모든 EXIF 데이터를 포매팅하여 저장
-    formatted_exif = {}
+    # Format and filter EXIF data
+    formatted_exif: dict = {}
     for key, value in exif_data.items():
-        if key not in ['MakerNote', 'UserComment']: # 너무 길거나 깨지는 정보 제외
+        if key not in ['MakerNote', 'UserComment']:
             formatted_value = _format_exif_value(key, value)
             if formatted_value:
                 formatted_exif[key] = formatted_value
