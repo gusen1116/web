@@ -1,38 +1,68 @@
 {% extends "gallery/base-gallery.html" %}
-
 {% block title %}컬렉션{% endblock %}
 
 {% block content %}
-<div class="gallery-container">
-    <h1>갤러리 컬렉션</h1>
-    <p>모든 순간의 기록들</p>
-
-    {% if tags %}
-    <nav class="top-tag-navigation">
-        <div class="tag-item active" data-tag="all">전체보기</div>
-        {% for tag in tags %}
-        <div class="tag-item" data-tag="{{ tag }}">{{ tag }}</div>
+<section class="gallery-toolbar">
+  <div class="toolbar-left">
+    <h1 class="page-title">갤러리 컬렉션</h1>
+    <p class="page-sub">모든 순간의 기록들</p>
+  </div>
+  <div class="toolbar-right">
+    <label class="select-wrap">
+      <select id="yearFilter" aria-label="연도 선택">
+        <option value="all">전체</option>
+        {% for y in years %}
+          <option value="{{ y }}">{{ y }}</option>
         {% endfor %}
-    </nav>
-    {% endif %}
+      </select>
+      <span class="select-caret">▼</span>
+    </label>
+  </div>
+</section>
 
-    <div class="gallery-grid" id="photoGrid">
-        {% for photo in photos %}
-        <a href="{{ url_for('gallery.view_photo', filename=photo.id) }}" class="photo-card-link">
-            <article class="photo-card" data-tags="{{ photo.tags|join(',') }}">
-                <img src="{{ photo.thumbnail_url }}" alt="{{ photo.title }}" loading="lazy">
-                <div class="photo-card-info">
-                    <h3 class="photo-title">{{ photo.title }}</h3>
-                </div>
-            </article>
-        </a>
-        {% else %}
-            <p>표시할 사진이 없습니다.</p>
-        {% endfor %}
+<section class="masonry" id="masonry">
+  {% for photo in photos %}
+    <a class="photo-card"
+       href="{{ url_for('gallery.detail', filename=photo.id) }}"
+       data-id="{{ photo.id }}"
+       data-url="{{ photo.url }}"
+       data-title="{{ photo.title|e }}"
+       data-year="{{ photo.year }}"
+       data-tags="{{ (photo.tags|join(',')) if photo.tags else '' }}"
+       data-exif="{{ photo.exif|tojson|e }}"
+       {% if photo.gps %}data-lat="{{ photo.gps.lat }}" data-lon="{{ photo.gps.lon }}"{% endif %}>
+      <figure class="card-figure">
+        <img src="{{ photo.thumbnail_url or photo.url }}" alt="{{ photo.title }}">
+        <figcaption class="card-caption">
+          <span class="title">{{ photo.title }}</span>
+          <span class="meta">
+            {% if photo.tags %}{{ photo.tags|join(', ') }}{% endif %}
+          </span>
+        </figcaption>
+      </figure>
+    </a>
+  {% else %}
+    <p class="empty-state">표시할 사진이 없습니다.</p>
+  {% endfor %}
+</section>
+
+<!-- 라이트박스 (페이지당 1회) -->
+<div id="glightbox" class="glightbox" hidden aria-hidden="true" role="dialog" aria-label="사진 보기">
+  <div class="glbx-overlay" data-action="close"></div>
+  <div class="glbx-frame">
+    <button class="glbx-close" aria-label="닫기" data-action="close">✕</button>
+
+    <div class="glbx-view">
+      <div class="glbx-image-wrap">
+        <img id="glbx-img" alt="" draggable="false" />
+        <button class="glbx-nav glbx-prev" aria-label="이전" data-action="prev">‹</button>
+        <button class="glbx-nav glbx-next" aria-label="다음" data-action="next">›</button>
+      </div>
+      <aside class="glbx-panel" aria-live="polite">
+        <h3 id="glbx-title"></h3>
+        <dl id="glbx-meta" class="glbx-meta"></dl>
+      </aside>
     </div>
+  </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
 {% endblock %}

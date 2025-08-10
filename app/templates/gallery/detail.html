@@ -1,41 +1,38 @@
 {% extends "gallery/base-gallery.html" %}
-
 {% block title %}{{ photo.title }}{% endblock %}
 
 {% block content %}
-<div class="detail-page-container">
-    <div class="detail-main">
-        <div class="detail-image-wrapper">
-            <img src="{{ photo.url }}" alt="{{ photo.title }}">
-        </div>
-        <aside class="detail-meta-wrapper">
-            <h2 class="detail-title">{{ photo.title }}</h2>
-            <dl>
-                {# photo.exif 딕셔너리의 모든 아이템을 동적으로 표시 #}
-                {% for key, value in photo.exif.items() %}
-                    <dt><i class="fas fa-info-circle"></i> {{ key }}</dt>
-                    <dd>{{ value }}</dd>
-                {% endfor %}
-            </dl>
-        </aside>
+<section class="detail-page-container">
+  <div class="detail-main">
+    <div class="detail-image-wrapper">
+      <img src="{{ photo.url }}" alt="{{ photo.title }}">
     </div>
-
-    <nav class="photo-navigation">
-        {% if prev_photo %}
-            <a href="{{ url_for('gallery.view_photo', filename=prev_photo.id) }}" class="nav-button prev">
-                <i class="fas fa-arrow-left"></i> 이전 사진
-            </a>
-        {% else %}
-            <span class="nav-button prev disabled"><i class="fas fa-arrow-left"></i> 이전 사진</span>
+    <aside class="detail-meta-wrapper">
+      <h2 class="detail-title">{{ photo.title }}</h2>
+      <dl>
+        {% if photo.tags %}
+          <dt>태그</dt><dd>{{ photo.tags|join(', ') }}</dd>
         {% endif %}
-
-        {% if next_photo %}
-            <a href="{{ url_for('gallery.view_photo', filename=next_photo.id) }}" class="nav-button next">
-                다음 사진 <i class="fas fa-arrow-right"></i>
-            </a>
-        {% else %}
-            <span class="nav-button next disabled">다음 사진 <i class="fas fa-arrow-right"></i></span>
+        {% if photo.exif %}
+          {% for k, v in photo.exif.items() %}
+            <dt>{{ k }}</dt><dd>{{ v }}</dd>
+          {% endfor %}
         {% endif %}
-    </nav>
-</div>
+      </dl>
+    </aside>
+  </div>
+
+  <nav class="photo-navigation">
+    {% if prev_photo %}
+      <a class="nav-button" href="{{ url_for('gallery.detail', filename=prev_photo.id) }}">← 이전 사진</a>
+    {% else %}
+      <span class="nav-button disabled">← 이전 사진</span>
+    {% endif %}
+    {% if next_photo %}
+      <a class="nav-button" href="{{ url_for('gallery.detail', filename=next_photo.id) }}">다음 사진 →</a>
+    {% else %}
+      <span class="nav-button disabled">다음 사진 →</span>
+    {% endif %}
+  </nav>
+</section>
 {% endblock %}

@@ -1,50 +1,62 @@
-"""
-app/routes/gallery.py
-----------------------
+from __future__ import annotations
+from flask import Blueprint, render_template, abort, redirect, url_for
+from typing import Dict, List
+from urllib.parse import unquote
 
-Routes for the photo gallery. The ``gallery_bp`` blueprint exposes an index
-page listing all photos and a detail view for individual photos. Cached
-responses are used to improve performance. A bug in the original route
-definitions (extraneous whitespace and missing path parameters) has been
-fixed by explicitly declaring the filename parameter in the route.
-"""
-
-from flask import Blueprint, render_template, current_app, abort
 from app.services.gallery_service import get_all_photos, get_photo_by_id
-from app import cache
 
-gallery_bp = Blueprint('gallery', __name__, url_prefix='/gallery')
+# 블루프린트 이름 고정 (register_blueprints에서 gallery_bp를 import)
+gallery_bp = Blueprint("gallery", __name__, url_prefix="/gallery")
+__all__ = ["gallery_bp"]
 
-@gallery_bp.route('/')
-@cache.cached(timeout=300)
+def _year_from_photo(p: Dict) -> str:
+    tags = p.get("tags") or []
+    if tags and isinstance(tags[0], str) and tags[0].isdigit() and len(tags[0]) == 4:
+        return tags[0]
+    return "unknown"
+
+@gallery_bp.route("/")
 def index():
-    """Render the gallery index showing all photos and their tags."""
-    try:
-        all_photos = get_all_photos()
-        all_tags = sorted({tag for photo in all_photos for tag in photo['tags']})
-        return render_template('gallery/index.html', photos=all_photos, tags=all_tags)
-    except Exception as e:
-        current_app.logger.error(f'갤러리 인덱스 페이지 오류: {e}', exc_info=True)
-        return render_template('gallery/index.html', photos=[], tags=[], error=True)
+    photos: List[Dict] = get_all_photos()
+    for ph in photos:
+        ph["year"] = _year_from_photo(ph)
 
-@gallery_bp.route('/photo/<filename>')
-@cache.cached(timeout=3600)
-def view_photo(filename: str):
-    """Render a detail page for a single photo identified by its filename."""
-    try:
-        photo = get_photo_by_id(filename)
-        if not photo:
-            abort(404)
+    years = sorted({int(p["year"]) for p in photos if p["year"].isdigit()}, reverse=True)
+    years = [str(y) for y in years]
+    return render_template("gallery/index.html", photos=photos, years=years)
+
+@gallery_bp.route("/photo/<path:filename>")
+def detail(filename: str):
+    raw = unquote(filename)
+    photo: Dict | None = get_photo_by_id(raw)
+
+    if not photo:
         all_photos = get_all_photos()
-        current_index = next((i for i, p in enumerate(all_photos) if p['id'] == filename), -1)
-        prev_photo = all_photos[current_index + 1] if current_index != -1 and current_index + 1 < len(all_photos) else None
-        next_photo = all_photos[current_index - 1] if current_index > 0 else None
-        return render_template(
-            'gallery/detail.html',
-            photo=photo,
-            prev_photo=prev_photo,
-            next_photo=next_photo
-        )
-    except Exception as e:
-        current_app.logger.error(f'사진 상세 페이지 로드 오류: {e}', exc_info=True)
-        abort(500)
+        lower_map = {p.get("id", "").lower(): p for p in all_photos if p.get("id")}
+        cand = lower_map.get(raw.lower())
+        if cand:
+            photo = cand
+        else:
+            base = raw.rsplit(".", 1)[0].lower()
+            cand2 = next((p for p in all_photos
+                          if p.get("id", "").lower().startswith(base + ".")), None)
+            if cand2:
+                return redirect(url_for("gallery.detail", filename=cand2["id"]), code=302)
+
+    if not photo:
+        abort(404)
+
+    all_photos = get_all_photos()
+    all_sorted = sorted(all_photos, key=lambda x: x.get("id", ""), reverse=True)
+    try:
+        idx = next(i for i, p in enumerate(all_sorted) if p.get("id") == photo.get("id"))
+    except StopIteration:
+        idx = None
+
+    prev_photo = all_sorted[idx - 1] if (idx is not None and idx - 1 >= 0) else None
+    next_photo = all_sorted[idx + 1] if (idx is not None and idx + 1 < len(all_sorted)) else None
+
+    return render_template("gallery/detail.html",
+                           photo=photo,
+                           prev_photo=prev_photo,
+                           next_photo=next_photo)
