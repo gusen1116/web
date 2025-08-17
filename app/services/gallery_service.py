@@ -108,81 +108,38 @@ def _get_exif_data(image_path: str) -> dict:
 
 def _format_exif_value(key: str, value) -> str | None:
     """대표적인 EXIF 값을 보기 좋게 포맷."""
-    if not value:
+    if value is None or value == '':
         return None
     try:
         if key == 'ExposureTime':
             if isinstance(value, (float, int)) and value > 0:
                 return f"1/{int(1/value)}s" if value < 1.0 else f"{int(value)}s"
         elif key == 'FNumber':
-            return f"f/{value}"
+            if isinstance(value, tuple):
+                return f"f/{value[0]/value[1]:.1f}"
+            return f"f/{float(value):.1f}"
         elif key == 'ISOSpeedRatings':
-            return f"ISO {value}"
+            return f"{value}"
         elif key == 'FocalLength':
             f_val = value[0] / value[1] if isinstance(value, tuple) else value
             return f"{int(f_val)}mm"
-        elif isinstance(value, bytes):
-            return value.decode('utf-8', 'ignore').strip()
-        elif isinstance(value, tuple) and all(isinstance(x, int) for x in value):
+        
+        # 다른 모든 태그들은 바이트를 문자열로 디코딩
+        if isinstance(value, bytes):
+            return value.decode('utf-8', 'ignore').strip().strip('\x00')
+        
+        # 튜플이면 문자열로 join
+        if isinstance(value, tuple) and all(isinstance(x, int) for x in value):
             return ", ".join(map(str, value))
+            
+        return str(value).strip().strip('\x00')
+
     except (ValueError, TypeError, ZeroDivisionError, IndexError):
         return str(value)
-    return str(value)
 
 
-def get_all_photos() -> list[dict]:
-    """설정된 폴더의 사진 메타데이터 목록을 반환.
-    반환 키: id, url, thumbnail_url, title, tags, exif, gps
-    """
-    photos_dir = current_app.config.get('GALLERY_PHOTOS_DIR')
-    if not os.path.isdir(photos_dir):
-        current_app.logger.error(f"갤러리 디렉토리 없음: {photos_dir}")
-        return []
-
-    photo_list: list[dict] = []
-    allowed_ext = {'.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'}
-
-    for filename in sorted(os.listdir(photos_dir), reverse=True):
-        if os.path.splitext(filename)[1].lower() not in allowed_ext:
-            continue
-
-        file_path = os.path.join(photos_dir, filename)
-        thumb_path = _get_thumbnail_path(filename)
-
-        if not os.path.exists(thumb_path):
-            _create_thumbnail(file_path, thumb_path)
-
-        exif_data = _get_exif_data(file_path)
-        date_taken = exif_data.get('DateTimeOriginal') or exif_data.get('DateTimeDigitized')
-        year_tag = date_taken.split(':')[0] if date_taken and ':' in str(date_taken) else '날짜정보없음'
-
-        # EXIF 정제
-        formatted_exif: dict = {}
-        for key, value in exif_data.items():
-            if key in ['MakerNote', 'UserComment', '__GPSPoint']:
-                continue
-            formatted_value = _format_exif_value(key, value)
-            if formatted_value:
-                formatted_exif[key] = formatted_value
-
-        # GPS
-        gps_point = exif_data.get('__GPSPoint')
-
-        photo_list.append({
-            'id': filename,
-            'url': url_for('static', filename=f'gallery_photos/{filename}'),
-            'thumbnail_url': url_for('static', filename=f'gallery_thumbnails/{filename}'),
-            'title': os.path.splitext(filename)[0].replace('_', ' ').replace('-', ' ').title(),
-            'tags': [year_tag],
-            'exif': formatted_exif,
-            'gps': gps_point
-        })
-    return photo_list
-
-
-def get_photo_by_id(filename: str) -> dict | None:
-    """단일 사진 메타데이터 반환. 없으면 None."""
-    photos_dir = current_app.config.get('GALLERY_PHOTOS_DIR')
+def process_photo_file(filename: str, photos_dir: str) -> dict | None:
+    """단일 사진 파일 처리 로직 (공통화)"""
     file_path = os.path.join(photos_dir, filename)
     if not os.path.exists(file_path):
         return None
@@ -193,11 +150,13 @@ def get_photo_by_id(filename: str) -> dict | None:
 
     exif_data = _get_exif_data(file_path)
     date_taken = exif_data.get('DateTimeOriginal') or exif_data.get('DateTimeDigitized')
-    year_tag = date_taken.split(':')[0] if date_taken and ':' in str(date_taken) else '날짜정보없음'
+    year_tag = date_taken.split(':')[0] if isinstance(date_taken, str) and ':' in date_taken else '날짜정보없음'
 
+    # EXIF 정제
     formatted_exif: dict = {}
     for key, value in exif_data.items():
-        if key in ['MakerNote', 'UserComment', '__GPSPoint']:
+        # 내부용 키나 불필요한 태그는 건너뜀
+        if key in ['MakerNote', 'UserComment', '__GPSPoint', 'ExifOffset', 'ColorSpace', 'ComponentsConfiguration']:
             continue
         formatted_value = _format_exif_value(key, value)
         if formatted_value:
@@ -214,3 +173,30 @@ def get_photo_by_id(filename: str) -> dict | None:
         'exif': formatted_exif,
         'gps': gps_point
     }
+
+
+def get_all_photos() -> list[dict]:
+    """설정된 폴더의 사진 메타데이터 목록을 반환."""
+    photos_dir = current_app.config.get('GALLERY_PHOTOS_DIR')
+    if not os.path.isdir(photos_dir):
+        current_app.logger.error(f"갤러리 디렉토리 없음: {photos_dir}")
+        return []
+
+    photo_list: list[dict] = []
+    allowed_ext = {'.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'}
+
+    for filename in sorted(os.listdir(photos_dir), reverse=True):
+        if os.path.splitext(filename)[1].lower() not in allowed_ext:
+            continue
+        
+        photo_data = process_photo_file(filename, photos_dir)
+        if photo_data:
+            photo_list.append(photo_data)
+            
+    return photo_list
+
+
+def get_photo_by_id(filename: str) -> dict | None:
+    """단일 사진 메타데이터 반환. 없으면 None."""
+    photos_dir = current_app.config.get('GALLERY_PHOTOS_DIR')
+    return process_photo_file(filename, photos_dir)

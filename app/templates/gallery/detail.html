@@ -22,17 +22,5 @@
     </aside>
   </div>
 
-  <nav class="photo-navigation">
-    {% if prev_photo %}
-      <a class="nav-button" href="{{ url_for('gallery.detail', filename=prev_photo.id) }}">← 이전 사진</a>
-    {% else %}
-      <span class="nav-button disabled">← 이전 사진</span>
-    {% endif %}
-    {% if next_photo %}
-      <a class="nav-button" href="{{ url_for('gallery.detail', filename=next_photo.id) }}">다음 사진 →</a>
-    {% else %}
-      <span class="nav-button disabled">다음 사진 →</span>
-    {% endif %}
-  </nav>
-</section>
+  </section>
 {% endblock %}
