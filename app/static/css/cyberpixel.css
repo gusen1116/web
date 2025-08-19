@@ -1,0 +1,192 @@
+/*
+ * Cyberpixel Theme - Cyberpunk + Pixel Aesthetic
+ * Based on the existing pixel themes but customized to remove gradients,
+ * introduce neon accent colours, and preserve crisp pixel edges.
+ */
+ html.theme-cyberpixel {
+    /* 폰트 */
+    --font-sans: 'MultiFont', monospace;
+    --font-pixel: 'Press Start 2P', 'MultiFont', monospace;
+    font-family: var(--font-sans);
+    font-smooth: never;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeSpeed;
+    /* 둥근 모서리·그림자 제거 */
+    --radius-sm: 0;
+    --radius-md: 0;
+    --radius-lg: 0;
+    --radius-xl: 0;
+    --radius-full: 0;
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+    /* 어두운 배경색 (그라데이션 없음) */
+    --bg-primary: #0F1222;
+    --bg-secondary: #171A2A;
+    --bg-tertiary: #22244B;
+    /* 텍스트 색상 */
+    --text-primary: #F5E9FF;
+    --text-secondary: #B0A5C0;
+    --text-tertiary: #6F6689;
+    /* 네온 포인트 색상 */
+    --text-accent: #00F6FF;
+    --accent-secondary: #FF00C3;
+    --github-accent: var(--text-accent);
+    --danger: #FF5F5F;
+    /* 테두리 색상 */
+    --border-color: #3E2A6F;
+    color-scheme: dark;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.6;
+    letter-spacing: -0.02em;
+  }
+  /* 배경 설정 */
+  html.theme-cyberpixel body {
+    background-color: var(--bg-primary);
+    background-image: none;
+    background-repeat: no-repeat;
+    image-rendering: pixelated;
+    contain: layout style;
+  }
+  /* 이미지 픽셀화 유지 */
+  html.theme-cyberpixel img {
+    image-rendering: pixelated;
+  }
+  /* 공통 컴포넌트 스타일 */
+  html.theme-cyberpixel .top-header,
+  html.theme-cyberpixel .card,
+  html.theme-cyberpixel .post-card,
+  html.theme-cyberpixel .simulation-card,
+  html.theme-cyberpixel .intro-container,
+  html.theme-cyberpixel .diagnostic-container,
+  html.theme-cyberpixel footer,
+  html.theme-cyberpixel input,
+  html.theme-cyberpixel select,
+  html.theme-cyberpixel textarea {
+    border-radius: 0 !important;
+    border-width: 0.125rem;
+    border-style: solid;
+    border-color: var(--border-color);
+    box-shadow: 0.25rem 0.25rem 0px rgba(0, 0, 0, 0.4);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    font-family: var(--font-sans);
+    contain: layout style;
+    will-change: transform;
+  }
+  /* 카드 호버 효과 */
+  html.theme-cyberpixel .card:hover,
+  html.theme-cyberpixel .post-card:hover,
+  html.theme-cyberpixel .simulation-card:hover {
+    transform: translate(-0.125rem, -0.125rem);
+    box-shadow: 0.375rem 0.375rem 0px rgba(0, 0, 0, 0.4);
+  }
+  html.theme-cyberpixel .card:not(:hover),
+  html.theme-cyberpixel .post-card:not(:hover),
+  html.theme-cyberpixel .simulation-card:not(:hover) {
+    will-change: auto;
+  }
+  /* 헤딩 네온 효과 */
+  html.theme-cyberpixel h1,
+  html.theme-cyberpixel h2,
+  html.theme-cyberpixel h3 {
+    font-family: var(--font-pixel);
+    color: var(--text-primary);
+    text-shadow: 0 0 0.05rem var(--text-accent), 0 0 0.1rem var(--text-accent), 0.05rem 0.05rem 0px #000;
+  }
+  html.theme-cyberpixel h1:hover,
+  html.theme-cyberpixel h2:hover,
+  html.theme-cyberpixel h3:hover {
+    text-shadow: 0 0 0.1rem var(--text-accent), 0 0 0.2rem var(--text-accent), 0.1rem 0.1rem 0px #000;
+  }
+  /* 본문 텍스트 */
+  html.theme-cyberpixel,
+  html.theme-cyberpixel p,
+  html.theme-cyberpixel li,
+  html.theme-cyberpixel span {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+  }
+  /* 링크 스타일 */
+  html.theme-cyberpixel a {
+    color: var(--text-accent);
+    text-decoration: none;
+    text-shadow: 0 0 0.25rem var(--text-accent);
+    transition: all 0.2s ease;
+    border-bottom: 0.125rem dotted var(--text-accent);
+  }
+  html.theme-cyberpixel a:hover {
+    color: var(--bg-primary);
+    background-color: var(--text-accent);
+    text-shadow: 0 0 0.375rem var(--text-accent);
+    border-bottom-style: solid;
+  }
+  /* 버튼 스타일 */
+  html.theme-cyberpixel .btn,
+  html.theme-cyberpixel button,
+  html.theme-cyberpixel input[type="button"],
+  html.theme-cyberpixel input[type="submit"],
+  html.theme-cyberpixel .toggle-button,
+  html.theme-cyberpixel .error-btn,
+  html.theme-cyberpixel .filter-btn {
+    font-family: var(--font-pixel);
+    background-color: var(--bg-secondary);
+    color: var(--text-accent);
+    border: 0.125rem solid var(--border-color);
+    border-radius: 0 !important;
+    padding: 0.625rem 1.125rem !important;
+    text-transform: uppercase;
+    text-shadow: 0.0625rem 0.0625rem 0px #000;
+    position: relative;
+    cursor: pointer;
+    image-rendering: pixelated;
+    box-shadow: inset -0.125rem -0.125rem 0px 0px #000000,
+                inset 0.125rem 0.125rem 0px 0px rgba(255, 255, 255, 0.2);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), text-shadow 0.2s ease;
+  }
+  html.theme-cyberpixel .btn:hover,
+  html.theme-cyberpixel button:hover {
+    transform: translate(-0.125rem, -0.125rem);
+    box-shadow: inset -0.125rem -0.125rem 0px 0px #000000,
+                inset 0.125rem 0.125rem 0px 0px rgba(255, 255, 255, 0.3),
+                0 0 0.5rem var(--text-accent);
+    text-shadow: 0.125rem 0.125rem 0px #000;
+  }
+  /* 스크롤바 커스텀 (WebKit) */
+  html.theme-cyberpixel ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  html.theme-cyberpixel ::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+  }
+  html.theme-cyberpixel ::-webkit-scrollbar-thumb {
+    background-color: var(--text-accent);
+    border-radius: 0;
+    border: 2px solid var(--bg-secondary);
+  }
+  /* 태그/날짜 뱃지 */
+  html.theme-cyberpixel .tag,
+  html.theme-cyberpixel .post-card-tag,
+  html.theme-cyberpixel .post-card-date {
+    background-color: var(--text-accent) !important;
+    color: var(--bg-primary) !important;
+    border-color: var(--text-accent) !important;
+    padding: 0.3rem 0.7rem !important;
+    border-radius: 0 !important;
+    font-size: 0.85rem !important;
+  }
+  html.theme-cyberpixel .tag:hover,
+  html.theme-cyberpixel .post-card-tag:hover,
+  html.theme-cyberpixel .post-card-date:hover {
+    background-color: var(--accent-secondary) !important;
+    border-color: var(--accent-secondary) !important;
+  }
+  /* 카드 비율 조정 – 세로 공간 확대 */
+  html.theme-cyberpixel .post-card {
+    aspect-ratio: 4 / 5;
+  }
+  

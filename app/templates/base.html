@@ -7,12 +7,15 @@
     <meta name="format-detection" content="telephone=no">
     <title>{% block title %}와구센{% endblock %}</title>
     
+    <!-- 기존 CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/core.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/content.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/layout-modules.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/themes.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/error-pages.css') }}">
+    <!-- 사이버픽셀 테마 추가 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cyberpixel.css') }}">
 
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -24,24 +27,23 @@
         (function() {
             const THEMES = [
                 { name: 'light', className: '' },
-                { name: 'dark', className: 'dark-theme' }, // General dark theme
+                { name: 'dark', className: 'dark-theme' },
                 { name: '8bit', className: 'theme-8bit' },
                 { name: 'pixel-fusion', className: 'theme-pixel-fusion' },
                 { name: 'royal-cream', className: 'theme-royal-cream' },
-                { name: 'royal-pixel', className: ['dark-theme', 'theme-royal-pixel'] }, // Depends on dark-theme
-                { name: 'future-pixel', className: ['dark-theme', 'theme-future-pixel'] } // Depends on dark-theme
+                { name: 'royal-pixel', className: ['dark-theme', 'theme-royal-pixel'] },
+                { name: 'future-pixel', className: ['dark-theme', 'theme-future-pixel'] },
+                // 사이버픽셀 테마 등록
+                { name: 'cyberpixel', className: ['dark-theme', 'theme-cyberpixel'] }
             ];
-            
-            const savedThemeName = localStorage.getItem('wagusen_theme_v2'); // Correct key
+            const savedThemeName = localStorage.getItem('wagusen_theme_v2');
             const theme = THEMES.find(t => t.name === savedThemeName);
-            
             if (theme && theme.className) {
                 const classesToAdd = Array.isArray(theme.className) ? theme.className : [theme.className];
                 document.documentElement.classList.add(...classesToAdd);
             }
         })();
     </script>
-    
 </head>
 <body class="{% block body_class %}{% endblock %}">
     <header class="top-header" id="siteHeader">
@@ -52,8 +54,7 @@
                     <span class="site-name">와구센</span>
                 </a>
             </div>
-            
-            <!-- 수정된 메인 네비게이션 -->
+            <!-- 메인 네비게이션 -->
             <nav class="main-nav desktop-nav" id="desktopNav">
                 <ul>
                     <li><a href="{{ url_for('posts.index') }}">블로그</a></li>
@@ -62,7 +63,6 @@
                     <li><a href="{{ url_for('main.about') }}">소개</a></li>
                 </ul>
             </nav>
-            
             <div class="header-controls">
                 <div class="theme-toggle-area">
                     <button class="theme-toggle" id="unifiedThemeToggle" title="테마 변경" aria-label="테마 전환">
@@ -77,8 +77,7 @@
             </div>
         </div>
     </header>
-
-    <!-- 수정된 모바일 네비게이션 -->
+    <!-- 모바일 네비게이션 -->
     <nav class="mobile-nav" id="mobileNav">
         <div class="mobile-nav-header">
             <div class="mobile-nav-logo">
@@ -89,7 +88,6 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        
         <div class="mobile-nav-content">
             <ul class="mobile-nav-list">
                 <li class="mobile-nav-item">
@@ -119,7 +117,8 @@
                 <li class="mobile-nav-item">
                     <a href="{{ url_for('main.about') }}" class="mobile-nav-link">
                         <i class="fas fa-info-circle default-icon"></i>
-                        <span class="nav-icon nav-icon-8bit"></span> <span>소개</span>
+                        <span class="nav-icon nav-icon-8bit"></span>
+                        <span>소개</span>
                         <i class="fas fa-chevron-right"></i>
                     </a>
                 </li>
@@ -127,12 +126,13 @@
         </div>
     </nav>
     <div class="mobile-overlay" id="mobileOverlay"></div>
-
+    <!-- 메인 컨텐츠 영역 -->
     <main>
         <div class="container">
             {% block content %}{% endblock %}
         </div>
     </main>
+    <!-- 푸터 -->
     <footer>
         <div class="container">
             <div class="footer-content">
@@ -155,8 +155,27 @@
             </div>
         </div>
     </footer>
-
+    <!-- 스크립트 로드 -->
     <script nonce="{{ csp_nonce() }}" src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <!-- 사이버픽셀 파티클 스크립트: 테마가 활성화될 경우 픽셀 파티클 효과를 출력 -->
+    <script nonce="{{ csp_nonce() }}" src="{{ url_for('static', filename='js/cyberpixel-particles.js') }}"></script>
+    <!-- 테마 토글 스크립트: 기존 테마 목록에 cyberpixel을 추가하여 순환 -->
+    <script nonce="{{ csp_nonce() }}">
+        (function() {
+            const themes = ['light','dark','8bit','pixel-fusion','royal-cream','royal-pixel','future-pixel','cyberpixel'];
+            const themeToggleBtn = document.getElementById('unifiedThemeToggle');
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', function() {
+                    const current = localStorage.getItem('wagusen_theme_v2') || 'light';
+                    const index = themes.indexOf(current);
+                    const next = themes[(index + 1) % themes.length];
+                    localStorage.setItem('wagusen_theme_v2', next);
+                    // 즉시 새 테마 반영을 위해 페이지 새로고침
+                    window.location.reload();
+                });
+            }
+        })();
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
