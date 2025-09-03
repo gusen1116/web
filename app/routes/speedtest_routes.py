@@ -1,12 +1,4 @@
-"""
-app/routes/speedtest_routes.py
-------------------------------
-
-Routes for network speed testing, ping measurement, and file upload/download
-tests. This code mirrors the original implementation and retains improved
-validation and logging.
-"""
-
+# app/routes/speedtest_routes.py
 from flask import Blueprint, render_template, current_app, jsonify, request, Response
 from app import csrf
 
@@ -70,7 +62,6 @@ def download_test_file():
         return Response("다운로드 파일 생성 중 오류가 발생했습니다.", status=500, mimetype='text/plain')
 
 @speedtest_bp.route('/upload', methods=['POST'])
-@csrf.exempt
 def upload_test_file():
     """Accept uploaded data for upload speed testing."""
     try:

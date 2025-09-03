@@ -1,3 +1,4 @@
+# app/__init__.py
 import os
 import sys
 import logging
@@ -26,17 +27,9 @@ assets = Environment()
 cache = Cache()
 
 def create_app(config_name: str | None = None) -> Flask:
-    """Application factory function.
-
-    Args:
-        config_name: Optional configuration name (maps to a key in the
-            ``config`` dict). If not provided, it is resolved from the
-            ``FLASK_CONFIG`` environment variable or defaults to ``'default'``.
-
-    Returns:
-        A configured :class:`~flask.Flask` instance.
-    """
-    app = Flask(__name__)
+    """Application factory function."""
+    # [수정 1] static_folder 경로를 명시적으로 지정하여 라우팅 충돌 방지
+    app = Flask(__name__, static_folder='static', static_url_path='/static')
 
     # --- Load application settings ---
     config_name = config_name or os.environ.get('FLASK_CONFIG') or 'default'
@@ -56,7 +49,7 @@ def create_app(config_name: str | None = None) -> Flask:
     assets.init_app(app)
     cache.init_app(app)
 
-    # --- CSS bundling ---
+    # --- CSS & JS bundling ---
     css_bundle = Bundle(
         'css/core.css',
         'css/components.css',
@@ -67,7 +60,15 @@ def create_app(config_name: str | None = None) -> Flask:
         filters='cssmin',
         output='gen/packed.css'
     )
+    js_bundle = Bundle(
+        'js/main.js',
+        'js/slide-minimal.js',
+        filters='jsmin',
+        output='gen/packed.js'
+    )
     assets.register('all_css', css_bundle)
+    assets.register('all_js', js_bundle)
+
 
     # --- Generate CSP nonce on each request ---
     @app.before_request
@@ -83,16 +84,7 @@ def create_app(config_name: str | None = None) -> Flask:
         return response
 
     # --- Configure Content Security Policy ---
-    csp_config = app.config.get('CONTENT_SECURITY_POLICY')
-    if app.config.get('DEBUG', False):
-        # In debug mode, allow self for connect-src so that local fetches work
-        if csp_config and 'connect-src' in csp_config:
-            if isinstance(csp_config['connect-src'], list):
-                if "'self'" not in csp_config['connect-src']:
-                    csp_config['connect-src'].append("'self'")
-            elif isinstance(csp_config['connect-src'], str):
-                if "'self'" not in csp_config['connect-src']:
-                    csp_config['connect-src'] = f"{csp_config['connect-src']} 'self'"
+    csp_config = app.config.get('CSP', {})
 
     talisman.init_app(
         app,
@@ -100,7 +92,8 @@ def create_app(config_name: str | None = None) -> Flask:
         strict_transport_security=app.config.get('TALISMAN_HSTS_ENABLED', True),
         strict_transport_security_max_age=app.config.get('TALISMAN_HSTS_MAX_AGE', 31536000),
         content_security_policy=csp_config,
-        content_security_policy_nonce_in=['script-src', 'style-src']
+        # [수정 2] nonce 자동 주입 옵션을 제거하여 'unsafe-inline'이 무시되는 문제 해결
+        # content_security_policy_nonce_in=['script-src', 'style-src']
     )
 
     # --- Setup logging ---
@@ -124,16 +117,10 @@ def create_app(config_name: str | None = None) -> Flask:
     return app
 
 def setup_logging(app: Flask) -> None:
-    """Configure application logging.
-
-    Logging output can be directed either to stdout (when ``LOG_TO_STDOUT``
-    is true or when running in debug mode) or to rotating log files. The
-    log level is configurable via the ``LOG_LEVEL`` config key.
-    """
+    """Configure application logging."""
     log_level_str = app.config.get('LOG_LEVEL', 'INFO').upper()
     log_level = getattr(logging, log_level_str, logging.INFO)
 
-    # Clear any existing handlers registered by Flask or Werkzeug
     if app.logger.hasHandlers():
         app.logger.handlers.clear()
 
@@ -157,7 +144,6 @@ def setup_logging(app: Flask) -> None:
     app.logger.setLevel(log_level)
 
     if not app.debug:
-        # Make Werkzeug use the same handler in production
         werkzeug_logger = logging.getLogger('werkzeug')
         werkzeug_logger.handlers.clear()
         werkzeug_logger.addHandler(handler)
@@ -221,12 +207,7 @@ def register_template_helpers(app: Flask) -> None:
         return dict(csrf_token=generate_csrf)
 
 def verify_startup(app: Flask) -> None:
-    """Perform simple checks when the application starts.
-
-    This function makes an OPTIONS request to ``/start_portscan`` using a test
-    client to warn about missing endpoints early on. Additional startup checks
-    can be added here if necessary.
-    """
+    """Perform simple checks when the application starts."""
     app.logger.info("애플리케이션 시작 검증...")
     with app.test_client() as client:
         response = client.options('/start_portscan')

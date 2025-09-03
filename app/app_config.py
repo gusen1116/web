@@ -53,25 +53,45 @@ class Config:
         'X-XSS-Protection': '1; mode=block',
         'Referrer-Policy': 'strict-origin-when-cross-origin',
         'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
-        'Content-Security-Policy': (
-            "default-src 'self'; "
-            "script-src 'self' 'nonce-{nonce}' https://cdnjs.cloudflare.com https://www.youtube.com https://s.ytimg.com; "
-            "style-src 'self' 'nonce-{nonce}' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://fastly.jsdelivr.net; "
-            "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com https://fastly.jsdelivr.net; "
-            "img-src 'self' data: https:; "
-            "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com; "
-            "connect-src 'self' http://test.wagusen.com http://127.0.0.1:4000; "
-            "base-uri 'self'; "
-            "form-action 'self'; "
-            "frame-ancestors 'self'; "
-            "object-src 'none'; "
-            "upgrade-insecure-requests"
-        )
+    }
+
+    # 기본 CSP 설정
+    CSP = {
+        "default-src": ["'self'"],
+        "script-src": [
+            "'self'",
+            "'unsafe-inline'",  # 인라인 스크립트 허용
+            "'nonce-{nonce}'",
+            "https://cdnjs.cloudflare.com",
+            "https://www.youtube.com",
+            "https://s.ytimg.com"
+        ],
+        "style-src": [
+            "'self'",
+            "'unsafe-inline'",  # 인라인 스타일 허용
+            "'nonce-{nonce}'",
+            "https://fonts.googleapis.com",
+            "https://cdnjs.cloudflare.com",
+            "https://fastly.jsdelivr.net"
+        ],
+        "font-src": [
+            "'self'",
+            "https://fonts.gstatic.com",
+            "https://cdnjs.cloudflare.com",
+            "https://fastly.jsdelivr.net"
+        ],
+        "img-src": ["'self'", "data:", "https:"],
+        "frame-src": ["'self'", "https://www.youtube.com", "https://www.youtube-nocookie.com"],
+        "connect-src": ["'self'"],
+        "base-uri": ["'self'"],
+        "form-action": ["'self'"],
+        "frame-ancestors": ["'self'"],
+        "object-src": ["'none'"],
+        "upgrade-insecure-requests": []  # TypeError 해결: None -> []
     }
     
     # 파일 및 콘텐츠 설정
     POSTS_DIR = os.environ.get('POSTS_DIR', str(app_dir / 'content' / 'posts'))
-    # 사진을 저장할 디렉토리 경로를 추가합니다.
     GALLERY_PHOTOS_DIR = os.environ.get('GALLERY_PHOTOS_DIR', str(app_dir.parent / 'app' / 'static' / 'gallery_photos'))
     ALLOWED_TEXT_EXTENSIONS = {'txt', 'md'}
     MAX_FILE_READ_SIZE = 10 * 1024 * 1024  # 10MB
@@ -122,31 +142,18 @@ class Config:
     
     # 외부 도메인 허용 목록 (보안 강화)
     ALLOWED_EXTERNAL_DOMAINS = {
-        # 동영상/미디어
         'youtube.com', 'www.youtube.com', 'youtu.be',
         'vimeo.com', 'player.vimeo.com',
-        
-        # 기술/개발
         'github.com', 'raw.githubusercontent.com', 'gist.github.com',
         'stackoverflow.com', 'stackexchange.com',
         'codepen.io', 'jsfiddle.net',
-        
-        # 문서/참조
         'wikipedia.org', 'wikimedia.org',
         'developer.mozilla.org', 'docs.python.org',
-        
-        # 한국 서점/도서
         'kyobobook.co.kr', 'yes24.com', 'aladin.co.kr',
         'bookhouse.co.kr', 'ebook.kyobobook.co.kr',
-        
-        # 클라우드/CDN
         'cloudflare.com', 'cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com',
         'jsdelivr.net', 'unpkg.com',
-        
-        # 이미지 호스팅
         'imgur.com', 'i.imgur.com',
-        
-        # 기타 신뢰할 수 있는 도메인
         'google.com', 'amazon.com', 'microsoft.com'
     }
     
@@ -158,7 +165,6 @@ class Config:
     LOG_BACKUP_COUNT = 10
     LOGS_DIR = 'logs'
     
-    # 프로덕션 환경에서는 stdout 로깅 권장
     if FLASK_ENV == 'production':
         LOG_TO_STDOUT = True
     
@@ -169,7 +175,7 @@ class Config:
     APP_DESCRIPTION = '파일 시스템 기반 블로그 시스템'
     
     # 성능 설정
-    SEND_FILE_MAX_AGE_DEFAULT = 31536000  # 1년 (정적 파일 캐싱)
+    SEND_FILE_MAX_AGE_DEFAULT = 31536000
     
     @staticmethod
     def init_app(app):
@@ -188,7 +194,10 @@ class DevelopmentConfig(Config):
     LOG_LEVEL = 'DEBUG'
     LOG_TO_STDOUT = True
     CACHE_TIMEOUT = 60
-    CACHE_TYPE = 'simple'  # 개발환경에서는 simple 캐시 사용
+    CACHE_TYPE = 'simple'
+
+    CSP = Config.CSP.copy()
+    CSP['connect-src'].extend(["http://127.0.0.1:4000", "http://test.wagusen.com"])
 
 class TestingConfig(Config):
     """테스트 환경 설정"""
@@ -209,13 +218,12 @@ class ProductionConfig(Config):
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_NAME = '__Host-session'
     SEND_FILE_MAX_AGE_DEFAULT = 604800
-    CACHE_TYPE = 'redis'  # 프로덕션에서는 Redis 사용
+    CACHE_TYPE = 'redis'
     
     @classmethod
     def init_app(cls, app):
         super().init_app(app)
 
-# 설정 매핑
 config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,

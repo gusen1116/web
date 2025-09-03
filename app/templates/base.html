@@ -7,16 +7,8 @@
     <meta name="format-detection" content="telephone=no">
     <title>{% block title %}와구센{% endblock %}</title>
     
-    <!-- 기존 CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/core.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/content.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout-modules.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/themes.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/error-pages.css') }}">
-    <!-- 사이버픽셀 테마 추가 -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/cyberpixel.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='gen/packed.css') }}">
+    
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -33,7 +25,6 @@
                 { name: 'royal-cream', className: 'theme-royal-cream' },
                 { name: 'royal-pixel', className: ['dark-theme', 'theme-royal-pixel'] },
                 { name: 'future-pixel', className: ['dark-theme', 'theme-future-pixel'] },
-                // 사이버픽셀 테마 등록
                 { name: 'cyberpixel', className: ['dark-theme', 'theme-cyberpixel'] }
             ];
             const savedThemeName = localStorage.getItem('wagusen_theme_v2');
@@ -54,7 +45,6 @@
                     <span class="site-name">와구센</span>
                 </a>
             </div>
-            <!-- 메인 네비게이션 -->
             <nav class="main-nav desktop-nav" id="desktopNav">
                 <ul>
                     <li><a href="{{ url_for('posts.index') }}">블로그</a></li>
@@ -77,62 +67,16 @@
             </div>
         </div>
     </header>
-    <!-- 모바일 네비게이션 -->
     <nav class="mobile-nav" id="mobileNav">
-        <div class="mobile-nav-header">
-            <div class="mobile-nav-logo">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="로고" loading="lazy">
-                <span>와구센</span>
-            </div>
-            <button class="mobile-nav-close" id="mobileNavClose" aria-label="메뉴 닫기">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="mobile-nav-content">
-            <ul class="mobile-nav-list">
-                <li class="mobile-nav-item">
-                    <a href="{{ url_for('posts.index') }}" class="mobile-nav-link">
-                        <i class="fas fa-blog default-icon"></i>
-                        <img src="{{ url_for('static', filename='img/icon/book.png') }}" class="nav-icon nav-icon-8bit" alt="블로그 아이콘">
-                        <span>블로그</span>
-                        <i class="fas fa-chevron-right"></i>
-                    </a>
-                </li>
-                <li class="mobile-nav-item">
-                    <a href="{{ url_for('gallery.index') }}" class="mobile-nav-link">
-                        <i class="fas fa-camera default-icon"></i>
-                        <img src="{{ url_for('static', filename='img/icon/camera.png') }}" class="nav-icon nav-icon-8bit" alt="갤러리 아이콘">
-                        <span>갤러리</span>
-                        <i class="fas fa-chevron-right"></i>
-                    </a>
-                </li>
-                <li class="mobile-nav-item">
-                    <a href="{{ url_for('speedtest.speedtest_page') }}" class="mobile-nav-link">
-                        <i class="fas fa-network-wired default-icon"></i>
-                        <img src="{{ url_for('static', filename='img/icon/network.png') }}" class="nav-icon nav-icon-8bit" alt="네트워크 아이콘">
-                        <span>네트워크</span>
-                        <i class="fas fa-chevron-right"></i>
-                    </a>
-                </li>
-                <li class="mobile-nav-item">
-                    <a href="{{ url_for('main.about') }}" class="mobile-nav-link">
-                        <i class="fas fa-info-circle default-icon"></i>
-                        <span class="nav-icon nav-icon-8bit"></span>
-                        <span>소개</span>
-                        <i class="fas fa-chevron-right"></i>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+        </nav>
     <div class="mobile-overlay" id="mobileOverlay"></div>
-    <!-- 메인 컨텐츠 영역 -->
+    
     <main>
         <div class="container">
             {% block content %}{% endblock %}
         </div>
     </main>
-    <!-- 푸터 -->
+    
     <footer>
         <div class="container">
             <div class="footer-content">
@@ -155,27 +99,19 @@
             </div>
         </div>
     </footer>
-    <!-- 스크립트 로드 -->
-    <script nonce="{{ csp_nonce() }}" src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <!-- 사이버픽셀 파티클 스크립트: 테마가 활성화될 경우 픽셀 파티클 효과를 출력 -->
-    <script nonce="{{ csp_nonce() }}" src="{{ url_for('static', filename='js/cyberpixel-particles.js') }}"></script>
-    <!-- 테마 토글 스크립트: 기존 테마 목록에 cyberpixel을 추가하여 순환 -->
+    
+    <script nonce="{{ csp_nonce() }}" src="{{ url_for('static', filename='gen/packed.js') }}"></script>
+    
     <script nonce="{{ csp_nonce() }}">
         (function() {
-            const themes = ['light','dark','8bit','pixel-fusion','royal-cream','royal-pixel','future-pixel','cyberpixel'];
-            const themeToggleBtn = document.getElementById('unifiedThemeToggle');
-            if (themeToggleBtn) {
-                themeToggleBtn.addEventListener('click', function() {
-                    const current = localStorage.getItem('wagusen_theme_v2') || 'light';
-                    const index = themes.indexOf(current);
-                    const next = themes[(index + 1) % themes.length];
-                    localStorage.setItem('wagusen_theme_v2', next);
-                    // 즉시 새 테마 반영을 위해 페이지 새로고침
-                    window.location.reload();
-                });
+            if (document.documentElement.classList.contains('theme-cyberpixel')) {
+                const script = document.createElement('script');
+                script.src = "{{ url_for('static', filename='js/cyberpixel-particles.js') }}";
+                script.nonce = "{{ csp_nonce() }}";
+                document.body.appendChild(script);
             }
         })();
     </script>
     {% block scripts %}{% endblock %}
 </body>
-</html>
+</html> 

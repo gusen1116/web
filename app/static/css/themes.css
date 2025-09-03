@@ -1,1202 +1,200 @@
 /*
- * themes.css - 최적화된 모든 테마 스타일 통합
- * 성능 최적화 및 모든 테마에서 일관된 크기 유지
+ * themes.css - 커스텀 테마 스타일 통합
+ * 'Cyberbit' 테마: Cyberpixel과 8bit 테마의 장점을 결합한 통합 테마
  */
 
-/* ===== 폰트 정의 (최적화) ===== */
+/* ===== 폰트 정의 (공통) ===== */
 @font-face {
   font-family: 'MultiFont';
   src: url('https://cdn.jsdelivr.net/gh/quiple/galmuri/dist/Galmuri7.woff2') format('woff2');
   unicode-range: U+0030-0039; /* 숫자 */
-  font-display: swap; /* 성능 최적화 */
+  font-display: swap;
   font-weight: 400;
 }
-
 @font-face {
   font-family: 'MultiFont';
   src: url('https://cdn.jsdelivr.net/gh/quiple/galmuri/dist/Galmuri9.woff2') format('woff2');
   unicode-range: U+AC00-D7AF, U+1100-11FF, U+3130-318F; /* 한글 */
-  font-display: swap; /* 성능 최적화 */
+  font-display: swap;
   font-weight: 400;
 }
-
 @font-face {
   font-family: 'MultiFont';
   src: url('https://fonts.gstatic.com/s/pressstart2p/v14/e3t4euO8T-267oIAQAu6jDQyK3nVivM.woff2') format('woff2');
   unicode-range: U+0000-002F, U+003A-007F, U+00A0-00FF; /* 영문 및 기호 */
-  font-display: swap; /* 성능 최적화 */
+  font-display: swap;
   font-weight: 400;
 }
 
-/* ===== Galmuri 폰트 임포트 (최적화) ===== */
-@import url('https://fastly.jsdelivr.net/npm/galmuri@latest/dist/galmuri.css');
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-/* ===== 8비트 테마 (크기 일관성 개선) ===== */
-html.theme-8bit {
+/* ===============================================================
+ * ===== Cyberbit 통합 테마 =====
+ * =============================================================== */
+html.theme-cyberbit {
+  /* 폰트: 헤더는 Pixel, 본문은 Sans-serif */
+  --font-pixel: 'Press Start 2P', 'MultiFont', monospace;
   --font-sans: 'MultiFont', monospace;
   font-family: var(--font-sans);
-  /* 픽셀 퍼펙트 렌더링 */
+  
+  /* 렌더링 최적화 */
   font-smooth: never;
   -webkit-font-smoothing: none;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeSpeed;
+
+  /* 레이아웃: 둥근 모서리 및 그림자 제거 */
+  --radius-sm: 0; --radius-md: 0; --radius-lg: 0; --radius-xl: 0; --radius-full: 0;
+  --shadow-sm: none; --shadow-md: none; --shadow-lg: none;
   
-  --bg-primary: #1F1D36;
-  --bg-secondary: #3F3351;
-  --bg-tertiary: #4A405A;
-  --border-color: #864879;
-  --text-primary: #E9A6A6;
-  --text-secondary: #9E7BB5;
-  --text-tertiary: #6E5D7E;
-  --text-accent: #3EC1D3;
-  --github-accent: #3EC1D3;
-  --danger: #FF6B6B;
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
-  --radius-sm: 0;
-  --radius-md: 0;
-  --radius-lg: 0;
-  --radius-xl: 0;
-  --radius-full: 0;
-  --icon-filter: brightness(0) saturate(100%) invert(81%) sepia(13%) saturate(946%) hue-rotate(314deg) brightness(95%) contrast(92%);
+  /* 색상: Cyberpixel 기반 */
+  --bg-primary: #0F1222;
+  --bg-secondary: #171A2A;
+  --bg-tertiary: #22244B;
+  --text-primary: #F5E9FF;
+  --text-secondary: #B0A5C0;
+  --text-tertiary: #6F6689;
+  --text-accent: #00F6FF;
+  --accent-secondary: #FF00C3;
+  --github-accent: var(--text-accent);
+  --danger: #FF5F5F;
+  --border-color: #3E2A6F;
+  
+  /* 아이콘 필터: Cyberpixel 색상에 맞게 조정 */
+  --icon-filter: brightness(0) saturate(100%) invert(85%) sepia(50%) saturate(5000%) hue-rotate(150deg) brightness(1.2) contrast(1.1);
 
-  /* 폰트 크기 및 라인하이트 - 라이트모드와 완전히 동일하게 유지 */
-  font-weight: 400;
-  font-size: 1rem;
-  line-height: 1.6;
-  letter-spacing: -0.02em;
+  color-scheme: dark;
 }
 
-/* 픽셀화 스타일 적용 (성능 최적화) */
-html.theme-8bit body,
-html.theme-8bit img,
-html.theme-8bit .mobile-toggle {
-    image-rendering: -moz-crisp-edges;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-    image-rendering: pixelated;
-    /* 성능 최적화 */
-    contain: layout style;
+/* 이미지 픽셀화 유지 */
+html.theme-cyberbit body,
+html.theme-cyberbit img {
+  image-rendering: pixelated;
 }
 
-/* 폰트 크기 조정 - 라이트모드와 정확히 동일한 크기 유지 */
-html.theme-8bit h1 { 
-  font-size: 2.75rem !important; 
-  line-height: 130% !important; 
-  text-shadow: 0.03125rem 0.03125rem 0px rgba(31, 29, 54, 0.3); 
-  font-weight: 700 !important;
-  margin-top: 1rem !important;
-  margin-bottom: 0.75rem !important;
+/* 타이포그래피 */
+html.theme-cyberbit h1,
+html.theme-cyberbit h2 {
+  font-family: var(--font-pixel);
+  text-shadow: 0 0 2px var(--text-accent), 0 0 4px var(--text-accent), 2px 2px 0px #000;
+  transition: text-shadow 0.2s ease;
 }
-html.theme-8bit h2 { 
-  font-size: 1.9rem !important; 
-  line-height: 130% !important; 
-  text-shadow: 0.03125rem 0.03125rem 0px rgba(31, 29, 54, 0.3);
-  font-weight: 700 !important;
-  margin-top: 2.5em !important;
-  margin-bottom: 1em !important;
-}
-html.theme-8bit h3 { 
-  font-size: 1.23rem !important; 
-  line-height: 203% !important; 
-  text-shadow: 0.03125rem 0.03125rem 0px rgba(31, 29, 54, 0.3);
-  font-weight: 700 !important;
-  margin-top: 2em !important;
-  margin-bottom: 0.8em !important;
-}
-html.theme-8bit h4 { 
-  font-size: 1.15rem !important; 
-  line-height: 203% !important;
-  font-weight: 700 !important;
-}
-html.theme-8bit h5 { 
-  font-size: 1.1rem !important; 
-  line-height: 203% !important;
-  font-weight: 700 !important;
-}
-html.theme-8bit h6 { 
-  font-size: 1rem !important; 
-  line-height: 203% !important;
-  font-weight: 700 !important;
-}
-html.theme-8bit p, html.theme-8bit li { 
-  font-size: 1.23rem !important; 
-  line-height: 203% !important; 
-  letter-spacing: -0.02em !important;
-  font-weight: 400 !important;
-  margin-bottom: 1.5em !important;
-}
-html.theme-8bit .post-content a { 
-  font-size: 1.0rem !important;
-  font-weight: 400 !important;
+html.theme-cyberbit h1:hover,
+html.theme-cyberbit h2:hover {
+  text-shadow: 0 0 4px var(--text-accent), 0 0 8px var(--text-accent), 3px 3px 0px #000;
 }
 
-/* 컴포넌트 8비트 스타일 (크기 일관성 개선) */
-html.theme-8bit .top-header,
-html.theme-8bit .card,
-html.theme-8bit .post-card,
-html.theme-8bit .simulation-card,
-html.theme-8bit .intro-container,
-html.theme-8bit .diagnostic-container,
-html.theme-8bit footer {
-    border-style: solid;
-    border-width: 0.125rem;
-    box-shadow: 0.25rem 0.25rem 0px rgba(0, 0, 0, 0.4);
-    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-    /* 성능 최적화 */
-    contain: layout style;
-    will-change: transform;
-    /* 크기 일관성: 라이트모드와 완전히 동일한 패딩 유지 */
-    border-radius: 0 !important;
+/* UI 요소: 8bit 테마의 입체감 + Cyberpixel 색상 */
+html.theme-cyberbit .top-header,
+html.theme-cyberbit .card,
+html.theme-cyberbit .post-card,
+html.theme-cyberbit .simulation-card,
+html.theme-cyberbit .intro-container,
+html.theme-cyberbit .diagnostic-container,
+html.theme-cyberbit footer,
+html.theme-cyberbit input,
+html.theme-cyberbit select,
+html.theme-cyberbit textarea {
+  border-radius: 0 !important;
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--border-color);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-/* * 제거된 섹션: 이전에 문제가 되었던 .post-card에 대한 !important 패딩 및 최소 높이 규칙을 삭제했습니다.
- * 이제 layout-modules.css가 레이아웃을 완전히 제어합니다.
- */
-
-html.theme-8bit .card:hover,
-html.theme-8bit .post-card:hover,
-html.theme-8bit .simulation-card:hover {
-    transform: translate(-0.125rem, -0.125rem);
-    box-shadow: 0.375rem 0.375rem 0px rgba(0, 0, 0, 0.4);
+html.theme-cyberbit .card:hover,
+html.theme-cyberbit .post-card:hover,
+html.theme-cyberbit .simulation-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
 }
 
-html.theme-8bit .card:not(:hover),
-html.theme-8bit .post-card:not(:hover),
-html.theme-8bit .simulation-card:not(:hover) {
-    will-change: auto;
+/* 버튼 및 인터랙션 */
+html.theme-cyberbit .btn,
+html.theme-cyberbit button {
+  font-family: var(--font-pixel);
+  background-color: var(--bg-secondary);
+  color: var(--text-accent);
+  box-shadow: inset -2px -2px 0px 0px #000, inset 2px 2px 0px 0px rgba(255, 255, 255, 0.2);
+}
+html.theme-cyberbit .btn:hover,
+html.theme-cyberbit button:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: inset -2px -2px 0px 0px #000, inset 2px 2px 0px 0px rgba(255, 255, 255, 0.3), 0 0 8px var(--text-accent);
+}
+html.theme-cyberbit .btn:active,
+html.theme-cyberbit button:active {
+    transform: translate(2px, 2px);
+    box-shadow: inset 2px 2px 0px 0px #000, inset -2px -2px 0px 0px rgba(255, 255, 255, 0.2);
 }
 
-html.theme-8bit .btn,
-html.theme-8bit input,
-html.theme-8bit select,
-html.theme-8bit textarea {
-    border-radius: 0 !important;
-    border-width: 0.125rem;
-    border-style: solid;
-    box-shadow: 0.25rem 0.25rem 0px rgba(0, 0, 0, 0.4);
-    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-    font-family: var(--font-sans);
-    /* 성능 최적화 */
-    will-change: transform;
-    /* 크기 일관성: 라이트모드와 동일한 패딩 */
-    padding: 5px 16px !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    line-height: 20px !important;
+/* 링크 */
+html.theme-cyberbit a {
+    color: var(--text-accent);
+    text-decoration: none;
+    text-shadow: 0 0 4px var(--text-accent);
+    border-bottom: 2px dotted var(--text-accent);
 }
-
-html.theme-8bit .btn:hover,
-html.theme-8bit input:focus,
-html.theme-8bit select:focus,
-html.theme-8bit textarea:focus {
-    transform: translate(-0.125rem, -0.125rem);
-    box-shadow: 0.375rem 0.375rem 0px rgba(0, 0, 0, 0.4);
-    outline: none;
-}
-
-html.theme-8bit .btn:not(:hover),
-html.theme-8bit input:not(:focus),
-html.theme-8bit select:not(:focus),
-html.theme-8bit textarea:not(:focus) {
-    will-change: auto;
-}
-
-html.theme-8bit .slide-container {
-    background: var(--bg-secondary);
-    border: 0.125rem solid var(--border-color);
-    border-radius: 0 !important;
-    /* 크기 일관성: 라이트모드와 동일한 크기 */
-    height: 300px !important;
-    margin-bottom: 3rem !important;
-    margin-top: var(--spacing-8) !important;
-}
-
-html.theme-8bit .slide h2 {
-    color: #F8F8F8;
-    text-shadow: 0.1875rem 0.1875rem 0px #1F1D36;
-    /* 크기 일관성: 라이트모드와 동일한 크기 */
-    font-size: 2.5rem !important;
-    margin: 0 auto 1.5rem !important;
-}
-
-html.theme-8bit .slide p {
-    /* 크기 일관성: 라이트모드와 동일한 크기 */
-    font-size: 1.2rem !important;
-    max-width: 700px !important;
-    margin: 0 auto 2rem !important;
-    line-height: 1.5 !important;
-}
-
-html.theme-8bit .slide-indicator {
-    width: 0.75rem;
-    height: 0.75rem;
-    border: 0.125rem solid #1F1D36;
-    background-color: var(--text-tertiary);
-    border-radius: 0 !important;
-    /* 성능 최적화 */
-    will-change: background-color, transform;
-}
-
-html.theme-8bit .slide-indicator.active {
+html.theme-cyberbit a:hover {
+    color: var(--bg-primary);
     background-color: var(--text-accent);
+    text-shadow: 0 0 6px var(--text-accent);
+    border-bottom-style: solid;
 }
 
-html.theme-8bit .slide-indicator:not(.active) {
-    will-change: auto;
-}
-
-html.theme-8bit .progress-bar {
-    background-image: linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-    background-size: 1.25rem 1.25rem;
-    animation: progress-bar-stripes 1s linear infinite;
-}
-
-@keyframes progress-bar-stripes {
-  from { background-position: 1.25rem 0; }
-  to { background-position: 0 0; }
-}
-
-/* 아이콘 관련 재정의 (성능 최적화) */
-html.theme-8bit .theme-toggle .icon-8bit {
-    width: 2.25rem;
-    height: 2.25rem;
-    filter: hue-rotate(220deg) saturate(3) brightness(1.2);
-    transition: transform 0.2s ease;
-    will-change: transform;
-}
-
-html.theme-8bit .theme-toggle:hover .icon-8bit {
-    transform: scale(1.1);
-}
-
-html.theme-8bit .theme-toggle:not(:hover) .icon-8bit {
-    will-change: auto;
-}
-
-html.theme-8bit .mobile-toggle {
+/* 8비트 아이콘 (8bit 테마에서 가져옴) */
+html.theme-cyberbit .mobile-toggle {
     background-image: url('/static/img/icon/menu.png');
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 1.5rem 1.5rem;
+    background-size: 24px 24px;
+    filter: var(--icon-filter);
 }
-
-html.theme-8bit .mobile-toggle.active {
+html.theme-cyberbit .mobile-toggle.active {
     background-image: url('/static/img/icon/close.png');
 }
-
-html.theme-8bit .mobile-toggle .hamburger-line {
-    display: none;
-}
-
-html.theme-8bit .mobile-nav-link .default-icon {
-    display: none;
-}
-
-html.theme-8bit .mobile-nav-link .nav-icon-8bit {
+html.theme-cyberbit .mobile-toggle .hamburger-line { display: none; }
+html.theme-cyberbit .mobile-nav-link .default-icon { display: none; }
+html.theme-cyberbit .mobile-nav-link .nav-icon-8bit {
     display: inline-block;
     filter: var(--icon-filter);
-    width: 1.5rem;
-    height: 1.5rem;
+    width: 24px;
+    height: 24px;
     flex-shrink: 0;
 }
-
-/* 링크 및 푸터 아이콘 스타일 */
-html.theme-8bit .post-content a {
-    font-family: var(--font-sans);
-    border-bottom: 0.125rem dotted var(--text-accent) !important;
-    /* 크기 일관성: 라이트모드와 동일한 크기 */
-    font-size: 1.0rem !important;
-    font-weight: 400 !important;
+html.theme-cyberbit .footer-links i {
+    font-size: 0;
+    width: 24px;
+    height: 24px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    filter: var(--icon-filter);
+    display: inline-block;
+    transition: transform 0.2s ease;
 }
-html.theme-8bit .post-content a:hover {
+html.theme-cyberbit .footer-links .footer-icon-github { background-image: url('/static/img/icon/github.png'); }
+html.theme-cyberbit .footer-links .footer-icon-mail { background-image: url('/static/img/icon/mail.png'); }
+
+/* 태그 및 뱃지 */
+html.theme-cyberbit .tag,
+html.theme-cyberbit .post-card-tag,
+html.theme-cyberbit .post-card-date {
+    background-color: var(--accent-secondary) !important;
     color: var(--bg-primary) !important;
-    background-color: var(--text-accent) !important;
-    border-bottom-style: solid !important;
+    border-color: var(--accent-secondary) !important;
+    font-weight: 700;
 }
 
-html.theme-8bit .footer-links i {
-    font-size: 0;
-    width: 1.5rem;
-    height: 1.5rem;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
-    filter: var(--icon-filter);
-    display: inline-block;
-}
-
-html.theme-8bit .footer-links .footer-icon-github {
-    background-image: url('/static/img/icon/github.png');
-}
-
-html.theme-8bit .footer-links .footer-icon-mail {
-    background-image: url('/static/img/icon/mail.png');
-}
-
-/* 태그 및 날짜 가시성 향상 */
-html.theme-8bit .tag,
-html.theme-8bit .post-card-tag {
-  background-color: #3EC1D3 !important;
-  color: #1F1D36 !important;
-  border-color: #3EC1D3 !important;
-  /* 크기 일관성: 라이트모드와 동일한 크기 */
-  padding: var(--spacing-1) var(--spacing-2) !important;
-  border-radius: 0 !important;
-  font-size: var(--font-size-xs) !important;
-}
-
-html.theme-8bit .tag:hover,
-html.theme-8bit .post-card-tag:hover {
-  background-color: #31a4b4 !important;
-  border-color: #31a4b4 !important;
-}
-
-html.theme-8bit .post-card-date {
-  background-color: #9E7BB5 !important;
-  color: #1F1D36 !important;
-  border-color: #9E7BB5 !important;
-  /* 크기 일관성: 라이트모드와 동일한 크기 */
-  padding: 0.3rem 0.7rem !important;
-  border-radius: 0 !important;
-  font-size: 0.85rem !important;
-}
-html.theme-8bit .post-card-date i {
-  color: #1F1D36 !important;
-}
-html.theme-8bit .post-card-date:hover {
-  background-color: #84689e !important;
-  border-color: #84689e !important;
-}
-
-/* 포스트 메타 정보 크기 일관성 */
-html.theme-8bit .post-date, 
-html.theme-8bit .post-author, 
-html.theme-8bit .post-word-count {
-  font-size: 0.85rem !important;
-  padding: 0.3rem 0.7rem !important;
-  border-radius: 0 !important;
-}
-
-html.theme-8bit .post-tag {
-  font-size: 0.8rem !important;
-  padding: 0.25rem 0.6rem !important;
-  border-radius: 0 !important;
-}
-
-/* ===== Pixel Fusion 테마 (크기 일관성 개선) ===== */
-html.theme-pixel-fusion {
-  --font-sans: 'MultiFont', monospace;
-  --font-pixel: 'Press Start 2P', 'MultiFont', monospace;
-
-  font-family: var(--font-sans);
-  font-smooth: never;
-  -webkit-font-smoothing: none;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeSpeed;
-
-  --radius-sm: 0;
-  --radius-md: 0;
-  --radius-lg: 0;
-  --radius-xl: 0;
-  --radius-full: 0;
-
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
-
-  /* 인디고/바이올렛 계열 */
-  --bg-primary: #19182D;
-  --bg-secondary: #282A49;
-  --bg-tertiary: #393B6B;
-
-  --text-primary: #f5f5ff;
-  --text-secondary: #9CA3AF;
-  --text-tertiary: #6B7280;
-
-  --text-accent: #00ffe7;
-  --github-accent: #00ffe7;
-  --accent-orange: #FF7F00;
-  --danger: #FF6B6B;
-
-  --border-color: #4F46E5;
-
-  --cyberpunk-bg: radial-gradient(ellipse at 50% 0%, var(--bg-tertiary) 0%, var(--bg-primary) 70%);
-
-  color-scheme: dark;
-
-  /* 폰트 크기 및 라인하이트 - 라이트모드와 완전히 동일하게 유지 */
-  font-weight: 400;
-  font-size: 1rem;
-  line-height: 1.6;
-  letter-spacing: -0.02em;
-}
-
-/* 폰트 크기 조정 - 라이트모드와 정확히 동일한 크기 유지 */
-html.theme-pixel-fusion h1 { 
-  font-size: 2.75rem !important; 
-  line-height: 130% !important; 
-  text-shadow: 0 0 0.03125rem var(--github-accent), 0 0 0.0625rem var(--github-accent), 0.03125rem 0.03125rem 0px #000; 
-  font-weight: 700 !important;
-}
-html.theme-pixel-fusion h2 { 
-  font-size: 1.9rem !important; 
-  line-height: 130% !important; 
-  text-shadow: 0 0 0.03125rem var(--github-accent), 0 0 0.0625rem var(--github-accent), 0.03125rem 0.03125rem 0px #000; 
-  font-weight: 700 !important;
-}
-html.theme-pixel-fusion h3 { 
-  font-size: 1.23rem !important; 
-  line-height: 203% !important; 
-  text-shadow: 0 0 0.03125rem var(--github-accent), 0 0 0.0625rem var(--github-accent), 0.03125rem 0.03125rem 0px #000; 
-  font-weight: 700 !important;
-}
-html.theme-pixel-fusion h4 { 
-  font-size: 1.15rem !important; 
-  line-height: 203% !important;
-  font-weight: 700 !important;
-}
-html.theme-pixel-fusion h5 { 
-  font-size: 1.1rem !important; 
-  line-height: 203% !important;
-  font-weight: 700 !important;
-}
-html.theme-pixel-fusion h6 { 
-  font-size: 1rem !important; 
-  line-height: 203% !important;
-  font-weight: 700 !important;
-}
-html.theme-pixel-fusion p, html.theme-pixel-fusion li { 
-  font-size: 1.23rem !important; 
-  line-height: 203% !important; 
-  letter-spacing: -0.02em !important;
-  font-weight: 400 !important;
-}
-html.theme-pixel-fusion .post-content a { 
-  font-size: 1.0rem !important;
-  font-weight: 400 !important;
-}
-
-/* 배경 스타일 (성능 최적화) */
-html.theme-pixel-fusion body {
-  background-color: var(--bg-primary);
-  background-image: var(--cyberpunk-bg);
-  background-repeat: no-repeat;
-  image-rendering: pixelated;
-  /* 성능 최적화 */
-  contain: layout style;
-}
-
-html.theme-pixel-fusion img {
-  image-rendering: pixelated;
-}
-
-/* 공통 UI 스타일 (크기 일관성 개선) */
-html.theme-pixel-fusion .top-header,
-html.theme-pixel-fusion .card,
-html.theme-pixel-fusion .post-card,
-html.theme-pixel-fusion .simulation-card,
-html.theme-pixel-fusion .intro-container,
-html.theme-pixel-fusion .diagnostic-container,
-html.theme-pixel-fusion footer,
-html.theme-pixel-fusion input,
-html.theme-pixel-fusion select,
-html.theme-pixel-fusion textarea {
-  border-radius: 0 !important;
-  border-width: 0.125rem;
-  border-style: solid;
-  border-color: var(--border-color);
-  box-shadow: 0.25rem 0.25rem 0px rgba(0, 0, 0, 0.4);
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-  font-family: var(--font-sans);
-  /* 성능 최적화 */
-  contain: layout style;
-  will-change: transform;
-}
-
-/* * 제거된 섹션: .post-card에 대한 !important 패딩 및 최소 높이 규칙을 삭제했습니다.
- */
-
-html.theme-pixel-fusion .card:hover,
-html.theme-pixel-fusion .post-card:hover,
-html.theme-pixel-fusion .simulation-card:hover,
-html.theme-pixel-fusion input:focus,
-html.theme-pixel-fusion select:focus,
-html.theme-pixel-fusion textarea:focus {
-  transform: translate(-0.125rem, -0.125rem);
-  box-shadow: 0.375rem 0.375rem 0px rgba(0, 0, 0, 0.4);
-  outline: none;
-}
-
-html.theme-pixel-fusion .card:not(:hover),
-html.theme-pixel-fusion .post-card:not(:hover),
-html.theme-pixel-fusion .simulation-card:not(:hover),
-html.theme-pixel-fusion input:not(:focus),
-html.theme-pixel-fusion select:not(:focus),
-html.theme-pixel-fusion textarea:not(:focus) {
-  will-change: auto;
-}
-
-/* 헤더 네온 효과 */
-html.theme-pixel-fusion h1,
-html.theme-pixel-fusion h2 {
-  color: var(--text-primary);
-}
-
-/* 일반 텍스트 및 링크 */
-html.theme-pixel-fusion,
-html.theme-pixel-fusion p,
-html.theme-pixel-fusion li,
-html.theme-pixel-fusion span {
-  font-family: var(--font-sans);
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--text-primary);
-}
-
-html.theme-pixel-fusion a {
-  color: var(--text-accent);
-  text-shadow: 0 0 0.25rem var(--text-accent);
-  transition: all 0.2s ease;
-}
-
-html.theme-pixel-fusion a:hover {
-  color: var(--text-primary);
-  text-shadow: 0 0 0.375rem var(--text-accent);
-}
-
-/* 버튼 스타일 (성능 최적화) */
-html.theme-pixel-fusion .btn,
-html.theme-pixel-fusion button,
-html.theme-pixel-fusion input[type="button"],
-html.theme-pixel-fusion input[type="submit"],
-html.theme-pixel-fusion #startTestBtn,
-html.theme-pixel-fusion #whoisSearchBtn,
-html.theme-pixel-fusion #portScanBtn,
-html.theme-pixel-fusion .toggle-button,
-html.theme-pixel-fusion .error-btn,
-html.theme-pixel-fusion .filter-btn {
-    font-family: 'Press Start 2P', 'MultiFont', monospace;
-    background-color: var(--bg-secondary);
-    color: var(--text-accent);
-    border: 0.125rem solid var(--border-color);
-    border-radius: 0 !important;
-    padding: 0.625rem 1.125rem !important;
-    text-transform: uppercase;
-    text-shadow: 0.0625rem 0.0625rem 0px #000;
-    transition: none;
-    position: relative;
-    cursor: pointer;
-    image-rendering: pixelated;
-    box-shadow: inset -0.125rem -0.125rem 0px 0px #000000, inset 0.125rem 0.125rem 0px 0px rgba(255, 255, 255, 0.2);
-    /* 성능 최적화 */
-    contain: layout style;
-    will-change: auto;
-    /* 크기 일관성 */
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    line-height: 20px !important;
-}
-
-html.theme-pixel-fusion .btn:hover,
-html.theme-pixel-fusion button:hover,
-html.theme-pixel-fusion input[type="button"]:hover,
-html.theme-pixel-fusion input[type="submit"]:hover,
-html.theme-pixel-fusion #startTestBtn:hover,
-html.theme-pixel-fusion #whoisSearchBtn:hover,
-html.theme-pixel-fusion #portScanBtn:hover,
-html.theme-pixel-fusion .toggle-button:hover,
-html.theme-pixel-fusion .error-btn:hover,
-html.theme-pixel-fusion .filter-btn:hover {
-    background-color: var(--bg-tertiary);
-    color: #fff;
-    text-shadow: 0 0 0.3125rem var(--text-accent);
-}
-
-html.theme-pixel-fusion .btn:active,
-html.theme-pixel-fusion button:active,
-html.theme-pixel-fusion input[type="button"]:active,
-html.theme-pixel-fusion input[type="submit"]:active,
-html.theme-pixel-fusion #startTestBtn:active,
-html.theme-pixel-fusion #whoisSearchBtn:active,
-html.theme-pixel-fusion #portScanBtn:active,
-html.theme-pixel-fusion .toggle-button:active,
-html.theme-pixel-fusion .error-btn:active,
-html.theme-pixel-fusion .filter-btn:active {
-    top: 0.125rem;
-    left: 0.125rem;
-    box-shadow: inset 0.125rem 0.125rem 0px 0px #000000, inset -0.125rem -0.125rem 0px 0px rgba(255, 255, 255, 0.2);
-}
-
-/* 버튼 비활성화 상태 */
-html.theme-pixel-fusion .btn:disabled,
-html.theme-pixel-fusion button:disabled {
-    color: var(--text-tertiary);
-    border-color: var(--text-tertiary);
-    background-color: var(--bg-primary);
-    cursor: not-allowed;
-    box-shadow: inset -0.0625rem -0.0625rem 0px 0px #000000;
-}
-html.theme-pixel-fusion .btn:disabled:hover,
-html.theme-pixel-fusion button:disabled:hover {
-    top: 0;
-    left: 0;
-    text-shadow: 0.0625rem 0.0625rem 0px #000;
-}
-
-/* 특정 버튼 색상 오버라이드 */
-html.theme-pixel-fusion #startTestBtn,
-html.theme-pixel-fusion #portScanBtn {
-    color: var(--accent-orange);
-    border-color: var(--accent-orange);
-}
-html.theme-pixel-fusion #startTestBtn:hover,
-html.theme-pixel-fusion #portScanBtn:hover {
-    text-shadow: 0 0 0.3125rem var(--accent-orange);
-}
-
-html.theme-pixel-fusion .error-btn {
-    color: var(--danger);
-    border-color: var(--danger);
-}
-html.theme-pixel-fusion .error-btn:hover {
-    text-shadow: 0 0 0.3125rem var(--danger);
-}
-
-html.theme-pixel-fusion .filter-btn.active {
-    background-color: var(--text-accent);
-    color: var(--bg-primary);
-    text-shadow: none;
-    border-color: var(--text-primary);
-}
-
-/* 입력 필드 */
-html.theme-pixel-fusion input[type="text"] {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-}
-
-html.theme-pixel-fusion input[type="text"]:focus {
-  border-color: var(--text-accent);
-  box-shadow: 0.375rem 0.375rem 0px rgba(0, 0, 0, 0.4), 0 0 0.5rem var(--text-accent);
-}
-
-/* 네온 glow 효과 */
-html.theme-pixel-fusion .glow {
-  color: var(--text-accent);
-  text-shadow: 0 0 0.375rem var(--text-accent), 0 0 0.75rem var(--text-accent), 0 0 1.25rem var(--text-accent);
-}
-
-/* 네온 박스 */
-html.theme-pixel-fusion .neon-box {
-  border: 0.125rem solid var(--text-accent);
-  box-shadow: 0 0 0.5rem var(--text-accent), inset 0 0 0.25rem var(--text-accent);
-  padding: 1rem;
-}
-
-/* ===== Royal Cream (모던) 테마 ===== */
-html.theme-royal-cream {
-  --bg-primary: #FAF3E0;
-  --bg-secondary: #FFFFFF;
-  --bg-tertiary: #FDF8EE;
-  
-  --text-primary: #144DA8;
-  --text-secondary: #2c5a9b;
-  --text-tertiary: #576f92;
-  --text-accent: #144DA8;
-  
-  --border-color: #E6DACE;
-  --github-accent: #144DA8;
-
-  color-scheme: light;
-}
-
-html.theme-royal-cream .slide-container {
-    background-color: var(--github-accent);
-}
-
-html.theme-royal-cream .slide h2,
-html.theme-royal-cream .slide p {
-    color: #FFFFFF;
-}
-
-/* ===== Royal Pixel (8비트) 테마 (크기 일관성 개선) ===== */
-html.theme-royal-pixel {
-  --font-sans: 'MultiFont', monospace;
-  font-family: var(--font-sans);
-  font-smooth: never;
-  -webkit-font-smoothing: none;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeSpeed;
-
-  --radius-sm: 0;
-  --radius-md: 0;
-  --radius-lg: 0;
-  --radius-xl: 0;
-  --radius-full: 0;
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
-  
-  --bg-primary: #144DA8;
-  --bg-secondary: #103D86;
-  --bg-tertiary: #0C2E64;
-  
-  --text-primary: #FAF3E0;
-  --text-secondary: #d4cfc1;
-  --text-tertiary: #a9a396;
-  --text-accent: #FFD700;
-  
-  --border-color: #2E6BC8;
-  --github-accent: #FFD700;
-
-  --icon-filter: brightness(0) saturate(100%) invert(95%) sepia(8%) saturate(347%) hue-rotate(338deg) brightness(102%) contrast(97%);
-  
-  color-scheme: dark;
-
-  /* 폰트 크기 및 라인하이트 - 라이트모드와 완전히 동일하게 유지 */
-  font-weight: 400;
-  font-size: 1rem;
-  line-height: 1.6;
-  letter-spacing: -0.02em;
-}
-
-/* 폰트 크기 조정 - 라이트모드와 정확히 동일한 크기 유지 */
-html.theme-royal-pixel h1 { 
-  font-size: 2.75rem !important; 
-  line-height: 130% !important;
-  font-weight: 700 !important;
-}
-html.theme-royal-pixel h2 { 
-  font-size: 1.9rem !important; 
-  line-height: 130% !important;
-  font-weight: 700 !important;
-}
-html.theme-royal-pixel h3 { 
-  font-size: 1.23rem !important; 
-  line-height: 203% !important;
-  font-weight: 700 !important;
-}
-html.theme-royal-pixel h4 { 
-  font-size: 1.15rem !important; 
-  line-height: 203% !important;
-  font-weight: 700 !important;
-}
-html.theme-royal-pixel h5 { 
-  font-size: 1.1rem !important; 
-  line-height: 203% !important;
-  font-weight: 700 !important;
-}
-html.theme-royal-pixel h6 { 
-  font-size: 1rem !important; 
-  line-height: 203% !important;
-  font-weight: 700 !important;
-}
-html.theme-royal-pixel p, html.theme-royal-pixel li { 
-  font-size: 1.23rem !important; 
-  line-height: 203% !important; 
-  letter-spacing: -0.02em !important;
-  font-weight: 400 !important;
-}
-html.theme-royal-pixel .post-content a { 
-  font-size: 1.0rem !important;
-  font-weight: 400 !important;
-}
-
-/* 태그 및 날짜 가시성 향상 (Royal Pixel) */
-html.theme-royal-pixel .tag,
-html.theme-royal-pixel .post-card-tag {
-  background-color: var(--text-accent) !important;
-  color: var(--bg-primary) !important;
-  border-color: var(--text-accent) !important;
-  /* 크기 일관성 */
-  padding: var(--spacing-1) var(--spacing-2) !important;
-  border-radius: 0 !important;
-  font-size: var(--font-size-xs) !important;
-}
-
-html.theme-royal-pixel .tag:hover,
-html.theme-royal-pixel .post-card-tag:hover {
-  background-color: #e5c300 !important;
-  border-color: #e5c300 !important;
-}
-
-html.theme-royal-pixel .post-card-date {
-  background-color: var(--text-tertiary) !important;
-  color: var(--bg-primary) !important;
-  border-color: var(--text-tertiary) !important;
-  /* 크기 일관성 */
-  padding: 0.3rem 0.7rem !important;
-  border-radius: 0 !important;
-  font-size: 0.85rem !important;
-}
-html.theme-royal-pixel .post-card-date i {
-  color: var(--bg-primary) !important;
-}
-html.theme-royal-pixel .post-card-date:hover {
-  background-color: #928b7e !important;
-  border-color: #928b7e !important;
-}
-
-/* ===== Future Pixel (미래적 8비트) 테마 (크기 일관성 개선) ===== */
-html.theme-future-pixel {
-  --font-sans: 'MultiFont', monospace;
-  font-family: var(--font-sans);
-  font-smooth: never;
-  -webkit-font-smoothing: none;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeSpeed;
-
-  --radius-sm: 0;
-  --radius-md: 0;
-  --radius-lg: 0;
-  --radius-xl: 0;
-  --radius-full: 0;
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
-
-  --bg-primary: #1F1D36;
-  --bg-secondary: #144DA8;
-  --bg-tertiary: #103D86;
-  
-  --text-primary: #FAF3E0;
-  --text-secondary: #d4cfc1;
-  --text-tertiary: #a9a396;
-  --text-accent: #3EC1D3;
-  
-  --border-color: #3EC1D3;
-  --github-accent: #3EC1D3;
-
-  --icon-filter: brightness(0) saturate(100%) invert(95%) sepia(8%) saturate(347%) hue-rotate(338deg) brightness(102%) contrast(97%);
-  
-  color-scheme: dark;
-
-  /* 폰트 크기 및 라인하이트 - 라이트모드와 완전히 동일하게 유지 */
-  font-weight: 400;
-  font-size: 1rem;
-  line-height: 1.6;
-  letter-spacing: -0.02em;
-}
-
-/* 폰트 크기 조정 - 라이트모드와 정확히 동일한 크기 유지 */
-html.theme-future-pixel h1 { 
-  font-size: 2.75rem !important; 
-  line-height: 130% !important;
-  font-weight: 700 !important;
-}
-html.theme-future-pixel h2 { 
-  font-size: 1.9rem !important; 
-  line-height: 130% !important;
-  font-weight: 700 !important;
-}
-html.theme-future-pixel h3 { 
-  font-size: 1.23rem !important; 
-  line-height: 203% !important;
-  font-weight: 700 !important;
-}
-html.theme-future-pixel h4 { 
-  font-size: 1.15rem !important; 
-  line-height: 203% !important;
-  font-weight: 700 !important;
-}
-html.theme-future-pixel h5 { 
-  font-size: 1.1rem !important; 
-  line-height: 203% !important;
-  font-weight: 700 !important;
-}
-html.theme-future-pixel h6 { 
-  font-size: 1rem !important; 
-  line-height: 203% !important;
-  font-weight: 700 !important;
-}
-html.theme-future-pixel p, html.theme-future-pixel li { 
-  font-size: 1.23rem !important; 
-  line-height: 203% !important; 
-  letter-spacing: -0.02em !important;
-  font-weight: 400 !important;
-}
-html.theme-future-pixel .post-content a { 
-  font-size: 1.0rem !important;
-  font-weight: 400 !important;
-}
-
-/* Future Pixel 테마 추가 효과 */
-html.theme-future-pixel body {
-  background-image: linear-gradient(rgba(0, 0, 0, 0.2) 50%, transparent 50%);
-  background-size: 100% 0.25rem;
-}
-
-html.theme-future-pixel a,
-html.theme-future-pixel .btn-primary,
-html.theme-future-pixel h1,
-html.theme-future-pixel h2 {
-    text-shadow: 0 0 0.1875rem var(--text-accent), 0 0 0.3125rem var(--github-accent);
-}
-
-/* 태그 및 날짜 가시성 향상 (Future Pixel) */
-html.theme-future-pixel .tag,
-html.theme-future-pixel .post-card-tag {
-  background-color: var(--text-accent) !important;
-  color: #1F1D36 !important;
-  border-color: var(--text-accent) !important;
-  /* 크기 일관성 */
-  padding: var(--spacing-1) var(--spacing-2) !important;
-  border-radius: 0 !important;
-  font-size: var(--font-size-xs) !important;
-}
-
-html.theme-future-pixel .tag:hover,
-html.theme-future-pixel .post-card-tag:hover {
-  background-color: #31a4b4 !important;
-  border-color: #31a4b4 !important;
-}
-
-html.theme-future-pixel .post-card-date {
-  background-color: var(--text-tertiary) !important;
-  color: #1F1D36 !important;
-  border-color: var(--text-tertiary) !important;
-  /* 크기 일관성 */
-  padding: 0.3rem 0.7rem !important;
-  border-radius: 0 !important;
-  font-size: 0.85rem !important;
-}
-html.theme-future-pixel .post-card-date i {
-  color: #1F1D36 !important;
-}
-html.theme-future-pixel .post-card-date:hover {
-  background-color: #928b7e !important;
-  border-color: #928b7e !important;
-}
-
-/* ===== 8비트 테마들의 공통 시각적 요소 (크기 일관성 개선) ===== */
-html.theme-royal-pixel body, html.theme-future-pixel body, html.theme-8bit body {
-    image-rendering: -moz-crisp-edges;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-    image-rendering: pixelated;
-    /* 성능 최적화 */
-    contain: layout style;
-}
-
-html.theme-royal-pixel .top-header, html.theme-future-pixel .top-header,
-html.theme-royal-pixel .card, html.theme-future-pixel .card,
-html.theme-royal-pixel .post-card, html.theme-future-pixel .post-card,
-html.theme-royal-pixel .simulation-card, html.theme-future-pixel .simulation-card,
-html.theme-royal-pixel .intro-container, html.theme-future-pixel .intro-container,
-html.theme-royal-pixel .diagnostic-container, html.theme-future-pixel .diagnostic-container,
-html.theme-royal-pixel footer, html.theme-future-pixel footer {
-    border-style: solid;
-    border-width: 0.125rem;
-    box-shadow: 0.25rem 0.25rem 0px rgba(0, 0, 0, 0.4);
-    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-    background-color: var(--bg-secondary) !important;
-    /* 성능 최적화 */
-    contain: layout style;
-    will-change: transform;
-    /* 크기 일관성: 라이트모드와 완전히 동일한 패딩 유지 */
-    border-radius: 0 !important;
-}
-
-html.theme-royal-pixel .card:hover, html.theme-future-pixel .card:hover,
-html.theme-royal-pixel .post-card:hover, html.theme-future-pixel .post-card:hover,
-html.theme-royal-pixel .simulation-card:hover, html.theme-future-pixel .simulation-card:hover {
-    transform: translate(-0.125rem, -0.125rem);
-    box-shadow: 0.375rem 0.375rem 0px rgba(0, 0, 0, 0.4);
-}
-
-html.theme-royal-pixel .card:not(:hover), html.theme-future-pixel .card:not(:hover),
-html.theme-royal-pixel .post-card:not(:hover), html.theme-future-pixel .post-card:not(:hover),
-html.theme-royal-pixel .simulation-card:not(:hover), html.theme-future-pixel .simulation-card:not(:hover) {
-    will-change: auto;
-}
-
-html.theme-royal-pixel .btn, html.theme-future-pixel .btn,
-html.theme-royal-pixel #startTestBtn, html.theme-future-pixel #startTestBtn,
-html.theme-royal-pixel .toggle-button, html.theme-future-pixel .toggle-button,
-html.theme-royal-pixel #whoisSearchBtn, html.theme-future-pixel #whoisSearchBtn,
-html.theme-royal-pixel #portScanBtn, html.theme-future-pixel #portScanBtn {
-    border-radius: 0 !important;
-    border-width: 0.125rem;
-    border-style: solid;
-    box-shadow: 0.25rem 0.25rem 0px rgba(0, 0, 0, 0.4);
-    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-    /* 성능 최적화 */
-    will-change: transform;
-    /* 크기 일관성 */
-    padding: 5px 16px !important;
-    font-size: 14px !important;
-    font-weight: 500 !important;
-    line-height: 20px !important;
-}
-
-html.theme-royal-pixel .btn:hover, html.theme-future-pixel .btn:hover,
-html.theme-royal-pixel #startTestBtn:hover, html.theme-future-pixel #startTestBtn:hover,
-html.theme-royal-pixel .toggle-button:hover, html.theme-future-pixel .toggle-button:hover,
-html.theme-royal-pixel #whoisSearchBtn:hover, html.theme-future-pixel #whoisSearchBtn:hover,
-html.theme-royal-pixel #portScanBtn:hover, html.theme-future-pixel #portScanBtn:hover {
-    transform: translate(-0.125rem, -0.125rem);
-    box-shadow: 0.375rem 0.375rem 0px rgba(0, 0, 0, 0.4);
-}
-
-html.theme-royal-pixel .btn:not(:hover), html.theme-future-pixel .btn:not(:hover),
-html.theme-royal-pixel #startTestBtn:not(:hover), html.theme-future-pixel #startTestBtn:not(:hover),
-html.theme-royal-pixel .toggle-button:not(:hover), html.theme-future-pixel .toggle-button:not(:hover),
-html.theme-royal-pixel #whoisSearchBtn:not(:hover), html.theme-future-pixel #whoisSearchBtn:not(:hover),
-html.theme-royal-pixel #portScanBtn:not(:hover), html.theme-future-pixel #portScanBtn:not(:hover) {
-    will-change: auto;
-}
-
-/* 8비트 테마들의 공통 아이콘 설정 */
-html.theme-royal-pixel .footer-links i,
-html.theme-future-pixel .footer-links i,
-html.theme-8bit .footer-links i {
-    font-size: 0;
-    width: 1.5rem;
-    height: 1.5rem;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
-    filter: var(--icon-filter);
-    display: inline-block;
-}
-html.theme-royal-pixel .footer-links .footer-icon-github,
-html.theme-future-pixel .footer-links .footer-icon-github,
-html.theme-8bit .footer-links .footer-icon-github {
-    background-image: url('/static/img/icon/github.png');
-}
-html.theme-royal-pixel .footer-links .footer-icon-mail,
-html.theme-future-pixel .footer-links .footer-icon-mail,
-html.theme-8bit .footer-links .footer-icon-mail {
-    background-image: url('/static/img/icon/mail.png');
-}
-
-/* ===== 모바일에서 모든 테마 크기 일관성 ===== */
+/* 반응형 타이포그래피 (기존 8비트 테마 규칙 유지) */
 @media (max-width: 768px) {
-  /* 모든 테마에서 동일한 모바일 타이포그래피 적용 */
-  html.theme-8bit h1, html.theme-pixel-fusion h1, html.theme-royal-pixel h1, html.theme-future-pixel h1 { 
-    font-size: 2rem !important; 
-    line-height: 1.2 !important; 
-    padding: 0 1rem !important;
-    margin-top: 1rem !important;
-    margin-bottom: 0.75rem !important;
-  }
-  
-  html.theme-8bit h2, html.theme-pixel-fusion h2, html.theme-royal-pixel h2, html.theme-future-pixel h2 { 
-    font-size: 1.5rem !important; 
-    line-height: 1.25 !important; 
-    padding: 0 1rem !important;
-    margin-top: 1.5rem !important;
-    margin-bottom: 0.5rem !important;
-  }
-  
-  html.theme-8bit h3, html.theme-pixel-fusion h3, html.theme-royal-pixel h3, html.theme-future-pixel h3 { 
-    font-size: 1.2rem !important; 
-    line-height: 1.4 !important; 
-    padding: 0 1rem !important;
-    margin-top: 1.25rem !important;
-    margin-bottom: 0.5rem !important;
-  }
-  
-  html.theme-8bit p, html.theme-pixel-fusion p, html.theme-royal-pixel p, html.theme-future-pixel p,
-  html.theme-8bit .post-content p, html.theme-pixel-fusion .post-content p, 
-  html.theme-royal-pixel .post-content p, html.theme-future-pixel .post-content p { 
-    font-size: 1.1rem !important; 
-    line-height: 1.6 !important; 
-    padding: 0 1rem !important;
-    margin-bottom: 1.2em !important;
-  }
-  
-  html.theme-8bit li, html.theme-pixel-fusion li, html.theme-royal-pixel li, html.theme-future-pixel li { 
-    font-size: 1.1rem !important; 
-    line-height: 1.6 !important; 
-    margin-bottom: 0.4em !important;
-  }
+  html.theme-cyberbit h1 { font-size: 2rem !important; }
+  html.theme-cyberbit h2 { font-size: 1.5rem !important; }
+  html.theme-cyberbit p, html.theme-cyberbit li { font-size: 1.1rem !important; }
 }
-
 @media (max-width: 480px) {
-  /* 초소형 화면에서도 모든 테마 크기 일관성 */
-  html.theme-8bit h1, html.theme-pixel-fusion h1, html.theme-royal-pixel h1, html.theme-future-pixel h1 { 
-    font-size: 1.75rem !important; 
-    line-height: 1.15 !important; 
-    padding: 0 0.75rem !important;
-  }
-  
-  html.theme-8bit h2, html.theme-pixel-fusion h2, html.theme-royal-pixel h2, html.theme-future-pixel h2 { 
-    font-size: 1.35rem !important; 
-    line-height: 1.2 !important; 
-    padding: 0 0.75rem !important;
-  }
-  
-  html.theme-8bit p, html.theme-pixel-fusion p, html.theme-royal-pixel p, html.theme-future-pixel p,
-  html.theme-8bit .post-content p, html.theme-pixel-fusion .post-content p, 
-  html.theme-royal-pixel .post-content p, html.theme-future-pixel .post-content p { 
-    font-size: 1.05rem !important; 
-    line-height: 1.55 !important; 
-    padding: 0 0.75rem !important;
-  }
-}
-
-/* ===== 성능 최적화를 위한 추가 설정 ===== */
-@media (prefers-reduced-motion: reduce) {
-  html.theme-8bit *,
-  html.theme-pixel-fusion *,
-  html.theme-royal-pixel *,
-  html.theme-future-pixel * {
-    transition: none !important;
-    animation: none !important;
-    will-change: auto !important;
-  }
-  
-  html.theme-8bit .card:hover,
-  html.theme-8bit .post-card:hover,
-  html.theme-8bit .simulation-card:hover,
-  html.theme-8bit .btn:hover,
-  html.theme-pixel-fusion .card:hover,
-  html.theme-pixel-fusion .post-card:hover,
-  html.theme-pixel-fusion .simulation-card:hover,
-  html.theme-pixel-fusion .btn:hover,
-  html.theme-royal-pixel .card:hover,
-  html.theme-royal-pixel .post-card:hover,
-  html.theme-royal-pixel .simulation-card:hover,
-  html.theme-royal-pixel .btn:hover,
-  html.theme-future-pixel .card:hover,
-  html.theme-future-pixel .post-card:hover,
-  html.theme-future-pixel .simulation-card:hover,
-  html.theme-future-pixel .btn:hover {
-    transform: none !important;
-  }
-}
-
-/* ===== GPU 가속 최적화 ===== */
-html.theme-8bit .card,
-html.theme-8bit .post-card,
-html.theme-8bit .simulation-card,
-html.theme-8bit .btn,
-html.theme-pixel-fusion .card,
-html.theme-pixel-fusion .post-card,
-html.theme-pixel-fusion .simulation-card,
-html.theme-pixel-fusion .btn,
-html.theme-royal-pixel .card,
-html.theme-royal-pixel .post-card,
-html.theme-royal-pixel .simulation-card,
-html.theme-royal-pixel .btn,
-html.theme-future-pixel .card,
-html.theme-future-pixel .post-card,
-html.theme-future-pixel .simulation-card,
-html.theme-future-pixel .btn {
-  backface-visibility: hidden;
-  transform: translateZ(0);
-}
-
-/* ===== 메모리 효율성 개선 ===== */
-html.theme-8bit,
-html.theme-pixel-fusion,
-html.theme-royal-pixel,
-html.theme-future-pixel {
-  /* 메모리 사용량 최적화 */
-  -webkit-perspective: 1000px;
-  perspective: 1000px;
+  html.theme-cyberbit h1 { font-size: 1.75rem !important; }
+  html.theme-cyberbit h2 { font-size: 1.35rem !important; }
+  html.theme-cyberbit p, html.theme-cyberbit li { font-size: 1.05rem !important; }
 }

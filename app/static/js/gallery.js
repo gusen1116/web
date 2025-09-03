@@ -1,4 +1,5 @@
-// 헤더 숨김 기능 (기존 유지)
+// app/static/js/gallery.js
+// 헤더 숨김 기능
 (function(){
   const hdr = document.querySelector('.site-header');
   if(!hdr) return;
@@ -14,16 +15,23 @@
   }, {passive:true});
 })();
 
-// 연도 필터 (기존 유지)
+// 연도 필터 (페이지 새로고침 없이 동적 필터링으로 수정)
 (function(){
   const sel = document.getElementById('yearFilter');
   if(!sel) return;
   const cards = Array.from(document.querySelectorAll('.photo-card'));
   if(!cards.length) return;
+
   sel.addEventListener('change', () => {
-    const y = sel.value;
-    cards.forEach(c => {
-      c.style.display = (y === 'all' || c.dataset.year === y) ? '' : 'none';
+    const selectedYear = sel.value;
+    
+    cards.forEach(card => {
+      const cardYear = card.dataset.year;
+      if (selectedYear === 'all' || cardYear === selectedYear) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
     });
   });
 })();
@@ -47,7 +55,8 @@
     tags: (a.dataset.tags || '').split(',').filter(Boolean),
     exif: (()=>{ try{ return JSON.parse(a.dataset.exif || '{}'); }catch(_){ return {}; } })(),
     lat: a.dataset.lat ? parseFloat(a.dataset.lat) : null,
-    lon: a.dataset.lon ? parseFloat(a.dataset.lon) : null
+    lon: a.dataset.lon ? parseFloat(a.dataset.lon) : null,
+    map_url: a.dataset.mapUrl || null
   }));
 
   let cur = -1;
@@ -84,29 +93,25 @@
   }
 
   async function fillPanel(d) {
-    // [디버깅] 어떤 EXIF 데이터가 들어오는지 확인합니다.
-    console.log("Showing metadata for:", d.title, d.exif);
-
     titleEl.textContent = d.title || d.id || '';
     metaEl.innerHTML = '';
 
     const createMetaItem = (item) => {
-      const { icon, label, value } = item;
+      const { icon, label, value, href } = item;
       if (!value) return '';
+      const valueEl = href ? `<a href="${href}" target="_blank" rel="noopener noreferrer">${value}</a>` : value;
       return `
         <div class="glbx-meta-item">
           <i class="${icon}"></i>
           <span class="label">${label}</span>
-          <span class="value">${value}</span>
+          <span class="value">${valueEl}</span>
         </div>`;
     };
 
     let metaHtml = '';
     
-    // 1. 촬영일
     metaHtml += createMetaItem({ ...METADATA_MAP.DateTimeOriginal, value: d.exif.DateTimeOriginal });
     
-    // 2. 위치 정보 (비동기)
     if (d.lat && d.lon) {
       const placeholder = `
         <div class="glbx-meta-item" id="geo-placeholder">
@@ -118,13 +123,12 @@
       const place = await reverseGeocode(d.lat, d.lon);
       const geoEl = document.getElementById('geo-placeholder');
       if (geoEl && place) {
-        geoEl.querySelector('.value').textContent = place;
+        geoEl.querySelector('.value').innerHTML = `<a href="${d.map_url}" target="_blank" rel="noopener noreferrer">${place}</a>`;
       } else if (geoEl) {
         geoEl.remove();
       }
     }
 
-    // 3. 주요 EXIF 정보
     const mainExifKeys = ['FNumber', 'ExposureTime', 'ISOSpeedRatings', 'FocalLength', 'Model', 'LensModel'];
     mainExifKeys.forEach(key => {
         if (d.exif[key]) {
@@ -180,13 +184,11 @@
   root.addEventListener('click', (e) => {
     const act = e.target?.closest('[data-action]')?.dataset.action;
     if (act === 'close') close();
-    // 이전/다음 액션 제거
   });
 
   window.addEventListener('keydown', (e) => {
     if (root.hidden) return;
     if (e.key === 'Escape') close();
-    // 화살표 키 액션 제거
   });
 
   window.addEventListener('popstate', () => {

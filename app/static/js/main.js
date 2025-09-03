@@ -1,25 +1,24 @@
-// main.js - 통합 테마 토글 시스템 및 이미지 최적화
+// app/static/js/main.js
 (function() {
     'use strict';
 
-    // DOM 요소 선택 헬퍼 함수
     const $ = (selector, context = document) => context.querySelector(selector);
 
-    // 관리할 모든 테마 정보 (라이트, 다크, 픽셀 퓨전)
     const THEMES = [
         { name: 'light', className: '', displayName: '라이트' },
-        { name: 'dark', className: ['dark-theme', 'theme-dark'], displayName: '다크' },
-        { name: 'pixel-fusion', className: 'theme-pixel-fusion', displayName: '픽셀 퓨전' }
+        { name: 'dark', className: ['dark-theme'], displayName: '다크' },
+        { name: '8bit', className: 'theme-8bit', displayName: '8비트' },
+        { name: 'pixel-fusion', className: ['dark-theme', 'theme-pixel-fusion'], displayName: '픽셀 퓨전' },
+        { name: 'royal-cream', className: 'theme-royal-cream', displayName: '로얄 크림' },
+        { name: 'royal-pixel', className: ['dark-theme', 'theme-royal-pixel'], displayName: '로얄 픽셀' },
+        { name: 'future-pixel', className: ['dark-theme', 'theme-future-pixel'], displayName: '퓨처 픽셀' },
+        { name: 'cyberpixel', className: ['dark-theme', 'theme-cyberpixel'], displayName: '사이버픽셀' }
     ];
-
-    // 모든 테마 클래스 이름 목록 (초기화용)
+    
     const ALL_THEME_CLASSES = THEMES.flatMap(theme =>
         Array.isArray(theme.className) ? theme.className : [theme.className]
     ).filter(Boolean);
 
-    /**
-     * 이미지 최적화 관리 클래스
-     */
     class ImageOptimizer {
         constructor() {
             this.observer = null;
@@ -34,8 +33,7 @@
         }
 
         optimizeExistingImages() {
-            const images = document.querySelectorAll('img');
-            images.forEach(img => this.optimizeImage(img));
+            document.querySelectorAll('img').forEach(img => this.optimizeImage(img));
         }
 
         optimizeImage(img) {
@@ -48,23 +46,10 @@
 
         setupImageLoadingStates(img) {
             img.classList.add('lazy-image');
-            const handleLoad = () => {
-                img.classList.add('loaded');
-                img.removeEventListener('load', handleLoad);
-                img.removeEventListener('error', handleError);
-            };
-            const handleError = () => {
-                img.classList.add('error');
-                console.warn('이미지 로딩 실패:', img.src);
-                img.removeEventListener('load', handleLoad);
-                img.removeEventListener('error', handleError);
-            };
-            if (img.complete && img.naturalHeight !== 0) {
-                handleLoad();
-            } else {
-                img.addEventListener('load', handleLoad, { passive: true });
-                img.addEventListener('error', handleError, { passive: true });
-            }
+            const handleLoad = () => { img.classList.add('loaded'); img.removeEventListener('load', handleLoad); img.removeEventListener('error', handleError); };
+            const handleError = () => { img.classList.add('error'); console.warn('이미지 로딩 실패:', img.src); img.removeEventListener('load', handleLoad); img.removeEventListener('error', handleError); };
+            if (img.complete && img.naturalHeight !== 0) handleLoad();
+            else { img.addEventListener('load', handleLoad, { passive: true }); img.addEventListener('error', handleError, { passive: true }); }
         }
 
         setupIntersectionObserver() {
@@ -73,10 +58,7 @@
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         const img = entry.target;
-                        if (img.dataset.src) {
-                            img.src = img.dataset.src;
-                            img.removeAttribute('data-src');
-                        }
+                        if (img.dataset.src) { img.src = img.dataset.src; img.removeAttribute('data-src'); }
                         this.observer.unobserve(img);
                     }
                 });
@@ -103,21 +85,10 @@
             });
             mutationObserver.observe(document.body, { childList: true, subtree: true });
         }
-
-        destroy() {
-            if (this.observer) {
-                this.observer.disconnect();
-                this.observer = null;
-            }
-        }
     }
 
-    /**
-     * 성능 최적화 관리 클래스
-     */
     class PerformanceOptimizer {
         constructor() {
-            this.animationElements = new WeakSet();
             this.init();
         }
 
@@ -128,18 +99,14 @@
         }
 
         optimizeAnimations() {
-            const elementsWithTransitions = document.querySelectorAll('[class*="transition"], [class*="hover"], .card, .btn, .post-card');
-            elementsWithTransitions.forEach(element => {
-                if (this.animationElements.has(element)) return;
+            document.querySelectorAll('[class*="transition"], [class*="hover"], .card, .btn, .post-card').forEach(element => {
                 const startAnimation = () => { element.style.willChange = 'transform, opacity'; };
                 const endAnimation = () => { element.style.willChange = 'auto'; };
-                const transitionEnd = () => { element.style.willChange = 'auto'; };
                 element.addEventListener('mouseenter', startAnimation, { passive: true });
                 element.addEventListener('focusin', startAnimation, { passive: true });
                 element.addEventListener('mouseleave', endAnimation, { passive: true });
                 element.addEventListener('focusout', endAnimation, { passive: true });
-                element.addEventListener('transitionend', transitionEnd, { passive: true });
-                this.animationElements.add(element);
+                element.addEventListener('transitionend', () => { element.style.willChange = 'auto'; }, { passive: true });
             });
         }
 
@@ -165,61 +132,49 @@
             if ('fonts' in document) {
                 document.fonts.ready.then(() => {
                     document.body.classList.add('fonts-loaded');
-                    document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, div').forEach(el => {
-                        el.style.fontDisplay = 'swap';
-                    });
                 });
             }
         }
     }
 
-    /**
-     * 테마 관리 클래스
-     */
     class ThemeController {
         constructor(localStorageKey) {
             this.localStorageKey = localStorageKey;
-            this.currentThemeIndex = 0;
             this.toggleButton = $('#unifiedThemeToggle');
             this.init();
         }
 
         init() {
             const saved = localStorage.getItem(this.localStorageKey);
-            const idx = THEMES.findIndex(t => t.name === saved);
-            if (idx !== -1) this.currentThemeIndex = idx;
-            this.applyTheme(this.currentThemeIndex);
+            const currentTheme = THEMES.find(t => t.name === saved) || THEMES[0];
+            this.applyTheme(currentTheme);
 
             if(this.toggleButton) {
                 this.toggleButton.addEventListener('click', () => this.toggle());
             }
         }
 
-        applyTheme(index) {
+        applyTheme(theme) {
             const html = document.documentElement;
-            const theme = THEMES[index];
             html.classList.remove(...ALL_THEME_CLASSES);
+            
             if (theme.className) {
                 const classes = Array.isArray(theme.className) ? theme.className : [theme.className];
                 html.classList.add(...classes);
             }
+            
             localStorage.setItem(this.localStorageKey, theme.name);
             document.dispatchEvent(new CustomEvent('themeChanged', { detail: theme }));
         }
 
         toggle() {
-            this.currentThemeIndex = (this.currentThemeIndex + 1) % THEMES.length;
-            this.applyTheme(this.currentThemeIndex);
-        }
-
-        getCurrentTheme() {
-            return THEMES[this.currentThemeIndex];
+            const currentName = localStorage.getItem(this.localStorageKey) || 'light';
+            const currentIndex = THEMES.findIndex(t => t.name === currentName);
+            const nextIndex = (currentIndex + 1) % THEMES.length;
+            this.applyTheme(THEMES[nextIndex]);
         }
     }
 
-    /**
-     * 모바일 내비게이션 클래스 (성능 최적화)
-     */
     class MobileNavigation {
         constructor() {
             this.isOpen = false;
@@ -235,42 +190,12 @@
             if (!this.toggleBtn || !this.nav) return;
             this.toggleBtn.setAttribute('aria-expanded', 'false');
             this.nav.setAttribute('aria-hidden', 'true');
-            this.toggleBtn.addEventListener('click', this.handleToggleClick.bind(this), { passive: false });
-            if (this.closeBtn) this.closeBtn.addEventListener('click', this.handleCloseClick.bind(this), { passive: false });
-            if (this.overlay) this.overlay.addEventListener('click', this.handleOverlayClick.bind(this), { passive: false });
-            document.addEventListener('keydown', this.handleKeydown.bind(this), { passive: false });
-            window.addEventListener('resize', this.handleResize.bind(this), { passive: true });
-
-            // 메뉴 링크 클릭 시 자동 닫힘
-            const links = this.nav.querySelectorAll('.mobile-nav-link');
-            links.forEach(link => link.addEventListener('click', () => this.closeMenu(), { passive: true }));
-        }
-
-        handleToggleClick(e) {
-            e.preventDefault();
-            this.toggleMenu();
-        }
-
-        handleCloseClick(e) {
-            e.preventDefault();
-            this.closeMenu();
-        }
-
-        handleOverlayClick(e) {
-            e.preventDefault();
-            this.closeMenu();
-        }
-
-        handleKeydown(e) {
-            if (e.key === 'Escape' && this.isOpen) {
-                this.closeMenu();
-            }
-        }
-
-        handleResize() {
-            if (window.innerWidth > 768 && this.isOpen) {
-                this.closeMenu();
-            }
+            this.toggleBtn.addEventListener('click', (e) => { e.preventDefault(); this.toggleMenu(); }, { passive: false });
+            if (this.closeBtn) this.closeBtn.addEventListener('click', (e) => { e.preventDefault(); this.closeMenu(); }, { passive: false });
+            if (this.overlay) this.overlay.addEventListener('click', (e) => { e.preventDefault(); this.closeMenu(); }, { passive: false });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && this.isOpen) this.closeMenu(); }, { passive: false });
+            window.addEventListener('resize', () => { if (window.innerWidth > 768 && this.isOpen) this.closeMenu(); }, { passive: true });
+            this.nav.querySelectorAll('.mobile-nav-link').forEach(link => link.addEventListener('click', () => this.closeMenu(), { passive: true }));
         }
 
         toggleMenu() {
@@ -282,19 +207,13 @@
             if (this.isOpen || this.isAnimating) return;
             this.isAnimating = true;
             this.isOpen = true;
-            this.nav.style.willChange = 'transform';
-            if (this.overlay) this.overlay.style.willChange = 'opacity';
             document.body.classList.add('nav-open');
             this.nav.classList.add('active');
             this.toggleBtn.classList.add('active');
             this.toggleBtn.setAttribute('aria-expanded', 'true');
             this.nav.setAttribute('aria-hidden', 'false');
             if (this.overlay) this.overlay.classList.add('active');
-            setTimeout(() => {
-                this.nav.style.willChange = 'auto';
-                if (this.overlay) this.overlay.style.willChange = 'auto';
-                this.isAnimating = false;
-            }, 400);
+            setTimeout(() => { this.isAnimating = false; }, 400);
             this.trapFocus();
         }
 
@@ -302,19 +221,13 @@
             if (!this.isOpen || this.isAnimating) return;
             this.isAnimating = true;
             this.isOpen = false;
-            this.nav.style.willChange = 'transform';
-            if (this.overlay) this.overlay.style.willChange = 'opacity';
             document.body.classList.remove('nav-open');
             this.nav.classList.remove('active');
             this.toggleBtn.classList.remove('active');
             this.toggleBtn.setAttribute('aria-expanded', 'false');
             this.nav.setAttribute('aria-hidden', 'true');
             if (this.overlay) this.overlay.classList.remove('active');
-            setTimeout(() => {
-                this.nav.style.willChange = 'auto';
-                if (this.overlay) this.overlay.style.willChange = 'auto';
-                this.isAnimating = false;
-            }, 400);
+            setTimeout(() => { this.isAnimating = false; }, 400);
             if (this._focusHandler) {
                 document.removeEventListener('keydown', this._focusHandler);
                 this._focusHandler = null;
@@ -323,31 +236,24 @@
         }
 
         trapFocus() {
-            const focusableElements = this.nav.querySelectorAll(
-                'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
-            );
-            const firstElement = focusableElements[0];
-            const lastElement = focusableElements[focusableElements.length - 1];
-
+            const focusable = this.nav.querySelectorAll('a[href], button, textarea, input, select');
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
             this._focusHandler = (e) => {
                 if (e.key === 'Tab') {
-                    if (e.shiftKey && document.activeElement === firstElement) {
-                        e.preventDefault();
-                        lastElement.focus();
-                    } else if (!e.shiftKey && document.activeElement === lastElement) {
-                        e.preventDefault();
-                        firstElement.focus();
-                    }
+                    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); } 
+                    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
                 }
             };
             document.addEventListener('keydown', this._focusHandler);
         }
     }
 
-    // 인스턴스 생성 및 초기화
-    new ThemeController('wagusen_theme_v2'); // 'themeKey'를 'wagusen_theme_v2'로 수정
-    new ImageOptimizer();
-    new PerformanceOptimizer();
-    const mobileNav = new MobileNavigation();
-    mobileNav.init();
+    document.addEventListener('DOMContentLoaded', () => {
+        new ThemeController('wagusen_theme_v2');
+        new ImageOptimizer();
+        new PerformanceOptimizer();
+        const mobileNav = new MobileNavigation();
+        mobileNav.init();
+    });
 })();
