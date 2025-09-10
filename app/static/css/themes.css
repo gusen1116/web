@@ -145,14 +145,14 @@ html.theme-cyberbit a:hover {
 
 /* 8비트 아이콘 (8bit 테마에서 가져옴) */
 html.theme-cyberbit .mobile-toggle {
-    background-image: url('/static/img/icon/menu.png');
+    background-image: url('/static/images/site/icon/menu.png');
     background-repeat: no-repeat;
     background-position: center;
     background-size: 24px 24px;
     filter: var(--icon-filter);
 }
 html.theme-cyberbit .mobile-toggle.active {
-    background-image: url('/static/img/icon/close.png');
+    background-image: url('/static/images/site/icon/close.png');
 }
 html.theme-cyberbit .mobile-toggle .hamburger-line { display: none; }
 html.theme-cyberbit .mobile-nav-link .default-icon { display: none; }
@@ -174,8 +174,8 @@ html.theme-cyberbit .footer-links i {
     display: inline-block;
     transition: transform 0.2s ease;
 }
-html.theme-cyberbit .footer-links .footer-icon-github { background-image: url('/static/img/icon/github.png'); }
-html.theme-cyberbit .footer-links .footer-icon-mail { background-image: url('/static/img/icon/mail.png'); }
+html.theme-cyberbit .footer-links .footer-icon-github { background-image: url('/static/images/site/icon/github.png'); }
+html.theme-cyberbit .footer-links .footer-icon-mail { background-image: url('/static/images/site/icon/mail.png'); }
 
 /* 태그 및 뱃지 */
 html.theme-cyberbit .tag,

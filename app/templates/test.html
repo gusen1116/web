@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wa gusan - Magazine (Native)</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ===== 1. FONTS (from core.css) ===== */
+        @font-face {
+          font-family: 'PyeojinGothic-Bold';
+          src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2504-1@1.0/PyeojinGothic-Bold.woff2') format('woff2');
+          font-weight: 700;
+          font-style: normal;
+          font-display: swap;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap');
+
+        /* ===== 2. CSS VARIABLES (from core.css) ===== */
+        :root {
+          --github-bg: #f6f8fa;
+          --github-card: #ffffff;
+          --github-border: #d0d7de;
+          --github-accent: #0969da;
+          --github-secondary-text: #57606a;
+          --neutral-50: #f6f8fa;
+          --neutral-100: #eaeef2;
+          --neutral-200: #d0d7de;
+          --neutral-300: #afb8c1;
+          --neutral-400: #8c959f;
+          --neutral-500: #6e7781;
+          --neutral-600: #57606a;
+          --neutral-700: #424a53;
+          --neutral-800: #32383f;
+          --neutral-900: #24292f;
+          --bg-primary: var(--github-bg);
+          --bg-secondary: var(--github-card);
+          --bg-tertiary: var(--neutral-100);
+          --text-primary: #060727;
+          --text-secondary: #3a3a3a;
+          --text-tertiary: var(--github-secondary-text);
+          --text-accent: var(--github-accent);
+          --border-color: var(--github-border);
+          --font-sans: 'PyeojinGothic-Bold', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+          --font-mono: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+          --font-cabin: 'Cabin', sans-serif;
+          --font-size-xs: 0.75rem;
+          --font-size-sm: 0.875rem;
+          --font-size-md: 1rem;
+          --font-size-lg: 1.125rem;
+          --font-size-xl: 1.25rem;
+          --font-size-2xl: 1.5rem;
+          --font-size-3xl: 1.875rem;
+          --spacing-1: 0.25rem;
+          --spacing-2: 0.5rem;
+          --spacing-3: 0.75rem;
+          --spacing-4: 1rem;
+          --spacing-5: 1.25rem;
+          --spacing-6: 1.5rem;
+          --spacing-8: 2rem;
+          --spacing-12: 3rem;
+          --spacing-16: 4rem;
+          --radius-sm: 0.125rem;
+          --radius-md: 0.25rem;
+          --radius-lg: 0.375rem;
+          --radius-xl: 0.5rem;
+          --radius-full: 9999px;
+          --shadow-sm: 0 1px 0 rgba(27, 31, 36, 0.04);
+          --shadow-md: 0 3px 6px rgba(140, 149, 159, 0.15);
+          --shadow-lg: 0 8px 24px rgba(140, 149, 159, 0.2);
+          --content-max-width: 90rem; /* Adjusted for better layout */
+          /* Magazine-specific colors */
+          --color-lime-400: #a3e635;
+          --color-teal-300: #5eead4;
+          --color-orange-300: #fdba74;
+          --color-violet-300: #c4b5fd;
+        }
+
+        /* ===== 3. BASIC RESETS (from core.css) ===== */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-cabin, sans-serif);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        footer {
+            flex-shrink: 0;
+            margin-top: auto;
+            position: relative;
+            width: 100%;
+            padding: var(--spacing-6) 0;
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+        .container {
+            width: 100%;
+            max-width: var(--content-max-width);
+            margin: 0 auto;
+            padding: 0 var(--spacing-4);
+        }
+        img { max-width: 100%; height: auto; }
+        a { color: var(--text-accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ===== 4. FOOTER STYLES (from core.css) ===== */
+        .footer-content {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .footer-info { display: flex; align-items: center; }
+        .footer-info p { margin: 0; color: var(--text-tertiary); font-size: 0.85rem; }
+        .footer-logo { margin-left: var(--spacing-3); display: flex; align-items: center; }
+        .footer-logo img { height: 24px; width: auto; }
+        .footer-links { display: flex; gap: var(--spacing-4); }
+        .footer-links a { color: var(--text-tertiary); display: flex; align-items: center; gap: var(--spacing-2); font-size: 0.85rem; }
+        .footer-links a:hover { color: var(--text-accent); }
+        @media (max-width: 768px) {
+            .footer-content { flex-direction: column; gap: var(--spacing-4); text-align: center; }
+        }
+
+        /* ===== 5. MAGAZINE LAYOUT STYLES ===== */
+        .font-myeongjo { font-family: var(--font-sans, 'Nanum Myeongjo', serif); }
+        .overflow-hidden { overflow: hidden; }
+        .animate-on-scroll { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .animate-on-scroll.is-visible { opacity: 1; transform: translateY(0); }
+        .main-nav { position: fixed; top: 0; left: 0; width: 100%; z-index: 50; padding: var(--spacing-6); display: flex; justify-content: space-between; align-items: center; transition: transform 0.3s ease-in-out; }
+        .main-nav.hidden { transform: translateY(-100%); }
+        .main-nav .logo { font-size: var(--font-size-2xl); font-weight: 700; color: var(--text-primary); mix-blend-mode: difference; text-decoration: none; }
+        .menu-toggle-button { width: 3rem; height: 3rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--spacing-2); border-radius: var(--radius-full); z-index: 50; background: none; border: none; cursor: pointer; }
+        .menu-toggle-button span { display: block; width: 1.75rem; height: 2px; background-color: var(--text-primary); mix-blend-mode: difference; }
+        .fullscreen-menu { position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.9); z-index: 40; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease-in-out; }
+        .fullscreen-menu.active { opacity: 1; pointer-events: auto; }
+        .fullscreen-menu .menu-container { width: 100%; max-width: 56rem; padding: var(--spacing-8); color: white; }
+        .fullscreen-menu .search-input { width: 100%; background-color: transparent; border: none; border-bottom: 2px solid var(--neutral-500); font-size: var(--font-size-3xl); color: white; padding-bottom: var(--spacing-2); margin-bottom: var(--spacing-12); transition: border-color 0.3s; }
+        .fullscreen-menu .search-input::placeholder { color: var(--neutral-500); }
+        .fullscreen-menu .search-input:focus { outline: none; border-color: white; }
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: var(--spacing-8); }
+        .main-menu-list { list-style: none; margin:0; padding:0; display: flex; flex-direction: column; gap: var(--spacing-6); font-size: var(--font-size-3xl); font-weight: 700; }
+        .main-menu-list a { color: inherit; text-decoration: none; transition: color 0.3s; }
+        .main-menu-list a:hover { color: var(--color-lime-400); }
+        
+        .hero-section { 
+            height: 100vh; 
+            width: 100%; 
+            display: grid; 
+            grid-template-columns: 1fr; 
+        }
+        .hero-logo-area { display: flex; align-items: center; justify-content: center; background-color: var(--neutral-900); padding: var(--spacing-8); }
+        .hero-logo-area img { width: 100%; max-width: 20rem; }
+        .hero-post-area { position: relative; display: flex; align-items: center; justify-content: center; background-color: var(--color-lime-400); padding: var(--spacing-8); }
+        .hero-post-area .card-link { display: block; width: 100%; max-width: 24rem; text-decoration: none; }
+        .scroll-down-indicator { text-align: center; margin-top: var(--spacing-4); color: var(--neutral-800); animation: bounce 1s infinite; }
+        
+        .content-section { 
+            width: 100%; 
+            min-height: 100vh;
+            display: grid;
+        }
+        .content-grid { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            padding: 0;
+            width: 100%;
+        }
+        .content-column { 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-start; /* Aligns cards to the top */
+            align-items: center; 
+            gap: var(--spacing-8); 
+            padding: var(--spacing-8); 
+        }
+
+        .content-column.teal { background-color: var(--color-teal-300); }
+        .content-column.orange { background-color: var(--color-orange-300); }
+        .content-column.violet { background-color: var(--color-violet-300); }
+        .sticky-column { 
+            background-color: var(--bg-secondary); 
+            padding: var(--spacing-8); 
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-start; 
+        }
+        .card { background-color: var(--bg-secondary); border-radius: var(--radius-xl); box-shadow: var(--shadow-md); overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; }
+        .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        .card-image { background-color: var(--bg-tertiary); }
+        .hero-section .card-image { height: 14rem; }
+        .content-column .card-image { height: 12rem; }
+        .sticky-column .card-image { height: 20rem; }
+        .card-image img { width: 100%; height: 100%; object-fit: cover; }
+        .card-content { padding: var(--spacing-6); }
+        .card-content h2 { font-size: var(--font-size-2xl); font-weight: 700; margin:0; margin-bottom: var(--spacing-2); }
+        .card-content h3 { font-size: var(--font-size-xl); font-weight: 700; margin:0; margin-bottom: var(--spacing-2); }
+        .card-content .description { color: var(--text-secondary); margin:0; margin-bottom: var(--spacing-4); }
+        .card-content .date { font-size: var(--font-size-sm); color: var(--text-tertiary); margin:0; }
+        @media (min-width: 768px) {
+            .menu-grid { grid-template-columns: repeat(3, 1fr); }
+            .menu-grid .main-menu-column { grid-column: span 1 / span 1; }
+            .hero-section { grid-template-columns: repeat(2, 1fr); }
+            .content-grid { grid-template-columns: repeat(2, 1fr); }
+            .content-column { padding-top: var(--spacing-16); padding-bottom: var(--spacing-16); } /* Match sticky padding */
+            .content-column .card-half { width: 75%; }
+            .sticky-column { padding: var(--spacing-16); }
+            .sticky-card-wrapper { position: sticky; top: var(--spacing-16); width: 91.66%; }
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
+            50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- 고정 헤더 -->
+    <nav id="main-nav" class="main-nav">
+        <a href="#" class="logo font-myeongjo">Wagusen</a>
+        <button id="menu-toggle-button" class="menu-toggle-button">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </nav>
+
+    <!-- 풀스크린 메뉴 -->
+    <div id="fullscreen-menu" class="fullscreen-menu">
+        <div class="menu-container">
+            <div class="search-bar">
+                <input type="text" placeholder="검색어 입력" class="search-input">
+            </div>
+
+            <div id="menu-grid" class="menu-grid">
+                <!-- 메인 메뉴 -->
+                <div class="main-menu-column">
+                    <ul class="main-menu-list">
+                        <li class="main-menu-item"><a href="{{ url_for('posts.index') }}">블로그</a></li>
+                        <li class="main-menu-item"><a href="{{ url_for('gallery.index') }}">갤러리</a></li>
+                        <li class="main-menu-item"><a href="{{ url_for('speedtest.speedtest_page') }}">네트워크</a></li>
+                        <li class="main-menu-item"><a href="{{ url_for('main.about') }}">소개</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 히어로 섹션 -->
+    <header class="hero-section">
+        <div class="hero-logo-area">
+            <img src="https://placehold.co/400x150/030712/FFFFFF?text=Your+Logo" alt="Wa gusan Logo">
+        </div>
+        <div class="hero-post-area">
+            <a href="#main-content" class="card-link">
+                <div class="card">
+                    <div class="card-image">
+                        <img src="https://placehold.co/600x400/e2e8f0/333333?text=Image" alt="Featured post image">
+                    </div>
+                    <div class="card-content">
+                        <h2 class="font-myeongjo">제목</h2>
+                        <p class="description">이곳에 짧은 문장이 들어갑니다.</p>
+                        <p class="date">날짜</p>
+                    </div>
+                </div>
+                 <p class="scroll-down-indicator">↓ Scroll Down</p>
+            </a>
+        </div>
+    </header>
+
+    <!-- 메인 콘텐츠 -->
+    <main id="main-content" class="content-section">
+        <div class="content-grid">
+            <div class="content-column teal">
+                <div class="card card-half animate-on-scroll">
+                    <div class="card-image"><img src="https://placehold.co/600x400/e2e8f0/333333?text=1" alt="Post 1 image"></div>
+                    <div class="card-content">
+                        <h3 class="font-myeongjo">제목</h3>
+                        <p class="description">짧은 문장</p>
+                        <p class="date">날짜</p>
+                    </div>
+                </div>
+                <div class="card card-half animate-on-scroll">
+                    <div class="card-image"><img src="https://placehold.co/600x400/e2e8f0/333333?text=2" alt="Post 2 image"></div>
+                    <div class="card-content">
+                        <h3 class="font-myeongjo">제목</h3>
+                        <p class="description">짧은 문장</p>
+                        <p class="date">날짜</p>
+                    </div>
+                </div>
+            </div>
+            <div class="sticky-column">
+                <div class="sticky-card-wrapper">
+                    <div class="card animate-on-scroll">
+                        <div class="card-image"><img src="https://placehold.co/600x800/e2e8f0/333333?text=3" alt="Post 3 image"></div>
+                        <div class="card-content">
+                            <h3 class="font-myeongjo">제목</h3>
+                            <p class="description">문장. 이 카드는 다른 카드들보다 세로로 더 길게 표시될 수 있습니다.</p>
+                            <p class="date">날짜</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 추가 콘텐츠 섹션 -->
+    <section class="content-section">
+        <div class="content-grid">
+            <!-- Layout order restored to original reversed layout -->
+            <div class="sticky-column">
+                <div class="sticky-card-wrapper">
+                    <div class="card animate-on-scroll">
+                        <div class="card-image"><img src="https://placehold.co/600x800/e2e8f0/333333?text=4" alt="Post 4 image"></div>
+                        <div class="card-content">
+                            <h3 class="font-myeongjo">제목</h3>
+                            <p class="description">이곳은 반전된 레이아웃의 첫 번째 카드입니다.</p>
+                            <p class="date">날짜</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="content-column orange">
+                <div class="card card-half animate-on-scroll">
+                    <div class="card-image"><img src="https://placehold.co/600x400/e2e8f0/333333?text=5" alt="Post 5 image"></div>
+                    <div class="card-content">
+                        <h3 class="font-myeongjo">제목</h3>
+                        <p class="description">짧은 문장</p>
+                        <p class="date">날짜</p>
+                    </div>
+                </div>
+                <div class="card card-half animate-on-scroll">
+                    <div class="card-image"><img src="https://placehold.co/600x400/e2e8f0/333333?text=6" alt="Post 6 image"></div>
+                    <div class="card-content">
+                        <h3 class="font-myeongjo">제목</h3>
+                        <p class="description">짧은 문장</p>
+                        <p class="date">날짜</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="content-section">
+        <div class="content-grid">
+            <div class="content-column violet">
+                <div class="card card-half animate-on-scroll">
+                    <div class="card-image"><img src="https://placehold.co/600x400/e2e8f0/333333?text=7" alt="Post 7 image"></div>
+                    <div class="card-content">
+                        <h3 class="font-myeongjo">제목</h3>
+                        <p class="description">짧은 문장</p>
+                        <p class="date">날짜</p>
+                    </div>
+                </div>
+                <div class="card card-half animate-on-scroll">
+                    <div class="card-image"><img src="https://placehold.co/600x400/e2e8f0/333333?text=8" alt="Post 8 image"></div>
+                    <div class="card-content">
+                        <h3 class="font-myeongjo">제목</h3>
+                        <p class="description">짧은 문장</p>
+                        <p class="date">날짜</p>
+                    </div>
+                </div>
+            </div>
+            <div class="sticky-column">
+                <div class="sticky-card-wrapper">
+                    <div class="card animate-on-scroll">
+                        <div class="card-image"><img src="https://placehold.co/600x800/e2e8f0/333333?text=9" alt="Post 9 image"></div>
+                        <div class="card-content">
+                            <h3 class="font-myeongjo">제목</h3>
+                            <p class="description">이것이 마지막 섹션의 긴 카드입니다.</p>
+                            <p class="date">날짜</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <p>&copy; 2025 | 와구센</p>
+                    <a href="#" class="footer-logo">
+                        <img src="{{ url_for('static', filename='images/site/footer-logo.gif') }}" alt="푸터 로고" loading="lazy">
+                    </a>
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/wagusen" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-github footer-icon-github"></i>
+                        <span>GitHub</span>
+                    </a>
+                    <a href="mailto:gusen@wagusen.com">
+                        <i class="fas fa-envelope footer-icon-mail"></i>
+                        <span>메일</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 헤더 스크롤 애니메이션
+        const nav = document.getElementById('main-nav');
+        let lastScrollTop = 0;
+
+        window.addEventListener('scroll', function() {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > lastScrollTop && scrollTop > nav.offsetHeight) {
+                nav.classList.add('hidden');
+            } else {
+                nav.classList.remove('hidden');
+            }
+            
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+        });
+
+        // 콘텐츠 스크롤 애니메이션
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.animate-on-scroll').forEach(target => {
+            observer.observe(target);
+        });
+        
+        // 풀스크린 메뉴 토글
+        const menuToggle = document.getElementById('menu-toggle-button');
+        const fullscreenMenu = document.getElementById('fullscreen-menu');
+        const body = document.body;
+
+        menuToggle.addEventListener('click', () => {
+            body.classList.toggle('overflow-hidden');
+            fullscreenMenu.classList.toggle('active');
+        });
+
+        // 풀스크린 메뉴 호버 로직 (단순화됨)
+        // 서브메뉴 기능이 필요하면 이 부분을 확장해야 합니다.
+        const mainMenuItems = document.querySelectorAll('.main-menu-item');
+        mainMenuItems.forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                // 현재는 서브메뉴 로직이 없습니다.
+            });
+        });
+    </script>
+</body>
+</html>
+

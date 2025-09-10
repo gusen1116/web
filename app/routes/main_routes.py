@@ -53,6 +53,17 @@ def about():
         current_app.logger.error(f'소개 페이지 로드 에러: {e}')
         return render_template('404.html'), 500
 
+@main_bp.route('/test')
+def test():
+    return render_template('test.html')
+
+from app.services.cache_service import CacheService
+
+@main_bp.route('/magazine')
+def magazine():
+    all_posts = CacheService.get_posts_with_cache()
+    return render_template('magazine.html', posts=all_posts)
+
 @main_bp.route('/api/status')
 def api_status():
     """Return basic status information about the application."""

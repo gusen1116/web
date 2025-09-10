@@ -5,9 +5,7 @@
 {% block head %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/line-numbers/prism-line-numbers.min.css">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-links.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-content.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/social-embed.css') }}">
+
 
 <style>
 /* 포스트 헤더 영역 최적화 */
@@ -438,5 +436,5 @@ html.dark-theme .btn-link.back-to-blog:hover { background-color: var(--neutral-6
 {% block scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
-<script nonce="{{ csp_nonce() }}" src="{{ url_for('static', filename='js/post-view.js') }}"></script>
+<script nonce="{{ csp_nonce() }}" src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% endblock %}

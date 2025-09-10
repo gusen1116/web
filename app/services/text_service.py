@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from flask import url_for, current_app
 from markupsafe import escape, Markup
 from werkzeug.utils import secure_filename
+from PIL import Image
 
 try:
     import markdown
@@ -74,6 +75,8 @@ class TextPost:
     series: Optional[str] = None
     series_part: Optional[int] = None
     changelog: List[str] = field(default_factory=list)
+    thumbnail: Optional[str] = None
+    thumbnail_alt: Optional[str] = None
     
     _hash: Optional[str] = field(default=None, init=False)
     _word_count: Optional[int] = field(default=None, init=False)
@@ -90,13 +93,20 @@ class TextPost:
     @staticmethod
     def _validate_filename(filename: str) -> bool:
         if not isinstance(filename, str) or not filename: return False
-        secure_name = secure_filename(filename)
-        if secure_name != filename: return False
-        if '..' in filename or '/' in filename or '\\' in filename: return False
-        if len(filename) > 255: return False
+        if '..' in filename or '/' in filename or '\\' in filename:
+            return False
+        if len(filename) > 255:
+            return False
+        
+        # 허용 문자: 영문, 숫자, 한글, 공백, 특수문자(-, _, .)
+        # werkzeug.utils.secure_filename은 한글을 제거하므로 정규식으로 대체
+        if not re.match(r'^[a-zA-Z0-9가-힣\s_.-]+$', filename):
+            return False
+            
         allowed_extensions = current_app.config.get('ALLOWED_TEXT_EXTENSIONS', {'txt', 'md'})
         if not any(filename.lower().endswith(f'.{ext}') for ext in allowed_extensions):
             return False
+            
         return True
     
     @staticmethod
@@ -117,13 +127,35 @@ class TextPost:
             self.author = escape(str(metadata['author'])[:50])
         if 'slug' in metadata:
             slug = str(metadata['slug'])[:100]
-            if re.match(r'^[a-zA-Z0-9_\-가-힣]+$', slug):
+            if re.match(r'^[a-zA-Z0-9_\\-가-힣]+$', slug):
                 self.slug = slug
         if 'date' in metadata: self._parse_date(metadata['date'])
         if 'tags' in metadata: self._parse_tags(metadata['tags'])
         self._parse_series_info(metadata)
         if 'changelog' in metadata: self._parse_changelog(metadata['changelog'])
-    
+        if 'thumbnail' in metadata: self._parse_thumbnail_info(metadata['thumbnail'])
+
+    def _parse_thumbnail_info(self, thumbnail_str: str) -> None:
+        if not thumbnail_str or not isinstance(thumbnail_str, str):
+            return
+        
+        parts = [p.strip() for p in thumbnail_str.split('|', 1)]
+        filename = parts[0]
+        alt_text = parts[1] if len(parts) > 1 else self.title
+
+        secure_name = secure_filename(filename)
+        if secure_name != filename:
+            current_app.logger.warning(f"Thumbnail filename '{filename}' is not secure.")
+            return
+
+        allowed_img_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'}
+        if not any(filename.lower().endswith(f".{ext}") for ext in allowed_img_extensions):
+            current_app.logger.warning(f"Thumbnail filename '{filename}' has a disallowed extension.")
+            return
+            
+        self.thumbnail = filename
+        self.thumbnail_alt = alt_text
+
     def _parse_date(self, date_str: str) -> None:
         date_formats = ['%Y-%m-%d', '%Y/%m/%d', '%Y.%m.%d', '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M']
         for fmt in date_formats:
@@ -131,8 +163,7 @@ class TextPost:
                 self.date = datetime.strptime(str(date_str).strip(), fmt)
                 self.created_at = self.date
                 return
-            except ValueError:
-                continue
+            except ValueError: continue
         current_app.logger.warning(f"날짜 파싱 실패: {date_str}, 기본값 사용")
     
     def _parse_tags(self, tags_str: str) -> None:
@@ -155,8 +186,7 @@ class TextPost:
             try:
                 part = int(metadata['series-part'])
                 if 0 < part < 1000: self.series_part = part
-            except (ValueError, TypeError):
-                current_app.logger.warning(f"시리즈 파트 파싱 실패: {metadata['series-part']}")
+            except (ValueError, TypeError): current_app.logger.warning(f"시리즈 파트 파싱 실패: {metadata['series-part']}")
     
     def _parse_changelog(self, changelog_str: str) -> None:
         self.changelog = [escape(item.strip()[:200]) for item in str(changelog_str).split(',')[:10] if item.strip()]
@@ -175,8 +205,8 @@ class TextPost:
     def _generate_preview_text(self, length: int) -> str:
         patterns_to_remove = [
             r'\[img:[^\]]+\]', r'\[video:[^\]]+\]', r'\[audio:[^\]]+\]', r'\[youtube:[^\]]+\]',
-            r'\[highlight\].*?\[/highlight\]', r'\[quote.*?\].*?\[/quote\]', r'\[.*?\]',
-            r'#+\s+', r'\*\*|\*|__|_', r'!\[.*?\]\(.*?\)', r'\[.*?\]\(.*?\)',
+            r'\[highlight\].*?\[/highlight\].*?', r'\[quote.*?\].*?(?:.*?)?\[/quote\].*?', r'\[.*?\].*?',
+            r'#+\s+', r'\*\*|\*|__|__', r'!\\\\[.*?]\\]', r'\[.*?\\]\\]',
         ]
         text = self.content
         for pattern in patterns_to_remove:
@@ -191,9 +221,19 @@ class TextPost:
 
     def get_rich_preview(self, text_length: int = 150) -> Dict[str, Optional[str]]:
         text_preview_content = self._generate_preview_text(text_length)
+        
+        # Prioritize dedicated thumbnail
+        if self.thumbnail:
+            return {
+                "text": text_preview_content,
+                "image_filename": self.thumbnail,
+                "image_alt": escape(self.thumbnail_alt or self.title)
+            }
+
+        # Fallback to first image in content
         first_image_filename: Optional[str] = None
         first_image_alt: str = ""
-        img_match = re.search(r'\[img:([^\]|]+)(?:\|([^\]|]*))?(?:\|[^\]]*)?\]', self.content)
+        img_match = re.search(r'\[img:([^\|]+)(?:\|([^\|]*))?(?:\|[^\|]*)?\]', self.content)
         if img_match:
             filename_from_tag = img_match.group(1).strip()
             alt_text_from_tag = img_match.group(2).strip() if img_match.group(2) and img_match.group(2).strip() else filename_from_tag
@@ -203,11 +243,12 @@ class TextPost:
                 if any(filename_from_tag.lower().endswith(f".{ext}") for ext in allowed_img_extensions):
                     first_image_filename = filename_from_tag
                     first_image_alt = alt_text_from_tag
+                    
         return {"text": text_preview_content, "image_filename": first_image_filename, "image_alt": escape(first_image_alt)}
 
     def get_word_count(self) -> int:
         if self._word_count is not None: return self._word_count
-        text = re.sub(r'\[.*?\]', '', self.content, flags=re.DOTALL)
+        text = re.sub(r'\[.*?]', '', self.content, flags=re.DOTALL)
         text = re.sub(r'[#*_`~]', '', text)
         words = re.findall(r'\w+', text)
         korean_chars = len(re.findall(r'[가-힣]', text))
@@ -266,7 +307,7 @@ def _extract_metadata_and_body(content: str) -> Tuple[Dict[str, str], str]:
     lines = content.split('\n')
     metadata = {}
     content_start = 0
-    meta_pattern = re.compile(r'^\[([a-zA-Z\-_]+):\s*(.+?)\]$')
+    meta_pattern = re.compile(r'^\[''([a-zA-Z\-_]+):\s*(.+?)\]$')
     for i, line in enumerate(lines):
         line = line.strip()
         if not line: continue
@@ -355,8 +396,8 @@ def get_adjacent_posts(posts_dir: Union[str, Path], current_post: TextPost) -> T
                 current_index = i
                 break
         if current_index is None: return None, None
-        prev_post = all_posts[current_index + 1] if current_index < len(all_posts) - 1 else None
-        next_post = all_posts[current_index - 1] if current_index > 0 else None
+        prev_post = all_posts[current_index - 1] if current_index > 0 else None
+        next_post = all_posts[current_index + 1] if current_index < len(all_posts) - 1 else None
         return prev_post, next_post
     except Exception as e:
         current_app.logger.error(f"인접 포스트 조회 오류: {e}")
@@ -380,13 +421,13 @@ def render_content(content: str, base_url_images: str = '/posts/images', base_ur
 
 def _process_special_tags(content: str, base_url_images: str, base_url_videos: str, base_url_audios: str) -> str:
     replacements = [
-        (r'\[youtube:([^\]]+)\]', lambda m: _create_youtube_embed(m.group(1))),
-        (r'\[img:([^\]|]+)(?:\|([^\]|]*))?(?:\|([^\]]*))?\]', lambda m: _create_image_tag_secure(m.group(1), m.group(2), m.group(3), base_url_images)),
-        (r'\[video:([^\]|]+)(?:\|([^\]]*))?\]', lambda m: _create_video_tag_secure(m.group(1), m.group(2), base_url_videos)),
-        (r'\[audio:([^\]|]+)(?:\|([^\]]*))?\]', lambda m: _create_audio_tag_secure(m.group(1), m.group(2), base_url_audios)),
-        (r'\[highlight\](.*?)\[/highlight\]', lambda m: f'<div class="highlight-box">{escape(m.group(1))}</div>'),
-        (r'\[quote(?:\s+author="([^"]*)")?\](.*?)\[/quote\]', lambda m: _create_quote_block(m.group(2), m.group(1))),
-        (r'\[code(?:\s+lang="([^"]*)")?\](.*?)\[/code\]', lambda m: _create_code_block(m.group(2), m.group(1))),
+        (r'\[youtube:([^\\]+)\]', lambda m: _create_youtube_embed(m.group(1))),
+        (r'\[img:([^\|]+?)(?:\|([^\|]*?))?(?:\|([^\|]*?))?\]', lambda m: _create_image_tag_secure(m.group(1), m.group(2), m.group(3), base_url_images)),
+        (r'\[video:([^\|]+?)(?:\|([^\|]*?))?\]', lambda m: _create_video_tag_secure(m.group(1), m.group(2), base_url_videos)),
+        (r'\[audio:([^\|]+?)(?:\|([^\|]*?))?\]', lambda m: _create_audio_tag_secure(m.group(1), m.group(2), base_url_audios)),
+        (r'\[highlight\].*?\[/highlight\].*?', lambda m: f'<div class="highlight-box">{escape(m.group(1))}</div>'),
+        (r'\[quote(?:\s+author="([^"]*)")?\](.*?)?\[/quote\].*?', lambda m: _create_quote_block(m.group(2), m.group(1))),
+        (r'\[code(?:\s+lang="([^"]*)")?\](.*?)?\[/code\].*?', lambda m: _create_code_block(m.group(2), m.group(1))),
     ]
     for pattern, handler in replacements:
         content = re.sub(pattern, handler, content, flags=re.DOTALL | re.MULTILINE)
@@ -396,7 +437,7 @@ def _create_youtube_embed(youtube_input: str) -> str:
     if not isinstance(youtube_input, str): return '<div class="error-embed">잘못된 YouTube URL</div>'
     youtube_id = _extract_youtube_id(youtube_input.strip())
     if not youtube_id: return '<div class="error-embed">잘못된 YouTube ID</div>'
-    if not re.match(r'^[a-zA-Z0-9_\-]{11}$', youtube_id):
+    if not re.match(r'^[a-zA-Z0-9_\\-]{11}$', youtube_id):
         return '<div class="error-embed">잘못된 YouTube ID 형식</div>'
     return f'''
 <div class="social-embed youtube-embed">
@@ -411,10 +452,10 @@ def _create_youtube_embed(youtube_input: str) -> str:
 '''
 
 def _extract_youtube_id(url_or_id: str) -> Optional[str]:
-    if re.match(r'^[a-zA-Z0-9_\-]{11}$', url_or_id): return url_or_id
+    if re.match(r'^[a-zA-Z0-9_\\-]{11}$', url_or_id): return url_or_id
     patterns = [
-        r'youtube\.com/watch\?v=([a-zA-Z0-9_\-]{11})', r'youtu\.be/([a-zA-Z0-9_\-]{11})',
-        r'youtube\.com/embed/([a-zA-Z0-9_\-]{11})', r'youtube\.com/v/([a-zA-Z0-9_\-]{11})'
+        r'youtube\.com/watch\?v=([a-zA-Z0-9_\\-]{11})', r'youtu\.be/([a-zA-Z0-9_\\-]{11})',
+        r'youtube\.com/embed/([a-zA-Z0-9_\\-]{11})', r'youtube\.com/v/([a-zA-Z0-9_\\-]{11})'
     ]
     for pattern in patterns:
         match = re.search(pattern, url_or_id)
@@ -533,7 +574,7 @@ def _create_code_block(code_text: str, language: Optional[str]) -> str:
 
 def _linkify_text_urls(text: str) -> str:
     if not isinstance(text, str): return text
-    url_pattern = re.compile(r'\b(https?://[^\s<>"\'`\)]+)', re.IGNORECASE)
+    url_pattern = re.compile(r'\b(https?://[^\s<>]+)')
     def url_replacer(match):
         url = match.group(1).rstrip('.,;:!?)]')
         if len(url) > 1000 or not _is_safe_url(url): return escape(match.group(0))

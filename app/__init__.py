@@ -50,23 +50,23 @@ def create_app(config_name: str | None = None) -> Flask:
     cache.init_app(app)
 
     # --- CSS & JS bundling ---
-    css_bundle = Bundle(
-        'css/core.css',
-        'css/components.css',
-        'css/content.css',
-        'css/layout-modules.css',
-        'css/themes.css',
-        'css/error-pages.css',
-        filters='cssmin',
-        output='gen/packed.css'
-    )
+    # css_bundle = Bundle(
+    #     'css/core.css',
+    #     'css/components.css',
+    #     'css/content.css',
+    #     'css/layout-modules.css',
+    #     'css/themes.css',
+    #     'css/error-pages.css',
+    #     filters='cssmin',
+    #     output='gen/packed.css'
+    # )
     js_bundle = Bundle(
         'js/main.js',
         'js/slide-minimal.js',
         filters='jsmin',
         output='gen/packed.js'
     )
-    assets.register('all_css', css_bundle)
+    # assets.register('all_css', css_bundle)
     assets.register('all_js', js_bundle)
 
 

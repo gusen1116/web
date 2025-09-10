@@ -45,49 +45,41 @@ class Config:
     if FLASK_ENV == 'production' and CACHE_TYPE == 'simple':
         print("WARNING: 프로덕션 환경에서 simple 캐시를 사용중입니다. Redis 사용을 권장합니다.")
     
-    # 보안 헤더 설정 강화
+    # 보안 헤더 설정 완화 (주의: 프로덕션에서는 권장되지 않음)
     SECURITY_HEADERS = {
-        'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
+        # 'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
         'X-Content-Type-Options': 'nosniff',
         'X-Frame-Options': 'SAMEORIGIN',
-        'X-XSS-Protection': '1; mode=block',
-        'Referrer-Policy': 'strict-origin-when-cross-origin',
-        'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
+        # 'X-XSS-Protection': '1; mode=block', # Deprecated
+        # 'Referrer-Policy': 'strict-origin-when-cross-origin',
+        # 'Permissions-Policy': 'geolocation=(), microphone=(), camera=()',
     }
 
-    # 기본 CSP 설정
+    # CSP 설정 완화 (주의: 프로덕션에서는 권장되지 않음)
     CSP = {
         "default-src": ["'self'"],
         "script-src": [
             "'self'",
-            "'unsafe-inline'",  # 인라인 스크립트 허용
-            "'nonce-{nonce}'",
-            "https://cdnjs.cloudflare.com",
-            "https://www.youtube.com",
-            "https://s.ytimg.com"
+            "'unsafe-inline'",
+            "'unsafe-eval'",
+            "https:",
+            "data:"
         ],
         "style-src": [
             "'self'",
-            "'unsafe-inline'",  # 인라인 스타일 허용
-            "'nonce-{nonce}'",
-            "https://fonts.googleapis.com",
-            "https://cdnjs.cloudflare.com",
-            "https://fastly.jsdelivr.net"
+            "'unsafe-inline'",
+            "https:",
+            "data:"
         ],
-        "font-src": [
-            "'self'",
-            "https://fonts.gstatic.com",
-            "https://cdnjs.cloudflare.com",
-            "https://fastly.jsdelivr.net"
-        ],
-        "img-src": ["'self'", "data:", "https:"],
-        "frame-src": ["'self'", "https://www.youtube.com", "https://www.youtube-nocookie.com"],
-        "connect-src": ["'self'"],
+        "font-src": ["'self'", "https:", "data:"],
+        "img-src": ["'self'", "https:", "data:", "blob:"],
+        "frame-src": ["'self'", "https:", "data:"],
+        "connect-src": ["'self'", "https:", "data:"],
         "base-uri": ["'self'"],
         "form-action": ["'self'"],
         "frame-ancestors": ["'self'"],
         "object-src": ["'none'"],
-        "upgrade-insecure-requests": []  # TypeError 해결: None -> []
+        "upgrade-insecure-requests": []
     }
     
     # 파일 및 콘텐츠 설정

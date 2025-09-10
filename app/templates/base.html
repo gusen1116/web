@@ -7,7 +7,12 @@
     <meta name="format-detection" content="telephone=no">
     <title>{% block title %}와구센{% endblock %}</title>
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='gen/packed.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/core.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/content.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout-modules.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/themes.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/error-pages.css') }}">
     
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -41,7 +46,7 @@
         <div class="container">
             <div class="logo-area">
                 <a href="{{ url_for('main.index') }}" class="logo">
-                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="로고 이미지" loading="lazy">
+                    <img src="{{ url_for('static', filename='images/site/logo.png') }}" alt="로고 이미지" loading="lazy">
                     <span class="site-name">와구센</span>
                 </a>
             </div>
@@ -83,7 +88,7 @@
                 <div class="footer-info">
                     <p>&copy; 2025 | 와구센</p>
                     <a href="#" class="footer-logo">
-                        <img src="{{ url_for('static', filename='img/footer-logo.gif') }}" alt="푸터 로고" loading="lazy">
+                        <img src="{{ url_for('static', filename='images/site/footer-logo.gif') }}" alt="푸터 로고" loading="lazy">
                     </a>
                 </div>
                 <div class="footer-links">
@@ -100,7 +105,7 @@
         </div>
     </footer>
     
-    <script nonce="{{ csp_nonce() }}" src="{{ url_for('static', filename='gen/packed.js') }}"></script>
+    <script nonce="{{ csp_nonce() }}" src="{{ url_for('static', filename='js/main.js') }}"></script>
     
     <script nonce="{{ csp_nonce() }}">
         (function() {

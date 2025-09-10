@@ -139,7 +139,7 @@ def view_by_slug(slug: str):
         abort(400, "잘못된 요청입니다")
     posts_dir = current_app.config.get('POSTS_DIR')
     try:
-        matching_post = CacheService.get_post_by_slug(slug)
+        matching_post = CacheService.get_post_by_slug_with_cache(slug)
         if not matching_post:
             abort(404, "포스트를 찾을 수 없습니다")
         base_url_images = url_for('posts.serve_image', filename='').rstrip('/')
@@ -282,7 +282,7 @@ def serve_static_file(filename: str, media_type: str):
         current_app.logger.warning(f"잘못된 {media_type} 파일명 요청: {filename}")
         abort(403, f"잘못된 {media_type} 파일명입니다")
     media_dirs = {
-        'image': 'img',
+        'image': 'images/posts',
         'video': 'videos',
         'audio': 'audios'
     }

@@ -3,6 +3,7 @@
 [tags: 고양이, 사진]
 [author: 와구센]
 [description: 고양이 사진들]
+[thumbnail: 20241231_125416.jpg|테스트 썸네일]
 
 
 ### 양산 고양이
