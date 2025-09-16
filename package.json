@@ -1,0 +1,13 @@
+{
+  "name": "google-sheets-script",
+  "version": "1.0.0",
+  "description": "A script to connect to Google Sheets.",
+  "main": "sheets.js",
+  "scripts": {
+    "start": "node sheets.js"
+  },
+  "dependencies": {
+    "google-auth-library": "^10.3.0",
+    "google-spreadsheet": "^4.1.1"
+  }
+}

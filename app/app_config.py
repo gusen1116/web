@@ -187,9 +187,11 @@ class DevelopmentConfig(Config):
     LOG_TO_STDOUT = True
     CACHE_TIMEOUT = 60
     CACHE_TYPE = 'simple'
+    TALISMAN_HSTS_ENABLED = False
+    TALISMAN_FORCE_HTTPS = False
 
     CSP = Config.CSP.copy()
-    CSP['connect-src'].extend(["http://127.0.0.1:4000", "http://test.wagusen.com"])
+    CSP['connect-src'].extend(["http://0.0.0.0:4000", "http://test.wagusen.com"])
 
 class TestingConfig(Config):
     """테스트 환경 설정"""

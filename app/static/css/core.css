@@ -5,14 +5,12 @@
 
 /* ===== 1. 폰트 임포트 (최적화) ===== */
 @font-face {
-  font-family: 'PyeojinGothic-Bold';
-  src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2504-1@1.0/PyeojinGothic-Bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap; /* 성능 최적화 */
+    font-family: 'OnulSamhwagothic';
+    src: url('../font/OnulSamhwagothic-Regular.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap');
 
 /* ===== 2. 루트 변수 설정 - GitHub 스타일 ===== */
 :root {
@@ -66,9 +64,8 @@
   --border-color: var(--github-border);
 
   /* 타이포그래피 */
-  --font-sans: 'PyeojinGothic-Bold', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'OnulSamhwagothic', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
-  --font-cabin: 'Cabin', sans-serif;
 
   /* 글꼴 크기 - 모든 테마에서 동일하게 사용 */
   --font-size-xs: 0.75rem;
@@ -215,8 +212,6 @@ img {
   max-width: 100%;
   height: auto;
   /* 이미지 로딩 최적화 */
-  loading: lazy;
-  decode: async;
   will-change: auto;
 }
 
@@ -918,7 +913,7 @@ li {
 
 blockquote {
   font-family: var(--font-sans);
-  font-weight: 400;
+  font-weight: 300;
   font-style: italic;
   margin: var(--spacing-3) auto;
   width: var(--paragraph-width);
@@ -1270,7 +1265,7 @@ h6:hover::after {
 
   /* 모바일 타이포그래피 최적화 - 모든 테마에서 동일 */
   body { 
-    font-weight: 400; 
+    font-weight: 300; 
     font-size: 16px; 
     -webkit-overflow-scrolling: touch; 
     -webkit-text-size-adjust: 100%; 
@@ -1335,7 +1330,7 @@ h6:hover::after {
   }
 
   p { 
-    font-weight: 400; 
+    font-weight: 300; 
     font-size: 1.1rem; 
     line-height: 1.6; 
     width: 100%; 
@@ -1355,14 +1350,14 @@ h6:hover::after {
   }
   
   li { 
-    font-weight: 400; 
+    font-weight: 300; 
     font-size: 1.1rem; 
     line-height: 1.6; 
     margin-bottom: 0.4em; 
   }
 
   .post-content { 
-    font-weight: 400; 
+    font-weight: 300; 
     font-size: 1.1rem; 
     line-height: 1.6; 
     max-width: none; 
@@ -1374,7 +1369,7 @@ h6:hover::after {
   }
   
   .post-content p { 
-    font-weight: 400; 
+    font-weight: 300; 
     font-size: 1.1rem; 
     line-height: 1.6; 
     margin-bottom: 1.2em; 

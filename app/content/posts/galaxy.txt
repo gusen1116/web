@@ -1,0 +1,12 @@
+[title: SDR->HDR]
+[date: 2025-09-12]
+[tags: 사진]
+[author: 와구센]
+[description: 갤럭시로 장노출 사진 구현]
+[thumbnail: test1.JPG|테스트1 썸네일]
+# 진주 남해고속도로
+
+[img:test1.JPG|장노출|scale=120]
+진주 남해고속도로를 배경으로 갤럭시S24U으로 장노출기법을 사용해봤습니다.
+Expert RAW앱으로 각 ND필터, ISO 셔터스피드를 조절하여 장노출을 시도해봤습니다.
+

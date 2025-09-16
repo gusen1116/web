@@ -58,11 +58,41 @@ def test():
     return render_template('test.html')
 
 from app.services.cache_service import CacheService
+from app.services.color_service import ColorService
+import os
 
 @main_bp.route('/magazine')
 def magazine():
+    page = request.args.get('page', 1, type=int)
+    PER_PAGE = 9
+
     all_posts = CacheService.get_posts_with_cache()
-    return render_template('magazine.html', posts=all_posts)
+    total_posts = len(all_posts)
+    total_pages = (total_posts + PER_PAGE - 1) // PER_PAGE
+
+    start = (page - 1) * PER_PAGE
+    end = start + PER_PAGE
+    paginated_posts = all_posts[start:end]
+
+    posts_with_colors = []
+    for post in paginated_posts:
+        preview = post.get_rich_preview(100)
+        image_path = None
+        if preview['image_filename']:
+            image_path = os.path.join(current_app.static_folder, 'images/posts', preview['image_filename'])
+        
+        dominant_color = ColorService.get_dominant_color(image_path) if image_path else '#FFFFFF'
+        posts_with_colors.append({
+            'post': post,
+            'color': dominant_color
+        })
+
+    return render_template(
+        'magazine.html', 
+        posts_with_colors=posts_with_colors,
+        current_page=page,
+        total_pages=total_pages
+    )
 
 @main_bp.route('/api/status')
 def api_status():
@@ -172,7 +202,8 @@ def _get_popular_tags(limit: int = 10) -> List[Dict[str, Any]]:
 @main_bp.route('/robots.txt')
 def robots_txt() -> Response:
     """Serve a simple robots.txt."""
-    robots_content = """User-agent: *
+    robots_content = """
+User-agent: *
 Allow: /
 Allow: /posts/
 Allow: /about

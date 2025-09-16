@@ -6,7 +6,6 @@
     <title>Wa gusan - Magazine</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Original styles from test.html */
         :root {
             --color-stone-100: #f5f5f4;
             --color-gray-100: #f3f4f6;
@@ -18,320 +17,167 @@
             --color-gray-700: #374151;
             --color-gray-800: #1f2937;
             --color-gray-950: #030712;
-            --color-lime-400: #a3e635;
-            --color-lime-500: #84cc16;
-            --color-teal-300: #5eead4;
-            --color-orange-300: #fdba74;
-            --color-violet-300: #c4b5fd;
             --color-white: #ffffff;
-            --color-black: #000000;
         }
         *, *::before, *::after { box-sizing: border-box; }
         body, h1, h2, h3, p, ul, li { margin: 0; padding: 0; }
         html { scroll-behavior: smooth; }
         body { font-family: 'Inter', sans-serif; background-color: var(--color-stone-100); color: var(--color-gray-800); }
         .font-myeongjo { font-family: 'Nanum Myeongjo', serif; }
-        .animate-on-scroll { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
-        .animate-on-scroll.is-visible { opacity: 1; transform: translateY(0); }
-        .overflow-hidden { overflow: hidden; }
         .main-nav { position: fixed; top: 0; left: 0; width: 100%; z-index: 50; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; transition: transform 0.3s ease-in-out; }
-        .main-nav.hidden { transform: translateY(-100%); }
-        .main-nav .logo { font-size: 1.5rem; font-weight: 700; color: var(--color-white); mix-blend-mode: difference; text-decoration: none; }
-        .menu-toggle-button { width: 3rem; height: 3rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 9999px; z-index: 50; background: none; border: none; cursor: pointer; }
-        .menu-toggle-button span { display: block; width: 1.75rem; height: 2px; background-color: var(--color-white); mix-blend-mode: difference; }
-        .fullscreen-menu { position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.9); z-index: 40; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease-in-out; }
-        .fullscreen-menu.active { opacity: 1; pointer-events: auto; }
-        .fullscreen-menu .menu-container { width: 100%; max-width: 56rem; padding: 2rem; color: var(--color-white); }
-        .fullscreen-menu .search-input { width: 100%; background-color: transparent; border: none; border-bottom: 2px solid var(--color-gray-500); font-size: 1.875rem; color: var(--color-white); padding-bottom: 0.5rem; margin-bottom: 3rem; transition: border-color 0.3s; }
-        .fullscreen-menu .search-input::placeholder { color: var(--color-gray-500); }
-        .fullscreen-menu .search-input:focus { outline: none; border-color: var(--color-white); }
-        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; }
-        .main-menu-list { list-style: none; display: flex; flex-direction: column; gap: 1.5rem; font-size: 2.25rem; font-weight: 700; }
-        .main-menu-list a { color: inherit; text-decoration: none; transition: color 0.3s; }
-        .main-menu-list a:hover { color: var(--color-lime-400); }
-        .hero-section { height: 100vh; width: 100%; display: grid; grid-template-columns: 1fr; }
+        .main-nav .logo { font-size: 1.5rem; font-weight: 700; color: var(--color-gray-800); text-decoration: none; }
+        .hero-section { width: 100%; display: grid; grid-template-columns: 1fr; }
         .hero-logo-area { display: flex; align-items: center; justify-content: center; background-color: var(--color-gray-950); padding: 2rem; }
         .hero-logo-area img { width: 66.66%; max-width: 20rem; }
-        .hero-post-area { position: relative; display: flex; align-items: center; justify-content: center; background-color: var(--color-lime-400); padding: 2rem; }
-        .hero-post-area .card-link { display: block; width: 100%; max-width: 340rem; text-decoration: none; }
-        .scroll-down-indicator { text-align: center; margin-top: 1rem; color: var(--color-gray-800); animation: bounce 1s infinite; }
-        .content-section { width: 100%; min-height: 100vh; display: grid; }
+        .hero-post-area { position: relative; display: flex; align-items: center; justify-content: center; padding: 2rem; transition: background-color 0.5s ease; }
+        .hero-post-area .card-link { display: block; width: 100%; max-width: 40rem; text-decoration: none; }
+        .content-section { width: 100%; display: grid; }
         .content-grid { display: grid; grid-template-columns: 1fr; }
-        .content-column { display: flex; flex-direction: column; gap: 2rem; padding: 2rem; }
-        .content-column.teal { background-color: var(--color-teal-300); }
-        .content-column.orange { background-color: var(--color-orange-300); }
-        .content-column.violet { background-color: var(--color-violet-300); }
+        .content-column { display: flex; flex-direction: column; gap: 2rem; padding: 2rem; transition: background-color 0.5s ease;}
         .sticky-column { background-color: var(--color-gray-100); padding: 2rem; display: flex; justify-content: center; align-items: flex-start; }
         .card { background-color: var(--color-white); border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; text-decoration: none; color: var(--color-gray-800); }
         .card:hover { transform: translateY(-0.25rem); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1); }
-        .card-image {
-            background-color: var(--color-gray-200);
-            position: relative;
-        }
-        .hero-section .card-image { height: 70vh; }
-        .content-column .card-image { height: 50vh; }
-        .sticky-column .card-image { height: 80vh; }
-        .card-image img { width: 100%; height: 100%; object-fit: cover; }
+        .card-image { background-color: var(--color-gray-200); position: relative; padding-top: 75%; }
+        .card-image img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
         .card-content { padding: 1.5rem; }
-        .card-image .card-content {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-            color: white;
-        }
-        .card-image .card-content h2, .card-image .card-content h3, .card-image .card-content .description, .card-image .card-content .date {
-            color: white;
-        }
-        .card-content h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
         .card-content h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; }
         .card-content .description { color: var(--color-gray-600); margin-bottom: 1rem; }
         .card-content .date { font-size: 0.875rem; color: var(--color-gray-400); }
+        .pagination { display: flex; justify-content: center; align-items: center; padding: 2rem 0; }
+        .pagination a { color: var(--color-gray-600); text-decoration: none; padding: 0.5rem 1rem; margin: 0 0.25rem; border-radius: 0.25rem; transition: background-color 0.3s, color 0.3s; }
+        .pagination a:hover { background-color: var(--color-gray-200); color: var(--color-gray-800); }
+        .pagination a.active { background-color: var(--color-gray-800); color: var(--color-white); }
+        .pagination a.disabled { pointer-events: none; color: var(--color-gray-400); }
         footer { background-color: var(--color-gray-950); color: var(--color-gray-300); padding: 3rem 1rem; }
-        .footer-content { display: flex; justify-content: space-between; align-items: center; max-width: 80rem; margin: 0 auto; }
-        .footer-info p { margin: 0; }
-        .footer-logo { margin-left: 1rem; }
-        .footer-logo img { height: 24px; }
-        .footer-links { display: flex; gap: 1.5rem; }
-        .footer-links a { color: var(--color-gray-400); transition: color 0.3s; }
-        .footer-links a:hover { color: var(--color-white); }
         @media (min-width: 768px) {
-            .menu-grid { grid-template-columns: repeat(3, 1fr); }
             .hero-section { grid-template-columns: repeat(2, 1fr); }
             .content-grid { grid-template-columns: repeat(2, 1fr); }
             .content-column { padding: 4rem; }
-            .content-column .card-half { width: 50%; }
             .sticky-column { padding: 4rem; }
             .sticky-card-wrapper { position: sticky; top: 4rem; width: 91.66%; }
-            .footer-content { flex-direction: row; }
-        }
-        @keyframes bounce {
-            0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
-            50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
         }
     </style>
 </head>
 <body>
     <nav id="main-nav" class="main-nav">
-        <a href="#" class="logo font-myeongjo">Wagusen</a>
-        <button id="menu-toggle-button" class="menu-toggle-button"><span></span><span></span><span></span></button>
+        <a href="{{ url_for('main.index') }}" class="logo font-myeongjo">Wagusen</a>
     </nav>
-    <div id="fullscreen-menu" class="fullscreen-menu">
-        <div class="menu-container">
-            <div class="search-bar"><input type="text" placeholder="검색어 입력" class="search-input"></div>
-            <div id="menu-grid" class="menu-grid">
-                <div class="main-menu-column">
-                    <ul class="main-menu-list">
-                        <li class="main-menu-item"><a href="{{ url_for('posts.index') }}">블로그</a></li>
-                        <li class="main-menu-item"><a href="{{ url_for('gallery.index') }}">갤러리</a></li>
-                        <li class="main-menu-item"><a href="{{ url_for('speedtest.speedtest_page') }}">네트워크</a></li>
-                        <li class="main-menu-item"><a href="{{ url_for('main.about') }}">소개</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    {% if posts %}
-    <header class="hero-section">
-        {% set hero_post = posts[0] %}
-        {% set hero_preview = hero_post.get_rich_preview(100) %}
-        <div class="hero-logo-area">
-            <img src="https://placehold.co/400x150/030712/FFFFFF?text=WAGUSEN" alt="Wa gusan Logo">
-        </div>
-        <div class="hero-post-area">
-            <a href="{{ hero_post.get_url() }}" class="card-link">
-                <div class="card">
-                    <div class="card-image">
-                        {% if hero_preview.image_filename %}
-                            <img src="{{ url_for('static', filename='images/posts/' + hero_preview.image_filename) }}" alt="{{ hero_preview.image_alt }}">
-                        {% else %}
-                            <img src="https://placehold.co/600x400/1f2937/a3e635?text=W" alt="Placeholder image">
-                        {% endif %}
+    {% if posts_with_colors %}
+        <header class="hero-section">
+            {% if current_page == 1 %}
+                <div class="hero-logo-area">
+                    <img src="https://placehold.co/400x150/030712/FFFFFF?text=WAGUSEN" alt="Wa gusan Logo">
+                </div>
+            {% endif %}
+            <div class="hero-post-area" {% if current_page > 1 %}style="grid-column: span 2;"{% endif %}>
+                {% set hero_data = posts_with_colors[0] %}
+                {% set hero_post = hero_data.post %}
+                {% set hero_preview = hero_post.get_rich_preview(100) %}
+                <a href="{{ hero_post.get_url() }}" class="card-link">
+                    <div class="card">
+                        <div class="card-image">
+                            {% if hero_preview['image_filename'] %}
+                                <img src="{{ url_for('static', filename='images/posts/' + hero_preview['image_filename']) }}" alt="{{ hero_preview['image_alt'] }}">
+                            {% else %}
+                                <img src="https://placehold.co/600x400/1f2937/a3e635?text=W" alt="Placeholder image">
+                            {% endif %}
+                        </div>
                         <div class="card-content">
                             <h2 class="font-myeongjo">{{ hero_post.title }}</h2>
                             <p class="description">{{ hero_preview.text }}</p>
                             <p class="date">{{ hero_post.date.strftime('%Y-%m-%d') }}</p>
                         </div>
                     </div>
-                </div>
-            </a>
-        </div>
-    </header>
+                </a>
+            </div>
+        </header>
 
-    {% set colors = ['teal', 'orange', 'violet'] %}
-    {% for post_chunk in posts[1:] | batch(3) %}
-        {% set current_color = colors[loop.index0 % colors|length] %}
-        <section class="content-section">
-            <div class="content-grid">
-                {% if loop.index is odd %}
-                <div class="content-column {{ current_color }}">
-                    {% if post_chunk[0] %}
-                        {% set post = post_chunk[0] %}
-                        {% set preview = post.get_rich_preview(80) %}
-                        <a href="{{ post.get_url() }}" class="card card-half card-align-start">
-                            <div class="card-image">
-                                {% if preview.image_filename %}
-                                    <img src="{{ url_for('static', filename='images/posts/' + preview.image_filename) }}" alt="{{ preview.image_alt }}">
-                                {% else %}
-                                    <img src="https://placehold.co/600x400/e2e8f0/333333?text={{ (loop.index0 * 3) + 2 }}" alt="Placeholder image">
+        {% set remaining_posts = posts_with_colors[1:] %}
+        {% if remaining_posts %}
+            {% for post_chunk in remaining_posts | batch(3) %}
+                <section class="content-section">
+                    <div class="content-grid">
+                        <div class="content-column" style="background-color: {{ post_chunk[0].color if post_chunk[0] else '#FFFFFF' }};">
+                            {% for post_data in post_chunk %}
+                                {% if loop.index != 3 %}
+                                    {% set post = post_data.post %}
+                                    {% set preview = post.get_rich_preview(80) %}
+                                    <a href="{{ post.get_url() }}" class="card">
+                                        <div class="card-image">
+                                            {% if preview['image_filename'] %}
+                                                <img src="{{ url_for('static', filename='images/posts/' + preview['image_filename']) }}" alt="{{ preview['image_alt'] }}">
+                                            {% else %}
+                                                <img src="https://placehold.co/600x400/e2e8f0/333333?text={{ loop.index }}" alt="Placeholder image">
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-content">
+                                            <h3 class="font-myeongjo">{{ post.title }}</h3>
+                                            <p class="description">{{ preview.text }}</p>
+                                            <p class="date">{{ post.date.strftime('%Y-%m-%d') }}</p>
+                                        </div>
+                                    </a>
                                 {% endif %}
-                                <div class="card-content">
-                                    <h3 class="font-myeongjo">{{ post.title }}</h3>
-                                    <p class="description">{{ preview.text }}</p>
-                                    <p class="date">{{ post.date.strftime('%Y-%m-%d') }}</p>
-                                </div>
-                            </div>
-                        </a>
-                    {% endif %}
-                    {% if post_chunk[1] %}
-                        {% set post = post_chunk[1] %}
-                        {% set preview = post.get_rich_preview(80) %}
-                        <a href="{{ post.get_url() }}" class="card card-half card-align-end">
-                            <div class="card-image">
-                                {% if preview.image_filename %}
-                                    <img src="{{ url_for('static', filename='images/posts/' + preview.image_filename) }}" alt="{{ preview.image_alt }}">
-                                {% else %}
-                                    <img src="https://placehold.co/600x400/e2e8f0/333333?text={{ (loop.index0 * 3) + 3 }}" alt="Placeholder image">
-                                {% endif %}
-                                <div class="card-content">
-                                    <h3 class="font-myeongjo">{{ post.title }}</h3>
-                                    <p class="description">{{ preview.text }}</p>
-                                    <p class="date">{{ post.date.strftime('%Y-%m-%d') }}</p>
-                                </div>
-                            </div>
-                        </a>
-                    {% endif %}
-                </div>
-                <div class="sticky-column">
-                    {% if post_chunk[2] %}
-                        {% set post = post_chunk[2] %}
-                        {% set preview = post.get_rich_preview(120) %}
-                        <div class="sticky-card-wrapper">
-                            <a href="{{ post.get_url() }}" class="card">
-                                <div class="card-image">
-                                    {% if preview.image_filename %}
-                                        <img src="{{ url_for('static', filename='images/posts/' + preview.image_filename) }}" alt="{{ preview.image_alt }}">
-                                    {% else %}
-                                        <img src="https://placehold.co/600x800/e2e8f0/333333?text={{ (loop.index0 * 3) + 4 }}" alt="Placeholder image">
-                                    {% endif %}
-                                    <div class="card-content">
-                                        <h3 class="font-myeongjo">{{ post.title }}</h3>
-                                        <p class="description">{{ preview.text }}</p>
-                                        <p class="date">{{ post.date.strftime('%Y-%m-%d') }}</p>
-                                    </div>
-                                </div>
-                            </a>
+                            {% endfor %}
                         </div>
-                    {% endif %}
-                </div>
+                        <div class="sticky-column">
+                            {% if post_chunk[2] %}
+                                {% set post_data = post_chunk[2] %}
+                                {% set post = post_data.post %}
+                                {% set preview = post.get_rich_preview(120) %}
+                                <div class="sticky-card-wrapper">
+                                    <a href="{{ post.get_url() }}" class="card">
+                                        <div class="card-image">
+                                            {% if preview['image_filename'] %}
+                                                <img src="{{ url_for('static', filename='images/posts/' + preview['image_filename']) }}" alt="{{ preview['image_alt'] }}">
+                                            {% else %}
+                                                <img src="https://placehold.co/600x800/e2e8f0/333333?text=3" alt="Placeholder image">
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-content">
+                                            <h3 class="font-myeongjo">{{ post.title }}</h3>
+                                            <p class="description">{{ preview.text }}</p>
+                                            <p class="date">{{ post.date.strftime('%Y-%m-%d') }}</p>
+                                        </div>
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </section>
+            {% endfor %}
+        {% endif %}
+
+        {% if total_pages > 1 %}
+            <div class="pagination">
+                {% if current_page > 1 %}
+                    <a href="{{ url_for('main.magazine', page=current_page - 1) }}">이전</a>
                 {% else %}
-                <div class="sticky-column">
-                    {% if post_chunk[0] %}
-                        {% set post = post_chunk[0] %}
-                        {% set preview = post.get_rich_preview(120) %}
-                        <div class="sticky-card-wrapper">
-                            <a href="{{ post.get_url() }}" class="card">
-                                <div class="card-image">
-                                    {% if preview.image_filename %}
-                                        <img src="{{ url_for('static', filename='images/posts/' + preview.image_filename) }}" alt="{{ preview.image_alt }}">
-                                    {% else %}
-                                        <img src="https://placehold.co/600x800/e2e8f0/333333?text={{ (loop.index0 * 3) + 2 }}" alt="Placeholder image">
-                                    {% endif %}
-                                    <div class="card-content">
-                                        <h3 class="font-myeongjo">{{ post.title }}</h3>
-                                        <p class="description">{{ preview.text }}</p>
-                                        <p class="date">{{ post.date.strftime('%Y-%m-%d') }}</p>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    {% endif %}
-                </div>
-                <div class="content-column {{ current_color }}">
-                    {% if post_chunk[1] %}
-                        {% set post = post_chunk[1] %}
-                        {% set preview = post.get_rich_preview(80) %}
-                        <a href="{{ post.get_url() }}" class="card card-half card-align-start">
-                            <div class="card-image">
-                                {% if preview.image_filename %}
-                                    <img src="{{ url_for('static', filename='images/posts/' + preview.image_filename) }}" alt="{{ preview.image_alt }}">
-                                {% else %}
-                                    <img src="https://placehold.co/600x400/e2e8f0/333333?text={{ (loop.index0 * 3) + 3 }}" alt="Placeholder image">
-                                {% endif %}
-                                <div class="card-content">
-                                    <h3 class="font-myeongjo">{{ post.title }}</h3>
-                                    <p class="description">{{ preview.text }}</p>
-                                    <p class="date">{{ post.date.strftime('%Y-%m-%d') }}</p>
-                                </div>
-                            </div>
-                        </a>
-                    {% endif %}
-                    {% if post_chunk[2] %}
-                        {% set post = post_chunk[2] %}
-                        {% set preview = post.get_rich_preview(80) %}
-                        <a href="{{ post.get_url() }}" class="card card-half card-align-end">
-                            <div class="card-image">
-                                {% if preview.image_filename %}
-                                    <img src="{{ url_for('static', filename='images/posts/' + preview.image_filename) }}" alt="{{ preview.image_alt }}">
-                                {% else %}
-                                    <img src="https://placehold.co/600x400/e2e8f0/333333?text={{ (loop.index0 * 3) + 4 }}" alt="Placeholder image">
-                                {% endif %}
-                                <div class="card-content">
-                                    <h3 class="font-myeongjo">{{ post.title }}</h3>
-                                    <p class="description">{{ preview.text }}</p>
-                                    <p class="date">{{ post.date.strftime('%Y-%m-%d') }}</p>
-                                </div>
-                            </div>
-                        </a>
-                    {% endif %}
-                </div>
+                    <a href="#" class="disabled">이전</a>
+                {% endif %}
+
+                {% for page_num in range(1, total_pages + 1) %}
+                    <a href="{{ url_for('main.magazine', page=page_num) }}" class="{{ 'active' if page_num == current_page else '' }}">{{ page_num }}</a>
+                {% endfor %}
+
+                {% if current_page < total_pages %}
+                    <a href="{{ url_for('main.magazine', page=current_page + 1) }}">다음</a>
+                {% else %}
+                    <a href="#" class="disabled">다음</a>
                 {% endif %}
             </div>
-        </section>
-    {% endfor %}
+        {% endif %}
 
     {% else %}
-    <div class="container" style="text-align: center; padding: var(--spacing-16) 0;">
-        <h2 class="font-myeongjo">포스트가 없습니다.</h2>
-        <p>표시할 포스트가 없습니다. 새 포스트를 추가해주세요.</p>
-    </div>
+        <div style="text-align: center; padding: 2rem 0;">
+            <h2 class="font-myeongjo">포스트가 없습니다.</h2>
+            <p>표시할 포스트가 없습니다. 새 포스트를 추가해주세요.</p>
+        </div>
     {% endif %}
 
     <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-info">
-                    <p>&copy; 2025 | 와구센</p>
-                    <a href="#" class="footer-logo">
-                        <img src="{{ url_for('static', filename='images/site/footer-logo.gif') }}" alt="푸터 로고" loading="lazy">
-                    </a>
-                </div>
-                <div class="footer-links">
-                    <a href="https://github.com/wagusen" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i><span>GitHub</span></a>
-                    <a href="mailto:gusen@wagusen.com"><i class="fas fa-envelope"></i><span>메일</span></a>
-                </div>
-            </div>
-        </div>
+        ...
     </footer>
 
-    <script>
-        // Interaction scripts from original test.html
-        const nav = document.getElementById('main-nav');
-        let lastScrollTop = 0;
-        window.addEventListener('scroll', function() {
-            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            if (scrollTop > lastScrollTop && scrollTop > nav.offsetHeight) { nav.classList.add('hidden'); }
-            else { nav.classList.remove('hidden'); }
-            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-        });
-        const menuToggle = document.getElementById('menu-toggle-button');
-        const fullscreenMenu = document.getElementById('fullscreen-menu');
-        menuToggle.addEventListener('click', () => {
-            document.body.classList.toggle('overflow-hidden');
-            fullscreenMenu.classList.toggle('active');
-        });
-    </script>
 </body>
 </html>
