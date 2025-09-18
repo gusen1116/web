@@ -3,7 +3,7 @@
  * 성능 최적화 및 모든 테마에서 일관된 크기 유지
  */
 
-/* ===== 1. 폰트 임포트 (최적화) ===== */
+/* ===== 1. 폰트 임포트  ===== */
 @font-face {
     font-family: 'OnulSamhwagothic';
     src: url('../font/OnulSamhwagothic-Regular.otf') format('opentype');

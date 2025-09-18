@@ -26,10 +26,21 @@ csrf = CSRFProtect()
 assets = Environment()
 cache = Cache()
 
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+def internal_server_error(e):
+    return render_template('500.html'), 500
+
 def create_app(config_name: str | None = None) -> Flask:
     """Application factory function."""
-    # [수정 1] static_folder 경로를 명시적으로 지정하여 라우팅 충돌 방지
-    app = Flask(__name__, static_folder='static', static_url_path='/static')
+    
+    # 명시적으로 정적 및 템플릿 폴더의 절대 경로를 계산합니다.
+    APP_DIR = os.path.dirname(os.path.abspath(__file__))
+    static_dir = os.path.join(APP_DIR, 'static')
+    template_dir = os.path.join(APP_DIR, 'templates')
+
+    app = Flask(__name__, static_folder=static_dir, template_folder=template_dir)
 
     # --- Load application settings ---
     config_name = config_name or os.environ.get('FLASK_CONFIG') or 'default'
@@ -50,23 +61,12 @@ def create_app(config_name: str | None = None) -> Flask:
     cache.init_app(app)
 
     # --- CSS & JS bundling ---
-    # css_bundle = Bundle(
-    #     'css/core.css',
-    #     'css/components.css',
-    #     'css/content.css',
-    #     'css/layout-modules.css',
-    #     'css/themes.css',
-    #     'css/error-pages.css',
-    #     filters='cssmin',
-    #     output='gen/packed.css'
-    # )
     js_bundle = Bundle(
         'js/main.js',
         'js/slide-minimal.js',
         filters='jsmin',
         output='gen/packed.js'
     )
-    # assets.register('all_css', css_bundle)
     assets.register('all_js', js_bundle)
 
 
@@ -92,16 +92,30 @@ def create_app(config_name: str | None = None) -> Flask:
         strict_transport_security=app.config.get('TALISMAN_HSTS_ENABLED', True),
         strict_transport_security_max_age=app.config.get('TALISMAN_HSTS_MAX_AGE', 31536000),
         content_security_policy=csp_config,
-        # [수정 2] nonce 자동 주입 옵션을 제거하여 'unsafe-inline'이 무시되는 문제 해결
-        # content_security_policy_nonce_in=['script-src', 'style-src']
     )
 
     # --- Setup logging ---
     setup_logging(app)
 
-    # --- Register blueprints and error handlers ---
-    register_blueprints(app)
-    register_error_handlers(app)
+    # --- Register blueprints ---
+    from app.routes.main_routes import main_bp
+    from app.routes.gallery import gallery_bp
+    from app.routes.posts_routes import posts_bp
+    from app.routes.speedtest_routes import speedtest_bp
+    from app.routes.whois_routes import whois_bp
+    from app.routes.utils_routes import utils_bp
+
+    app.register_blueprint(main_bp)
+    app.register_blueprint(gallery_bp)
+    app.register_blueprint(posts_bp)
+    app.register_blueprint(speedtest_bp)
+    app.register_blueprint(whois_bp)
+    app.register_blueprint(utils_bp)
+
+    # --- Register error handlers ---
+    app.register_error_handler(404, page_not_found)
+    app.register_error_handler(500, internal_server_error)
+
     register_template_helpers(app)
 
     # --- Middleware for JSON requests ---
@@ -150,44 +164,6 @@ def setup_logging(app: Flask) -> None:
         werkzeug_logger.setLevel(log_level)
 
     app.logger.info(f"애플리케이션 시작 (환경: {app.config.get('FLASK_ENV')})")
-
-def register_blueprints(app: Flask) -> None:
-    """Register all blueprints with the application."""
-    from app.routes.main_routes import main_bp
-    from app.routes.gallery import gallery_bp
-    from app.routes.posts_routes import posts_bp
-    from app.routes.speedtest_routes import speedtest_bp
-    from app.routes.whois_routes import whois_bp
-    from app.routes.utils_routes import utils_bp
-
-    app.register_blueprint(main_bp)
-    app.register_blueprint(gallery_bp)
-    app.register_blueprint(posts_bp)
-    app.register_blueprint(speedtest_bp)
-    app.register_blueprint(whois_bp)
-    app.register_blueprint(utils_bp)
-    app.logger.info('모든 블루프린트 등록 완료')
-
-def register_error_handlers(app: Flask) -> None:
-    """Register custom error handlers."""
-    @app.errorhandler(403)
-    def forbidden_error(error):
-        app.logger.warning(f'403 접근 금지: {request.url}')
-        return render_template('403.html', error_message=str(error)), 403
-
-    @app.errorhandler(404)
-    def not_found_error(error):
-        app.logger.info(f'404 페이지 찾을 수 없음: {request.url}')
-        return render_template('404.html', error_message=str(error)), 404
-
-    @app.errorhandler(500)
-    def internal_server_error(error):
-        error_id = secrets.token_hex(8)
-        app.logger.error(
-            f'500 내부 서버 오류 (ID: {error_id}): {request.url} - {error}',
-            exc_info=True
-        )
-        return render_template('500.html', error_id=error_id, error_message="서버 내부 오류 발생"), 500
 
 def register_template_helpers(app: Flask) -> None:
     """Register custom template filters and context processors."""

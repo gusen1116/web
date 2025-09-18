@@ -1,9 +1,9 @@
 @font-face {
-          font-family: 'PyeojinGothic-Bold';
-          src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2504-1@1.0/PyeojinGothic-Bold.woff2') format('woff2');
-          font-weight: 700;
-          font-style: normal;
-          font-display: swap;
+        font-family: 'PyeojinGothic-Bold';
+        src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/2504-1@1.0/PyeojinGothic-Bold.woff2') format('woff2');
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
         }
         @import url('https://fonts.googleapis.com/css2?family=Cabin:ital,wght@0,400..700;1,400..700&display=swap');
 
