@@ -13,10 +13,19 @@ from PIL import Image
 
 try:
     import markdown
-    import bleach
     MARKDOWN_ENABLED = True
 except ImportError:
+    markdown = None
     MARKDOWN_ENABLED = False
+
+try:
+    import bleach
+    from bleach.css_sanitizer import CSSSanitizer
+    BLEACH_AVAILABLE = True
+except ImportError:
+    bleach = None
+    CSSSanitizer = None  # type: ignore
+    BLEACH_AVAILABLE = False
 
 try:
     from html.parser import HTMLParser
@@ -204,9 +213,9 @@ class TextPost:
     
     def _generate_preview_text(self, length: int) -> str:
         patterns_to_remove = [
-            r'\[img:[^\]]+\]', r'\[video:[^\]]+\]', r'\[audio:[^\]]+\]', r'\[youtube:[^\]]+\]',
-            r'\[highlight\].*?\[/highlight\].*?', r'\[quote.*?\].*?(?:.*?)?\[/quote\].*?', r'\[.*?\].*?',
-            r'#+\s+', r'\*\*|\*|__|__', r'!\\\\[.*?]\\]', r'\[.*?\\]\\]',
+            r'\[(?:img|video|audio|youtube):[^\]]+\]',
+            r'\[highlight\].*?\[/highlight\].*?', r'\[quote.*?\].*?\[/quote\]', r'\[.*?\].*?(?:.*?)\[/.*?\].*?',
+            r'#+\s+', r'\*\*|\*|__|__', r'!\\[.*?\\]', r'\[.*?\\]',
         ]
         text = self.content
         for pattern in patterns_to_remove:
@@ -233,7 +242,7 @@ class TextPost:
         # Fallback to first image in content
         first_image_filename: Optional[str] = None
         first_image_alt: str = ""
-        img_match = re.search(r'\[img:([^\|]+)(?:\|([^\|]*))?(?:\|[^\|]*)?\]', self.content)
+        img_match = re.search(r'\[img:([^\|\]\r\n]+?)(?:\|([^\|\]\r\n]*?))?(?:\|([^\]\r\n]*?))?\]', self.content)
         if img_match:
             filename_from_tag = img_match.group(1).strip()
             alt_text_from_tag = img_match.group(2).strip() if img_match.group(2) and img_match.group(2).strip() else filename_from_tag
@@ -421,13 +430,13 @@ def render_content(content: str, base_url_images: str = '/posts/images', base_ur
 
 def _process_special_tags(content: str, base_url_images: str, base_url_videos: str, base_url_audios: str) -> str:
     replacements = [
-        (r'\[youtube:([^\\]+)\]', lambda m: _create_youtube_embed(m.group(1))),
-        (r'\[img:([^\|]+?)(?:\|([^\|]*?))?(?:\|([^\|]*?))?\]', lambda m: _create_image_tag_secure(m.group(1), m.group(2), m.group(3), base_url_images)),
-        (r'\[video:([^\|]+?)(?:\|([^\|]*?))?\]', lambda m: _create_video_tag_secure(m.group(1), m.group(2), base_url_videos)),
-        (r'\[audio:([^\|]+?)(?:\|([^\|]*?))?\]', lambda m: _create_audio_tag_secure(m.group(1), m.group(2), base_url_audios)),
-        (r'\[highlight\].*?\[/highlight\].*?', lambda m: f'<div class="highlight-box">{escape(m.group(1))}</div>'),
-        (r'\[quote(?:\s+author="([^"]*)")?\](.*?)?\[/quote\].*?', lambda m: _create_quote_block(m.group(2), m.group(1))),
-        (r'\[code(?:\s+lang="([^"]*)")?\](.*?)?\[/code\].*?', lambda m: _create_code_block(m.group(2), m.group(1))),
+        (r'\[youtube:([^\]\r\n]+?)\]', lambda m: _create_youtube_embed(m.group(1))),
+        (r'\[img:([^\|\]\r\n]+?)(?:\|([^\|\]\r\n]*?))?(?:\|([^\]\r\n]*?))?\]', lambda m: _create_image_tag_secure(m.group(1), m.group(2), m.group(3), base_url_images)),
+        (r'\[video:([^\|\]\r\n]+?)(?:\|([^\]\r\n]*?))?\]', lambda m: _create_video_tag_secure(m.group(1), m.group(2), base_url_videos)),
+        (r'\[audio:([^\|\]\r\n]+?)(?:\|([^\]\r\n]*?))?\]', lambda m: _create_audio_tag_secure(m.group(1), m.group(2), base_url_audios)),
+        (r'\[highlight\](.*?)\[/highlight\]', lambda m: f'<div class="highlight-box">{escape(m.group(1))}</div>'),
+        (r'\[quote(?:\s+author="([^"]*)")?\](.*?)\[/quote\]', lambda m: _create_quote_block(m.group(2), m.group(1))),
+        (r'\[code(?:\s+lang="([^"]*)")?\](.*?)\[/code\]', lambda m: _create_code_block(m.group(2), m.group(1))),
     ]
     for pattern, handler in replacements:
         content = re.sub(pattern, handler, content, flags=re.DOTALL | re.MULTILINE)
@@ -625,13 +634,18 @@ def _process_markdown(content: str) -> str:
         return _process_content_fallback(content)
 
 def _sanitize_html_preserve_links(html_content: str) -> str:
-    if not MARKDOWN_ENABLED: return html_content
+    if not BLEACH_AVAILABLE: return html_content
     try:
         allowed_tags = current_app.config.get('ALLOWED_HTML_TAGS')
         allowed_attrs = current_app.config.get('ALLOWED_HTML_ATTRIBUTES')
+        allowed_css = current_app.config.get('ALLOWED_CSS_PROPERTIES', [
+            'width', 'max-width', 'height', 'margin', 'margin-left', 'margin-right', 'margin-top', 'margin-bottom'
+        ])
+        css_sanitizer = CSSSanitizer(allowed_css_properties=allowed_css)
         return bleach.clean(
             html_content, tags=allowed_tags, attributes=allowed_attrs,
-            protocols=bleach.sanitizer.ALLOWED_PROTOCOLS, strip=True, strip_comments=True
+            protocols=bleach.sanitizer.ALLOWED_PROTOCOLS, strip=True, strip_comments=True,
+            css_sanitizer=css_sanitizer
         )
     except Exception as e:
         current_app.logger.error(f"HTML 정제 오류: {e}")

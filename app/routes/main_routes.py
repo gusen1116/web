@@ -1,6 +1,6 @@
 """
 app/routes/main_routes.py
-------------------------
+-------------------------
 
 This module defines the routes for the main pages of the application, such
 as the index, about, tag APIs, and sitemap generation. Several issues from
@@ -15,8 +15,9 @@ the original code have been fixed:
 from flask import Blueprint, render_template, current_app, jsonify, request, Response, url_for
 from typing import List, Dict, Any
 from datetime import datetime
-from app.services.cache_service import CacheService
-from app.services.text_service import TextPost
+from app.services.text_service import TextPost, get_all_text_posts, get_tags_count
+from app.services.color_service import ColorService
+import os
 
 # Create the main blueprint
 main_bp = Blueprint('main', __name__)
@@ -25,7 +26,8 @@ main_bp = Blueprint('main', __name__)
 def index():
     """Render the home page with all posts, recent posts, and popular tags."""
     try:
-        all_posts = CacheService.get_posts_with_cache()
+        posts_dir = current_app.config.get('POSTS_DIR')
+        all_posts = get_all_text_posts(posts_dir)
         recent_posts = all_posts[:3] if all_posts else []
         popular_tags = _get_popular_tags(limit=10)
         return render_template(
@@ -57,16 +59,12 @@ def about():
 def test():
     return render_template('test.html')
 
-from app.services.cache_service import CacheService
-from app.services.color_service import ColorService
-import os
-
 @main_bp.route('/magazine')
 def magazine():
     page = request.args.get('page', 1, type=int)
     PER_PAGE = 9
-
-    all_posts = CacheService.get_posts_with_cache()
+    posts_dir = current_app.config.get('POSTS_DIR')
+    all_posts = get_all_text_posts(posts_dir)
     total_posts = len(all_posts)
     total_pages = (total_posts + PER_PAGE - 1) // PER_PAGE
 
@@ -102,18 +100,12 @@ def api_status():
             'status': 'healthy',
             'version': '2.0.0',
             'environment': current_app.config.get('FLASK_ENV', 'production'),
-            'cache_type': current_app.config.get('CACHE_TYPE', 'unknown')
         }
-        # Add cache statistics
-        try:
-            status_info['cache'] = CacheService.get_cache_stats()
-        except Exception as cache_error:
-            current_app.logger.warning(f'캐시 통계 수집 실패: {cache_error}')
-            status_info['cache'] = {'status': 'unavailable'}
         # Add content statistics
         try:
-            all_posts = CacheService.get_posts_with_cache()
-            tags_count = CacheService.get_tags_with_cache()
+            posts_dir = current_app.config.get('POSTS_DIR')
+            all_posts = get_all_text_posts(posts_dir)
+            tags_count = get_tags_count(posts_dir)
             status_info['content'] = {
                 'total_posts': len(all_posts),
                 'total_tags': len(tags_count),
@@ -131,7 +123,8 @@ def api_status():
 def api_tags():
     """Return a tag cloud along with some statistics."""
     try:
-        tags_count = CacheService.get_tags_with_cache()
+        posts_dir = current_app.config.get('POSTS_DIR')
+        tags_count = get_tags_count(posts_dir)
         sorted_tags = sorted(tags_count.items(), key=lambda x: x[1], reverse=True)
         max_count = sorted_tags[0][1] if sorted_tags else 1
         min_count = sorted_tags[-1][1] if sorted_tags else 1
@@ -165,7 +158,8 @@ def api_tags():
 def api_related_tags(tag: str):
     """Find tags that are frequently used together with the given tag."""
     try:
-        all_posts = CacheService.get_posts_with_cache()
+        posts_dir = current_app.config.get('POSTS_DIR')
+        all_posts = get_all_text_posts(posts_dir)
         posts_with_tag = [p for p in all_posts if tag in p.tags]
         if not posts_with_tag:
             return jsonify({'related_tags': []})
@@ -189,7 +183,8 @@ def api_related_tags(tag: str):
 def _get_popular_tags(limit: int = 10) -> List[Dict[str, Any]]:
     """Return a list of the most popular tags limited by ``limit``."""
     try:
-        tags_count = CacheService.get_tags_with_cache()
+        posts_dir = current_app.config.get('POSTS_DIR')
+        tags_count = get_tags_count(posts_dir)
         sorted_tags = sorted(tags_count.items(), key=lambda x: x[1], reverse=True)[:limit]
         result: List[Dict[str, Any]] = []
         for tag, count in sorted_tags:
@@ -244,7 +239,8 @@ def sitemap_xml() -> Response:
         ]
         # Add post URLs (limit to 100 latest posts)
         try:
-            posts = CacheService.get_posts_with_cache()
+            posts_dir = current_app.config.get('POSTS_DIR')
+            posts = get_all_text_posts(posts_dir)
             for post in posts[:100]:
                 urls.append({
                     'loc': url_for('posts.view_by_slug', slug=post.slug, _external=True),

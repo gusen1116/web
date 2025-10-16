@@ -53,7 +53,8 @@
 .slide-container {
   position: relative;
   width: 100%;
-  height: 300px; /* 모든 테마에서 동일한 높이 */
+  min-height: 260px;
+  height: clamp(260px, 48vh, 340px);
   overflow: hidden;
   margin-bottom: 3rem; /* 모든 테마에서 동일한 마진 */
   margin-top: var(--spacing-8); /* 모든 테마에서 동일한 마진 */
@@ -859,7 +860,7 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   .slide-container {
     margin: 0 1rem 2.5rem;
     max-width: calc(100% - 2rem);
-    height: 250px; /* 모바일에서 조정 */
+    height: clamp(240px, 60vh, 320px);
   }
 
   .slide h2 {
@@ -901,7 +902,7 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   .slide-container {
     margin: 0 0.75rem 2rem;
     max-width: calc(100% - 1.5rem);
-    height: 220px; /* 초소형 화면에서 조정 */
+    height: clamp(200px, 65vh, 280px);
   }
 
   .slide h2 {
@@ -917,6 +918,59 @@ html.dark-theme .top-tag-navigation .tag-item.active {
   .slide {
     padding: 1.5rem 1rem; /* 초소형 화면에서 조정 */
   }
+}
+
+
+
+/* ===== 8비트 테마 갤러리 스타일 ===== */
+html.theme-8bit .gallery-card,
+html.theme-pixel-fusion .gallery-card,
+html.theme-royal-pixel .gallery-card,
+html.theme-future-pixel .gallery-card {
+  border-radius: 0 !important;
+  border-width: 2px;
+  border-style: solid;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+html.theme-8bit .gallery-card:hover,
+html.theme-pixel-fusion .gallery-card:hover,
+html.theme-royal-pixel .gallery-card:hover,
+html.theme-future-pixel .gallery-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+}
+
+html.theme-8bit .filter-btn,
+html.theme-8bit .layout-btn,
+html.theme-8bit .sort-select,
+html.theme-pixel-fusion .filter-btn,
+html.theme-pixel-fusion .layout-btn,
+html.theme-pixel-fusion .sort-select,
+html.theme-royal-pixel .filter-btn,
+html.theme-royal-pixel .layout-btn,
+html.theme-royal-pixel .sort-select,
+html.theme-future-pixel .filter-btn,
+html.theme-future-pixel .layout-btn,
+html.theme-future-pixel .sort-select {
+  border-radius: 0 !important;
+  border-width: 2px;
+  border-style: solid;
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.4);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+html.theme-8bit .filter-btn:hover,
+html.theme-8bit .layout-btn:hover,
+html.theme-pixel-fusion .filter-btn:hover,
+html.theme-pixel-fusion .layout-btn:hover,
+html.theme-royal-pixel .filter-btn:hover,
+html.theme-royal-pixel .layout-btn:hover,
+html.theme-future-pixel .filter-btn:hover,
+html.theme-future-pixel .layout-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.4);
 }
 
 /* ===== 다크모드 스타일 ===== */

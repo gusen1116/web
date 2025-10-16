@@ -12,7 +12,6 @@ import socket
 import concurrent.futures
 import json
 from flask_wtf.csrf import validate_csrf
-from app.services.cache_service import CacheService
 
 # Create the blueprint
 utils_bp = Blueprint('utils_bp', __name__)
@@ -186,9 +185,3 @@ def api_port_scan():
         else:
             results['closed'].append(port)
     return jsonify(results)
-
-@utils_bp.route('/clearcache')
-def clear_cache():
-    """Clear the application cache."""
-    CacheService.clear_cache()
-    return "Cache cleared!"

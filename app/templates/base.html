@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="format-detection" content="telephone=no">
     <title>{% block title %}와구센{% endblock %}</title>
     
@@ -42,6 +42,12 @@
     </script>
 </head>
 <body class="{% block body_class %}{% endblock %}">
+    {% set nav_items = [
+        {'href': url_for('posts.index'), 'label': '블로그', 'icon': 'fas fa-pen-nib'},
+        {'href': url_for('gallery.index'), 'label': '갤러리', 'icon': 'fas fa-image'},
+        {'href': url_for('speedtest.speedtest_page'), 'label': '네트워크', 'icon': 'fas fa-tachometer-alt'},
+        {'href': url_for('main.about'), 'label': '소개', 'icon': 'fas fa-circle-info'}
+    ] %}
     <header class="top-header" id="siteHeader">
         <div class="container">
             <div class="logo-area">
@@ -52,15 +58,14 @@
             </div>
             <nav class="main-nav desktop-nav" id="desktopNav">
                 <ul>
-                    <li><a href="{{ url_for('posts.index') }}">블로그</a></li>
-                    <li><a href="{{ url_for('gallery.index') }}">갤러리</a></li>
-                    <li><a href="{{ url_for('speedtest.speedtest_page') }}">네트워크</a></li>
-                    <li><a href="{{ url_for('main.about') }}">소개</a></li>
+                    {% for item in nav_items %}
+                    <li><a href="{{ item.href }}">{{ item.label }}</a></li>
+                    {% endfor %}
                 </ul>
             </nav>
             <div class="header-controls">
                 <div class="theme-toggle-area">
-                    <button class="theme-toggle" id="unifiedThemeToggle" title="테마 변경" aria-label="테마 전환">
+                    <button class="theme-toggle" id="unifiedThemeToggle" data-theme-toggle="true" title="테마 변경" aria-label="테마 전환">
                         <i class="fas fa-palette theme-icon"></i>
                     </button>
                 </div>
@@ -72,9 +77,53 @@
             </div>
         </div>
     </header>
-    <nav class="mobile-nav" id="mobileNav">
-        </nav>
-    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <nav class="mobile-nav" id="mobileNav" aria-hidden="true" role="dialog" aria-modal="true" aria-label="모바일 메뉴">
+        <div class="mobile-nav-header">
+            <a href="{{ url_for('main.index') }}" class="mobile-nav-logo" aria-label="와구센 홈">
+                <img src="{{ url_for('static', filename='images/site/logo.png') }}" alt="와구센 로고" loading="lazy">
+                <span>와구센</span>
+            </a>
+            <button class="mobile-nav-close" id="mobileNavClose" type="button" aria-label="메뉴 닫기">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-nav-content">
+            <ul class="mobile-nav-list">
+                {% for item in nav_items %}
+                <li class="mobile-nav-item">
+                    <a href="{{ item.href }}" class="mobile-nav-link">
+                        <i class="default-icon {{ item.icon }}"></i>
+                        <span>{{ item.label }}</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="mobile-theme-item">
+                <button class="mobile-nav-link mobile-theme-toggle" type="button" data-theme-toggle="true">
+                    <i class="default-icon fas fa-palette"></i>
+                    <span>테마 전환</span>
+                    <div class="theme-switch" aria-hidden="true">
+                        <div class="theme-switch-slider" data-theme-slider="true"></div>
+                    </div>
+                </button>
+            </div>
+        </div>
+        <div class="mobile-nav-footer">
+            <div class="mobile-nav-info">
+                <p>© 2025 와구센 · 더 나은 모바일 경험을 준비했어요.</p>
+            </div>
+            <div class="mobile-nav-social">
+                <a href="https://github.com/wagusen" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="mailto:gusen@wagusen.com" aria-label="메일 보내기">
+                    <i class="fas fa-envelope"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-overlay" id="mobileOverlay" aria-hidden="true"></div>
     
     <main>
         <div class="container">

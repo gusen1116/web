@@ -61,7 +61,6 @@ class Config:
         "script-src": [
             "'self'",
             "'unsafe-inline'",
-            "'unsafe-eval'",
             "https:",
             "data:"
         ],
@@ -107,7 +106,7 @@ class Config:
     # 허용된 HTML 태그 및 속성
     ALLOWED_HTML_TAGS = [
         'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-        'p', 'br', 'hr', 'a', 'strong', 'em',
+        'p', 'br', 'hr', 'a', 'strong', 'em', 'u', 's', 'sub', 'sup',
         'code', 'pre', 'blockquote', 'img',
         'ul', 'ol', 'li', 'span', 'div',
         'figure', 'figcaption', 'iframe', 'table',
@@ -118,7 +117,7 @@ class Config:
         'a': ['href', 'title', 'target', 'rel', 'class'],
         'img': ['src', 'alt', 'title', 'width', 'height', 'class', 'loading', 'decoding', 'style'],
         'div': ['class', 'id', 'data-theme'],
-        'span': ['class'],
+        'span': ['class', 'style'],
         'code': ['class'],
         'pre': ['class'],
         'iframe': ['src', 'width', 'height', 'frameborder', 
@@ -131,6 +130,13 @@ class Config:
         'table': ['class'], 'tr': ['class'], 'th': ['class', 'colspan', 'rowspan'],
         'td': ['class', 'colspan', 'rowspan']
     }
+    
+    ALLOWED_CSS_PROPERTIES = [
+        'width', 'min-width', 'max-width',
+        'height', 'min-height', 'max-height',
+        'margin', 'margin-left', 'margin-right', 'margin-top', 'margin-bottom',
+        'display', 'text-align'
+    ]
     
     # 외부 도메인 허용 목록 (보안 강화)
     ALLOWED_EXTERNAL_DOMAINS = {

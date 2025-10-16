@@ -5,82 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wa gusan - Magazine</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --color-stone-100: #f5f5f4;
-            --color-gray-100: #f3f4f6;
-            --color-gray-200: #e5e7eb;
-            --color-gray-300: #d1d5db;
-            --color-gray-400: #9ca3af;
-            --color-gray-500: #6b7280;
-            --color-gray-600: #4b5563;
-            --color-gray-700: #374151;
-            --color-gray-800: #1f2937;
-            --color-gray-950: #030712;
-            --color-white: #ffffff;
-        }
-        *, *::before, *::after { box-sizing: border-box; }
-        body, h1, h2, h3, p, ul, li { margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--color-stone-100); color: var(--color-gray-800); }
-        .font-myeongjo { font-family: 'Nanum Myeongjo', serif; }
-        .main-nav { position: fixed; top: 0; left: 0; width: 100%; z-index: 50; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; transition: transform 0.3s ease-in-out; }
-        .main-nav .logo { font-size: 1.5rem; font-weight: 700; color: var(--color-gray-800); text-decoration: none; }
-        .hero-section { width: 100%; display: grid; grid-template-columns: 1fr; }
-        .hero-logo-area { display: flex; align-items: center; justify-content: center; background-color: var(--color-gray-950); padding: 2rem; }
-        .hero-logo-area img { width: 66.66%; max-width: 20rem; }
-        .hero-post-area { position: relative; display: flex; align-items: center; justify-content: center; padding: 2rem; transition: background-color 0.5s ease; }
-        .hero-post-area .card-link { display: block; width: 100%; max-width: 40rem; text-decoration: none; }
-        .content-section { width: 100%; display: grid; }
-        .content-grid { display: grid; grid-template-columns: 1fr; }
-        .content-column { display: flex; flex-direction: column; gap: 2rem; padding: 2rem; transition: background-color 0.5s ease;}
-        .sticky-column { background-color: var(--color-gray-100); padding: 2rem; display: flex; justify-content: center; align-items: flex-start; }
-        .card { background-color: var(--color-white); border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; text-decoration: none; color: var(--color-gray-800); }
-        .card:hover { transform: translateY(-0.25rem); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1); }
-        .card-image { background-color: var(--color-gray-200); position: relative; padding-top: 75%; }
-        .card-image img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-        .card-content { padding: 1.5rem; }
-        .card-content h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; }
-        .card-content .description { color: var(--color-gray-600); margin-bottom: 1rem; }
-        .card-content .date { font-size: 0.875rem; color: var(--color-gray-400); }
-        .pagination { display: flex; justify-content: center; align-items: center; padding: 2rem 0; }
-        .pagination a { color: var(--color-gray-600); text-decoration: none; padding: 0.5rem 1rem; margin: 0 0.25rem; border-radius: 0.25rem; transition: background-color 0.3s, color 0.3s; }
-        .pagination a:hover { background-color: var(--color-gray-200); color: var(--color-gray-800); }
-        .pagination a.active { background-color: var(--color-gray-800); color: var(--color-white); }
-        .pagination a.disabled { pointer-events: none; color: var(--color-gray-400); }
-        footer { background-color: var(--color-gray-950); color: var(--color-gray-300); padding: 3rem 1rem; }
-        @media (min-width: 768px) {
-            .hero-section { grid-template-columns: repeat(2, 1fr); }
-            .content-grid { grid-template-columns: repeat(2, 1fr); }
-            .content-column { padding: 4rem; }
-            .sticky-column { padding: 4rem; }
-            .sticky-card-wrapper { position: sticky; top: 4rem; width: 91.66%; }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/magazine.css') }}">
 </head>
 <body>
+
+    <!-- 고정 헤더 -->
     <nav id="main-nav" class="main-nav">
-        <a href="{{ url_for('main.index') }}" class="logo font-myeongjo">Wagusen</a>
+        <div class="nav-inner">
+            <a href="{{ url_for('main.index') }}" class="logo font-myeongjo">Wagusen</a>
+            <button id="menu-toggle-button" class="menu-toggle-button" aria-label="메인 메뉴 열기">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
     </nav>
+
+    <!-- 풀스크린 메뉴 -->
+    <div id="fullscreen-menu" class="fullscreen-menu">
+        <div class="menu-container">
+            <div class="search-bar">
+                <input type="text" placeholder="검색어 입력" class="search-input">
+            </div>
+
+            <div id="menu-grid" class="menu-grid">
+                <!-- 메인 메뉴 -->
+                <div class="main-menu-column">
+                    <ul class="main-menu-list">
+                        <li class="main-menu-item"><a href="{{ url_for('posts.index') }}">블로그</a></li>
+                        <li class="main-menu-item"><a href="{{ url_for('gallery.index') }}">갤러리</a></li>
+                        <li class="main-menu-item"><a href="{{ url_for('speedtest.speedtest_page') }}">네트워크</a></li>
+                        <li class="main-menu-item"><a href="{{ url_for('main.about') }}">소개</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {% if posts_with_colors %}
         <header class="hero-section">
-            {% if current_page == 1 %}
+                {% if current_page == 1 %}
                 <div class="hero-logo-area">
-                    <img src="https://placehold.co/400x150/030712/FFFFFF?text=WAGUSEN" alt="Wa gusan Logo">
+                    <img src="https://placehold.co/400x150/030712/FFFFFF?text=WAGUSEN" alt="Wa gusan Logo" decoding="async">
                 </div>
             {% endif %}
-            <div class="hero-post-area" {% if current_page > 1 %}style="grid-column: span 2;"{% endif %}>
+            <div class="hero-post-area{% if current_page > 1 %} hero-post-area--wide{% endif %}">
                 {% set hero_data = posts_with_colors[0] %}
                 {% set hero_post = hero_data.post %}
                 {% set hero_preview = hero_post.get_rich_preview(100) %}
                 <a href="{{ hero_post.get_url() }}" class="card-link">
-                    <div class="card">
-                        <div class="card-image">
-                            {% if hero_preview['image_filename'] %}
-                                <img src="{{ url_for('static', filename='images/posts/' + hero_preview['image_filename']) }}" alt="{{ hero_preview['image_alt'] }}">
-                            {% else %}
-                                <img src="https://placehold.co/600x400/1f2937/a3e635?text=W" alt="Placeholder image">
+                        <div class="card">
+                            <div class="card-image">
+                                {% if hero_preview['image_filename'] %}
+                                <img src="{{ url_for('static', filename='images/posts/' + hero_preview['image_filename']) }}" alt="{{ hero_preview['image_alt'] }}" decoding="async" fetchpriority="high">
+                                {% else %}
+                                <img src="https://placehold.co/600x400/1f2937/a3e635?text=W" alt="Placeholder image" decoding="async" fetchpriority="high">
                             {% endif %}
                         </div>
                         <div class="card-content">
@@ -96,19 +75,19 @@
         {% set remaining_posts = posts_with_colors[1:] %}
         {% if remaining_posts %}
             {% for post_chunk in remaining_posts | batch(3) %}
-                <section class="content-section">
-                    <div class="content-grid">
-                        <div class="content-column" style="background-color: {{ post_chunk[0].color if post_chunk[0] else '#FFFFFF' }};">
+                <section class="content-section{% if loop.first %} first-section{% endif %}">
+                    <div class="content-grid{% if loop.index is even %} reverse{% endif %}">
+                        <div class="content-column" data-column-color="{{ post_chunk[0].color if post_chunk[0] else '#FFFFFF' }}">
                             {% for post_data in post_chunk %}
-                                {% if loop.index != 3 %}
+                                {% if loop.index != 3 and post_data %}
                                     {% set post = post_data.post %}
                                     {% set preview = post.get_rich_preview(80) %}
-                                    <a href="{{ post.get_url() }}" class="card">
+                                    <a href="{{ post.get_url() }}" class="card animate-on-scroll">
                                         <div class="card-image">
                                             {% if preview['image_filename'] %}
-                                                <img src="{{ url_for('static', filename='images/posts/' + preview['image_filename']) }}" alt="{{ preview['image_alt'] }}">
+                                                <img src="{{ url_for('static', filename='images/posts/' + preview['image_filename']) }}" alt="{{ preview['image_alt'] }}" loading="lazy" decoding="async">
                                             {% else %}
-                                                <img src="https://placehold.co/600x400/e2e8f0/333333?text={{ loop.index }}" alt="Placeholder image">
+                                                <img src="https://placehold.co/600x400/e2e8f0/333333?text={{ loop.index }}" alt="Placeholder image" loading="lazy" decoding="async">
                                             {% endif %}
                                         </div>
                                         <div class="card-content">
@@ -120,18 +99,19 @@
                                 {% endif %}
                             {% endfor %}
                         </div>
-                        <div class="sticky-column">
+                        {% set sticky_color = (post_chunk[2].color if post_chunk|length > 2 and post_chunk[2] else (post_chunk[0].color if post_chunk[0] else '#FFFFFF')) %}
+                        <div class="sticky-column" data-sticky-color="{{ sticky_color }}">
                             {% if post_chunk[2] %}
                                 {% set post_data = post_chunk[2] %}
                                 {% set post = post_data.post %}
                                 {% set preview = post.get_rich_preview(120) %}
                                 <div class="sticky-card-wrapper">
-                                    <a href="{{ post.get_url() }}" class="card">
+                                    <a href="{{ post.get_url() }}" class="card animate-on-scroll">
                                         <div class="card-image">
                                             {% if preview['image_filename'] %}
-                                                <img src="{{ url_for('static', filename='images/posts/' + preview['image_filename']) }}" alt="{{ preview['image_alt'] }}">
+                                                <img src="{{ url_for('static', filename='images/posts/' + preview['image_filename']) }}" alt="{{ preview['image_alt'] }}" loading="lazy" decoding="async">
                                             {% else %}
-                                                <img src="https://placehold.co/600x800/e2e8f0/333333?text=3" alt="Placeholder image">
+                                                <img src="https://placehold.co/600x800/e2e8f0/333333?text=3" alt="Placeholder image" loading="lazy" decoding="async">
                                             {% endif %}
                                         </div>
                                         <div class="card-content">
@@ -169,15 +149,143 @@
         {% endif %}
 
     {% else %}
-        <div style="text-align: center; padding: 2rem 0;">
+        <div class="pagination-container">
             <h2 class="font-myeongjo">포스트가 없습니다.</h2>
             <p>표시할 포스트가 없습니다. 새 포스트를 추가해주세요.</p>
         </div>
     {% endif %}
 
     <footer>
-        ...
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <p>&copy; 2025 | 와구센</p>
+                    <a href="#" class="footer-logo">
+                        <img src="{{ url_for('static', filename='images/site/footer-logo.gif') }}" alt="푸터 로고" loading="lazy">
+                    </a>
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/wagusen" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-github footer-icon-github"></i>
+                        <span>GitHub</span>
+                    </a>
+                    <a href="mailto:gusen@wagusen.com">
+                        <i class="fas fa-envelope footer-icon-mail"></i>
+                        <span>메일</span>
+                    </a>
+                </div>
+            </div>
+        </div>
     </footer>
 
+    <script>
+        const nav = document.getElementById('main-nav');
+        const bodyElement = document.body;
+        const reduceMotion = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
+
+        if (nav) {
+            let lastScrollTop = 0;
+            const getThresholds = () => {
+                const navHeight = nav.offsetHeight || 0;
+                return {
+                    hideThreshold: navHeight * 1.4,
+                    classThreshold: navHeight * 0.6,
+                };
+            };
+            let { hideThreshold, classThreshold } = getThresholds();
+
+            const updateNavState = (scrollTop) => {
+                const isScrollingDown = scrollTop > lastScrollTop;
+                const shouldHide = isScrollingDown && scrollTop > hideThreshold;
+
+                nav.style.transform = shouldHide ? 'translateY(-110%)' : 'translateY(0)';
+
+                bodyElement.classList.toggle('nav-is-scrolled', scrollTop > classThreshold);
+                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+            };
+
+            updateNavState(window.pageYOffset || document.documentElement.scrollTop);
+
+            window.addEventListener('scroll', () => {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                updateNavState(scrollTop);
+            }, { passive: true });
+
+            window.addEventListener('resize', () => {
+                ({ hideThreshold, classThreshold } = getThresholds());
+                updateNavState(window.pageYOffset || document.documentElement.scrollTop);
+            });
+        }
+
+        const menuToggle = document.getElementById('menu-toggle-button');
+        const fullscreenMenu = document.getElementById('fullscreen-menu');
+        const animatedElements = document.querySelectorAll('.animate-on-scroll');
+
+        if (animatedElements.length) {
+            if (reduceMotion) {
+                animatedElements.forEach(target => target.classList.add('is-visible'));
+            } else if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries, obs) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            obs.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.12 });
+
+                animatedElements.forEach(target => observer.observe(target));
+            } else {
+                animatedElements.forEach(target => target.classList.add('is-visible'));
+            }
+        }
+
+        const setMenuState = (shouldOpen) => {
+            if (!fullscreenMenu || !menuToggle) return;
+            fullscreenMenu.classList.toggle('active', shouldOpen);
+            bodyElement.classList.toggle('overflow-hidden', shouldOpen);
+            menuToggle.classList.toggle('is-active', shouldOpen);
+            menuToggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+        };
+
+        if (menuToggle && fullscreenMenu) {
+            menuToggle.setAttribute('aria-expanded', 'false');
+
+            menuToggle.addEventListener('click', () => {
+                const willOpen = !fullscreenMenu.classList.contains('active');
+                setMenuState(willOpen);
+            });
+
+            fullscreenMenu.addEventListener('click', (event) => {
+                if (event.target === fullscreenMenu) {
+                    setMenuState(false);
+                }
+            });
+
+            fullscreenMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => setMenuState(false));
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && fullscreenMenu.classList.contains('active')) {
+                    setMenuState(false);
+                }
+            });
+        }
+
+        document.querySelectorAll('[data-column-color]').forEach(column => {
+            const color = column.getAttribute('data-column-color');
+            if (color) {
+                column.style.setProperty('--column-color', color);
+            }
+        });
+
+        document.querySelectorAll('[data-sticky-color]').forEach(section => {
+            const color = section.getAttribute('data-sticky-color');
+            if (color) {
+                section.style.setProperty('--sticky-color', color);
+            }
+        });
+    </script>
 </body>
 </html>

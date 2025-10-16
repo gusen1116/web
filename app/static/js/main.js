@@ -7,12 +7,7 @@
     const THEMES = [
         { name: 'light', className: '', displayName: '라이트' },
         { name: 'dark', className: ['dark-theme'], displayName: '다크' },
-        { name: '8bit', className: 'theme-8bit', displayName: '8비트' },
-        { name: 'pixel-fusion', className: ['dark-theme', 'theme-pixel-fusion'], displayName: '픽셀 퓨전' },
-        { name: 'royal-cream', className: 'theme-royal-cream', displayName: '로얄 크림' },
-        { name: 'royal-pixel', className: ['dark-theme', 'theme-royal-pixel'], displayName: '로얄 픽셀' },
-        { name: 'future-pixel', className: ['dark-theme', 'theme-future-pixel'], displayName: '퓨처 픽셀' },
-        { name: 'cyberpixel', className: ['dark-theme', 'theme-cyberpixel'], displayName: '사이버픽셀' }
+        { name: '8bit', className: 'theme-cyberbit', displayName: '8비트' }
     ];
     
     const ALL_THEME_CLASSES = THEMES.flatMap(theme =>
@@ -140,21 +135,33 @@
     class ThemeController {
         constructor(localStorageKey) {
             this.localStorageKey = localStorageKey;
-            this.toggleButton = $('#unifiedThemeToggle');
+            this.toggleButtons = Array.from(document.querySelectorAll('[data-theme-toggle]'));
+            this.currentTheme = THEMES[0];
             this.init();
         }
 
         init() {
             const saved = localStorage.getItem(this.localStorageKey);
             const currentTheme = THEMES.find(t => t.name === saved) || THEMES[0];
-            this.applyTheme(currentTheme);
+            this.applyTheme(currentTheme, { emitEvent: false });
+            this.updateToggleState(currentTheme);
 
-            if(this.toggleButton) {
-                this.toggleButton.addEventListener('click', () => this.toggle());
-            }
+            this.toggleButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    this.toggle();
+                }, { passive: false });
+            });
+
+            document.addEventListener('themeChanged', ({ detail }) => {
+                if (!detail) return;
+                this.currentTheme = detail;
+                this.updateToggleState(detail);
+            }, { passive: true });
         }
 
-        applyTheme(theme) {
+        applyTheme(theme, options = {}) {
+            const { emitEvent = true } = options;
             const html = document.documentElement;
             html.classList.remove(...ALL_THEME_CLASSES);
             
@@ -164,12 +171,27 @@
             }
             
             localStorage.setItem(this.localStorageKey, theme.name);
-            document.dispatchEvent(new CustomEvent('themeChanged', { detail: theme }));
+            this.currentTheme = theme;
+            if (emitEvent) {
+                document.dispatchEvent(new CustomEvent('themeChanged', { detail: theme }));
+            }
+            this.updateToggleState(theme);
+        }
+
+        updateToggleState(theme) {
+            const isAlternateTheme = theme.name !== THEMES[0].name;
+            this.toggleButtons.forEach(button => {
+                button.setAttribute('aria-pressed', isAlternateTheme ? 'true' : 'false');
+                button.classList.toggle('is-active', isAlternateTheme);
+                const slider = button.querySelector('[data-theme-slider]');
+                if (slider) {
+                    slider.classList.toggle('active', isAlternateTheme);
+                }
+            });
         }
 
         toggle() {
-            const currentName = localStorage.getItem(this.localStorageKey) || 'light';
-            const currentIndex = THEMES.findIndex(t => t.name === currentName);
+            const currentIndex = THEMES.findIndex(t => t.name === this.currentTheme.name);
             const nextIndex = (currentIndex + 1) % THEMES.length;
             this.applyTheme(THEMES[nextIndex]);
         }
@@ -184,6 +206,7 @@
             this.overlay = $('#mobileOverlay');
             this.isAnimating = false;
             this._focusHandler = null;
+            this.scrollPosition = 0;
         }
 
         init() {
@@ -195,7 +218,10 @@
             if (this.overlay) this.overlay.addEventListener('click', (e) => { e.preventDefault(); this.closeMenu(); }, { passive: false });
             document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && this.isOpen) this.closeMenu(); }, { passive: false });
             window.addEventListener('resize', () => { if (window.innerWidth > 768 && this.isOpen) this.closeMenu(); }, { passive: true });
-            this.nav.querySelectorAll('.mobile-nav-link').forEach(link => link.addEventListener('click', () => this.closeMenu(), { passive: true }));
+            this.nav.querySelectorAll('.mobile-nav-link').forEach(link => {
+                if (link.hasAttribute('data-theme-toggle')) return;
+                link.addEventListener('click', () => this.closeMenu(), { passive: true });
+            });
         }
 
         toggleMenu() {
@@ -207,12 +233,17 @@
             if (this.isOpen || this.isAnimating) return;
             this.isAnimating = true;
             this.isOpen = true;
+            this.scrollPosition = window.scrollY || document.documentElement.scrollTop || 0;
+            document.body.style.top = `-${this.scrollPosition}px`;
             document.body.classList.add('nav-open');
             this.nav.classList.add('active');
             this.toggleBtn.classList.add('active');
             this.toggleBtn.setAttribute('aria-expanded', 'true');
             this.nav.setAttribute('aria-hidden', 'false');
-            if (this.overlay) this.overlay.classList.add('active');
+            if (this.overlay) {
+                this.overlay.classList.add('active');
+                this.overlay.setAttribute('aria-hidden', 'false');
+            }
             setTimeout(() => { this.isAnimating = false; }, 400);
             this.trapFocus();
         }
@@ -226,7 +257,15 @@
             this.toggleBtn.classList.remove('active');
             this.toggleBtn.setAttribute('aria-expanded', 'false');
             this.nav.setAttribute('aria-hidden', 'true');
-            if (this.overlay) this.overlay.classList.remove('active');
+            if (this.overlay) {
+                this.overlay.classList.remove('active');
+                this.overlay.setAttribute('aria-hidden', 'true');
+            }
+            document.body.style.top = '';
+            if (this.scrollPosition) {
+                window.scrollTo(0, this.scrollPosition);
+                this.scrollPosition = 0;
+            }
             setTimeout(() => { this.isAnimating = false; }, 400);
             if (this._focusHandler) {
                 document.removeEventListener('keydown', this._focusHandler);
@@ -237,8 +276,13 @@
 
         trapFocus() {
             const focusable = this.nav.querySelectorAll('a[href], button, textarea, input, select');
+            if (!focusable.length) return;
             const first = focusable[0];
             const last = focusable[focusable.length - 1];
+            const initialFocus = this.closeBtn && this.nav.contains(this.closeBtn) ? this.closeBtn : first;
+            if (initialFocus) {
+                initialFocus.focus();
+            }
             this._focusHandler = (e) => {
                 if (e.key === 'Tab') {
                     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); } 

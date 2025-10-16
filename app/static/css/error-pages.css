@@ -35,7 +35,8 @@
   text-align: center;
   max-width: 600px;
   width: 100%;
-  background: rgba(var(--bg-secondary), 0.9);
+  background: var(--bg-secondary);
+  background: color-mix(in srgb, var(--bg-secondary) 92%, transparent);
   backdrop-filter: blur(10px);
   border-radius: 24px;
   padding: 3rem 2rem;

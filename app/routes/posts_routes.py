@@ -19,7 +19,6 @@ from app.services.text_service import (
     get_all_text_posts, get_text_post, get_tags_count,
     get_series_posts, get_adjacent_posts, render_content
 )
-from app.services.cache_service import CacheService
 from typing import Dict, List, Any
 
 posts_bp = Blueprint('posts', __name__, url_prefix='/posts')
@@ -38,7 +37,7 @@ def validate_slug(slug: str) -> bool:
     """Return True if ``slug`` is a valid post slug."""
     if not slug or not isinstance(slug, str) or len(slug) > 100:
         return False
-    return bool(re.match(r'^[a-zA-Z0-9_\-]+$', slug))
+    return bool(re.match(r'^[가-힣a-zA-Z0-9_\-]+$', slug))
 
 def validate_tag(tag: str) -> bool:
     """Return True if ``tag`` is a valid tag name."""
@@ -71,8 +70,9 @@ def index():
     """List all posts on the blog index page."""
     try:
         current_app.logger.info("포스트 인덱스 페이지 로드 시작")
-        posts = CacheService.get_posts_with_cache()
-        tags_count = CacheService.get_tags_with_cache()
+        posts_dir = current_app.config.get('POSTS_DIR')
+        posts = get_all_text_posts(posts_dir)
+        tags_count = get_tags_count(posts_dir)
         current_app.logger.info(f"로드된 포스트 수: {len(posts) if posts else 0}")
         current_app.logger.info(f"로드된 태그 수: {len(tags_count) if tags_count else 0}")
         tags = []
@@ -102,7 +102,8 @@ def index():
 def tags_overview():
     """Display an overview of all tags grouped alphabetically."""
     try:
-        tags_count = CacheService.get_tags_with_cache()
+        posts_dir = current_app.config.get('POSTS_DIR')
+        tags_count = get_tags_count(posts_dir)
         tag_groups: Dict[str, List[Dict[str, Any]]] = {}
         for tag, count in tags_count.items():
             first_char = tag[0].upper()
@@ -139,7 +140,8 @@ def view_by_slug(slug: str):
         abort(400, "잘못된 요청입니다")
     posts_dir = current_app.config.get('POSTS_DIR')
     try:
-        matching_post = CacheService.get_post_by_slug_with_cache(slug)
+        all_posts = get_all_text_posts(posts_dir)
+        matching_post = next((p for p in all_posts if p.slug == slug), None)
         if not matching_post:
             abort(404, "포스트를 찾을 수 없습니다")
         base_url_images = url_for('posts.serve_image', filename='').rstrip('/')
@@ -151,7 +153,7 @@ def view_by_slug(slug: str):
             base_url_videos,
             base_url_audios
         )
-        tags_count = CacheService.get_tags_with_cache()
+        tags_count = get_tags_count(posts_dir)
         tags = [
             {"name": escape(tag), "count": count}
             for tag, count in sorted(tags_count.items(), key=lambda x: x[1], reverse=True)[:10]
@@ -183,7 +185,13 @@ def view_post(filename: str):
     if not any(filename.endswith(f'.{ext}') for ext in allowed_text_extensions):
         if '.' not in filename:
             filename = f'{filename}.txt'
-    return redirect(url_for('posts.view_by_slug', slug=filename))
+    # Legacy URLs often include the file extension; remove it and normalise to a valid slug
+    slug_candidate, _ = os.path.splitext(filename)
+    if not validate_slug(slug_candidate):
+        slug_candidate = re.sub(r'[^a-zA-Z0-9_-]+', '-', slug_candidate).strip('-')
+    if not validate_slug(slug_candidate):
+        abort(400, "잘못된 파일명입니다")
+    return redirect(url_for('posts.view_by_slug', slug=slug_candidate), code=301)
 
 @posts_bp.route('/tag/<tag>')
 def filter_by_tag(tag: str):
@@ -193,7 +201,7 @@ def filter_by_tag(tag: str):
     try:
         posts_dir = current_app.config.get('POSTS_DIR')
         posts = get_all_text_posts(posts_dir, tag=tag)
-        tags_count = CacheService.get_tags_with_cache()
+        tags_count = get_tags_count(posts_dir)
         # Find related tags
         related_tags_list: List[str] = []
         for post in posts:
@@ -208,7 +216,7 @@ def filter_by_tag(tag: str):
             {"name": escape(t), "count": c}
             for t, c in sorted(tags_count.items(), key=lambda x: x[1], reverse=True)[:20]
         ]
-        all_posts = CacheService.get_posts_with_cache()
+        all_posts = get_all_text_posts(posts_dir)
         recent_posts = all_posts[:5] if len(all_posts) > 5 else all_posts
         return render_template(
             'posts/tag.html',
@@ -230,7 +238,8 @@ def tag_autocomplete():
     if not query or len(query) < 2:
         return jsonify([])
     try:
-        tags_count = CacheService.get_tags_with_cache()
+        posts_dir = current_app.config.get('POSTS_DIR')
+        tags_count = get_tags_count(posts_dir)
         matching_tags = [
             {'name': tag, 'count': count, 'url': f'/posts/tag/{tag}'}
             for tag, count in tags_count.items()
@@ -258,12 +267,12 @@ def view_series(series_name: str):
         series_posts = get_series_posts(posts_dir, series_name)
         if not series_posts:
             abort(404, "시리즈를 찾을 수 없습니다")
-        tags_count = CacheService.get_tags_with_cache()
+        tags_count = get_tags_count(posts_dir)
         tags = [
             {"name": escape(tag), "count": count}
             for tag, count in sorted(tags_count.items(), key=lambda x: x[1], reverse=True)[:10]
         ]
-        all_posts = CacheService.get_posts_with_cache()
+        all_posts = get_all_text_posts(posts_dir)
         recent_posts = all_posts[:5] if len(all_posts) > 5 else all_posts
         return render_template(
             'posts/series.html',

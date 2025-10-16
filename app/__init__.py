@@ -10,7 +10,6 @@ from flask_compress import Compress
 from flask_talisman import Talisman
 from flask_wtf.csrf import CSRFProtect
 from flask_assets import Environment, Bundle
-from flask_caching import Cache
 
 # --- Load configuration safely ---
 try:
@@ -24,7 +23,6 @@ compress = Compress()
 talisman = Talisman()
 csrf = CSRFProtect()
 assets = Environment()
-cache = Cache()
 
 def page_not_found(e):
     return render_template('404.html'), 404
@@ -58,7 +56,6 @@ def create_app(config_name: str | None = None) -> Flask:
     compress.init_app(app)
     csrf.init_app(app)
     assets.init_app(app)
-    cache.init_app(app)
 
     # --- CSS & JS bundling ---
     js_bundle = Bundle(

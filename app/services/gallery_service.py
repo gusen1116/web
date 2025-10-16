@@ -13,12 +13,19 @@ except ImportError:
     HEIF_ENABLED = False
 
 
+def _get_thumbnail_filename(filename: str) -> str:
+    """원본 파일명을 기반으로 썸네일 파일명을 생성 (.jpg 고정)."""
+    base, _ = os.path.splitext(filename)
+    return f"{base}.jpg"
+
+
 def _get_thumbnail_path(filename: str) -> str:
-    """static/gallery_thumbnails/<filename> 절대경로 반환 (폴더 없으면 생성)."""
+    """static/gallery_thumbnails/<thumbnail_filename> 절대경로 반환 (폴더 없으면 생성)."""
     thumb_dir = os.path.join(current_app.static_folder, 'gallery_thumbnails')
     if not os.path.exists(thumb_dir):
         os.makedirs(thumb_dir)
-    return os.path.join(thumb_dir, filename)
+    thumb_filename = _get_thumbnail_filename(filename)
+    return os.path.join(thumb_dir, thumb_filename)
 
 
 def _create_thumbnail(image_path: str, thumb_path: str) -> bool:
@@ -156,7 +163,7 @@ def process_photo_file(filename: str, photos_dir: str) -> dict | None:
     return {
         'id': filename,
         'url': url_for('static', filename=f'gallery_photos/{filename}'),
-        'thumbnail_url': url_for('static', filename=f'gallery_thumbnails/{filename}'),
+        'thumbnail_url': url_for('static', filename=f'gallery_thumbnails/{_get_thumbnail_filename(filename)}'),
         'title': os.path.splitext(filename)[0].replace('_', ' ').replace('-', ' ').title(),
         'tags': [year_tag],
         'exif': formatted_exif,
