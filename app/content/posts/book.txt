@@ -3,6 +3,7 @@
 [tags: 책, 취향]
 [author: 구센]
 [description: 읽은 책중에 괜찮은 것들]
+[thumbnail:chatgpt1.png |책 추천]
 
 ### 구분 
 읽었던 책중에 재미있고 나름 좋은 책목록

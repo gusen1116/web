@@ -25,7 +25,7 @@ posts_bp = Blueprint('posts', __name__, url_prefix='/posts')
 
 # Allowed media extensions per media type
 ALLOWED_EXTENSIONS = {
-    'image': {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'},
+    'image': {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'heic', 'heif'},
     'video': {'mp4', 'webm', 'ogg', 'mov'},
     'audio': {'mp3', 'wav', 'ogg', 'flac', 'm4a'}
 }

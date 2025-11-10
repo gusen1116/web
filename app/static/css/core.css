@@ -873,7 +873,7 @@ h2 {
 
 h3 {
   font-size: 1.23rem;
-  line-height: 203%;
+  line-height: 100%;
   font-weight: 700;
   margin-top: 2em;
   margin-bottom: 0.8em;
@@ -881,25 +881,25 @@ h3 {
 
 h4 {
   font-size: 1.15rem;
-  line-height: 203%;
+  line-height: 100%;
   font-weight: 700;
 }
 
 h5 {
   font-size: 1.1rem;
-  line-height: 203%;
+  line-height: 100%;
   font-weight: 700;
 }
 
 h6 {
   font-size: 1rem;
-  line-height: 203%;
+  line-height: 100%;
   font-weight: 700;
 }
 
 p {
   font-size: 1.23rem;
-  line-height: 203%;
+  line-height: 100%;
   font-weight: 400;
   margin-bottom: 1.5em;
 }
@@ -920,7 +920,7 @@ li {
   font-family: var(--font-sans);
   font-weight: 400;
   font-size: 1.23rem;
-  line-height: 203%;
+  line-height: 100%;
   margin-bottom: 0.6em;
   text-align: left;
   word-break: keep-all;
@@ -1003,7 +1003,7 @@ pre code {
   font-family: var(--font-sans);
   font-weight: 400;
   font-size: 1.23rem;
-  line-height: 203%;
+  line-height: 100%;
   max-width: var(--paragraph-width);
   margin: 0 auto;
   letter-spacing: -0.01em;
@@ -1039,7 +1039,7 @@ br.compact-break,
   font-family: var(--font-sans);
   font-weight: 400;
   margin-bottom: 1.5em;
-  line-height: 203%;
+  line-height: 100%;
 }
 
 .post-content p + p {
@@ -1064,10 +1064,10 @@ br.compact-break,
 
 .post-content h1 { font-size: 2.75rem; line-height: 130%; }
 .post-content h2 { font-size: 1.9rem; line-height: 130%; }
-.post-content h3 { font-size: 1.23rem; line-height: 203%; }
-.post-content h4 { font-size: 1.15rem; line-height: 203%; }
-.post-content h5 { font-size: 1.1rem; line-height: 203%; }
-.post-content h6 { font-size: 1rem; line-height: 203%; }
+.post-content h3 { font-size: 1.23rem; line-height: 100%; }
+.post-content h4 { font-size: 1.15rem; line-height: 100%; }
+.post-content h5 { font-size: 1.1rem; line-height: 100%; }
+.post-content h6 { font-size: 1rem; line-height: 100%; }
 
 /* ===== 헤딩 앵커 링크 완전 제거 ===== */
 h1 .anchor-link,
@@ -1350,7 +1350,7 @@ h6:hover::after {
   p { 
     font-weight: 300; 
     font-size: 1.1rem; 
-    line-height: 1.6; 
+    line-height: 1.0; 
     width: 100%; 
     max-width: none; 
     padding: 0 1rem; 
@@ -1370,14 +1370,14 @@ h6:hover::after {
   li { 
     font-weight: 300; 
     font-size: 1.1rem; 
-    line-height: 1.6; 
+    line-height: 1.0; 
     margin-bottom: 0.4em; 
   }
 
   .post-content { 
     font-weight: 300; 
     font-size: 1.1rem; 
-    line-height: 1.6; 
+    line-height: 1.0; 
     max-width: none; 
     width: 100%; 
     padding: 0 1rem; 
@@ -1389,7 +1389,7 @@ h6:hover::after {
   .post-content p { 
     font-weight: 300; 
     font-size: 1.1rem; 
-    line-height: 1.6; 
+    line-height: 1.0; 
     margin-bottom: 1.2em; 
     padding: 0; 
     width: 100%; 
@@ -1445,13 +1445,13 @@ h6:hover::after {
   
   p, .post-content p { 
     font-size: 1.05rem; 
-    line-height: 1.55; 
+    line-height: 1.0; 
     padding: 0 0.75rem; 
   }
   
   li { 
     font-size: 1.05rem; 
-    line-height: 1.55; 
+    line-height: 1.0; 
   }
   
   .post-content { 

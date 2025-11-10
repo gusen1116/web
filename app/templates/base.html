@@ -7,14 +7,14 @@
     <meta name="format-detection" content="telephone=no">
     <title>{% block title %}와구센{% endblock %}</title>
     
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/core.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/content.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout-modules.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/themes.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/error-pages.css') }}">
+    <link rel="stylesheet" href="{{ static_url('css/core.css') }}">
+    <link rel="stylesheet" href="{{ static_url('css/components.css') }}">
+    <link rel="stylesheet" href="{{ static_url('css/content.css') }}">
+    <link rel="stylesheet" href="{{ static_url('css/layout-modules.css') }}">
+    <link rel="stylesheet" href="{{ static_url('css/themes.css') }}">
+    <link rel="stylesheet" href="{{ static_url('css/error-pages.css') }}">
     
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ static_url('images/site/favicon.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     {% block head %}{% endblock %}
@@ -52,7 +52,7 @@
         <div class="container">
             <div class="logo-area">
                 <a href="{{ url_for('main.index') }}" class="logo">
-                    <img src="{{ url_for('static', filename='images/site/logo.png') }}" alt="로고 이미지" loading="lazy">
+                    <img src="{{ static_url('images/site/logo.png') }}" alt="로고 이미지" loading="lazy">
                     <span class="site-name">와구센</span>
                 </a>
             </div>
@@ -80,7 +80,7 @@
     <nav class="mobile-nav" id="mobileNav" aria-hidden="true" role="dialog" aria-modal="true" aria-label="모바일 메뉴">
         <div class="mobile-nav-header">
             <a href="{{ url_for('main.index') }}" class="mobile-nav-logo" aria-label="와구센 홈">
-                <img src="{{ url_for('static', filename='images/site/logo.png') }}" alt="와구센 로고" loading="lazy">
+                <img src="{{ static_url('images/site/logo.png') }}" alt="와구센 로고" loading="lazy">
                 <span>와구센</span>
             </a>
             <button class="mobile-nav-close" id="mobileNavClose" type="button" aria-label="메뉴 닫기">
@@ -137,7 +137,7 @@
                 <div class="footer-info">
                     <p>&copy; 2025 | 와구센</p>
                     <a href="#" class="footer-logo">
-                        <img src="{{ url_for('static', filename='images/site/footer-logo.gif') }}" alt="푸터 로고" loading="lazy">
+                        <img src="{{ static_url('images/site/footer-logo.gif') }}" alt="푸터 로고" loading="lazy">
                     </a>
                 </div>
                 <div class="footer-links">
@@ -154,13 +154,13 @@
         </div>
     </footer>
     
-    <script nonce="{{ csp_nonce() }}" src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script nonce="{{ csp_nonce() }}" src="{{ static_url('js/main.js') }}"></script>
     
     <script nonce="{{ csp_nonce() }}">
         (function() {
             if (document.documentElement.classList.contains('theme-cyberpixel')) {
                 const script = document.createElement('script');
-                script.src = "{{ url_for('static', filename='js/cyberpixel-particles.js') }}";
+                script.src = "{{ static_url('js/cyberpixel-particles.js') }}";
                 script.nonce = "{{ csp_nonce() }}";
                 document.body.appendChild(script);
             }

@@ -5,11 +5,12 @@ import logging
 from logging.handlers import RotatingFileHandler
 import secrets
 
-from flask import Flask, g, request, render_template
+from flask import Flask, g, request, render_template, url_for
 from flask_compress import Compress
 from flask_talisman import Talisman
 from flask_wtf.csrf import CSRFProtect
 from flask_assets import Environment, Bundle
+from werkzeug.utils import safe_join
 
 # --- Load configuration safely ---
 try:
@@ -178,6 +179,23 @@ def register_template_helpers(app: Flask) -> None:
     def inject_csrf_token():
         from flask_wtf.csrf import generate_csrf
         return dict(csrf_token=generate_csrf)
+
+    @app.context_processor
+    def inject_static_url():
+        def static_url(filename: str) -> str:
+            """Return a cache-busted static asset URL based on file mtime."""
+            version = None
+            try:
+                file_path = safe_join(app.static_folder, filename)
+                if file_path:
+                    version = int(os.path.getmtime(file_path))
+            except (OSError, TypeError, ValueError):
+                version = None
+            if version:
+                return url_for('static', filename=filename, v=version)
+            return url_for('static', filename=filename)
+
+        return dict(static_url=static_url)
 
 def verify_startup(app: Flask) -> None:
     """Perform simple checks when the application starts."""

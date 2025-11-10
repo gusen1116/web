@@ -9,7 +9,15 @@ from dataclasses import dataclass, field
 from flask import url_for, current_app
 from markupsafe import escape, Markup
 from werkzeug.utils import secure_filename
-from PIL import Image
+from PIL import Image, ImageOps
+
+try:
+    from pillow_heif import register_heif_opener
+    register_heif_opener()
+    HEIF_ENABLED = True
+except ImportError:
+    HEIF_ENABLED = False
+
 
 try:
     import markdown
@@ -157,7 +165,7 @@ class TextPost:
             current_app.logger.warning(f"Thumbnail filename '{filename}' is not secure.")
             return
 
-        allowed_img_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'}
+        allowed_img_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'heic', 'heif'}
         if not any(filename.lower().endswith(f".{ext}") for ext in allowed_img_extensions):
             current_app.logger.warning(f"Thumbnail filename '{filename}' has a disallowed extension.")
             return
@@ -249,7 +257,7 @@ class TextPost:
             secure_name = secure_filename(filename_from_tag)
             if secure_name == filename_from_tag:
                 allowed_img_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'}
-                if any(filename_from_tag.lower().endswith(f".{ext}") for ext in allowed_img_extensions):
+                if any(filename_from_tag.lower().endswith(f'.{ext}') for ext in {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'heic', 'heif'}):
                     first_image_filename = filename_from_tag
                     first_image_alt = alt_text_from_tag
                     
@@ -477,9 +485,36 @@ def _create_image_tag_secure(src: str, alt: Optional[str], options_str: Optional
     src = src.strip()
     secure_src = secure_filename(src)
     if not secure_src: return '<div class="error-embed">잘못된 이미지 파일명</div>'
-    allowed_img_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'}
+    
+    allowed_img_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'heic', 'heif'}
     if not any(secure_src.lower().endswith(f".{ext}") for ext in allowed_img_extensions):
         return '<div class="error-embed">지원하지 않는 이미지 형식</div>'
+
+    image_dir = os.path.join(current_app.static_folder, 'images', 'posts')
+    original_path = os.path.join(image_dir, secure_src)
+    
+    if secure_src.lower().endswith(('.heic', '.heif')):
+        if not HEIF_ENABLED:
+            return '<div class="error-embed">HEIC 지원이 활성화되지 않았습니다.</div>'
+        
+        jpeg_filename = f"{os.path.splitext(secure_src)[0]}.jpg"
+        jpeg_path = os.path.join(image_dir, jpeg_filename)
+        
+        if not os.path.exists(jpeg_path):
+            try:
+                if not os.path.exists(original_path):
+                    return '<div class="error-embed">원본 HEIC 파일을 찾을 수 없습니다.</div>'
+                
+                with Image.open(original_path) as img:
+                    img = ImageOps.exif_transpose(img)
+                    img.save(jpeg_path, "JPEG", quality=90, optimize=True)
+                secure_src = jpeg_filename
+            except Exception as e:
+                current_app.logger.error(f"HEIC를 JPEG로 변환 실패: {e}")
+                return f'<div class="error-embed">HEIC 변환 오류: {escape(str(e))}</div>'
+        else:
+            secure_src = jpeg_filename
+
     safe_src = escape(secure_src)
     safe_alt = escape(alt.strip()) if alt and alt.strip() else escape(Path(secure_src).stem)
     safe_base_url = escape(base_url.rstrip('/'))
