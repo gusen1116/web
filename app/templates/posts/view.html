@@ -1,0 +1,443 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block description %}{{ post.description or post.subtitle or (post.content|striptags)[:160] }}{% endblock %}
+
+{% block og_title %}{{ post.title }}{% endblock %}
+{% block og_description %}{{ post.description or post.subtitle or (post.content|striptags)[:160] }}{% endblock %}
+{% block og_image %}
+    {% if post.thumbnail %}
+        {{ url_for('static', filename='images/posts/' + post.thumbnail.split('|')[0]|trim) }}
+    {% else %}
+        {{ super() }}
+    {% endif %}
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/line-numbers/prism-line-numbers.min.css">
+
+
+<style>
+/* 포스트 헤더 영역 최적화 */
+.post-header {
+    margin-bottom: 1.5rem;
+    position: relative;
+    z-index: 10;
+    background-color: var(--bg-primary);
+}
+
+/* 메인 제목 스타일 (test.css 기준 유지) */
+.post-title {
+    width: 55rem;
+    max-width: 100%;
+    margin: 0 auto 1rem;
+    font-size: 2.75rem;
+    line-height: 130%;
+    font-weight: 720;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    word-break: keep-all;
+    word-wrap: break-word;
+}
+
+/* 부제목/설명 스타일 - 하단 마진 조정 */
+.post-subtitle,
+.post-description-header {
+    width: 55rem;
+    max-width: 100%;
+    margin: 0 auto 0.75rem; /* 하단 마진 (요청사항 반영) */
+    font-size: 1.23rem;
+    line-height: 203%; /* test.css 기준 */
+    font-weight: 400;
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+    font-style: italic;
+    word-break: keep-all;
+    word-wrap: break-word;
+    text-align: left;
+}
+
+/* 메타 정보 컨테이너 - 상단 마진 조정 */
+.post-meta-container {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    margin: 0.5rem auto 2rem; /* 상단 마진 (요청사항 반영) */
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--border-color);
+    width: 55rem;
+    max-width: 100%;
+}
+
+/* 날짜, 작성자, 글자 수 공통 스타일 */
+.post-date, .post-author, .post-word-count {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+    background-color: var(--bg-tertiary);
+    padding: 0.3rem 0.7rem;
+    border-radius: 15px;
+    border: 1px solid var(--border-color);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.post-date i, .post-author i, .post-word-count i {
+    margin-right: 0.4em;
+    color: var(--neutral-500);
+    font-size: 0.9em;
+}
+.post-date:hover, .post-author:hover, .post-word-count:hover {
+    background-color: var(--neutral-100);
+    border-color: var(--neutral-300);
+}
+
+/* 태그 스타일 */
+.post-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; width: 100%; margin-top: 0.5rem; }
+.post-tag {
+    display: inline-flex; align-items: center; background-color: var(--primary-50);
+    color: var(--primary-600); font-size: 0.8rem; font-weight: 500;
+    padding: 0.25rem 0.6rem; border-radius: 15px; transition: all 0.2s ease;
+    text-decoration: none; border: 1px solid var(--primary-200);
+}
+.post-tag i { margin-right: 0.3em; font-size: 0.8em; opacity: 0.7; }
+.post-tag:hover {
+    background-color: var(--primary-100); border-color: var(--primary-400);
+    color: var(--primary-700); transform: translateY(-1px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* 시리즈 박스 스타일 */
+.series-box {
+    background-color: var(--bg-tertiary); border: 1px solid var(--border-color);
+    border-left: 3px solid var(--primary-500); border-radius: 4px;
+    padding: 1rem 1.2rem; margin: 0 auto 1.5rem;
+    width: 55rem; max-width: 100%;
+}
+.series-title {
+    font-weight: 600; margin-bottom: 0.4rem; font-size: 1.05rem;
+    color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;
+}
+.series-title i { color: var(--primary-500); font-size: 0.9em; }
+.series-info { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.45; }
+.series-link {
+    color: var(--text-accent); font-weight: 500; text-decoration: none;
+    margin-left: 0.4rem; border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+}
+.series-link:hover { text-decoration: none; border-bottom-color: var(--text-accent); }
+
+/* 이전글/다음글 네비게이션 스타일 (하이퍼링크 자체 스타일은 enhanced-links.css로 이동) */
+.post-nav-simple {
+    width: 55rem; max-width: 100%; margin: 3rem auto 2rem;
+    border-top: 1px solid var(--border-color); padding-top: 1.5rem;
+}
+.post-nav-divider {
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1.5rem; gap: 0.8rem;
+}
+.nav-divider-line { display: none; } /* 회색 줄 제거 */
+.nav-divider-icon {
+    display: flex; align-items: center; justify-content: center; width: 36px; height: 36px;
+    background-color: var(--bg-secondary); border: 1px solid var(--border-color);
+    border-radius: 50%; color: var(--text-tertiary); font-size: 1rem;
+}
+.post-nav-container { display: flex; justify-content: space-between; align-items: stretch; gap: 1.5rem; }
+.post-nav-link { /* 링크 자체의 레이아웃과 배경, 테두리 등은 여기서 정의 */
+    display: flex; flex-direction: column; flex: 1; padding: 1rem;
+    background-color: var(--bg-secondary); border: 1px solid var(--border-color);
+    border-radius: 4px; text-decoration: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease; min-height: 100px;
+}
+.post-nav-link:hover { border-color: var(--primary-400); box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05); }
+.post-nav-info { display: flex; flex-direction: column; gap: 0.2rem; flex-grow: 1; }
+.post-nav-label {
+    display: flex; align-items: center; gap: 0.3rem; font-size: 0.75rem;
+    font-weight: 500; color: var(--text-tertiary);
+}
+.post-nav-label i { color: var(--text-tertiary); font-size: 0.9em; }
+.post-nav-title { /* 제목의 텍스트 스타일 (색상, 크기 등) */
+    font-size: 1rem; font-weight: 600; color: var(--text-primary) !important; /* important로 enhanced-links.css 오버라이드 방지 */
+    line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 0.2rem;
+    border-bottom: none !important; /* enhanced-links.css의 밑줄 제거 */
+    background-color: transparent !important; /* enhanced-links.css의 배경 제거 */
+    padding: 0 !important; /* enhanced-links.css의 패딩 제거 */
+}
+.post-nav-title:hover { /* 네비게이션 제목 호버 시 특별한 스타일 없음 */
+    color: var(--text-primary) !important;
+    background-color: transparent !important;
+    border-bottom: none !important;
+}
+
+.post-nav-date {
+    font-size: 0.7rem; color: var(--text-tertiary); margin-top: auto;
+    background-color: transparent; padding: 0;
+}
+.post-nav-link.next { text-align: right; }
+.post-nav-link.next .post-nav-info { align-items: flex-end; }
+.post-nav-link.next .post-nav-label { flex-direction: row-reverse; }
+.post-nav-link.disabled { opacity: 0.6; cursor: not-allowed; background-color: var(--bg-tertiary); }
+.post-nav-link.disabled:hover { border-color: var(--border-color); box-shadow: none; }
+
+/* (관련 글, 수정 이력, 블로그 홈 버튼, 다크모드, 모바일 최적화 스타일 등 이전 답변과 동일하게 유지) */
+/* ... 이전 답변의 CSS 나머지 부분 ... */
+
+/* 다크모드 조정 */
+html.dark-theme .post-date:hover,
+html.dark-theme .post-author:hover,
+html.dark-theme .post-word-count:hover { background-color: var(--neutral-700); border-color: var(--neutral-500); }
+html.dark-theme .post-tag { background-color: rgba(88, 166, 255, 0.1); color: #79c0ff; border-color: rgba(88, 166, 255, 0.25); }
+html.dark-theme .post-tag:hover { background-color: rgba(88, 166, 255, 0.2); border-color: rgba(88, 166, 255, 0.5); box-shadow: 0 1px 3px rgba(88,166,255,0.1); }
+
+html.dark-theme .series-box { background-color: var(--neutral-800); border-left-color: #58a6ff; border-color: var(--neutral-700); }
+html.dark-theme .series-title i { color: #58a6ff; }
+html.dark-theme .series-link:hover { border-bottom-color: #58a6ff; }
+
+html.dark-theme .nav-divider-icon { background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-tertiary); }
+html.dark-theme .post-nav-link { background-color: var(--bg-secondary); border-color: var(--border-color); }
+html.dark-theme .post-nav-link:hover { border-color: #58a6ff; box-shadow: 0 1px 6px rgba(88, 166, 255, 0.1); }
+html.dark-theme .post-nav-label, html.dark-theme .post-nav-label i { color: var(--text-tertiary); }
+html.dark-theme .post-nav-title { color: var(--text-primary) !important; } /* 다크모드 제목 색상 */
+html.dark-theme .post-nav-link.disabled { background-color: var(--bg-tertiary); border-color: var(--border-color); }
+
+/* 관련 글 섹션 스타일 */
+.related-posts-section {
+    width: 55rem; max-width: 100%; margin: 2.5rem auto;
+    padding-top: 1.5rem; border-top: 1px solid var(--border-color);
+}
+.related-posts-title {
+    font-size: 1.1rem; font-weight: 600; color: var(--text-primary);
+    margin-bottom: 1rem; display: flex; align-items: center; gap: 0.4rem;
+}
+.related-posts-title i { color: var(--primary-500); font-size: 0.9em; }
+.related-posts-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1rem;
+}
+.related-post-card {
+    background-color: var(--bg-secondary); border: 1px solid var(--border-color);
+    border-radius: 4px; padding: 0.8rem; text-decoration: none;
+    color: var(--text-primary); transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.related-post-card:hover {
+    border-color: var(--primary-400); box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+}
+.related-post-card h4 { font-size: 0.9rem; margin: 0 0 0.3rem 0; color: var(--text-primary) !important; border-bottom: none !important; background-color: transparent !important; padding: 0 !important; }
+.related-post-card h4:hover { color: var(--text-primary) !important; background-color: transparent !important; }
+.related-post-meta { font-size: 0.75rem; margin-bottom: 0.3rem; color: var(--text-tertiary); }
+.related-post-meta .date { margin-right: 0.4rem; }
+.related-post-meta .part {
+    background-color: var(--primary-50); color: var(--primary-600);
+    padding: 0.1rem 0.3rem; border-radius: 3px; font-weight: 500; font-size: 0.7rem;
+}
+.related-post-preview { font-size: 0.8rem; line-height: 1.35; color: var(--text-secondary); -webkit-line-clamp: 2;  -webkit-box-orient: vertical; overflow: hidden; }
+
+html.dark-theme .related-posts-title i { color: #58a6ff; }
+html.dark-theme .related-post-card { background-color: var(--bg-secondary); border-color: var(--border-color); }
+html.dark-theme .related-post-card:hover { border-color: #58a6ff; box-shadow: 0 1px 6px rgba(88,166,255,0.1); }
+html.dark-theme .related-post-card h4 { color: var(--text-primary) !important; }
+html.dark-theme .related-post-meta .part { background-color: rgba(88, 166, 255, 0.1); color: #79c0ff; }
+
+
+/* 수정 이력 박스 스타일 */
+.changelog-box {
+    background-color: var(--bg-tertiary); border: 1px solid var(--border-color);
+    border-left: 3px solid var(--neutral-400); border-radius: 4px;
+    padding: 1rem 1.2rem; margin: 1.5rem auto;
+    width: 55rem; max-width: 100%;
+}
+.changelog-box h4 { font-size: 1rem; margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 0.4rem;}
+.changelog-box h4 i { color: var(--neutral-500); font-size: 0.9em; }
+.changelog-list { list-style: none; padding-left: 0; margin: 0; }
+.changelog-list li { font-size: 0.85rem; margin-bottom: 0.25rem; padding-left: 1rem; position: relative; color: var(--text-secondary); }
+.changelog-list li::before { content: "•"; position: absolute; left: 0; color: var(--neutral-400); }
+
+html.dark-theme .changelog-box { background-color: var(--neutral-800); border-left-color: var(--neutral-500); border-color: var(--neutral-700); }
+html.dark-theme .changelog-box h4 i { color: var(--neutral-400); }
+html.dark-theme .changelog-list li::before { color: var(--neutral-500); }
+
+/* 블로그 홈으로 돌아가기 버튼 */
+.post-actions {
+    width: 55rem; 
+    max-width: 100%; 
+    margin: 3.5rem auto 1.5rem; 
+    text-align: center;
+}
+
+/* 모바일 최적화 */
+@media (max-width: 768px) {
+    /* .post-header, .post-title 등 대부분의 모바일 스타일은 이전 답변과 유사하게 유지 */
+    .post-subtitle, .post-description-header { margin-bottom: 0.5rem; line-height: 1.6; }
+    .post-meta-container { margin-top: 0.25rem; gap: 0.6rem; padding: 0.6rem 0; }
+    .post-date, .post-author, .post-word-count { font-size: 0.8rem; padding: 0.25rem 0.6rem; }
+    .post-tag { font-size: 0.75rem; padding: 0.2rem 0.5rem; }
+
+    .series-box, .changelog-box, .related-posts-section, .post-nav-simple, .post-actions {
+        width: calc(100% - 2rem); padding-left: 0; padding-right: 0;
+    }
+    .series-box, .changelog-box { padding: 0.8rem 1rem; margin: 1.2rem auto; }
+    .related-posts-section { padding-top: 1rem; margin: 2rem auto; }
+    .post-nav-simple { padding-top: 1rem; margin: 2.5rem auto 1.5rem; }
+
+    .post-nav-link { padding: 0.8rem; min-height: 80px; border-radius: 4px; }
+    .post-nav-title { font-size: 0.95rem; line-height: 1.25; }
+    .post-nav-label { font-size: 0.7rem; }
+    .nav-divider-icon { width: 30px; height: 30px; font-size: 0.9rem; }
+
+    .related-posts-title { font-size: 1.05rem; margin-bottom: 0.8rem; }
+    .related-post-card { padding: 0.7rem; border-radius: 4px; }
+    .related-post-card h4 { font-size: 0.85rem; }
+    .related-post-meta { font-size: 0.7rem; }
+    .related-post-preview { font-size: 0.75rem; line-height: 1.3; }
+
+    .btn-link.back-to-blog { font-size: 0.85rem; padding: 0.6rem 0.8rem; border-radius: 4px; }
+}
+
+@media (max-width: 480px) {
+    /* .post-title, .post-subtitle 등 초소형 화면 스타일은 이전 답변과 유사하게 유지 */
+    .post-subtitle, .post-description-header { line-height: 1.55; margin-bottom: 0.4rem; }
+    .post-meta-container { gap: 0.4rem; margin-top: 0.1rem; padding: 0.5rem 0; }
+    .post-date, .post-author, .post-word-count { font-size: 0.7rem; padding: 0.2rem 0.4rem; }
+    .post-tag { font-size: 0.65rem; padding: 0.15rem 0.35rem; }
+    .post-nav-title { font-size: 0.85rem; }
+    .post-nav-label { font-size: 0.65rem; }
+    .btn-link.back-to-blog { font-size: 0.8rem; }
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<article class="post-detail">
+    <header class="post-header">
+        <h1 class="post-title">{{ post.title }}</h1>
+        {% if post.subtitle %}
+        <div class="post-subtitle">{{ post.subtitle }}</div>
+        {% elif post.description %}
+        <div class="post-description-header">{{ post.description }}</div>
+        {% endif %}
+        <div class="post-meta-container">
+            <div class="post-date"><i class="far fa-calendar-alt"></i>{{ post.date.strftime('%Y년 %m월 %d일') }}</div>
+            <div class="post-author"><i class="far fa-user"></i><span>{{ post.author }}</span></div>
+            <div class="post-word-count"><i class="fas fa-file-word"></i>약 {{ post.get_word_count() }}단어</div>
+            {% if post.tags %}
+            <div class="post-tags">
+                {% for tag_item in post.tags %}
+                <a href="{{ url_for('posts.filter_by_tag', tag=tag_item) }}" class="post-tag">
+                    <i class="fas fa-hashtag"></i>{{ tag_item }}
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </header>
+    
+    {% if post.series %}
+    <div class="series-box">
+        <div class="series-title">
+            <i class="fas fa-clone"></i>
+            {{ post.series }} 
+            {% if post.series_part %}<span class="series-part-badge">(파트 {{ post.series_part }})</span>{% endif %}
+        </div>
+        <div class="series-info">
+            이 글은 <strong>{{ post.series }}</strong> 시리즈의 일부입니다.
+            <a href="{{ url_for('posts.view_series', series_name=post.series) }}" class="series-link">
+                시리즈 전체 보기 <i class="fas fa-angle-double-right fa-xs"></i>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="post-content compact-text">
+        {{ rendered_content|safe }}
+    </div>
+    
+    {% if post.changelog and post.changelog|length > 0 %}
+    <div class="changelog-box">
+        <h4><i class="fas fa-history"></i> 수정 이력</h4>
+        <ul class="changelog-list">
+            {% for change in post.changelog %}
+            <li>{{ change }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</article>
+
+{% if series_posts and series_posts|length > 0 %}
+<section class="related-posts-section">
+    <h3 class="related-posts-title">
+        <i class="fas fa-stream"></i>같은 시리즈의 다른 글
+    </h3>
+    <div class="related-posts-grid">
+        {% for related_post_item in series_posts[:3] %}
+        <a href="{{ url_for('posts.view_by_slug', slug=related_post_item.id) }}" class="related-post-card">
+            <h4>{{ related_post_item.title }}</h4>
+            <div class="related-post-meta">
+                <span class="date"><i class="far fa-calendar-alt fa-xs"></i> {{ related_post_item.date.strftime('%Y.%m.%d') }}</span>
+                {% if related_post_item.series_part %}
+                <span class="part">파트 {{ related_post_item.series_part }}</span>
+                {% endif %}
+            </div>
+            <div class="related-post-preview">{{ related_post_item.get_preview(70) }}</div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<nav class="post-nav-simple">
+    <div class="post-nav-divider">
+        <div class="nav-divider-line"></div>
+        <div class="nav-divider-icon"><i class="fas fa-route"></i></div>
+        <div class="nav-divider-line"></div>
+    </div>
+    <div class="post-nav-container">
+        {% if prev_post %}
+        <a href="{{ url_for('posts.view_by_slug', slug=prev_post.id) }}" class="post-nav-link prev">
+            <div class="post-nav-info">
+                <div class="post-nav-label"><i class="fas fa-arrow-left"></i><span>이전 글</span></div>
+                <div class="post-nav-title">{{ prev_post.title }}</div> {# 이 부분은 enhanced-links.css의 영향을 받지 않도록 주의 #}
+                <div class="post-nav-date">{{ prev_post.date.strftime('%Y.%m.%d') }}</div>
+            </div>
+        </a>
+        {% else %}
+        <div class="post-nav-link prev disabled">
+            <div class="post-nav-info">
+                <div class="post-nav-label"><i class="fas fa-ban"></i><span>이전 글 없음</span></div>
+            </div>
+        </div>
+        {% endif %}
+        {% if next_post %}
+        <a href="{{ url_for('posts.view_by_slug', slug=next_post.id) }}" class="post-nav-link next">
+            <div class="post-nav-info">
+                <div class="post-nav-label"><span>다음 글</span><i class="fas fa-arrow-right"></i></div>
+                <div class="post-nav-title">{{ next_post.title }}</div> {# 이 부분은 enhanced-links.css의 영향을 받지 않도록 주의 #}
+                <div class="post-nav-date">{{ next_post.date.strftime('%Y.%m.%d') }}</div>
+            </div>
+        </a>
+        {% else %}
+        <div class="post-nav-link next disabled">
+            <div class="post-nav-info">
+                <div class="post-nav-label"><span>다음 글 없음</span><i class="fas fa-ban"></i></div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</nav>
+
+<div class="post-actions">
+    <a href="{{ url_for('posts.index') }}" class="btn-link back-to-blog">
+        <i class="fas fa-list"></i>블로그 홈으로 돌아가기
+    </a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+<script nonce="{{ csp_nonce() }}" src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}시리즈: {{ series_name }} - 와구센{% endblock %}
+
+{% block content %}
+<div class="series-container">
+    <header class="series-header animate-on-scroll">
+        <span class="series-label">SERIES</span>
+        <h1>{{ series_name }}</h1>
+        <p class="series-meta">총 {{ posts|length }}개의 포스트가 있습니다.</p>
+    </header>
+
+    <div class="series-list">
+        {% for post in posts %}
+        <article class="series-item animate-on-scroll">
+            <div class="series-item-number">{{ post.series_part or loop.index }}</div>
+            <div class="series-item-content">
+                <a href="{{ post.get_url() }}" class="series-item-title">
+                    <h2>{{ post.title }}</h2>
+                </a>
+                <p class="series-item-preview">{{ post.get_preview(150) }}</p>
+                <time class="series-item-date">{{ post.date.strftime('%Y-%m-%d') }}</time>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+
+    {% if recent_posts %}
+    <aside class="recent-posts-section section-divider animate-on-scroll">
+        <h3>최근 다른 포스트</h3>
+        <div class="recent-grid">
+            {% for recent in recent_posts %}
+            <a href="{{ recent.get_url() }}" class="recent-card">
+                <h4>{{ recent.title }}</h4>
+                <time>{{ recent.date.strftime('%Y-%m-%d') }}</time>
+            </a>
+            {% endfor %}
+        </div>
+    </aside>
+    {% endif %}
+
+    <div class="post-actions" style="margin-top: 5rem; text-align: center;">
+        <a href="{{ url_for('posts.index') }}" class="btn-modern">
+            <i class="fas fa-list"></i>블로그 홈으로 돌아가기
+        </a>
+    </div>
+</div>
+
+<style>
+    .series-container {
+        max-width: 800px;
+        margin: 4rem auto;
+        padding: 0 1rem;
+    }
+
+    .series-header {
+        text-align: center;
+        margin-bottom: 4rem;
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 2rem;
+    }
+
+    .series-label {
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.8rem;
+        background-color: var(--text-accent);
+        color: var(--bg-primary);
+        padding: 0.2rem 0.6rem;
+        margin-bottom: 1rem;
+        display: inline-block;
+    }
+
+    .series-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .series-meta {
+        color: var(--text-secondary);
+        font-style: italic;
+    }
+
+    .series-list {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .series-item {
+        display: flex;
+        gap: 2rem;
+        align-items: flex-start;
+    }
+
+    .series-item-number {
+        font-family: var(--font-pixel, monospace);
+        font-size: 1.5rem;
+        color: var(--text-tertiary);
+        min-width: 3rem;
+        text-align: right;
+        padding-top: 0.5rem;
+    }
+
+    .series-item-content {
+        flex: 1;
+    }
+
+    .series-item-title h2 {
+        font-size: 1.5rem;
+        margin-bottom: 0.75rem;
+        transition: color 0.2s;
+    }
+
+    .series-item-title:hover h2 {
+        color: var(--text-accent);
+    }
+
+    .series-item-preview {
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+
+    .series-item-date {
+        font-size: 0.85rem;
+        color: var(--text-tertiary);
+    }
+
+    .recent-posts-section {
+        margin-top: 6rem;
+    }
+
+    .recent-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .recent-card {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        padding: 1.5rem;
+        text-decoration: none;
+        transition: transform 0.2s;
+    }
+
+    .recent-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--text-accent);
+    }
+
+    .recent-card h4 {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .recent-card time {
+        font-size: 0.8rem;
+        color: var(--text-tertiary);
+    }
+
+    @media (max-width: 600px) {
+        .series-item {
+            gap: 1rem;
+        }
+        .series-item-number {
+            min-width: 2rem;
+            font-size: 1.2rem;
+        }
+    }
+</style>
+{% endblock %}

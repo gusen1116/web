@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}블로그 - 와구센{% endblock %}
+
+{% block head %}
+<style>
+    .post-card {
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+    
+    .post-card-link-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+    }
+    
+    .post-card-tags {
+        position: relative;
+        z-index: 5; /* 태그 클릭이 우선되도록 설정 */
+    }
+    
+    .post-card-tag, .tag-item {
+        transition: all 0.2s;
+        text-decoration: none !important;
+    }
+    
+    .post-card-tag:hover, .tag-item:hover {
+        color: var(--text-accent);
+        transform: translateY(-2px);
+    }
+
+    .top-tag-navigation {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-bottom: 3rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .tag-item {
+        padding: 0.4rem 0.8rem;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .tag-item.active {
+        border-color: var(--text-accent);
+        color: var(--text-accent);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="blog-header">
+    <h1>블로그</h1>
+</div>
+
+<div class="top-tag-navigation">
+    {% for tag_item in tags %}
+        <a href="{{ url_for('posts.filter_by_tag', tag=tag_item.name) }}" class="tag-item" data-tag="{{ tag_item.name }}">#{{ tag_item.name }} ({{ tag_item.count }})</a>
+    {% endfor %}
+</div>
+
+<div class="posts-container">
+    <div class="posts-grid" id="initialPosts">
+        {% if posts %}
+            {% for post in posts[:6] %}
+                <article class="post-card fade-in">
+                    <a href="{{ url_for('posts.view_by_slug', slug=post.slug or post.id) }}" class="post-card-link-overlay"></a>
+                    <div class="post-card-header">
+                        <h2 class="post-card-title">{{ post.title }}</h2>
+                        <div class="post-card-meta">
+                            <div class="post-card-date">
+                                {{ post.date.strftime('%Y년 %m월 %d일') }}
+                            </div>
+                        </div>
+                    </div>
+                    {% set rich_preview_data = post.get_rich_preview(100) %}
+                    <div class="post-card-content">
+                        {% if rich_preview_data.image_filename %}
+                        <div class="post-card-image-wrapper">
+                            <img src="{{ url_for('posts.serve_image', filename=rich_preview_data.image_filename) }}"
+                                 alt="{{ rich_preview_data.image_alt }}"
+                                 class="post-card-preview-image" loading="lazy">
+                        </div>
+                        {% endif %}
+                        <div class="post-card-preview">
+                            {{ rich_preview_data.text }}
+                        </div>
+                    </div>
+                    <div class="post-card-footer">
+                        <div class="post-card-tags">
+                            {% for tag in post.tags[:2] %}
+                                <a href="{{ url_for('posts.filter_by_tag', tag=tag) }}" class="post-card-tag">#{{ tag }}</a>
+                            {% endfor %}
+                            {% if post.tags|length > 2 %}
+                                <span class="post-card-tag-more">+{{ post.tags|length - 2 }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <p>아직 게시글이 없습니다.</p>
+                 {% if error_message %}
+                    <p class="error-message" style="color: red;">{{ error_message }}</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="posts-grid hidden" id="additionalPosts">
+        {% for post in posts[6:] %}
+            <a href="{{ url_for('posts.view_by_slug', slug=post.slug or post.id) }}" class="post-card-link" data-tags="{{ ','.join(post.tags) }}">
+                <article class="post-card fade-in">
+                    <div class="post-card-header">
+                        <h2 class="post-card-title">{{ post.title }}</h2>
+                        <div class="post-card-meta">
+                            <div class="post-card-date">
+                                {{ post.date.strftime('%Y년 %m월 %d일') }}
+                            </div>
+                        </div>
+                    </div>
+                    {% set rich_preview_data_additional = post.get_rich_preview(100) %}
+                    <div class="post-card-content">
+                        {% if rich_preview_data_additional.image_filename %}
+                        <div class="post-card-image-wrapper">
+                            <img src="{{ url_for('posts.serve_image', filename=rich_preview_data_additional.image_filename) }}"
+                                 alt="{{ rich_preview_data_additional.image_alt }}"
+                                 class="post-card-preview-image" loading="lazy">
+                        </div>
+                        {% endif %}
+                        <div class="post-card-preview">
+                            {{ rich_preview_data_additional.text }}
+                        </div>
+                    </div>
+                    <div class="post-card-footer">
+                        <div class="post-card-tags">
+                            {% for tag in post.tags[:2] %}
+                                <span class="post-card-tag">{{ tag }}</span>
+                            {% endfor %}
+                            {% if post.tags|length > 2 %}
+                                <span class="post-card-tag">+{{ post.tags|length - 2 }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+            </a>
+        {% endfor %}
+    </div>
+    
+    {% if posts and posts|length > 6 %}
+        <div class="toggle-button-container">
+            <button id="toggleButton" class="btn-modern toggle-button">
+                <span>더 많은 포스트 보기</span>
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+    .toggle-button-container {
+        display: flex;
+        justify-content: center;
+        margin: var(--spacing-12) auto;
+        width: 100%;
+    }
+</style>
+<script nonce="{{ csp_nonce() }}" src="{{ url_for('static', filename='js/post-list.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "gallery/base-gallery.html" %}
+{% block title %}컬렉션{% endblock %}
+
+{% block content %}
+<section class="masonry" id="masonry">
+  {% for photo in photos %}
+    <a class="photo-card"
+       href="{{ url_for('gallery.detail', filename=photo.id) }}"
+       data-id="{{ photo.id }}"
+       data-url="{{ photo.url }}"
+       data-title="{{ photo.title|e }}"
+       data-year="{{ photo.year }}"
+       data-tags="{{ (photo.tags|join(',')) if photo.tags else '' }}"
+       data-exif='{{ photo.exif_low|tojson }}'
+       {% if photo.gps %}
+         data-lat="{{ photo.gps.lat }}" 
+         data-lon="{{ photo.gps.lon }}"
+         data-address="{{ photo.gps.address|e if photo.gps.address else '' }}"
+       {% endif %}>
+      <figure class="card-figure">
+        <img src="{{ photo.thumbnail_url or photo.url }}" alt="{{ photo.title }}">
+        <figcaption class="card-caption">
+          <span class="title">{{ photo.title }}</span>
+          <span class="meta">
+            {% if photo.tags %}{{ photo.tags|join(', ') }}{% endif %}
+          </span>
+        </figcaption>
+      </figure>
+    </a>
+  {% else %}
+    <p class="empty-state">표시할 사진이 없습니다.</p>
+  {% endfor %}
+</section>
+
+<!-- Lightbox (Detail Page와 구조 동일화) -->
+<div id="glightbox" class="glightbox" hidden aria-hidden="true" role="dialog" aria-label="사진 보기">
+  <div class="glbx-overlay" data-action="close"></div>
+  <div class="glbx-frame">
+    <button class="glbx-close" aria-label="닫기" data-action="close">✕</button>
+
+    <div class="glbx-view">
+      <div class="glbx-image-wrap">
+        <img id="glbx-img" alt="" draggable="false" />
+      </div>
+      <aside class="glbx-panel" aria-live="polite">
+        <h3 id="glbx-title"></h3>
+        <div id="glbx-meta" class="glbx-meta">
+          <!-- JS에 의해 동적으로 채워짐 -->
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+{% endblock %}

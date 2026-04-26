@@ -1,0 +1,172 @@
+/*
+ * themes.css - 커스텀 테마 스타일 통합
+ * 'Cyberbit' 테마: Cyberpixel과 8bit 테마의 장점을 결합한 통합 테마
+ */
+
+/* ===== 폰트 정의 (공통) ===== */
+@font-face {
+  font-family: 'MultiFont';
+  src: url('https://cdn.jsdelivr.net/gh/quiple/galmuri/dist/Galmuri7.woff2') format('woff2');
+  unicode-range: U+0030-0039; /* 숫자 */
+  font-display: swap;
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'MultiFont';
+  src: url('https://cdn.jsdelivr.net/gh/quiple/galmuri/dist/Galmuri9.woff2') format('woff2');
+  unicode-range: U+AC00-D7AF, U+1100-11FF, U+3130-318F; /* 한글 */
+  font-display: swap;
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'MultiFont';
+  src: url('https://fonts.gstatic.com/s/pressstart2p/v14/e3t4euO8T-267oIAQAu6jDQyK3nVivM.woff2') format('woff2');
+  unicode-range: U+0000-002F, U+003A-007F, U+00A0-00FF; /* 영문 및 기호 */
+  font-display: swap;
+  font-weight: 400;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* ===============================================================
+ * ===== 8bit 통합 테마 (기존 Cyberbit 기반) =====
+ * =============================================================== */
+html.theme-8bit {
+  /* 폰트: 헤더는 Pixel, 본문은 Sans-serif */
+  --font-pixel: 'Press Start 2P', 'MultiFont', monospace;
+  --font-sans: 'MultiFont', monospace;
+  font-family: var(--font-sans);
+  
+  /* 렌더링 최적화 */
+  font-smooth: never;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeSpeed;
+
+  /* 레이아웃: 둥근 모서리 및 그림자 제거 */
+  --radius-sm: 0; --radius-md: 0; --radius-lg: 0; --radius-xl: 0; --radius-full: 0;
+  --shadow-sm: none; --shadow-md: none; --shadow-lg: none;
+  
+  /* 색상: Cyberpixel 기반 */
+  --bg-primary: #0F1222;
+  --bg-secondary: #171A2A;
+  --bg-tertiary: #22244B;
+  --text-primary: #F5E9FF;
+  --text-secondary: #B0A5C0;
+  --text-tertiary: #6F6689;
+  --text-accent: #00F6FF;
+  --accent-secondary: #FF00C3;
+  --github-accent: var(--text-accent);
+  --danger: #FF5F5F;
+  --border-color: #3E2A6F;
+  
+  /* 아이콘 필터: Cyberpixel 색상에 맞게 조정 */
+  --icon-filter: brightness(0) saturate(100%) invert(85%) sepia(50%) saturate(5000%) hue-rotate(150deg) brightness(1.2) contrast(1.1);
+
+  color-scheme: dark;
+}
+
+/* 이미지 픽셀화 유지 */
+html.theme-8bit body,
+html.theme-8bit img {
+  image-rendering: pixelated;
+}
+
+/* 타이포그래피 */
+html.theme-8bit h1,
+html.theme-8bit h2,
+html.theme-8bit h3 {
+  font-family: var(--font-pixel);
+  text-shadow: 0 0 2px var(--text-accent), 0 0 4px var(--text-accent), 2px 2px 0px #000;
+  transition: text-shadow 0.2s ease;
+}
+html.theme-8bit h1:hover,
+html.theme-8bit h2:hover,
+html.theme-8bit h3:hover {
+  text-shadow: 0 0 4px var(--text-accent), 0 0 8px var(--text-accent), 3px 3px 0px #000;
+}
+
+/* UI 요소: 8bit 테마의 입체감 + Cyberpixel 색상 */
+html.theme-8bit .top-header,
+html.theme-8bit .card,
+html.theme-8bit .post-card,
+html.theme-8bit .simulation-card,
+html.theme-8bit .intro-container,
+html.theme-8bit .diagnostic-container,
+html.theme-8bit footer,
+html.theme-8bit input,
+html.theme-8bit select,
+html.theme-8bit textarea,
+html.theme-8bit .btn,
+html.theme-8bit button {
+  border-radius: 0 !important;
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--border-color);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+html.theme-8bit .card:hover,
+html.theme-8bit .post-card:hover,
+html.theme-8bit .simulation-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+}
+
+/* 버튼 및 인터랙션 */
+html.theme-8bit .btn,
+html.theme-8bit button {
+  font-family: var(--font-pixel);
+  background-color: var(--bg-secondary);
+  color: var(--text-accent);
+  box-shadow: inset -2px -2px 0px 0px #000, inset 2px 2px 0px 0px rgba(255, 255, 255, 0.2);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+html.theme-8bit .btn:hover,
+html.theme-8bit button:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: inset -2px -2px 0px 0px #000, inset 2px 2px 0px 0px rgba(255, 255, 255, 0.3), 0 0 8px var(--text-accent);
+}
+html.theme-8bit .btn:active,
+html.theme-8bit button:active {
+    transform: translate(2px, 2px);
+    box-shadow: inset 2px 2px 0px 0px #000, inset -2px -2px 0px 0px rgba(255, 255, 255, 0.2);
+}
+
+/* 링크 */
+html.theme-8bit a {
+    color: var(--text-accent);
+    text-decoration: none;
+    text-shadow: 0 0 4px var(--text-accent);
+    border-bottom: 2px dotted var(--text-accent);
+}
+html.theme-8bit a:hover {
+    color: var(--bg-primary);
+    background-color: var(--text-accent);
+    text-shadow: 0 0 6px var(--text-accent);
+    border-bottom-style: solid;
+}
+
+/* 태그 및 뱃지 */
+html.theme-8bit .tag,
+html.theme-8bit .post-card-tag,
+html.theme-8bit .post-card-date {
+    background-color: var(--accent-secondary) !important;
+    color: var(--bg-primary) !important;
+    border-color: var(--accent-secondary) !important;
+    font-weight: 700;
+}
+
+/* 반응형 타이포그래피 (기존 8비트 테마 규칙 유지) */
+@media (max-width: 768px) {
+  html.theme-cyberbit h1 { font-size: 2rem !important; }
+  html.theme-cyberbit h2 { font-size: 1.5rem !important; }
+  html.theme-cyberbit p, html.theme-cyberbit li { font-size: 1.1rem !important; }
+}
+@media (max-width: 480px) {
+  html.theme-cyberbit h1 { font-size: 1.75rem !important; }
+  html.theme-cyberbit h2 { font-size: 1.35rem !important; }
+  html.theme-cyberbit p, html.theme-cyberbit li { font-size: 1.05rem !important; }
+}

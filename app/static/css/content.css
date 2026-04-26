@@ -1,0 +1,768 @@
+/* 
+ * content.css - 콘텐츠 관련 스타일 통합
+ * 이전: enhanced-content.css, enhanced-links.css, social-embed.css 통합
+ */
+
+/* ===== 1. 강조 박스 ===== */
+.highlight-box {
+    width: 55rem;
+    max-width: 100%;
+    margin: 1.5rem auto;
+    padding: 1rem 1.5rem;
+    background-color: #ddf4ff;
+    border-left: 4px solid #0969da;
+    border-radius: 6px;
+  }
+  
+  html.dark-theme .highlight-box {
+    background-color: rgba(56, 139, 253, 0.15);
+    border-left-color: #58a6ff;
+  }
+  
+  .highlight-box p {
+    margin-bottom: 0.5em;
+  }
+  
+  .highlight-box p:last-child {
+    margin-bottom: 0;
+  }
+  
+  /* ===== 2. 인용문 ===== */
+  blockquote.styled-quote {
+    width: 55rem;
+    max-width: 100%;
+    margin: 1.5rem auto;
+    padding: 1rem 1.5rem;
+    background-color: #f6f8fa;
+    border-left: 4px solid #d0d7de;
+    color: #57606a;
+    font-style: italic;
+    position: relative;
+  }
+  
+  blockquote.styled-quote::before {
+    content: "\201C";
+    font-size: 2rem;
+    position: absolute;
+    left: 0.5rem;
+    top: 0.25rem;
+    color: var(--text-tertiary);
+    opacity: 0.6;
+    font-family: serif;
+  }
+  
+  html.dark-theme blockquote.styled-quote {
+    background-color: #161b22;
+    border-left-color: #30363d;
+    color: #8b949e;
+  }
+  
+  .blockquote-author {
+    display: block;
+    margin-top: 0.8rem;
+    font-weight: 600;
+    text-align: right;
+    font-style: normal;
+  }
+  
+  /* ===== 3. 큰 인용구 ===== */
+  .pullquote {
+    font-size: 1.5rem;
+    line-height: 1.4;
+    font-weight: 300;
+    width: 55rem;
+    max-width: 100%;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    text-align: center;
+    color: #0969da;
+    border-top: 1px solid #d0d7de;
+    border-bottom: 1px solid #d0d7de;
+  }
+  
+  .pullquote.align-left {
+    float: left;
+    width: 40%;
+    margin: 1rem 1.5rem 1rem 0;
+    text-align: left;
+  }
+  
+  .pullquote.align-right {
+    float: right;
+    width: 40%;
+    margin: 1rem 0 1rem 1.5rem;
+    text-align: right;
+  }
+  
+  /* ===== 4. 이미지 및 미디어 ===== */
+  figure.post-image {
+    width: 55rem;
+    max-width: 100%;
+    margin: 2rem auto;
+    text-align: center;
+  }
+  
+  figure.post-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #d0d7de;
+  }
+  
+  figure.post-image figcaption {
+    margin-top: 0.5rem;
+    color: #57606a;
+    font-style: italic;
+    font-size: 0.9rem;
+  }
+  
+  figure.post-image.align-left {
+    float: left;
+    margin-right: 1.5rem;
+    margin-bottom: 1rem;
+    width: auto;
+    max-width: 50%;
+  }
+  
+  figure.post-image.align-right {
+    float: right;
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+    width: auto;
+    max-width: 50%;
+  }
+  
+  figure.post-image.size-small img { max-width: 300px; }
+  figure.post-image.size-medium img { max-width: 500px; }
+  figure.post-image.size-large img { max-width: 700px; }
+  figure.post-image.size-full img { max-width: 100%; }
+  
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 2rem auto;
+    width: 55rem;
+    max-width: 100%;
+  }
+  
+  .gallery-item {
+    overflow: hidden;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    position: relative;
+    border: 1px solid #d0d7de;
+  }
+  
+  .gallery-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: #0969da;
+  }
+  
+  .gallery-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .gallery-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  
+  .gallery-item:hover .gallery-caption {
+    opacity: 1;
+  }
+  
+  .video-embed, .audio-embed {
+    width: 55rem;
+    max-width: 100%;
+    margin: 2rem auto;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  .video-embed video, .audio-embed audio {
+    display: block;
+    width: 100%;
+    border-radius: 6px;
+  }
+  .video-embed { background-color: #000; }
+  .audio-embed { 
+    padding: 1rem; 
+    background-color: #f6f8fa; 
+    border: 1px solid #d0d7de; 
+  }
+  
+  .video-embed figcaption, .audio-caption {
+    margin-top: 0.5rem;
+    color: #57606a;
+    font-style: italic;
+    font-size: 0.9rem;
+    text-align: center;
+  }
+  
+  /* ===== 5. 소셜 미디어 임베드 ===== */
+  .social-embed {
+    width: 100%;
+    max-width: 880px;
+    margin: 2rem auto;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    background-color: #ffffff;
+  }
+  
+  html.dark-theme .social-embed {
+    background-color: #161b22;
+    border-color: #30363d;
+  }
+  
+  .social-embed pre,
+  .social-embed code {
+    background: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+  }
+  
+  /* YouTube, Twitch 임베드 - aspect-ratio 폴백 추가 */
+  .youtube-embed, .twitch-embed {
+    position: relative;
+    width: 100%;
+    max-width: 880px;
+    margin: 2rem auto;
+    overflow: hidden;
+    border-radius: 6px;
+    height: 0;
+    padding-bottom: 56.25%; /* 16:9 비율 폴백 */
+  }
+  
+  @supports (aspect-ratio: 16 / 9) {
+    .youtube-embed, .twitch-embed {
+      aspect-ratio: 16 / 9;
+      padding-bottom: 0;
+      height: auto;
+    }
+  }
+  
+  .youtube-embed { background-color: #000; }
+  .twitch-embed { background-color: #6441a5; }
+  
+  .youtube-embed iframe, .twitch-embed iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+  
+  .twitter-embed {
+    width: 100%;
+    max-width: 880px;
+    margin: 2rem auto;
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+  
+  .twitter-embed blockquote {
+    margin: 0 auto !important;
+    width: 100% !important;
+  }
+  
+  .instagram-embed {
+    width: 100%;
+    max-width: 880px;
+    margin: 2rem auto;
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+  
+  .instagram-embed blockquote {
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 880px !important;
+  }
+  
+  .facebook-embed {
+    width: 100%;
+    max-width: 880px;
+    margin: 2rem auto;
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+  
+  /* 에러 메시지 */
+  .error-embed {
+    width: 55rem;
+    max-width: 100%;
+    margin: 1.5rem auto;
+    padding: 1rem;
+    background-color: #ffebe9;
+    border: 1px solid #cf222e;
+    border-radius: 6px;
+    color: #cf222e;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  
+  html.dark-theme .error-embed {
+    background-color: rgba(207, 34, 46, 0.15);
+    border-color: rgba(207, 34, 46, 0.4);
+    color: #f85149;
+  }
+  
+  /* ===== 6. 기타 콘텐츠 요소 ===== */
+  .related-posts-box {
+    background-color: #f6f8fa;
+    border-radius: 6px;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem auto;
+    width: 55rem;
+    max-width: 100%;
+    border: 1px solid #d0d7de;
+  }
+  
+  .related-posts-box h4 {
+    margin-top: 0;
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    width: 100%;
+  }
+  
+  .related-posts-list {
+    margin: 0;
+    padding-left: 1.2rem;
+    width: 100%;
+  }
+  
+  .related-posts-list li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .related-posts-list a {
+    color: #0969da;
+    text-decoration: none;
+  }
+  
+  .related-posts-list a:hover {
+    text-decoration: underline;
+  }
+  
+  .series-box {
+    background-color: #ddf4ff;
+    border-radius: 6px;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem auto;
+    width: 55rem;
+    max-width: 100%;
+    border: 1px solid rgba(9, 105, 218, 0.1);
+  }
+  
+  html.dark-theme .series-box {
+    background-color: rgba(56, 139, 253, 0.15);
+    border-color: rgba(56, 139, 253, 0.4);
+  }
+  
+  .series-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    color: #0969da;
+  }
+  
+  html.dark-theme .series-title {
+    color: #58a6ff;
+  }
+  
+  .series-info {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+  }
+  
+  .changelog-box {
+    background-color: #f6f8fa;
+    border-radius: 6px;
+    padding: 1.2rem 1.5rem;
+    margin: 1.5rem auto;
+    width: 55rem;
+    max-width: 100%;
+    border: 1px solid #d0d7de;
+  }
+  
+  .changelog-box h4 {
+    margin-top: 0;
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    width: 100%;
+  }
+  
+  .changelog-list {
+    margin: 0;
+    padding-left: 1.2rem;
+    width: 100%;
+  }
+  
+  .changelog-list li {
+    margin-bottom: 0.4rem;
+    position: relative;
+  }
+  
+  .changelog-list li::before {
+    content: "\2022";
+    position: absolute;
+    left: -1rem;
+    color: #0969da;
+  }
+  
+  html.dark-theme .changelog-list li::before {
+    color: #58a6ff;
+  }
+  
+  /* ===== 7. 링크 스타일 ===== */
+  .post-content a,
+  .post-content a:link,
+  .post-content a:visited {
+    color: var(--text-secondary) !important;
+    text-decoration: none !important;
+    background-color: transparent !important;
+    padding: 1px 2px !important;
+    border-bottom: 1px dashed var(--neutral-400) !important;
+    transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease !important;
+    border-radius: 2px !important;
+    transform: none !important;
+    box-shadow: none !important;
+    line-height: inherit !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    display: inline !important;
+    position: relative !important;
+    cursor: pointer !important;
+    hyphens: auto !important;
+    font-family: var(--font-cabin);
+    font-weight: 400;
+    font-size: 1.0rem;
+  }
+  
+  .post-content a:hover,
+  .post-content a:focus {
+    color: #2da44e !important;
+    background-color: var(--neutral-100) !important;
+    border-bottom-style: solid !important;
+    border-bottom-color: #2da44e !important;
+    text-decoration: none !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  
+  .post-content a:focus-visible {
+    outline: 2px solid #2da44e !important;
+    outline-offset: 1px !important;
+    background-color: var(--neutral-100) !important;
+  }
+  
+  .post-content a[href^="http"]:not([href*="localhost"]):not([href*="wagusen.com"])::after {
+    content: "" !important;
+    display: none !important;
+  }
+  
+  /* 특별한 링크 타입 스타일 */
+  .post-content a.book-link,
+  .post-content a[href*="book"], .post-content a[href*="amazon"], .post-content a[href*="aladin"],
+  .post-content a[href*="youtube"], .post-content a[href*="vimeo"], .post-content a[href*="twitch"],
+  .post-content a[href*="github"], .post-content a[href*="stackoverflow"], .post-content a[href*="npmjs"], .post-content a[href*="developer.mozilla"],
+  .post-content a[href$=".pdf"], .post-content a[href$=".zip"], .post-content a[href$=".doc"], .post-content a[href$=".docx"], .post-content a[href*="download"] {
+    font-family: var(--font-cabin);
+    font-weight: 400 !important; 
+    border-radius: 3px !important;
+    padding: 2px 5px !important;
+    margin: 0px 1px !important;
+    display: inline-flex !important;
+    align-items: center;
+    color: var(--text-secondary) !important;
+    border-bottom: 1px solid transparent !important;
+    transform: none !important;
+    box-shadow: none !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease !important;
+    border-left: none !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+  
+  /* 책/참고 자료 */
+  .post-content a.book-link::before,
+  .post-content a[href*="book"]::before, .post-content a[href*="amazon"]::before, .post-content a[href*="aladin"]::before {
+    content: "📚" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; filter: hue-rotate(0deg) saturate(1.5);
+    animation: none !important;
+  }
+  .post-content a.book-link,
+  .post-content a[href*="book"], .post-content a[href*="amazon"], .post-content a[href*="aladin"] {
+    background-color: #fffbeb !important;
+    border: 1px solid #fdecc0 !important;
+  }
+  .post-content a.book-link:hover,
+  .post-content a[href*="book"]:hover, .post-content a[href*="amazon"]:hover, .post-content a[href*="aladin"]:hover {
+    background-color: #fff3ad !important; border-color: #fce282 !important; color: var(--text-primary) !important;
+  }
+  
+  /* YouTube/비디오 */
+  .post-content a[href*="youtube"]::before, .post-content a[href*="vimeo"]::before, .post-content a[href*="twitch"]::before {
+    content: "▶" !important; margin-right: 0.3em !important; font-size: 0.7em !important; opacity: 0.9; color: #e53935 !important;
+    animation: none !important;
+  }
+  .post-content a[href*="youtube"], .post-content a[href*="vimeo"], .post-content a[href*="twitch"] {
+    background-color: #fff0f1 !important; border: 1px solid #ffdfe2 !important;
+  }
+  .post-content a[href*="youtube"]:hover, .post-content a[href*="vimeo"]:hover, .post-content a[href*="twitch"]:hover {
+    background-color: #ffe5e8 !important; border-color: #ffc4c9 !important; color: var(--text-primary) !important;
+  }
+  
+  /* GitHub/개발 */
+  .post-content a[href*="github"]::before { content: "💻" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; filter: grayscale(30%) sepia(30%); animation: none !important;}
+  .post-content a[href*="stackoverflow"]::before { content: "❓" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; animation: none !important;}
+  .post-content a[href*="npmjs"]::before { content: "📦" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; animation: none !important;}
+  .post-content a[href*="developer.mozilla"]::before { content: "📖" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; animation: none !important;}
+  .post-content a[href*="github"], .post-content a[href*="stackoverflow"], .post-content a[href*="npmjs"], .post-content a[href*="developer.mozilla"] {
+    background-color: #eefcff !important; border: 1px solid #d8f5fd !important;
+  }
+  .post-content a[href*="github"]:hover, .post-content a[href*="stackoverflow"]:hover, .post-content a[href*="npmjs"]:hover, .post-content a[href*="developer.mozilla"]:hover {
+    background-color: #dcfaff !important; border-color: #c0f2fc !important; color: var(--text-primary) !important;
+  }
+  
+  /* 다운로드 */
+  .post-content a[href$=".pdf"]::before, .post-content a[href*="download"]::before {
+    content: "↓" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; color: #2da44e !important;
+    animation: none !important;
+  }
+  .post-content a[href$=".zip"]::before { content: "🗜️" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; animation: none !important;}
+  .post-content a[href$=".doc"]::before, .post-content a[href$=".docx"]::before { content: "📄" !important; margin-right: 0.3em !important; font-size: 0.9em !important; opacity: 0.9; animation: none !important;}
+  .post-content a[href$=".pdf"], .post-content a[href$=".zip"], .post-content a[href$=".doc"], .post-content a[href$=".docx"], .post-content a[href*="download"] {
+    background-color: #efffef !important; border: 1px solid #dff7df !important;
+  }
+  .post-content a[href$=".pdf"]:hover, .post-content a[href$=".zip"]:hover, .post-content a[href$=".doc"]:hover, .post-content a[href$=".docx"]:hover, .post-content a[href*="download"]:hover {
+    background-color: #d9f7d9 !important; border-color: #c0f0c0 !important; color: var(--text-primary) !important;
+  }
+  
+  /* 버튼 스타일 링크 */
+  .post-content a.btn-link-inline,
+  .post-content a.btn-link,
+  .post-content a[class*="button"],
+  .btn-link,
+  a[class*="button"] { 
+    font-family: var(--font-sans); 
+    font-weight: 700 !important; 
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 4px 8px !important;
+    font-size: 0.85em !important;
+    text-decoration: none !important;
+    color: var(--text-primary) !important;
+    background-color: var(--bg-tertiary) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 4px !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease !important;
+    box-shadow: none !important;
+    transform: none !important;
+    margin: 2px 1px !important;
+    position: relative !important;
+    overflow: hidden !important;
+    gap: 0.3em !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+  }
+  
+  /* 태그 링크 스타일 */
+  .post-tag,
+  .post-card-tag {
+    font-family: var(--font-sans); 
+    font-weight: 700 !important; 
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.3em !important;
+    transition: all 0.15s ease !important;
+    margin: 2px !important;
+    position: relative !important;
+    cursor: pointer !important;
+    overflow: hidden !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* 다크모드 스타일 */
+  html.dark-theme .post-content a,
+  html.dark-theme .post-content a:link,
+  html.dark-theme .post-content a:visited {
+    font-family: var(--font-cabin); 
+    font-weight: 400; 
+    color: var(--text-secondary) !important;
+    border-bottom-color: var(--neutral-600) !important;
+  }
+  
+  html.dark-theme .post-content a:hover,
+  html.dark-theme .post-content a:focus {
+    color: #39d353 !important;
+    background-color: var(--neutral-800) !important;
+    border-bottom-color: #39d353 !important;
+  }
+  
+  html.dark-theme .post-content a:focus-visible {
+    outline-color: #39d353 !important;
+    background-color: var(--neutral-800) !important;
+  }
+  
+  html.dark-theme .post-content a.book-link,
+  html.dark-theme .post-content a[href*="book"], 
+  html.dark-theme .post-content a[href*="amazon"], 
+  html.dark-theme .post-content a[href*="aladin"],
+  html.dark-theme .post-content a[href*="youtube"], 
+  html.dark-theme .post-content a[href*="vimeo"], 
+  html.dark-theme .post-content a[href*="twitch"],
+  html.dark-theme .post-content a[href*="github"], 
+  html.dark-theme .post-content a[href*="stackoverflow"], 
+  html.dark-theme .post-content a[href*="npmjs"], 
+  html.dark-theme .post-content a[href*="developer.mozilla"],
+  html.dark-theme .post-content a[href$=".pdf"], 
+  html.dark-theme .post-content a[href$=".zip"], 
+  html.dark-theme .post-content a[href$=".doc"], 
+  html.dark-theme .post-content a[href$=".docx"], 
+  html.dark-theme .post-content a[href*="download"] {
+    font-family: var(--font-cabin);
+    font-weight: 400;
+    /* 특별 링크 다크모드 색상 조정 */
+    background-color: rgba(250, 235, 215, 0.1) !important;
+    border-color: rgba(210, 180, 140, 0.3) !important;
+  }
+  html.dark-theme .post-content a.book-link:hover,
+  html.dark-theme .post-content a[href*="book"]:hover {
+    background-color: rgba(250, 235, 215, 0.2) !important;
+    border-color: rgba(210, 180, 140, 0.5) !important;
+  }
+  
+  html.dark-theme .post-content a.btn-link-inline,
+  html.dark-theme .post-content a.btn-link,
+  html.dark-theme .post-content a[class*="button"],
+  html.dark-theme .btn-link,
+  html.dark-theme a[class*="button"] {
+    font-family: var(--font-sans); 
+    font-weight: 700;
+    color: var(--text-accent) !important;
+    background-color: var(--neutral-700) !important;
+    border-color: var(--neutral-600) !important;
+  }
+  html.dark-theme .post-content a.btn-link-inline:hover,
+  html.dark-theme .post-content a.btn-link:hover,
+  html.dark-theme .post-content a[class*="button"]:hover,
+  html.dark-theme .btn-link:hover,
+  html.dark-theme a[class*="button"]:hover {
+    background-color: var(--neutral-600) !important;
+    border-color: var(--neutral-500) !important;
+  }
+  
+  html.dark-theme .post-tag,
+  html.dark-theme .post-card-tag {
+    font-family: var(--font-sans); 
+    font-weight: 700;
+  }
+  
+  /* ===== 모바일 최적화 ===== */
+  @media screen and (max-width: 1024px) {
+    .post-image, .video-embed, .audio-embed, .youtube-embed,
+    .twitch-embed, .twitter-embed, .instagram-embed, .facebook-embed,
+    .error-embed, .highlight-box, blockquote.styled-quote, 
+    .pullquote, .gallery, .related-posts-box, .series-box, .changelog-box,
+    .social-embed {
+      width: 90%;
+    }
+  }
+  
+  @media screen and (max-width: 768px) {
+    .pullquote.align-left,
+    .pullquote.align-right {
+      float: none;
+      width: 100%;
+      margin: 1.5rem auto;
+      text-align: center;
+    }
+    
+    figure.post-image.align-left,
+    figure.post-image.align-right {
+      float: none;
+      margin: 1.5rem auto;
+      max-width: 100%;
+    }
+    
+    .gallery {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+    
+    .post-content a { 
+      font-weight: 400; 
+      font-family: var(--font-cabin); 
+    }
+    
+    .post-content a[href*="book"] { 
+      font-weight: 400; 
+      font-family: var(--font-cabin); 
+    }
+    
+    .post-tag, .post-card-tag { 
+      font-weight: 700; 
+      font-family: var(--font-sans); 
+    }
+    
+    .btn-link, a[class*="button"] { 
+      font-weight: 700; 
+      font-family: var(--font-sans); 
+    }
+  }
+  
+  @media screen and (max-width: 480px) {
+    .post-image, .video-embed, .audio-embed, .youtube-embed,
+    .twitch-embed, .twitter-embed, .instagram-embed, .facebook-embed,
+    .error-embed, .highlight-box, blockquote.styled-quote, 
+    .pullquote, .gallery, .related-posts-box, .series-box, .changelog-box,
+    .social-embed {
+      width: 100%;
+      margin: 1.5rem auto;
+    }
+    
+    .post-image figcaption,
+    .video-embed figcaption,
+    .audio-caption {
+      font-size: 0.8rem;
+    }
+    
+    .highlight-box,
+    blockquote.styled-quote {
+      padding: 0.8rem 1rem;
+    }
+    
+    .pullquote {
+      font-size: 1.25rem;
+      padding: 1rem;
+    }
+  }

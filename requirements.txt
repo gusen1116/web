@@ -1,0 +1,14 @@
+Flask
+Flask-Compress
+Flask-Talisman
+Flask-WTF
+Flask-Assets
+Pillow
+Markdown
+pillow-heif
+python-whois
+requests
+python-dotenv
+gunicorn
+jsmin
+bleach

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}페이지를 찾을 수 없습니다 - 와구센{% endblock %}
+
+{% block head %}
+<link rel="preload" as="image" href="{{ url_for('static', filename='img/icon/404.png') }}" fetchpriority="high">
+{% endblock %}
+
+{% block content %}
+<div class="error-page">
+  <canvas class="background-canvas" id="particleCanvas"></canvas>
+  <div class="error-content">
+    <div class="error-code" id="errorCode">404</div>
+    <div class="error-image-container">
+      <img src="{{ url_for('static', filename='images/site/404.png') }}" 
+          alt="고양이가 길을 잃었어요" 
+          class="error-image" 
+          id="errorImage"
+          loading="eager"
+          width="320"
+          height="320"
+          decoding="sync">
+    </div>
+    <h1 class="error-title">페이지를 찾을 수 없습니다</h1>
+    <p class="error-subtitle">고양이가 길을 잃었어요...<br>아래 버튼으로 안전한 곳으로 이동하세요!</p>
+    <div class="error-actions">
+      <a href="{{ url_for('main.index') }}" class="error-btn error-btn-primary">
+        <i class="fas fa-home"></i>
+        <span>홈으로 돌아가기</span>
+      </a>
+      <a href="{{ url_for('posts.index') }}" class="error-btn error-btn-secondary">
+        <i class="fas fa-blog"></i>
+        <span>블로그 보기</span>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ csp_nonce() }}">
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('particleCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    function resizeCanvas() {
+        // 캔버스 리사이즈 로직 (필요 시 구현)
+    }
+});
+</script>
+{% endblock %}

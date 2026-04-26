@@ -1,0 +1,294 @@
+/* * layout-modules.css - 블로그 그리드, 시뮬레이션 그리드, 슬라이드 등 레이아웃 모듈 통합
+ * 이전: blog-grid.css, simulation-grid.css, slide.css 통합
+ * 모든 테마에서 일관된 크기 유지
+ */
+
+/* ===== 1. 블로그 그리드 레이아웃 ===== */
+.posts-grid,
+.posts-grid-center {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-6);
+  width: 100%;
+  max-width: 1200px; /* 엄격한 폭 제한 */
+  margin: 0 auto var(--spacing-12);
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.posts-grid > *,
+.posts-grid-center > * {
+  min-width: 0; /* 그리드 넘침 방지 */
+}
+
+/* ===== 2. 슬라이드 컨테이너 (히어로 내부 최적화) ===== */
+.slide-container {
+  position: relative;
+  width: 100%;
+  min-height: 320px;
+  height: 100%;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.03);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid var(--border-subtle);
+  backdrop-filter: blur(8px);
+}
+
+html.dark-theme .slide-container {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.slide {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 2.5rem;
+  opacity: 0;
+  z-index: 1;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide.active {
+  opacity: 1;
+  z-index: 2;
+}
+
+.slide h2 {
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+  color: var(--github-accent);
+  font-weight: 800;
+  width: 100%;
+  text-align: center;
+}
+
+.slide p {
+  font-size: 1.1rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  width: 100%;
+  text-align: center;
+}
+
+/* ===== 6. 통합 인트로(히어로) 섹션 ===== */
+.intro-section {
+  width: 100%;
+  margin: var(--spacing-12) auto;
+  padding: 0 var(--spacing-4);
+  box-sizing: border-box;
+}
+
+.intro-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 완벽한 5:5 대칭 */
+  gap: var(--spacing-10);
+  align-items: stretch;
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  border-radius: 24px;
+  padding: var(--spacing-10);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+  max-width: 1200px; /* 엄격한 폭 제한 */
+  margin: 0 auto;
+}
+
+.intro-profile-area {
+  display: flex;
+  flex-direction: row; /* 이미지와 텍스트 가로 배치 */
+  align-items: center;
+  gap: var(--spacing-8);
+  min-width: 0;
+}
+
+.intro-image-area {
+  width: 140px;
+  height: 140px;
+  flex-shrink: 0;
+  background: white;
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  padding: 6px;
+  box-shadow: 0 10px 20px rgba(9, 105, 218, 0.2);
+  animation: blob-morph 8s ease-in-out infinite;
+}
+
+@keyframes blob-morph {
+  0%, 100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+  50% { border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%; }
+}
+
+.intro-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+.intro-content-area {
+  flex: 1;
+  min-width: 0;
+}
+
+.intro-content-area h2 {
+  font-size: 2rem;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+  text-align: left;
+  width: 100%;
+}
+
+.intro-content-area p {
+  font-size: 1.1rem;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  text-align: left;
+  width: 100%;
+}
+
+.intro-links {
+  display: flex;
+  gap: var(--spacing-4);
+}
+
+.intro-link.primary {
+  background-color: var(--github-accent);
+  color: white;
+  padding: 0.6rem 1.5rem;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.intro-link.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(9, 105, 218, 0.3);
+}
+
+/* ===== 3. 포스트 카드 스타일 ===== */
+.post-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  height: 100%; 
+  display: flex;
+  flex-direction: column; 
+  position: relative;
+  overflow: hidden; 
+  min-height: 440px;
+}
+
+.post-card:hover {
+  border-color: var(--github-accent);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+}
+
+.post-card-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.post-card-title {
+  font-size: 1.4rem;
+  line-height: 1.4;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  text-align: left;
+  width: 100%;
+}
+
+.post-card-content {
+  padding: 1.5rem;
+  flex-grow: 1;
+}
+
+.post-card-image-wrapper {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+}
+
+.post-card-preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.post-card-preview-text {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  text-align: left;
+  width: 100%;
+}
+
+.post-card-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+  background-color: rgba(0,0,0,0.02);
+}
+
+/* ===== 4. 모든 포스트 보기 버튼 액션 ===== */
+.view-all-container {
+  display: flex;
+  justify-content: center;
+  margin: var(--spacing-12) auto;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.btn-view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: 1.1rem 3.5rem;
+  background-color: var(--github-accent);
+  color: white !important;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-view-all i {
+  transition: transform 0.3s ease;
+}
+
+.btn-view-all:hover {
+  background-color: #0860C9;
+  color: white !important;
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  text-decoration: none;
+}
+
+.btn-view-all:hover i {
+  transform: translateX(6px);
+}
+
+html.dark-theme .btn-view-all {
+  background-color: var(--github-accent);
+  color: white !important;
+}
+
+html.dark-theme .btn-view-all:hover {
+  background-color: #388bfd;
+}

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>{% block title %}와구센{% endblock %}</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="{% block description %}와구센 - 파일 시스템 기반의 심플하고 빠른 블로그 & 갤러리{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{% block og_title %}{{ self.title() }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ self.description() }}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ static_url('images/site/logo.png') }}{% endblock %}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    {% block extra_meta %}{% endblock %}
+    
+    <link rel="stylesheet" href="{{ static_url('css/core.css') }}">
+    <link rel="stylesheet" href="{{ static_url('css/components.css') }}">
+    <link rel="stylesheet" href="{{ static_url('css/content.css') }}">
+    <link rel="stylesheet" href="{{ static_url('css/layout-modules.css') }}">
+    <link rel="stylesheet" href="{{ static_url('css/error-pages.css') }}">
+    <link rel="stylesheet" href="{{ static_url('css/themes.css') }}">
+    
+    <link rel="icon" type="image/png" href="{{ static_url('images/site/favicon.png') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    {% block head %}{% endblock %}
+
+    <script nonce="{{ csp_nonce() }}">
+        // FOUC(Flash of Unstyled Content) 방지 스크립트
+        (function() {
+            const THEMES = [
+                { name: 'light', className: '' },
+                { name: 'dark', className: 'dark-theme' },
+                { name: '8bit', className: 'theme-8bit' }
+            ];
+            const savedThemeName = localStorage.getItem('wagusen_theme_v2');
+            const theme = THEMES.find(t => t.name === savedThemeName);
+            if (theme && theme.className) {
+                const classesToAdd = Array.isArray(theme.className) ? theme.className : [theme.className];
+                document.documentElement.classList.add(...classesToAdd);
+            }
+        })();
+    </script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    {% set nav_items = [
+        {'href': url_for('posts.index'), 'label': '블로그', 'icon': 'fas fa-pen-nib'},
+        {'href': url_for('gallery.index'), 'label': '갤러리', 'icon': 'fas fa-image'},
+        {'href': url_for('speedtest.speedtest_page'), 'label': '네트워크', 'icon': 'fas fa-tachometer-alt'},
+        {'href': url_for('main.about'), 'label': '소개', 'icon': 'fas fa-circle-info'}
+    ] %}
+    <header class="top-header" id="siteHeader">
+        <div class="container">
+            <div class="logo-area">
+                <a href="{{ url_for('main.index') }}" class="logo">
+                    <img src="{{ static_url('images/site/logo.png') }}" alt="로고 이미지" loading="lazy">
+                    <span class="site-name">와구센</span>
+                </a>
+            </div>
+            <nav class="main-nav desktop-nav" id="desktopNav">
+                <ul>
+                    {% for item in nav_items %}
+                    <li><a href="{{ item.href }}">{{ item.label }}</a></li>
+                    {% endfor %}
+                </ul>
+            </nav>
+            <div class="header-controls">
+                <div class="theme-toggle-area">
+                    <button class="theme-toggle" id="unifiedThemeToggle" data-theme-toggle="true" title="테마 변경" aria-label="테마 전환">
+                        <i class="fas fa-palette theme-icon"></i>
+                    </button>
+                </div>
+                <button class="mobile-toggle" id="mobileToggle" aria-label="메뉴 열기" aria-expanded="false">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+    <nav class="mobile-nav" id="mobileNav" aria-hidden="true" role="dialog" aria-modal="true" aria-label="모바일 메뉴">
+        <div class="mobile-nav-header">
+            <a href="{{ url_for('main.index') }}" class="mobile-nav-logo" aria-label="와구센 홈">
+                <img src="{{ static_url('images/site/logo.png') }}" alt="와구센 로고" loading="lazy">
+                <span>와구센</span>
+            </a>
+            <button class="mobile-nav-close" id="mobileNavClose" type="button" aria-label="메뉴 닫기">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-nav-content">
+            <ul class="mobile-nav-list">
+                {% for item in nav_items %}
+                <li class="mobile-nav-item">
+                    <a href="{{ item.href }}" class="mobile-nav-link">
+                        <i class="default-icon {{ item.icon }}"></i>
+                        <span>{{ item.label }}</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="mobile-theme-item">
+                <button class="mobile-nav-link mobile-theme-toggle" type="button" data-theme-toggle="true">
+                    <i class="default-icon fas fa-palette"></i>
+                    <span>테마 전환</span>
+                    <div class="theme-switch" aria-hidden="true">
+                        <div class="theme-switch-slider" data-theme-slider="true"></div>
+                    </div>
+                </button>
+            </div>
+        </div>
+        <div class="mobile-nav-footer">
+            <div class="mobile-nav-info">
+                <p>© 2026 와구센 · 더 나은 모바일 경험을 준비했어요.</p>
+            </div>
+            <div class="mobile-nav-social">
+                <a href="https://github.com/wagusen" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="mailto:gusen@wagusen.com" aria-label="메일 보내기">
+                    <i class="fas fa-envelope"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-overlay" id="mobileOverlay" aria-hidden="true"></div>
+    
+    <main>
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <p>&copy; 2026 | 와구센</p>
+                    <a href="#" class="footer-logo">
+                        <img src="{{ static_url('images/site/footer-logo.gif') }}" alt="푸터 로고" loading="lazy">
+                    </a>
+                </div>
+                <div class="footer-links">
+                    <a href="https://github.com/wagusen" target="_blank" rel="noopener noreferrer">
+                        <i class="fab fa-github footer-icon-github"></i>
+                        <span>GitHub</span>
+                    </a>
+                    <a href="mailto:gusen@wagusen.com">
+                        <i class="fas fa-envelope footer-icon-mail"></i>
+                        <span>메일</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script nonce="{{ csp_nonce() }}" src="{{ static_url('js/main.js') }}"></script>
+    
+    <script nonce="{{ csp_nonce() }}">
+        (function() {
+            if (document.documentElement.classList.contains('theme-cyberpixel')) {
+                const script = document.createElement('script');
+                script.src = "{{ static_url('js/cyberpixel-particles.js') }}";
+                script.nonce = "{{ csp_nonce() }}";
+                document.body.appendChild(script);
+            }
+        })();
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html> 

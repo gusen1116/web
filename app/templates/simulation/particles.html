@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}Cyberpixel Particles - 와구센 시뮬레이션{% endblock %}
+
+{% block head %}
+<style>
+    .simulation-container {
+        position: relative;
+        width: 100%;
+        height: 80vh;
+        background-color: #000;
+        overflow: hidden;
+        border: 2px solid var(--border-color);
+        margin: 2rem 0;
+    }
+
+    canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    .controls-panel {
+        background-color: var(--bg-secondary);
+        border: 2px solid var(--border-color);
+        padding: 1.5rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .control-group label {
+        display: block;
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.7rem;
+        color: var(--text-accent);
+        margin-bottom: 0.5rem;
+    }
+
+    .control-group input[type="range"] {
+        width: 100%;
+        accent-color: var(--text-accent);
+    }
+
+    .simulation-info {
+        margin-top: 1rem;
+        text-align: right;
+        font-family: var(--font-pixel, monospace);
+        font-size: 0.7rem;
+        color: var(--text-tertiary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="scanner-header">
+        <h1 class="animate-on-scroll">CYBERPIXEL PARTICLES</h1>
+        <p class="animate-on-scroll">마우스와 상호작용하는 네온 픽셀 입자 시스템입니다.</p>
+        <p class="animate-on-scroll" style="margin-top: 1rem;"><a href="{{ url_for('simulation.index') }}"><i class="fas fa-arrow-left"></i> 시뮬레이션 허브로 돌아가기</a></p>
+    </div>
+
+    <div class="simulation-container">
+        <canvas id="particleCanvas"></canvas>
+    </div>
+
+    <div class="controls-panel animate-on-scroll">
+        <div class="control-group">
+            <label for="countRange">PARTICLE COUNT: <span id="countVal">100</span></label>
+            <input type="range" id="countRange" min="10" max="500" value="100">
+        </div>
+        <div class="control-group">
+            <label for="speedRange">SPEED MULTIPLIER: <span id="speedVal">1.0</span></label>
+            <input type="range" id="speedRange" min="0.1" max="5.0" step="0.1" value="1.0">
+        </div>
+        <div class="control-group">
+            <label for="sizeRange">PIXEL SIZE: <span id="sizeVal">3</span></label>
+            <input type="range" id="sizeRange" min="1" max="10" value="3">
+        </div>
+        <div class="control-group">
+            <button id="resetParticles" class="btn" style="width: 100%;">RESET SYSTEM</button>
+        </div>
+    </div>
+
+    <div class="simulation-info">
+        <span id="fpsCounter">FPS: 60</span> | <span id="activeParticles">ACTIVE: 100</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    (function() {
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        const countRange = document.getElementById('countRange');
+        const speedRange = document.getElementById('speedRange');
+        const sizeRange = document.getElementById('sizeRange');
+        const countVal = document.getElementById('countVal');
+        const speedVal = document.getElementById('speedVal');
+        const sizeVal = document.getElementById('sizeVal');
+        const fpsCounter = document.getElementById('fpsCounter');
+        const activeParticles = document.getElementById('activeParticles');
+
+        let particles = [];
+        let mouse = { x: null, y: null, radius: 100 };
+
+        function resize() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            init();
+        }
+
+        class Particle {
+            constructor() {
+                this.init();
+            }
+
+            init() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = parseInt(sizeRange.value);
+                this.baseX = this.x;
+                this.baseY = this.y;
+                this.density = (Math.random() * 30) + 1;
+                this.color = Math.random() > 0.5 ? '#00F6FF' : '#FF00C3';
+                this.vx = (Math.random() - 0.5) * speedRange.value;
+                this.vy = (Math.random() - 0.5) * speedRange.value;
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+            }
+
+            update() {
+                // Movement
+                this.x += this.vx * speedRange.value;
+                this.y += this.vy * speedRange.value;
+
+                // Bounce
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+
+                // Mouse interaction
+                if (mouse.x != null && mouse.y != null) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < mouse.radius) {
+                        const forceDirectionX = dx / distance;
+                        const forceDirectionY = dy / distance;
+                        const force = (mouse.radius - distance) / mouse.radius;
+                        const directionX = forceDirectionX * force * this.density;
+                        const directionY = forceDirectionY * force * this.density;
+                        this.x -= directionX;
+                        this.y -= directionY;
+                    }
+                }
+            }
+        }
+
+        function init() {
+            particles = [];
+            const count = parseInt(countRange.value);
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle());
+            }
+            countVal.textContent = count;
+            activeParticles.textContent = `ACTIVE: ${count}`;
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+            }
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resize);
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - rect.left;
+            mouse.y = e.clientY - rect.top;
+        });
+        canvas.addEventListener('mouseleave', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        countRange.addEventListener('input', () => {
+            countVal.textContent = countRange.value;
+            init();
+        });
+        speedRange.addEventListener('input', () => speedVal.textContent = speedRange.value);
+        sizeRange.addEventListener('input', () => sizeVal.textContent = sizeRange.value);
+        document.getElementById('resetParticles').addEventListener('click', init);
+
+        resize();
+        animate();
+
+        // Simple FPS counter
+        let lastTime = performance.now();
+        let frames = 0;
+        setInterval(() => {
+            const now = performance.now();
+            const fps = Math.round((frames * 1000) / (now - lastTime));
+            fpsCounter.textContent = `FPS: ${fps}`;
+            frames = 0;
+            lastTime = now;
+        }, 1000);
+        window.addEventListener('render', () => frames++); // Not a real event, just for logic
+        // Hook into animate for frames
+        const originalAnimate = animate;
+        animate = function() {
+            frames++;
+            originalAnimate();
+        };
+
+    })();
+</script>
+{% endblock %}

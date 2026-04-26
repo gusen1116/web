@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}홈 - 와구센{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<section class="intro-section">
+  <div class="intro-container">
+    <div class="intro-profile-area">
+      <div class="intro-image-area">
+        <img src="{{ static_url('images/site/gusen-jb.png') }}" alt="마스코트 이미지" class="intro-image" loading="lazy">
+      </div>
+      
+      <div class="intro-content-area">
+        <h2>와구센의 블로그에 오신 것을 환영합니다!</h2>
+        <p>다양한 주제의 글과 시뮬레이션을 만나보세요. 흥미로운 이야기가 여러분을 기다리고 있습니다.</p>
+        <div class="intro-links">
+            <a href="{{ url_for('posts.index') }}" class="intro-link primary">블로그 바로가기</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="slide-container">
+      <div class="slide active">
+        <h2>구센의 법칙</h2>
+        <p>구센 이해하기 프로젝트</p>
+      </div>
+      <div class="slide">
+        <h2>구센의 작품들</h2>
+        <p>구센이 만들어 본 것들</p>
+      </div>
+      <div class="slide">
+        <h2>뭔가 더 있을듯</h2>
+        <p>더 적을 게 있으면 적을게요</p>
+      </div>
+      
+      <div class="slide-controls">
+        <div class="slide-indicator active" data-index="0"></div>
+        <div class="slide-indicator" data-index="1"></div>
+        <div class="slide-indicator" data-index="2"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="blog-section">
+  <h2 class="section-title">최근 블로그 포스트</h2>
+  
+  <div class="posts-grid-center">
+    {% if recent_posts %}
+      {% for post in recent_posts %}
+        <a href="{{ url_for('posts.view_by_slug', slug=post.slug or post.id) }}" class="post-card-link">
+          <article class="post-card">
+            <div class="post-card-header">
+              <h2 class="post-card-title">{{ post.title }}</h2>
+              <div class="post-card-meta">
+                <div class="post-card-date">
+                  <i class="far fa-calendar-alt"></i>
+                  <span>{{ post.date.strftime('%Y년 %m월 %d일') }}</span>
+                </div>
+              </div>
+            </div>
+            {% set rich_preview_data = post.get_rich_preview(80) %}
+            <div class="post-card-content">
+                {% if rich_preview_data.image_filename %}
+                <div class="post-card-image-wrapper">
+                    <img src="{{ url_for('posts.serve_image', filename=rich_preview_data.image_filename) }}"
+                         alt="{{ rich_preview_data.image_alt }}"
+                         class="post-card-preview-image" loading="lazy">
+                </div>
+                {% endif %}
+                <div class="post-card-preview-text">
+                    {{ rich_preview_data.text }}
+                </div>
+            </div>
+            <div class="post-card-footer">
+              <div class="post-card-tags">
+                {% for tag in post.tags[:2] %}
+                  <span class="post-card-tag">{{ tag }}</span>
+                {% endfor %}
+                {% if post.tags|length > 2 %}
+                  <span class="post-card-tag">+{{ post.tags|length - 2 }}</span>
+                {% endif %}
+              </div>
+            </div>
+          </article>
+        </a>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        <p>아직 게시글이 없습니다.</p>
+        {% if error_message %}
+        <p class="error-message" style="color: red;">{{ error_message }}</p>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+  {% if recent_posts and recent_posts|length > 0 %}
+  <div class="view-all-container">
+      <a href="{{ url_for('posts.index') }}" class="btn-view-all">
+          <span>모든 포스트 보기</span>
+          <i class="fas fa-arrow-right"></i>
+      </a>
+  </div>
+  {% endif %}
+</section>
+
+<div class="spacer"></div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "gallery/base-gallery.html" %}
+
+{% block title %}{{ photo.title }}{% endblock %}
+
+{% block extra_meta %}
+<meta property="og:type" content="article">
+<meta property="og:title" content="{{ photo.title }} - Photo Gallery">
+<meta property="og:description" content="{{ photo.title }} 사진 정보 및 EXIF 메타데이터">
+<meta property="og:image" content="{{ photo.url }}">
+<meta property="og:url" content="{{ request.url }}">
+{% endblock %}
+
+{% block content %}
+<div class="detail-page-wrapper">
+  <section class="detail-page-container">
+    <div class="glbx-view">
+      <div class="glbx-image-wrap">
+        <img id="glbx-img" src="{{ photo.url }}" alt="{{ photo.title }}" draggable="false">
+      </div>
+      <aside class="glbx-panel" aria-live="polite">
+        <h3 id="glbx-title">{{ photo.title }}</h3>
+        <div id="glbx-meta" class="glbx-meta">
+          {# 카메라 모델 #}
+          {% if photo.exif_low.model %}
+          <div class="glbx-meta-item">
+            <span class="label"><i class="fa-solid fa-camera"></i> Camera Model</span>
+            <span class="value">{{ photo.exif_low.model }}</span>
+          </div>
+          {% endif %}
+
+          {# 조리개 #}
+          {% if photo.exif_low.fnumber %}
+          <div class="glbx-meta-item">
+            <span class="label"><i class="fa-regular fa-circle"></i> Aperture</span>
+            <span class="value">{{ photo.exif_low.fnumber }}</span>
+          </div>
+          {% endif %}
+
+          {# 셔터 스피드 #}
+          {% if photo.exif_low.exposuretime %}
+          <div class="glbx-meta-item">
+            <span class="label"><i class="fa-solid fa-stopwatch"></i> Shutter Speed</span>
+            <span class="value">{{ photo.exif_low.exposuretime }}</span>
+          </div>
+          {% endif %}
+
+          {# ISO #}
+          {% if photo.exif_low.isospeedratings %}
+          <div class="glbx-meta-item">
+            <span class="label"><i class="fa-solid fa-sliders"></i> ISO</span>
+            <span class="value">{{ photo.exif_low.isospeedratings }}</span>
+          </div>
+          {% endif %}
+
+          {# 초점 거리 #}
+          {% if photo.exif_low.focallength %}
+          <div class="glbx-meta-item">
+            <span class="label"><i class="fa-solid fa-arrows-left-right"></i> Focal Length</span>
+            <span class="value">{{ photo.exif_low.focallength }}</span>
+          </div>
+          {% endif %}
+
+          {# GPS #}
+          {% if photo.gps %}
+          <div class="glbx-meta-item" data-lat="{{ photo.gps.lat }}" data-lon="{{ photo.gps.lon }}">
+            <span class="label"><i class="fa-solid fa-location-dot"></i> GPS</span>
+            <span class="value">{{ photo.gps.address if photo.gps.address else (photo.gps.lat|round(4)|string + ", " + photo.gps.lon|round(4)|string) }}</span>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="detail-actions">
+          <a href="{{ url_for('gallery.index') }}" class="back-btn">
+            <i class="fa-solid fa-chevron-left"></i> 갤러리로 돌아가기
+          </a>
+        </div>
+      </aside>
+    </div>
+  </section>
+</div>
+{% endblock %}

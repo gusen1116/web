@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}네트워크 진단 도구 - 와구센{% endblock %}
+
+{% block head %}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+<style>
+    .diagnostic-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        font-family: var(--font-sans);
+    }
+
+    .section-title {
+        font-family: var(--font-pixel, var(--font-sans));
+        color: var(--text-accent);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    /* 모든 텍스트 요소 폰트 통일 */
+    .diagnostic-container h1, 
+    .diagnostic-container p, 
+    .diagnostic-container span, 
+    .diagnostic-container li,
+    .diagnostic-container input,
+    .diagnostic-container button {
+        font-family: var(--font-sans);
+    }
+
+    .section-title, .action-btn {
+        font-family: var(--font-pixel, var(--font-sans)) !important;
+    }
+
+    /* 공통 버튼 스타일 */
+    .action-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        cursor: pointer;
+        font-family: var(--font-pixel, var(--font-sans));
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+
+    /* Speedtest Styles */
+    .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .result-card {
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .result-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--text-primary);
+        display: block;
+    }
+
+    .result-unit {
+        font-size: 0.8rem;
+        color: var(--text-tertiary);
+    }
+
+    /* WHOIS & Port Scan Inputs */
+    .input-group {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .input-control {
+        flex: 1;
+        padding: 0.75rem;
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        font-family: var(--font-sans);
+    }
+
+    /* Results Areas */
+    .scroll-box {
+        background-color: #000;
+        color: #00ff00;
+        font-family: var(--font-mono);
+        padding: 1rem;
+        height: 250px;
+        overflow-y: auto;
+        border: 1px solid var(--border-color);
+        font-size: 0.85rem;
+        margin-top: 1rem;
+    }
+
+    .info-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .info-list li {
+        display: flex;
+        border-bottom: 1px solid var(--border-color);
+        padding: 0.5rem 0;
+    }
+
+    .info-label {
+        width: 150px;
+        color: var(--text-tertiary);
+        font-weight: bold;
+    }
+
+    .progress-container {
+        height: 10px;
+        background-color: var(--bg-primary);
+        margin-top: 1rem;
+        display: none;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background-color: var(--text-accent);
+        width: 0%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="diagnostic-container">
+    <div class="scanner-header" style="text-align: center; margin-bottom: 3rem;">
+        <h1 class="animate-on-scroll">NETWORK DIAGNOSTICS</h1>
+        <p class="animate-on-scroll">속도 측정, 도메인 조회 및 포트 스캔을 한 페이지에서 수행합니다.</p>
+    </div>
+
+    <!-- Speedtest Section -->
+    <section class="diagnostic-section animate-on-scroll">
+        <h2 class="section-title"><i class="fas fa-tachometer-alt"></i> SPEED TEST</h2>
+        <div style="text-align: center;">
+            <button id="startTestBtn" class="action-btn btn-primary" style="background-color: var(--github-accent); color: white;">테스트 시작</button>
+        </div>
+        
+        <div id="speedResults" style="display: none;">
+            <div class="results-grid">
+                <div class="result-card">
+                    <span class="result-unit">PING</span>
+                    <span id="pingResult" class="result-value">-</span>
+                    <span class="result-unit">ms</span>
+                </div>
+                <div class="result-card">
+                    <span class="result-unit">DOWNLOAD</span>
+                    <span id="downloadResult" class="result-value">-</span>
+                    <span class="result-unit">Mbps</span>
+                </div>
+                <div class="result-card">
+                    <span class="result-unit">UPLOAD</span>
+                    <span id="uploadResult" class="result-value">-</span>
+                    <span class="result-unit">Mbps</span>
+                </div>
+            </div>
+            <div id="speedProgressContainer" class="progress-container">
+                <div id="speedProgressBar" class="progress-bar"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WHOIS Section -->
+    <section class="diagnostic-section animate-on-scroll">
+        <h2 class="section-title"><i class="fas fa-id-card"></i> WHOIS LOOKUP</h2>
+        <div class="input-group">
+            <input type="text" id="whoisInput" class="input-control" placeholder="도메인 입력 (예: naver.com)">
+            <button id="whoisBtn" class="action-btn" style="background-color: var(--success); color: white;">조회</button>
+        </div>
+        <div id="whoisResult" style="display: none; margin-top: 1rem;">
+            <ul id="whoisList" class="info-list"></ul>
+            <div id="whoisRaw" class="scroll-box" style="display: none; height: 150px; margin-top: 1rem;"></div>
+        </div>
+    </section>
+
+    <!-- Port Scan Section -->
+    <section class="diagnostic-section animate-on-scroll">
+        <h2 class="section-title"><i class="fas fa-search-location"></i> PORT SCANNER</h2>
+        <div class="input-group">
+            <input type="text" id="portHost" class="input-control" placeholder="호스트 입력 (예: google.com)">
+            <input type="text" id="portList" class="input-control" style="flex: 0.5;" value="[21,22,80,443,8080]">
+            <button id="portBtn" class="action-btn" style="background-color: var(--warning); color: white;">스캔</button>
+        </div>
+        <div id="portProgressContainer" class="progress-container">
+            <div id="portProgressBar" class="progress-bar"></div>
+        </div>
+        <div id="portTerminal" class="scroll-box" style="display: none;"></div>
+    </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/speedtest.js') }}"></script>
+<script>
+    // 기존 speedtest.js가 이 페이지의 통합된 ID들을 처리할 수 있도록 보완하거나
+    // speedtest.js의 로직을 이 페이지에 맞게 일부 수정해야 할 수 있습니다.
+    // 현재는 통합 UI 구조에 맞춰 speedtest.js가 동작하도록 되어 있는지 확인이 필요합니다.
+</script>
+{% endblock %}
