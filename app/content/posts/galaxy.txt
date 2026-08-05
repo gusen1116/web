@@ -3,8 +3,8 @@
 [tags: 사진]
 [author: 와구센]
 [description: 갤럭시로 장노출 사진 구현]
-[thumbnail: test1.JPG|테스트1 썸네일]
-# 진주 남해고속도로
+[thumbnail: test1.JPG|갤럭시 S24 울트라로 촬영한 야간 도로 장노출 사진]
+## 진주 남해고속도로
 
 [img:test1.JPG|장노출|scale=100]
 진주 남해고속도로를 배경으로 갤럭시S24U으로 장노출기법을 사용해봤습니다.

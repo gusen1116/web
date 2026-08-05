@@ -7,7 +7,7 @@ the domain name as part of the URL instead of relying on a trailing space,
 which ensures proper parameter capture.
 """
 
-from flask import Blueprint, jsonify, current_app
+from flask import Blueprint, jsonify, current_app, render_template
 import whois
 from datetime import datetime
 

@@ -2,6 +2,29 @@
 {% block title %}컬렉션{% endblock %}
 
 {% block content %}
+<section class="gallery-toolbar">
+  <div class="toolbar-container">
+    <div class="toolbar-left">
+      <h1 class="page-title">갤러리 컬렉션</h1>
+      <p class="page-sub">모든 순간의 기록들</p>
+    </div>
+    <div class="toolbar-right">
+      <div class="filter-group">
+        <label for="yearFilter" class="filter-label"><i class="fa-solid fa-calendar-days"></i> 연도별 필터</label>
+        <div class="select-wrapper">
+          <select id="yearFilter" class="gallery-select" aria-label="연도 선택">
+            <option value="all">전체 사진</option>
+            {% for y in years %}
+              <option value="{{ y }}">{{ y }}년</option>
+            {% endfor %}
+          </select>
+          <span class="select-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="masonry" id="masonry">
   {% for photo in photos %}
     <a class="photo-card"
@@ -18,7 +41,7 @@
          data-address="{{ photo.gps.address|e if photo.gps.address else '' }}"
        {% endif %}>
       <figure class="card-figure">
-        <img src="{{ photo.thumbnail_url or photo.url }}" alt="{{ photo.title }}">
+        <img src="{{ photo.thumbnail_url or photo.url }}" alt="{{ photo.title }}" loading="lazy">
         <figcaption class="card-caption">
           <span class="title">{{ photo.title }}</span>
           <span class="meta">
@@ -43,7 +66,7 @@
         <img id="glbx-img" alt="" draggable="false" />
       </div>
       <aside class="glbx-panel" aria-live="polite">
-        <h3 id="glbx-title"></h3>
+        <h1 id="glbx-title"></h1>
         <div id="glbx-meta" class="glbx-meta">
           <!-- JS에 의해 동적으로 채워짐 -->
         </div>

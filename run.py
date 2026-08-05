@@ -10,6 +10,7 @@ if current_dir not in sys.path:
 if not os.environ.get('SECRET_KEY'):
     os.environ['SECRET_KEY'] = 'dev-only-secret-key-do-not-use-in-production'
     os.environ.setdefault('FLASK_ENV', 'development')
+    os.environ.setdefault('FLASK_CONFIG', 'development')
     os.environ.setdefault('CACHE_TYPE', 'simple')
 
 # Print diagnostic information to help debug path issues

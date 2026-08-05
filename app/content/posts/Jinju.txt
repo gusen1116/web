@@ -1,4 +1,4 @@
-[title: My liite soda pop]
+[title: My little soda pop]
 [date: 2025-10-15]
 [tags: 진주, 사진]
 [author: 와구센]
@@ -11,5 +11,5 @@
 
 [img:20251015_071045.jpg| 베트남음식점]
 [img:20251015_071552.jpg| 감자?합니다?]
-[img:20251015_071747.jpg| my liite soda pop]
+[img:20251015_071747.jpg| my little soda pop]
 [img:IMG_0029.HEIC| 안녕 진주마스코트] 

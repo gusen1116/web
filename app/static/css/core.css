@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap');
+
 /* 
  * core.css - 최적화된 기본 스타일, 변수, 레이아웃, 타이포그래피 통합
  * 성능 최적화 및 모든 테마에서 일관된 크기 유지
@@ -98,9 +101,9 @@
   --radius-full: 9999px;
 
   /* 그림자 */
-  --shadow-sm: 0 1px 0 rgba(27, 31, 36, 0.04);
-  --shadow-md: 0 3px 6px rgba(140, 149, 159, 0.15);
-  --shadow-lg: 0 8px 24px rgba(140, 149, 159, 0.2);
+  --shadow-sm: 0 2px 4px rgba(27, 31, 36, 0.12);
+  --shadow-md: 0 4px 12px rgba(140, 149, 159, 0.2);
+  --shadow-lg: 0 12px 32px rgba(140, 149, 159, 0.25);
 
   /* 전환 - 성능 최적화 */
   --transition-fast: 150ms ease;
@@ -149,8 +152,10 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  overflow: auto;
   width: 100%;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -162,6 +167,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: -webkit-fill-available;
   transition: background-color 0.3s ease, color 0.3s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -174,14 +180,14 @@ main {
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   position: relative;
   z-index: 2;
   width: 100%;
 }
 
 main .container {
-  padding-top: var(--spacing-8); 
+  padding-top: var(--spacing-4); 
   padding-bottom: var(--spacing-8);
   max-width: var(--content-max-width);
   position: relative;
@@ -196,7 +202,7 @@ footer {
   width: 100%;
   padding: var(--spacing-6) 0;
   background-color: var(--bg-secondary);
-  border-top: 1px solid var(--border-color);
+  border-top: 2px solid var(--border-color);
 }
 
 .container {
@@ -469,6 +475,7 @@ a:hover {
   width: 320px;
   max-width: 80vw;
   height: 100vh;
+  height: 100dvh;
   background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
   z-index: 1001;
   overflow-y: auto;
@@ -573,6 +580,7 @@ a:hover {
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s;
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
 
@@ -712,8 +720,8 @@ p {
 
 /* 모바일 반응형 */
 @media (max-width: 768px) {
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.5rem; }
+  h1 { font-size: 1.8rem; }
+  h2 { font-size: 1.4rem; }
   p { font-size: 1rem; }
 
   .container, 
@@ -724,6 +732,49 @@ p {
     padding-left: 1rem;
     padding-right: 1rem;
   }
+
+  /* 헤더 모바일 반응형 및 깨짐 해결 */
+  .top-header .container {
+    justify-content: space-between;
+  }
+
+  .logo-area {
+    width: auto;
+    flex-shrink: 1;
+  }
+
+  .logo {
+    gap: var(--spacing-2);
+  }
+
+  .site-name {
+    font-size: 16px;
+  }
+
+  .desktop-nav {
+    display: none !important;
+  }
+
+  .header-controls {
+    width: auto;
+    gap: var(--spacing-2);
+    flex-shrink: 0;
+  }
+
+  .mobile-toggle {
+    display: flex !important;
+  }
+
+  /* 모바일 네비게이션 오픈 시 본문 스크롤 차단 지원 */
+  body.nav-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+}
+
+html.dark-theme .mobile-nav {
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
 }
 
 html.dark-theme .mobile-nav-header, 

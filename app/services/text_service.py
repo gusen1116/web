@@ -67,6 +67,13 @@ class URLLinkifyParser(HTMLParser):
             self.tag_stack.pop()
         self.in_tag = self.tag_stack[-1] if self.tag_stack else None
         self.result.append(f'</{tag}>')
+        
+    def handle_startendtag(self, tag, attrs):
+        attrs_str = ' '.join([f'{k}="{v}"' for k, v in attrs])
+        if attrs_str:
+            self.result.append(f'<{tag} {attrs_str}>')
+        else:
+            self.result.append(f'<{tag}>')
     
     def handle_data(self, data):
         if self.in_tag in ['a', 'script', 'style', 'code', 'pre']:
@@ -220,12 +227,15 @@ class TextPost:
         return preview
     
     def _generate_preview_text(self, length: int) -> str:
+        # 줄바꿈 방식 정규화 및 #으로 시작하는 모든 제목 라인 전체 제거
+        content_normalized = self.content.replace('\r\n', '\n')
+        text = re.sub(r'(?m)^[ \t]*#+.*?$', ' ', content_normalized)
+        
         patterns_to_remove = [
             r'\[(?:img|video|audio|youtube):[^\]]+\]',
             r'\[highlight\].*?\[/highlight\].*?', r'\[quote.*?\].*?\[/quote\]', r'\[.*?\].*?(?:.*?)\[/.*?\].*?',
-            r'#+\s+', r'\*\*|\*|__|__', r'!\\[.*?\\]', r'\[.*?\\]',
+            r'\*\*|\*|__|__', r'!\\[.*?\\]', r'\[.*?\\]',
         ]
-        text = self.content
         for pattern in patterns_to_remove:
             text = re.sub(pattern, ' ', text, flags=re.DOTALL | re.MULTILINE)
         text = re.sub(r'\s+', ' ', text).strip()
@@ -429,6 +439,26 @@ def get_adjacent_posts(posts_dir: Union[str, Path], current_post: TextPost) -> T
         current_app.logger.error(f"인접 포스트 조회 오류: {e}")
         return None, None
 
+def _preserve_markdown_newlines(content: str) -> str:
+    """단일 개행을 마크다운 줄바꿈 규칙(스페이스 2개 + 개행)으로 전처리합니다."""
+    lines = content.split('\n')
+    processed = []
+    in_code_block = False
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith('```'):
+            in_code_block = not in_code_block
+            processed.append(line)
+            continue
+        if in_code_block:
+            processed.append(line)
+            continue
+        if line and not stripped.startswith('#') and not line.endswith('  '):
+            processed.append(line + '  ')
+        else:
+            processed.append(line)
+    return '\n'.join(processed)
+
 def render_content(content: str, base_url_images: str = '/posts/images', base_url_videos: str = '/posts/videos', base_url_audios: str = '/posts/audios') -> Markup:
     if not isinstance(content, str) or not content.strip(): return Markup("")
     for url in [base_url_images, base_url_videos, base_url_audios]:
@@ -436,7 +466,8 @@ def render_content(content: str, base_url_images: str = '/posts/images', base_ur
             current_app.logger.error(f"잘못된 URL 설정: {url}")
             return Markup("잘못된 URL 설정")
     try:
-        processed_content = _process_special_tags(content, base_url_images, base_url_videos, base_url_audios)
+        content_with_newlines = _preserve_markdown_newlines(content)
+        processed_content = _process_special_tags(content_with_newlines, base_url_images, base_url_videos, base_url_audios)
         html_content = _process_markdown(processed_content) if MARKDOWN_ENABLED else _process_content_fallback(processed_content)
         clean_content = _sanitize_html_preserve_links(html_content)
         final_content = _auto_linkify_urls_safe(clean_content)
@@ -669,7 +700,7 @@ def _process_markdown(content: str) -> str:
             extensions=extensions,
             extension_configs={
                 'codehilite': {'css_class': 'highlight', 'linenums': False, 'guess_lang': False, 'use_pygments': True},
-                'toc': {'permalink': True, 'permalink_class': 'toc-link', 'permalink_title': '이 섹션에 대한 링크'}
+                'toc': {'permalink': False}
             }
         )
         return md.convert(content)
@@ -686,11 +717,12 @@ def _sanitize_html_preserve_links(html_content: str) -> str:
             'width', 'max-width', 'height', 'margin', 'margin-left', 'margin-right', 'margin-top', 'margin-bottom'
         ])
         css_sanitizer = CSSSanitizer(allowed_css_properties=allowed_css)
-        return bleach.clean(
+        sanitized = bleach.clean(
             html_content, tags=allowed_tags, attributes=allowed_attrs,
             protocols=bleach.sanitizer.ALLOWED_PROTOCOLS, strip=True, strip_comments=True,
             css_sanitizer=css_sanitizer
         )
+        return sanitized.replace('<br></br>', '<br>')
     except Exception as e:
         current_app.logger.error(f"HTML 정제 오류: {e}")
         return escape(html_content)

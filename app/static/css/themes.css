@@ -149,6 +149,40 @@ html.theme-8bit a:hover {
     border-bottom-style: solid;
 }
 
+/* 8비트 아이콘 스타일 (통합) */
+html.theme-8bit .mobile-toggle {
+    background-image: url('/static/images/site/icon/menu.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 24px 24px;
+    filter: var(--icon-filter);
+}
+html.theme-8bit .mobile-toggle.active {
+    background-image: url('/static/images/site/icon/close.png');
+}
+html.theme-8bit .mobile-toggle .hamburger-line { display: none; }
+html.theme-8bit .mobile-nav-link .default-icon { display: none; }
+html.theme-8bit .mobile-nav-link .nav-icon-8bit {
+    display: inline-block;
+    filter: var(--icon-filter);
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+html.theme-8bit .footer-links i {
+    font-size: 0;
+    width: 24px;
+    height: 24px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    filter: var(--icon-filter);
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+html.theme-8bit .footer-links .footer-icon-github { background-image: url('/static/images/site/icon/github.png'); }
+html.theme-8bit .footer-links .footer-icon-mail { background-image: url('/static/images/site/icon/mail.png'); }
+
 /* 태그 및 뱃지 */
 html.theme-8bit .tag,
 html.theme-8bit .post-card-tag,
@@ -159,14 +193,14 @@ html.theme-8bit .post-card-date {
     font-weight: 700;
 }
 
-/* 반응형 타이포그래피 (기존 8비트 테마 규칙 유지) */
+/* 반응형 타이포그래피 */
 @media (max-width: 768px) {
-  html.theme-cyberbit h1 { font-size: 2rem !important; }
-  html.theme-cyberbit h2 { font-size: 1.5rem !important; }
-  html.theme-cyberbit p, html.theme-cyberbit li { font-size: 1.1rem !important; }
+  html.theme-8bit h1 { font-size: 2rem !important; }
+  html.theme-8bit h2 { font-size: 1.5rem !important; }
+  html.theme-8bit p, html.theme-8bit li { font-size: 1.1rem !important; }
 }
 @media (max-width: 480px) {
-  html.theme-cyberbit h1 { font-size: 1.75rem !important; }
-  html.theme-cyberbit h2 { font-size: 1.35rem !important; }
-  html.theme-cyberbit p, html.theme-cyberbit li { font-size: 1.05rem !important; }
+  html.theme-8bit h1 { font-size: 1.75rem !important; }
+  html.theme-8bit h2 { font-size: 1.35rem !important; }
+  html.theme-8bit p, html.theme-8bit li { font-size: 1.05rem !important; }
 }

@@ -280,26 +280,24 @@ def process_photo_file(filename: str, photos_dir: str, allow_network=False) -> d
     if not os.path.exists(file_path): return None
 
     _load_caches()
-    # 캐시 키에 정수형 mtime 사용
     mtime = int(os.path.getmtime(file_path))
     cache_key = f"{filename}_{mtime}"
     
     if cache_key in _photo_cache:
         data = _photo_cache[cache_key].copy()
-        # 주소가 필요한데 캐시에 없다면 실시간 조회 시도 (상세 페이지인 경우)
         if data.get('gps') and not data['gps'].get('address') and allow_network:
             addr = _get_address(data['gps']['lat'], data['gps']['lon'], allow_network=True)
             if addr:
                 current_app.logger.info(f"[Gallery] 실시간 주소 획득: {filename} -> {addr}")
                 data['gps']['address'] = addr
                 with _warmer_lock:
-                    _photo_cache[cache_key]['gps']['address'] = addr
+                    if cache_key in _photo_cache:
+                        _photo_cache[cache_key]['gps']['address'] = addr
                 _save_photo_cache()
         return data
 
     current_app.logger.info(f"[Gallery] 캐시 미스 또는 정보 없음 - 재처리: {filename}")
     thumb_path = _get_thumbnail_path(filename)
-    # 화질 개선을 위해 기존 썸네일이 있더라도 다시 생성하고 싶다면 아래 조건을 수정할 수 있습니다.
     if not os.path.exists(thumb_path): _create_thumbnail(file_path, thumb_path)
 
     exif_data = _get_exif_data(file_path)
@@ -334,6 +332,7 @@ def process_photo_file(filename: str, photos_dir: str, allow_network=False) -> d
         'url': url_for('static', filename=f'gallery_photos/{filename}'),
         'thumbnail_url': url_for('static', filename=f'gallery_thumbnails/{_get_thumbnail_filename(filename)}'),
         'title': os.path.splitext(filename)[0].replace('_', ' ').replace('-', ' ').title(),
+        'year': year_tag,
         'tags': [year_tag],
         'exif_low': exif_low,
         'gps': gps_point
@@ -362,7 +361,6 @@ def get_all_photos() -> list[dict]:
     
     needs_warming = False
     for filename in filenames:
-        # 목록 로드 시에는 네트워크 요청 없이 캐시만 사용
         photo_data = process_photo_file(filename, photos_dir, allow_network=False)
         if photo_data:
             photo_list.append(photo_data)

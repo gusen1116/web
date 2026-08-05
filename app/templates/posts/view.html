@@ -182,9 +182,6 @@
 .post-nav-link.disabled { opacity: 0.6; cursor: not-allowed; background-color: var(--bg-tertiary); }
 .post-nav-link.disabled:hover { border-color: var(--border-color); box-shadow: none; }
 
-/* (관련 글, 수정 이력, 블로그 홈 버튼, 다크모드, 모바일 최적화 스타일 등 이전 답변과 동일하게 유지) */
-/* ... 이전 답변의 CSS 나머지 부분 ... */
-
 /* 다크모드 조정 */
 html.dark-theme .post-date:hover,
 html.dark-theme .post-author:hover,
@@ -261,11 +258,20 @@ html.dark-theme .changelog-list li::before { color: var(--neutral-500); }
 
 /* 블로그 홈으로 돌아가기 버튼 */
 .post-actions {
-    width: 55rem; 
-    max-width: 100%; 
-    margin: 3.5rem auto 1.5rem; 
-    text-align: center;
+    width: 55rem; max-width: 100%; margin: 3.5rem auto 1.5rem; text-align: center;
 }
+.btn-link.back-to-blog {
+    padding: 0.5rem 1rem; font-size: 0.9rem; background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color); color: var(--text-primary); box-shadow: none;
+    border-radius: 4px;
+}
+.btn-link.back-to-blog:hover {
+    background-color: var(--neutral-200); border-color: var(--neutral-400);
+    transform: none; box-shadow: none;
+}
+html.dark-theme .btn-link.back-to-blog { background-color: var(--neutral-700); border-color: var(--neutral-600); color: var(--text-primary); }
+html.dark-theme .btn-link.back-to-blog:hover { background-color: var(--neutral-600); border-color: var(--neutral-500); }
+
 
 /* 모바일 최적화 */
 @media (max-width: 768px) {
@@ -374,7 +380,7 @@ html.dark-theme .changelog-list li::before { color: var(--neutral-500); }
     </h3>
     <div class="related-posts-grid">
         {% for related_post_item in series_posts[:3] %}
-        <a href="{{ url_for('posts.view_by_slug', slug=related_post_item.id) }}" class="related-post-card">
+        <a href="{{ url_for('posts.view_by_slug', slug=related_post_item.slug) }}" class="related-post-card">
             <h4>{{ related_post_item.title }}</h4>
             <div class="related-post-meta">
                 <span class="date"><i class="far fa-calendar-alt fa-xs"></i> {{ related_post_item.date.strftime('%Y.%m.%d') }}</span>
@@ -397,32 +403,32 @@ html.dark-theme .changelog-list li::before { color: var(--neutral-500); }
     </div>
     <div class="post-nav-container">
         {% if prev_post %}
-        <a href="{{ url_for('posts.view_by_slug', slug=prev_post.id) }}" class="post-nav-link prev">
+        <a href="{{ url_for('posts.view_by_slug', slug=prev_post.slug) }}" class="post-nav-link prev">
             <div class="post-nav-info">
-                <div class="post-nav-label"><i class="fas fa-arrow-left"></i><span>이전 글</span></div>
-                <div class="post-nav-title">{{ prev_post.title }}</div> {# 이 부분은 enhanced-links.css의 영향을 받지 않도록 주의 #}
+                <div class="post-nav-label"><i class="fas fa-arrow-left"></i><span>다음 글</span></div>
+                <div class="post-nav-title">{{ prev_post.title }}</div>
                 <div class="post-nav-date">{{ prev_post.date.strftime('%Y.%m.%d') }}</div>
             </div>
         </a>
         {% else %}
         <div class="post-nav-link prev disabled">
             <div class="post-nav-info">
-                <div class="post-nav-label"><i class="fas fa-ban"></i><span>이전 글 없음</span></div>
+                <div class="post-nav-label"><i class="fas fa-ban"></i><span>다음 글 없음</span></div>
             </div>
         </div>
         {% endif %}
         {% if next_post %}
-        <a href="{{ url_for('posts.view_by_slug', slug=next_post.id) }}" class="post-nav-link next">
+        <a href="{{ url_for('posts.view_by_slug', slug=next_post.slug) }}" class="post-nav-link next">
             <div class="post-nav-info">
-                <div class="post-nav-label"><span>다음 글</span><i class="fas fa-arrow-right"></i></div>
-                <div class="post-nav-title">{{ next_post.title }}</div> {# 이 부분은 enhanced-links.css의 영향을 받지 않도록 주의 #}
+                <div class="post-nav-label"><span>이전 글</span><i class="fas fa-arrow-right"></i></div>
+                <div class="post-nav-title">{{ next_post.title }}</div>
                 <div class="post-nav-date">{{ next_post.date.strftime('%Y.%m.%d') }}</div>
             </div>
         </a>
         {% else %}
         <div class="post-nav-link next disabled">
             <div class="post-nav-info">
-                <div class="post-nav-label"><span>다음 글 없음</span><i class="fas fa-ban"></i></div>
+                <div class="post-nav-label"><span>이전 글 없음</span><i class="fas fa-ban"></i></div>
             </div>
         </div>
         {% endif %}
@@ -439,5 +445,5 @@ html.dark-theme .changelog-list li::before { color: var(--neutral-500); }
 {% block scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
-<script nonce="{{ csp_nonce() }}" src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ static_url('js/mixtype.js') }}"></script>
 {% endblock %}

@@ -5,7 +5,7 @@ from urllib.parse import unquote
 
 from app.services.gallery_service import get_all_photos, get_photo_by_id
 
-# 블루프린트 이름 고정
+# 블루프린트 이름 고정 (register_blueprints에서 gallery_bp를 import)
 gallery_bp = Blueprint("gallery", __name__, url_prefix="/gallery")
 __all__ = ["gallery_bp"]
 

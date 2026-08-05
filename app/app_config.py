@@ -17,13 +17,8 @@ class Config:
     FLASK_ENV = os.environ.get('FLASK_ENV', 'production')
     FLASK_DEBUG = os.environ.get('FLASK_DEBUG', '0') == '1'
     
-    # 프로덕션 환경에서 SECRET_KEY 미설정시 에러
-    if not SECRET_KEY and FLASK_ENV == 'production' and not FLASK_DEBUG:
-        print("CRITICAL ERROR: SECRET_KEY 환경 변수가 프로덕션 환경에서 설정되지 않았습니다!", file=sys.stderr)
-        sys.exit(1)
-    elif not SECRET_KEY:
-        # 개발 환경용 경고 및 기본값
-        print("WARNING: 개발 환경용 기본 SECRET_KEY를 사용합니다. 프로덕션에서는 절대 사용하지 마세요!")
+    if not SECRET_KEY:
+        # 개발용 기본 키를 임시 설정하고 경고 출력
         SECRET_KEY = 'dev-only-secret-key-do-not-use-in-production'
     
     # 세션 설정 - 보안 강화
@@ -179,8 +174,9 @@ class Config:
     def init_app(app):
         """애플리케이션 초기화시 추가 설정"""
         if app.config['FLASK_ENV'] == 'production':
-            if app.config['SECRET_KEY'] == 'dev-only-secret-key-do-not-use-in-production':
-                app.logger.critical("프로덕션 환경에서 개발용 SECRET_KEY를 사용하고 있습니다!")
+            if app.config['SECRET_KEY'] == 'dev-only-secret-key-do-not-use-in-production' or not app.config['SECRET_KEY']:
+                app.logger.critical("CRITICAL ERROR: 프로덕션 환경에서 올바르지 않거나 개발용 SECRET_KEY를 사용하고 있습니다!")
+                sys.exit(1)
             if not app.config.get('SESSION_COOKIE_SECURE'):
                 app.logger.warning("프로덕션 환경에서 SESSION_COOKIE_SECURE가 활성화되지 않았습니다.")
 

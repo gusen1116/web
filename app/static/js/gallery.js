@@ -15,6 +15,27 @@
   }, {passive:true});
 })();
 
+// 연도 필터 (페이지 새로고침 없이 동적 필터링으로 수정)
+(function(){
+  const sel = document.getElementById('yearFilter');
+  if(!sel) return;
+  const cards = Array.from(document.querySelectorAll('.photo-card'));
+  if(!cards.length) return;
+
+  sel.addEventListener('change', () => {
+    const selectedYear = sel.value;
+    
+    cards.forEach(card => {
+      const cardYear = card.dataset.year;
+      if (selectedYear === 'all' || cardYear === selectedYear) {
+        card.style.display = '';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  });
+})();
+
 /* ================= Lightbox (업그레이드) ================= */
 (function(){
   const root = document.getElementById('glightbox');
@@ -31,7 +52,6 @@
     
     try {
       if (rawExif) {
-        // 속성값이 이미 이중 인코딩된 경우 등을 고려하여 트림 처리
         const trimmed = rawExif.trim();
         if (trimmed.startsWith('{')) {
           exifObj = JSON.parse(trimmed);
@@ -39,8 +59,6 @@
       }
     } catch(e) { 
       console.error(`[Gallery] EXIF 파싱 실패 (${a.dataset.id}):`, e);
-      console.log(`[Gallery] 원본 데이터:`, rawExif);
-      // 실패 시 빈 객체 유지
       exifObj = {}; 
     }
 
@@ -59,11 +77,11 @@
   let cur = -1;
 
   const METADATA_CONFIG = [
-    { key: 'model', label: 'Camera Model', icon: 'fa-solid fa-camera' },
-    { key: 'fnumber', label: 'Aperture', icon: 'fa-regular fa-circle' },
-    { key: 'exposuretime', label: 'Shutter Speed', icon: 'fa-solid fa-stopwatch' },
+    { key: 'model', label: '카메라 모델', icon: 'fa-solid fa-camera' },
+    { key: 'fnumber', label: '조리개', icon: 'fa-regular fa-circle' },
+    { key: 'exposuretime', label: '셔터 스피드', icon: 'fa-solid fa-stopwatch' },
     { key: 'isospeedratings', label: 'ISO', icon: 'fa-solid fa-sliders' },
-    { key: 'focallength', label: 'Focal Length', icon: 'fa-solid fa-arrows-left-right' },
+    { key: 'focallength', label: '초점 거리', icon: 'fa-solid fa-arrows-left-right' },
   ];
 
   async function fillPanel(d) {
@@ -73,134 +91,74 @@
     metaEl.innerHTML = ''; 
 
     const renderMeta = (addressVal) => {
-      let metaHtml = '';
       METADATA_CONFIG.forEach(cfg => {
-        const value = d.exif[cfg.key];
-        if (value && value !== 'None' && value !== 'undefined' && value !== 'null') {
-          metaHtml += `
-            <div class="glbx-meta-item">
-              <span class="label"><i class="${cfg.icon}"></i> ${cfg.label}</span>
-              <span class="value">${value}</span>
-            </div>`;
+        const val = d.exif[cfg.key];
+        if (val) {
+          const item = document.createElement('div');
+          item.className = 'meta-item';
+          item.innerHTML = `
+            <i class="${cfg.icon}"></i>
+            <div class="meta-content">
+              <span class="meta-label">${cfg.label}</span>
+              <span class="meta-value">${val}</span>
+            </div>
+          `;
+          metaEl.appendChild(item);
         }
       });
 
       if (d.lat && d.lon) {
-        const addrDisplay = (addressVal && addressVal !== 'None') ? addressVal : `${d.lat.toFixed(4)}, ${d.lon.toFixed(4)}`;
-        metaHtml += `
-          <div class="glbx-meta-item">
-            <span class="label"><i class="fa-solid fa-location-dot"></i> GPS</span>
-            <span class="value">${addrDisplay}</span>
-          </div>`;
+        const gpsItem = document.createElement('div');
+        gpsItem.className = 'meta-item gps-item';
+        gpsItem.innerHTML = `
+          <i class="fa-solid fa-location-dot"></i>
+          <div class="meta-content">
+            <span class="meta-label">위치 정보</span>
+            <span class="meta-value">${addressVal || `${d.lat.toFixed(4)}, ${d.lon.toFixed(4)}`}</span>
+            <a href="https://www.google.com/maps/search/?api=1&query=${d.lat},${d.lon}" 
+               target="_blank" class="map-link">지도에서 보기</a>
+          </div>
+        `;
+        metaEl.appendChild(gpsItem);
       }
-      
-      if (!metaHtml) {
-        metaHtml = '<div class="glbx-meta-item"><span class="value">정보가 없습니다.</span></div>';
-      }
-      metaEl.innerHTML = metaHtml;
     };
 
     renderMeta(d.address);
-
-    if (d.lat && d.lon && (!d.address || d.address === 'None')) {
-      try {
-        const res = await fetch(`/gallery/api/photo/${encodeURIComponent(d.id)}/address`);
-        if (res.ok) {
-          const json = await res.json();
-          if (json.address && json.address !== 'None') {
-            d.address = json.address;
-            renderMeta(d.address);
-          }
-        }
-      } catch (e) { console.warn("[Gallery] 주소 업데이트 실패:", e); }
-    }
   }
 
-  function open() {
+  function open(idx) {
+    if(idx < 0 || idx >= data.length) return;
+    cur = idx;
+    const d = data[cur];
+    img.src = d.url;
+    fillPanel(d);
     root.hidden = false;
-    root.classList.add('is-active');
+    root.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
   }
 
   function close() {
     root.hidden = true;
-    root.classList.remove('is-active');
+    root.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
-    if (history.state?.glbx) history.back();
+    img.src = '';
   }
 
-  function showAt(index) {
-    if (index < 0 || index >= data.length) return;
-    cur = index;
-    const d = data[cur];
-    
-    img.style.opacity = '0';
-    
-    const tempImg = new Image();
-    tempImg.onload = () => {
-      img.src = d.url;
-      img.style.opacity = '1';
-    };
-    tempImg.onerror = () => {
-      img.src = d.url;
-      img.style.opacity = '1';
-    };
-    tempImg.src = d.url;
-    
-    img.alt = d.title || d.id || '';
-    
-    fillPanel(d);
-
-    const target = `/gallery/photo/${encodeURIComponent(d.id)}`;
-    if (location.pathname !== target) {
-      history.pushState({ glbx: true, id: d.id }, '', target);
-    }
-  }
-  
-  function openById(id) {
-    const index = data.findIndex(x => x.id === id);
-    if (index === -1) return false;
-    open();
-    showAt(index);
-    return true;
-  }
-  
   cards.forEach((a, i) => {
-    a.addEventListener('click', (e) => {
+    a.addEventListener('click', e => {
       e.preventDefault();
-      open();
-      showAt(i);
+      open(i);
     });
   });
 
-  root.addEventListener('click', (e) => {
-    const act = e.target?.closest('[data-action]')?.dataset.action;
-    if (act === 'close') close();
-    else if (e.target.classList.contains('glbx-overlay')) close();
+  root.addEventListener('click', e => {
+    if (e.target.dataset.action === 'close') close();
   });
 
-  window.addEventListener('keydown', (e) => {
+  window.addEventListener('keydown', e => {
     if (root.hidden) return;
     if (e.key === 'Escape') close();
-    if (e.key === 'ArrowLeft') showAt(cur - 1);
-    if (e.key === 'ArrowRight') showAt(cur + 1);
+    if (e.key === 'ArrowLeft') open(cur - 1);
+    if (e.key === 'ArrowRight') open(cur + 1);
   });
-
-  window.addEventListener('popstate', () => {
-    const m = location.pathname.match(/\/gallery\/photo\/(.+)$/);
-    if (m) {
-      const id = decodeURIComponent(m[1]);
-      if (root.hidden) openById(id);
-    } else {
-      if (!root.hidden) close();
-    }
-  });
-
-  (function initFromURL() {
-    const m = location.pathname.match(/\/gallery\/photo\/(.+)$/);
-    if (m) {
-      const id = decodeURIComponent(m[1]);
-      openById(id);
-    }
-  })();
 })();

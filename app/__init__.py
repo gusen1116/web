@@ -104,17 +104,13 @@ def create_app(config_name: str | None = None) -> Flask:
     from app.routes.utils_routes import utils_bp
     from app.routes.simulation_routes import simulation_bp
 
-    from app.routes.posts_routes import posts_bp
-    from app.routes.speedtest_routes import speedtest_bp
-    from app.routes.whois_routes import whois_bp
-    from app.routes.utils_routes import utils_bp
-
     app.register_blueprint(main_bp)
     app.register_blueprint(gallery_bp)
     app.register_blueprint(posts_bp)
     app.register_blueprint(speedtest_bp)
     app.register_blueprint(whois_bp)
     app.register_blueprint(utils_bp)
+    app.register_blueprint(simulation_bp)
 
     # --- Register error handlers ---
     app.register_error_handler(404, page_not_found)

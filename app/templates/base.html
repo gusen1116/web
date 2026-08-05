@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="{{ static_url('css/layout-modules.css') }}">
     <link rel="stylesheet" href="{{ static_url('css/error-pages.css') }}">
     <link rel="stylesheet" href="{{ static_url('css/themes.css') }}">
+    <link rel="stylesheet" href="{{ static_url('css/cyberpixel.css') }}">
     
     <link rel="icon" type="image/png" href="{{ static_url('images/site/favicon.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -36,7 +37,12 @@
             const THEMES = [
                 { name: 'light', className: '' },
                 { name: 'dark', className: 'dark-theme' },
-                { name: '8bit', className: 'theme-8bit' }
+                { name: '8bit', className: 'theme-8bit' },
+                { name: 'pixel-fusion', className: 'theme-pixel-fusion' },
+                { name: 'royal-cream', className: 'theme-royal-cream' },
+                { name: 'royal-pixel', className: ['dark-theme', 'theme-royal-pixel'] },
+                { name: 'future-pixel', className: ['dark-theme', 'theme-future-pixel'] },
+                { name: 'cyberpixel', className: ['dark-theme', 'theme-cyberpixel'] }
             ];
             const savedThemeName = localStorage.getItem('wagusen_theme_v2');
             const theme = THEMES.find(t => t.name === savedThemeName);
@@ -120,7 +126,7 @@
                 <p>© 2026 와구센 · 더 나은 모바일 경험을 준비했어요.</p>
             </div>
             <div class="mobile-nav-social">
-                <a href="https://github.com/wagusen" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                <a href="https://github.com/gusen1116" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
                     <i class="fab fa-github"></i>
                 </a>
                 <a href="mailto:gusen@wagusen.com" aria-label="메일 보내기">
@@ -147,7 +153,7 @@
                     </a>
                 </div>
                 <div class="footer-links">
-                    <a href="https://github.com/wagusen" target="_blank" rel="noopener noreferrer">
+                    <a href="https://github.com/gusen1116" target="_blank" rel="noopener noreferrer">
                         <i class="fab fa-github footer-icon-github"></i>
                         <span>GitHub</span>
                     </a>
@@ -174,4 +180,4 @@
     </script>
     {% block scripts %}{% endblock %}
 </body>
-</html> 
+</html>

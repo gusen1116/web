@@ -292,3 +292,85 @@ html.dark-theme .btn-view-all {
 html.dark-theme .btn-view-all:hover {
   background-color: #388bfd;
 }
+
+/* ===== 7. 모바일 반응형 레이아웃 오버라이드 ===== */
+@media (max-width: 768px) {
+  /* 블로그 그리드 1열로 변경 */
+  .posts-grid,
+  .posts-grid-center {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-8);
+  }
+
+  /* 인트로 컨테이너 1열로 변경 */
+  .intro-container {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-6);
+    padding: var(--spacing-5);
+    border-radius: 16px;
+  }
+
+  /* 프로필 가로배치 -> 세로배치 및 중앙정렬 */
+  .intro-profile-area {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: var(--spacing-4);
+  }
+
+  .intro-image-area {
+    width: 120px;
+    height: 120px;
+  }
+
+  .intro-content-area h1,
+  .intro-content-area h2,
+  .intro-content-area p {
+    text-align: center;
+  }
+
+  .intro-content-area h1 {
+    font-size: 1.8rem;
+  }
+
+  .intro-links {
+    justify-content: center;
+  }
+
+  /* 슬라이더 높이 조절 및 글자 크기 축소 */
+  .slide-container {
+    min-height: 240px;
+  }
+
+  .slide {
+    padding: 1.5rem;
+  }
+
+  .slide h2 {
+    font-size: 1.6rem;
+  }
+
+  .slide p {
+    font-size: 0.95rem;
+  }
+
+  /* 포스트 카드 높이 유연화 */
+  .post-card {
+    min-height: auto;
+  }
+
+  .post-card-header,
+  .post-card-content,
+  .post-card-footer {
+    padding: 1.2rem;
+  }
+
+  .post-card-title {
+    font-size: 1.25rem;
+  }
+
+  .post-card-image-wrapper {
+    height: 150px;
+  }
+}

@@ -16,14 +16,28 @@
     <div class="glbx-view">
       <div class="glbx-image-wrap">
         <img id="glbx-img" src="{{ photo.url }}" alt="{{ photo.title }}" draggable="false">
+        
+        {# 이미지 위 네비게이션 화살표 (데스크탑용) #}
+        <div class="photo-nav-overlay">
+          {% if prev_photo %}
+          <a href="{{ url_for('gallery.detail', filename=prev_photo.id) }}" class="nav-arrow prev" title="이전 사진">
+            <i class="fa-solid fa-chevron-left"></i>
+          </a>
+          {% endif %}
+          {% if next_photo %}
+          <a href="{{ url_for('gallery.detail', filename=next_photo.id) }}" class="nav-arrow next" title="다음 사진">
+            <i class="fa-solid fa-chevron-right"></i>
+          </a>
+          {% endif %}
+        </div>
       </div>
       <aside class="glbx-panel" aria-live="polite">
-        <h3 id="glbx-title">{{ photo.title }}</h3>
+        <h1 id="glbx-title">{{ photo.title }}</h1>
         <div id="glbx-meta" class="glbx-meta">
           {# 카메라 모델 #}
           {% if photo.exif_low.model %}
           <div class="glbx-meta-item">
-            <span class="label"><i class="fa-solid fa-camera"></i> Camera Model</span>
+            <span class="label"><i class="fa-solid fa-camera"></i> 카메라 모델</span>
             <span class="value">{{ photo.exif_low.model }}</span>
           </div>
           {% endif %}
@@ -31,7 +45,7 @@
           {# 조리개 #}
           {% if photo.exif_low.fnumber %}
           <div class="glbx-meta-item">
-            <span class="label"><i class="fa-regular fa-circle"></i> Aperture</span>
+            <span class="label"><i class="fa-regular fa-circle"></i> 조리개</span>
             <span class="value">{{ photo.exif_low.fnumber }}</span>
           </div>
           {% endif %}
@@ -39,7 +53,7 @@
           {# 셔터 스피드 #}
           {% if photo.exif_low.exposuretime %}
           <div class="glbx-meta-item">
-            <span class="label"><i class="fa-solid fa-stopwatch"></i> Shutter Speed</span>
+            <span class="label"><i class="fa-solid fa-stopwatch"></i> 셔터 스피드</span>
             <span class="value">{{ photo.exif_low.exposuretime }}</span>
           </div>
           {% endif %}
@@ -55,7 +69,7 @@
           {# 초점 거리 #}
           {% if photo.exif_low.focallength %}
           <div class="glbx-meta-item">
-            <span class="label"><i class="fa-solid fa-arrows-left-right"></i> Focal Length</span>
+            <span class="label"><i class="fa-solid fa-arrows-left-right"></i> 초점 거리</span>
             <span class="value">{{ photo.exif_low.focallength }}</span>
           </div>
           {% endif %}
@@ -63,15 +77,33 @@
           {# GPS #}
           {% if photo.gps %}
           <div class="glbx-meta-item" data-lat="{{ photo.gps.lat }}" data-lon="{{ photo.gps.lon }}">
-            <span class="label"><i class="fa-solid fa-location-dot"></i> GPS</span>
+            <span class="label"><i class="fa-solid fa-location-dot"></i> 위치 정보</span>
             <span class="value">{{ photo.gps.address if photo.gps.address else (photo.gps.lat|round(4)|string + ", " + photo.gps.lon|round(4)|string) }}</span>
           </div>
           {% endif %}
         </div>
 
         <div class="detail-actions">
+          <div class="photo-navigation">
+            {% if prev_photo %}
+            <a href="{{ url_for('gallery.detail', filename=prev_photo.id) }}" class="nav-btn">
+              <i class="fa-solid fa-arrow-left"></i> 이전
+            </a>
+            {% else %}
+            <span class="nav-btn disabled"><i class="fa-solid fa-arrow-left"></i> 이전</span>
+            {% endif %}
+            
+            {% if next_photo %}
+            <a href="{{ url_for('gallery.detail', filename=next_photo.id) }}" class="nav-btn">
+              다음 <i class="fa-solid fa-arrow-right"></i>
+            </a>
+            {% else %}
+            <span class="nav-btn disabled">다음 <i class="fa-solid fa-arrow-right"></i></span>
+            {% endif %}
+          </div>
+          
           <a href="{{ url_for('gallery.index') }}" class="back-btn">
-            <i class="fa-solid fa-chevron-left"></i> 갤러리로 돌아가기
+            <i class="fa-solid fa-grid-2"></i> 목록으로 돌아가기
           </a>
         </div>
       </aside>

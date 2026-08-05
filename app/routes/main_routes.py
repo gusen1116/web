@@ -55,47 +55,10 @@ def about():
         current_app.logger.error(f'소개 페이지 로드 에러: {e}')
         return render_template('404.html'), 500
 
-@main_bp.route('/test')
-def test():
-    return render_template('test.html')
-
 @main_bp.route('/network')
 def network():
     """Render the network tools hub page."""
     return render_template('network.html')
-
-@main_bp.route('/magazine')
-def magazine():
-    page = request.args.get('page', 1, type=int)
-    PER_PAGE = 9
-    posts_dir = current_app.config.get('POSTS_DIR')
-    all_posts = get_all_text_posts(posts_dir)
-    total_posts = len(all_posts)
-    total_pages = (total_posts + PER_PAGE - 1) // PER_PAGE
-
-    start = (page - 1) * PER_PAGE
-    end = start + PER_PAGE
-    paginated_posts = all_posts[start:end]
-
-    posts_with_colors = []
-    for post in paginated_posts:
-        preview = post.get_rich_preview(100)
-        image_path = None
-        if preview['image_filename']:
-            image_path = os.path.join(current_app.static_folder, 'images/posts', preview['image_filename'])
-        
-        dominant_color = ColorService.get_dominant_color(image_path) if image_path else '#FFFFFF'
-        posts_with_colors.append({
-            'post': post,
-            'color': dominant_color
-        })
-
-    return render_template(
-        'magazine.html', 
-        posts_with_colors=posts_with_colors,
-        current_page=page,
-        total_pages=total_pages
-    )
 
 @main_bp.route('/api/status')
 def api_status():
