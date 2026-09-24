@@ -1,10 +1,15 @@
 {
   "name": "google-sheets-script",
   "version": "1.0.0",
-  "description": "A script to connect to Google Sheets.",
+  "description": "Explicit, fail-safe CLI utilities for Google Sheets.",
+  "private": true,
   "main": "sheets.js",
   "scripts": {
-    "start": "node sheets.js"
+    "start": "node sheets-cli.js",
+    "sheets:list": "node sheets-cli.js list",
+    "sheets:clear": "node sheets-cli.js clear",
+    "sheets:delete-row": "node sheets-cli.js delete-row",
+    "test": "node --test tests/sheets-security.test.js"
   },
   "dependencies": {
     "google-auth-library": "^10.3.0",

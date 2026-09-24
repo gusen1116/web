@@ -7,7 +7,7 @@ the domain name as part of the URL instead of relying on a trailing space,
 which ensures proper parameter capture.
 """
 
-from flask import Blueprint, jsonify, current_app, render_template
+from flask import Blueprint, jsonify, current_app, redirect, url_for
 import whois
 from datetime import datetime
 
@@ -44,8 +44,8 @@ whois_bp = Blueprint('whois', __name__, url_prefix='/whois')
 
 @whois_bp.route('/')
 def whois_page():
-    """Render the WHOIS lookup page."""
-    return render_template('whois.html')
+    """Redirect the legacy page to the integrated diagnostics page."""
+    return redirect(url_for('speedtest.speedtest_page'), code=302)
 
 @whois_bp.route('/api/<domain_name>')
 def get_whois_info(domain_name: str):

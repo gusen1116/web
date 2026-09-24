@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "components/tag_button.html" import tag_button %}
+
+{% block title %}태그 - 와구센{% endblock %}
+
+{% block content %}
+<header class="blog-header">
+  <h1>태그</h1>
+  <p>총 {{ stats.total_tags }}개의 태그가 {{ stats.total_usage }}번 사용되었습니다.</p>
+</header>
+
+{% if tag_groups %}
+  {% for initial, tag_items in tag_groups %}
+  <section class="tag-overview-group" aria-labelledby="tag-group-{{ loop.index }}">
+    <h2 id="tag-group-{{ loop.index }}">{{ initial }}</h2>
+    <div class="top-tag-navigation">
+      {% for tag_item in tag_items %}
+        {{ tag_button(tag_item.name, count=tag_item.count) }}
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+{% else %}
+  <div class="empty-state">
+    <p>아직 등록된 태그가 없습니다.</p>
+  </div>
+{% endif %}
+{% endblock %}

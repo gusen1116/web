@@ -1,236 +1,617 @@
 /**
- * 네트워크 진단 도구 JavaScript (최종 통합 버전)
- * - 속도 테스트, WHOIS 조회, 포트 스캔 기능 통합
+ * Browser-to-speed-server network test.
+ * Every measurement request is sent directly from the user's browser to
+ * https://api.wagusen.com. The website server is not used as a measurement proxy.
  */
-(function() {
+(function () {
     'use strict';
 
-    // ===============================================
-    //               전역 설정 및 요소 참조
-    // ===============================================
-    const DOWNLOAD_TOTAL_SIZE_MB = 50; // 테스트 시간 단축을 위해 조정
-    const UPLOAD_TOTAL_SIZE_MB = 20;
-    const NUM_PARALLEL_CONNECTIONS = 2;
+    const app = document.getElementById('speedTestApp');
+    if (!app) return;
 
-    // DOM 요소
-    const el = {
-        // Speedtest
-        startTestBtn: document.getElementById('startTestBtn'),
-        speedResults: document.getElementById('speedResults'),
-        pingResult: document.getElementById('pingResult'),
-        downloadResult: document.getElementById('downloadResult'),
-        uploadResult: document.getElementById('uploadResult'),
-        speedProgress: document.getElementById('speedProgressContainer'),
-        speedBar: document.getElementById('speedProgressBar'),
-
-        // WHOIS
-        whoisInput: document.getElementById('whoisInput'),
-        whoisBtn: document.getElementById('whoisBtn'),
-        whoisResult: document.getElementById('whoisResult'),
-        whoisList: document.getElementById('whoisList'),
-        whoisRaw: document.getElementById('whoisRaw'),
-
-        // Port Scan
-        portHost: document.getElementById('portHost'),
-        portList: document.getElementById('portList'),
-        portBtn: document.getElementById('portBtn'),
-        portProgress: document.getElementById('portProgressContainer'),
-        portBar: document.getElementById('portProgressBar'),
-        portTerminal: document.getElementById('portTerminal')
+    const API_BASE = 'https://api.wagusen.com/api/v1';
+    const DEFAULT_PORTS = '21,22,25,53,80,443,3306,8080';
+    const profiles = {
+        small: { warmupMb: 1, downloadMb: 10, uploadMb: 5, attempts: 2 },
+        normal: { warmupMb: 2, downloadMb: 25, uploadMb: 10, attempts: 2 },
+        large: { warmupMb: 5, downloadMb: 75, uploadMb: 25, attempts: 2 }
     };
 
-    // CSRF 토큰 헬퍼
-    function getCsrfToken() {
-        return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    const elements = {
+        start: document.getElementById('startSpeedTest'),
+        profile: document.getElementById('speedProfile'),
+        message: document.getElementById('speedMessage'),
+        ping: document.getElementById('pingResult'),
+        download: document.getElementById('downloadResult'),
+        upload: document.getElementById('uploadResult'),
+        progress: document.querySelector('.speed-progress'),
+        progressBar: document.getElementById('speedProgressBar')
+    };
+
+    const networkTools = {
+        dns: {
+            form: document.getElementById('dnsLookupForm'),
+            input: document.getElementById('dnsDomain'),
+            button: document.getElementById('dnsLookupButton'),
+            result: document.getElementById('dnsLookupResult')
+        },
+        port: {
+            form: document.getElementById('portScanForm'),
+            target: document.getElementById('portScanTarget'),
+            ports: document.getElementById('portScanPorts'),
+            button: document.getElementById('portScanButton'),
+            result: document.getElementById('portScanResult')
+        },
+        subdomain: {
+            form: document.getElementById('subdomainLookupForm'),
+            input: document.getElementById('subdomainDomain'),
+            button: document.getElementById('subdomainLookupButton'),
+            result: document.getElementById('subdomainLookupResult')
+        }
+    };
+
+    let activeController = null;
+    let running = false;
+
+    function endpoint(path) {
+        return `${API_BASE}${path}`;
     }
 
-    // ===============================================
-    //               Speedtest 로직
-    // ===============================================
-    async function runSpeedtest() {
-        if (!el.startTestBtn) return;
+    function cacheBuster(index = 0) {
+        return `${Date.now()}-${index}-${Math.random().toString(36).slice(2)}`;
+    }
 
-        // 초기화
-        el.startTestBtn.disabled = true;
-        el.startTestBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 테스트 중...';
-        el.speedResults.style.display = 'block';
-        el.speedProgress.style.display = 'block';
-        el.pingResult.textContent = '...';
-        el.downloadResult.textContent = '...';
-        el.uploadResult.textContent = '...';
+    async function apiRequest(path, options = {}) {
+        const controller = new AbortController();
+        let timedOut = false;
+        const timeout = window.setTimeout(() => {
+            timedOut = true;
+            controller.abort();
+        }, 15000);
 
         try {
-            // 1. Ping
-            const latencies = [];
-            for (let i = 0; i < 5; i++) {
-                const start = performance.now();
-                await fetch('/speedtest/ping_target');
-                latencies.push(performance.now() - start);
-                el.pingResult.textContent = `${Math.min(...latencies).toFixed(1)} ms`;
-            }
-
-            // 2. Download
-            el.speedBar.style.width = '10%';
-            const dlStart = performance.now();
-            const dlResponse = await fetch(`/speedtest/download?size_mb=${DOWNLOAD_TOTAL_SIZE_MB}`);
-            const reader = dlResponse.body.getReader();
-            let dlBytes = 0;
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                dlBytes += value.length;
-                const progress = (dlBytes / (DOWNLOAD_TOTAL_SIZE_MB * 1024 * 1024)) * 100;
-                el.speedBar.style.width = `${10 + (progress * 0.4)}%`;
-            }
-            const dlDuration = (performance.now() - dlStart) / 1000;
-            const dlMbps = ((dlBytes * 8) / dlDuration / 1000000).toFixed(2);
-            el.downloadResult.textContent = dlMbps;
-
-            // 3. Upload
-            el.speedBar.style.width = '60%';
-            const ulData = new Uint8Array(UPLOAD_TOTAL_SIZE_MB * 1024 * 1024);
-            const ulStart = performance.now();
-            await fetch('/speedtest/upload', {
-                method: 'POST',
-                body: ulData,
-                headers: { 'X-CSRFToken': getCsrfToken() }
+            const response = await fetch(endpoint(path), {
+                ...options,
+                signal: controller.signal
             });
-            const ulDuration = (performance.now() - ulStart) / 1000;
-            const ulMbps = ((ulData.length * 8) / ulDuration / 1000000).toFixed(2);
-            el.uploadResult.textContent = ulMbps;
-            el.speedBar.style.width = '100%';
 
-        } catch (err) {
-            console.error('Speedtest Error:', err);
-            alert('속도 측정 중 오류가 발생했습니다.');
+            const responseBody = await response.text();
+            let data = {};
+            try {
+                data = responseBody ? JSON.parse(responseBody) : {};
+            } catch (error) {
+                if (!response.ok) throw new Error(`API 오류: ${response.status}`);
+                throw new Error('API 응답 형식이 올바르지 않습니다.');
+            }
+
+            if (!response.ok) {
+                throw new Error(data.message || data.error || `API 오류: ${response.status}`);
+            }
+            return data;
+        } catch (error) {
+            if (timedOut) throw new Error('요청 시간이 초과되었습니다.');
+            if (error instanceof TypeError) throw new Error('API에 연결하지 못했습니다.');
+            throw error;
         } finally {
-            el.startTestBtn.disabled = false;
-            el.startTestBtn.innerHTML = '테스트 시작';
-            setTimeout(() => el.speedProgress.style.display = 'none', 1000);
+            window.clearTimeout(timeout);
         }
     }
 
-    // ===============================================
-    //               WHOIS 로직
-    // ===============================================
-    async function runWhois() {
-        const domain = el.whoisInput.value.trim();
-        if (!domain) return;
+    function setToolBusy(tool, busy, busyText, idleText) {
+        tool.button.disabled = busy;
+        tool.button.textContent = busy ? busyText : idleText;
+        tool.form.setAttribute('aria-busy', String(busy));
+    }
 
-        el.whoisBtn.disabled = true;
-        el.whoisResult.style.display = 'block';
-        el.whoisList.innerHTML = '<li>조회 중...</li>';
-        el.whoisRaw.style.display = 'none';
+    function showToolMessage(container, message, type = '') {
+        container.replaceChildren();
+        container.textContent = message;
+        container.classList.toggle('error', type === 'error');
+        container.hidden = false;
+    }
 
+    function prepareToolResult(container) {
+        container.replaceChildren();
+        container.classList.remove('error');
+        container.hidden = false;
+    }
+
+    function normalizeDomain(value) {
+        const rawValue = value.trim();
+        if (!rawValue) throw new Error('도메인을 입력해 주세요.');
+
+        let hostname;
         try {
-            const response = await fetch(`/whois/api/${domain}`);
-            const data = await response.json();
+            const url = new URL(rawValue.includes('://') ? rawValue : `http://${rawValue}`);
+            hostname = url.hostname.toLowerCase().replace(/\.$/, '');
+        } catch (error) {
+            throw new Error('도메인 형식을 확인해 주세요.');
+        }
 
-            if (!response.ok) throw new Error(data.error || '조회 실패');
+        const labels = hostname.split('.');
+        const valid = hostname.length <= 253
+            && labels.length >= 2
+            && labels.every(label => label.length > 0
+                && label.length <= 63
+                && /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label));
+        if (!valid) throw new Error('도메인 형식을 확인해 주세요.');
+        return hostname;
+    }
 
-            el.whoisList.innerHTML = '';
-            const keys = {
-                domain_name: '도메인',
-                registrar: '등록기관',
-                creation_date: '등록일',
-                expiration_date: '만료일',
-                status: '상태'
-            };
+    function normalizeTarget(value) {
+        const rawValue = value.trim();
+        if (!rawValue) throw new Error('호스트를 입력해 주세요.');
 
-            for (const [key, label] of Object.entries(keys)) {
-                if (data[key]) {
-                    const val = Array.isArray(data[key]) ? data[key][0] : data[key];
-                    const li = document.createElement('li');
-                    li.innerHTML = `<span class="info-label">${label}</span> <span>${val}</span>`;
-                    el.whoisList.appendChild(li);
+        let target = rawValue;
+        if (rawValue.includes('://')) {
+            try {
+                target = new URL(rawValue).hostname;
+            } catch (error) {
+                throw new Error('호스트 형식을 확인해 주세요.');
+            }
+        }
+        if (target.length > 253 || !/^[a-z0-9.:\[\]-]+$/i.test(target)) {
+            throw new Error('호스트 형식을 확인해 주세요.');
+        }
+        return target.toLowerCase().replace(/\.$/, '');
+    }
+
+    function normalizePorts(value) {
+        const portInput = value.trim() || DEFAULT_PORTS;
+        const tokens = portInput
+            .replace(/[~～]/g, '-')
+            .split(',')
+            .map(token => token.trim())
+            .filter(Boolean);
+
+        let portCount = 0;
+        for (const token of tokens) {
+            const match = token.match(/^(\d{1,5})(?:-(\d{1,5}))?$/);
+            if (!match) throw new Error('포트는 80,443 또는 1-100 형식으로 입력해 주세요.');
+            const start = Number(match[1]);
+            const end = Number(match[2] || match[1]);
+            if (start < 1 || end > 65535 || start > end) {
+                throw new Error('포트 범위는 1부터 65535까지입니다.');
+            }
+            portCount += end - start + 1;
+        }
+        if (portCount > 100) throw new Error('포트는 한 번에 100개까지 스캔할 수 있습니다.');
+        return tokens.join(',');
+    }
+
+    function recordValue(record) {
+        if (record === null || record === undefined) return '';
+        if (typeof record !== 'object') return String(record);
+
+        const rawValue = record.value ?? record.target ?? record.exchange ?? '';
+        const value = Array.isArray(rawValue) ? rawValue.join(' ') : String(rawValue);
+        return record.priority === undefined || record.priority === null
+            ? value
+            : `${record.priority} ${value}`.trim();
+    }
+
+    function appendResultList(container, title, values) {
+        const group = document.createElement('div');
+        group.className = 'result-group';
+
+        const heading = document.createElement('strong');
+        heading.className = 'result-group-title';
+        heading.textContent = title;
+        group.appendChild(heading);
+
+        const list = document.createElement('ul');
+        list.className = 'result-list';
+        for (const value of values) {
+            const item = document.createElement('li');
+            item.textContent = value;
+            list.appendChild(item);
+        }
+        group.appendChild(list);
+        container.appendChild(group);
+    }
+
+    function renderDnsResult(container, data) {
+        prepareToolResult(container);
+        const records = data && typeof data.records === 'object' && data.records ? data.records : {};
+        let hasResult = false;
+
+        for (const type of ['NS', 'A', 'AAAA', 'MX', 'TXT', 'CAA']) {
+            const values = Array.isArray(records[type])
+                ? records[type].map(recordValue).filter(Boolean)
+                : [];
+            if (values.length) {
+                appendResultList(container, type, values);
+                hasResult = true;
+            }
+        }
+
+        const errors = data && typeof data.errors === 'object' && data.errors ? data.errors : {};
+        const errorValues = Object.entries(errors).map(([type, error]) => {
+            if (error && typeof error === 'object') {
+                return `${type}: ${error.message || error.error || JSON.stringify(error)}`;
+            }
+            return `${type}: ${String(error)}`;
+        });
+        if (errorValues.length) {
+            appendResultList(container, '오류', errorValues);
+            hasResult = true;
+        }
+
+        if (!hasResult) showToolMessage(container, '조회된 DNS 레코드가 없습니다.');
+    }
+
+    function subdomainValue(item) {
+        if (typeof item === 'string') return item;
+        if (!item || typeof item !== 'object') return String(item || '');
+        return String(item.name ?? item.domain ?? item.hostname ?? '');
+    }
+
+    function renderSubdomainResult(container, data) {
+        prepareToolResult(container);
+        const subdomains = Array.isArray(data.subdomains)
+            ? data.subdomains.map(subdomainValue).filter(Boolean)
+            : [];
+        if (!subdomains.length) {
+            showToolMessage(container, '검색된 서브도메인이 없습니다.');
+            return;
+        }
+
+        const summary = document.createElement('strong');
+        summary.className = 'result-summary';
+        const total = Number.isFinite(Number(data.total_found)) ? Number(data.total_found) : subdomains.length;
+        summary.textContent = `${total}개`;
+        container.appendChild(summary);
+        appendResultList(container, '서브도메인', subdomains);
+    }
+
+    function renderPortResult(container, data) {
+        prepareToolResult(container);
+        const results = Array.isArray(data.results) ? data.results : [];
+        if (!results.length) {
+            showToolMessage(container, '포트 스캔 결과가 없습니다.');
+            return;
+        }
+
+        const grid = document.createElement('div');
+        grid.className = 'port-result-grid';
+        for (const headingText of ['포트', '서비스', '상태', '지연']) {
+            const heading = document.createElement('span');
+            heading.className = 'result-table-heading';
+            heading.textContent = headingText;
+            grid.appendChild(heading);
+        }
+
+        for (const result of results) {
+            const status = String(result.status || '-');
+            const values = [
+                String(result.port ?? '-'),
+                String(result.service || '-'),
+                status,
+                result.latency_ms === null || result.latency_ms === undefined ? '-' : `${result.latency_ms} ms`
+            ];
+            values.forEach((value, index) => {
+                const cell = document.createElement('span');
+                cell.textContent = value;
+                if (index === 2) {
+                    cell.className = status.toLowerCase() === 'open' ? 'port-status-open' : 'port-status-closed';
                 }
-            }
+                grid.appendChild(cell);
+            });
+        }
+        container.appendChild(grid);
+    }
 
-            el.whoisRaw.style.display = 'block';
-            el.whoisRaw.textContent = data.text || JSON.stringify(data, null, 2);
+    function setProgress(value) {
+        const progress = Math.max(0, Math.min(100, value));
+        elements.progressBar.style.width = `${progress}%`;
+        elements.progress.setAttribute('aria-valuenow', String(Math.round(progress)));
+    }
 
-        } catch (err) {
-            el.whoisList.innerHTML = `<li style="color:red;">오류: ${err.message}</li>`;
+    function setMessage(text, type = '') {
+        elements.message.textContent = text;
+        elements.message.classList.toggle('error', type === 'error');
+        elements.message.classList.toggle('success', type === 'success');
+    }
+
+    function calculateMbps(bytes, elapsedMs) {
+        if (!Number.isFinite(bytes) || bytes <= 0 || elapsedMs <= 0) return 0;
+        return (bytes * 8) / (elapsedMs / 1000) / 1_000_000;
+    }
+
+    function delay(ms, signal) {
+        return new Promise((resolve, reject) => {
+            const timer = window.setTimeout(resolve, ms);
+            signal.addEventListener('abort', () => {
+                window.clearTimeout(timer);
+                reject(new DOMException('측정이 취소되었습니다.', 'AbortError'));
+            }, { once: true });
+        });
+    }
+
+    async function fetchWithTimeout(url, options, timeoutMs) {
+        const timeoutController = new AbortController();
+        const parentSignal = options.signal;
+        const abortFromParent = () => timeoutController.abort(parentSignal.reason);
+        if (parentSignal) {
+            if (parentSignal.aborted) abortFromParent();
+            else parentSignal.addEventListener('abort', abortFromParent, { once: true });
+        }
+
+        let timedOut = false;
+        const timeout = window.setTimeout(() => {
+            timedOut = true;
+            timeoutController.abort();
+        }, timeoutMs);
+        try {
+            return await fetch(url, { ...options, signal: timeoutController.signal });
+        } catch (error) {
+            if (timedOut) throw new Error('측정 서버 응답 시간이 초과되었습니다.');
+            throw error;
         } finally {
-            el.whoisBtn.disabled = false;
+            window.clearTimeout(timeout);
+            if (parentSignal) parentSignal.removeEventListener('abort', abortFromParent);
         }
     }
 
-    // ===============================================
-    //               Port Scan 로직
-    // ===============================================
-    async function runPortScan() {
-        const host = el.portHost.value.trim();
-        let ports;
-        try {
-            ports = JSON.parse(el.portList.value);
-        } catch(e) {
-            ports = el.portList.value.split(',').map(p => parseInt(p.trim())).filter(p => !isNaN(p));
+    async function ensureOk(response, label) {
+        if (!response.ok) {
+            throw new Error(`${label} API 오류: HTTP ${response.status}`);
+        }
+        return response;
+    }
+
+    async function checkHealth(signal) {
+        const response = await fetchWithTimeout(
+            endpoint(`/health?t=${cacheBuster()}`),
+            { cache: 'no-store', signal },
+            8000
+        );
+        await ensureOk(response, '서버 상태');
+        const health = await response.json();
+        if (health.status && health.status !== 'ok') {
+            throw new Error(`측정 서버 상태가 정상이 아닙니다: ${health.status}`);
+        }
+        return health;
+    }
+
+    async function measurePing(signal, attempts = 7) {
+        const samples = [];
+        for (let index = 0; index < attempts; index += 1) {
+            const startedAt = performance.now();
+            const response = await fetchWithTimeout(
+                endpoint(`/speedtest/ping?t=${cacheBuster(index)}`),
+                { cache: 'no-store', signal },
+                5000
+            );
+            await ensureOk(response, 'Ping');
+            await response.json();
+            samples.push(performance.now() - startedAt);
+            elements.ping.textContent = samples[samples.length - 1].toFixed(1);
+            setProgress(5 + ((index + 1) / attempts) * 15);
+            if (index < attempts - 1) await delay(100, signal);
         }
 
-        if (!host || !ports.length) return;
+        samples.sort((a, b) => a - b);
+        const trimmed = samples.length > 2 ? samples.slice(1, -1) : samples;
+        return trimmed.reduce((sum, value) => sum + value, 0) / trimmed.length;
+    }
 
-        el.portBtn.disabled = true;
-        el.portTerminal.style.display = 'block';
-        el.portProgress.style.display = 'block';
-        el.portBar.style.width = '0%';
-        el.portTerminal.innerHTML = `<div style="color:#888;">[SYSTEM] Scanning ${host}...</div>`;
+    async function downloadSample(sizeMb, signal, onProgress) {
+        const expectedBytes = sizeMb * 1024 * 1024;
+        const startedAt = performance.now();
+        const response = await fetchWithTimeout(
+            endpoint(`/speedtest/download?size_mb=${sizeMb}&t=${cacheBuster()}`),
+            { cache: 'no-store', signal },
+            120000
+        );
+        await ensureOk(response, '다운로드');
 
-        try {
-            const response = await fetch('/start_portscan', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCsrfToken()
-                },
-                body: JSON.stringify({ host, ports })
-            });
-
+        let receivedBytes = 0;
+        if (response.body && response.body.getReader) {
             const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let buffer = '';
-
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-                
-                buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('\n\n');
-                buffer = lines.pop();
-
-                for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        const data = JSON.parse(line.substring(6));
-                        if (data.port && data.status === 'Open') {
-                            const div = document.createElement('div');
-                            div.innerHTML = `<span style="color:#00ff00;">[OPEN]</span> Port ${data.port}`;
-                            el.portTerminal.appendChild(div);
-                            el.portTerminal.scrollTop = el.portTerminal.scrollHeight;
-                        }
-                        if (data.progress) {
-                            el.portBar.style.width = `${data.progress.percentage}%`;
-                        }
-                    }
-                }
+                receivedBytes += value.byteLength;
+                onProgress(Math.min(receivedBytes / expectedBytes, 1));
             }
-            const fin = document.createElement('div');
-            fin.innerHTML = `<div style="color:#888; margin-top:0.5rem;">[SYSTEM] Scan completed.</div>`;
-            el.portTerminal.appendChild(fin);
+        } else {
+            const data = await response.arrayBuffer();
+            receivedBytes = data.byteLength;
+            onProgress(1);
+        }
 
-        } catch (err) {
-            el.portTerminal.innerHTML += `<div style="color:red;">[ERROR] ${err.message}</div>`;
+        return { bytes: receivedBytes, elapsedMs: performance.now() - startedAt };
+    }
+
+    function createRandomPayload(sizeMb) {
+        const payload = new Uint8Array(sizeMb * 1024 * 1024);
+        const cryptoChunkSize = 65536;
+        for (let offset = 0; offset < payload.length; offset += cryptoChunkSize) {
+            crypto.getRandomValues(payload.subarray(offset, Math.min(offset + cryptoChunkSize, payload.length)));
+        }
+        return payload;
+    }
+
+    async function uploadSample(sizeMb, signal) {
+        const payload = createRandomPayload(sizeMb);
+        const startedAt = performance.now();
+        const response = await fetchWithTimeout(
+            endpoint(`/speedtest/upload?t=${cacheBuster()}`),
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/octet-stream' },
+                body: payload,
+                cache: 'no-store',
+                signal
+            },
+            120000
+        );
+        await ensureOk(response, '업로드');
+        const result = await response.json();
+        const receivedBytes = Number(result.received_bytes);
+        if (!Number.isFinite(receivedBytes) || receivedBytes <= 0) {
+            throw new Error('업로드 API 응답에 received_bytes가 없습니다.');
+        }
+        return { bytes: receivedBytes, elapsedMs: performance.now() - startedAt };
+    }
+
+    function weightedMbps(samples) {
+        const totals = samples.reduce((result, sample) => ({
+            bytes: result.bytes + sample.bytes,
+            elapsedMs: result.elapsedMs + sample.elapsedMs
+        }), { bytes: 0, elapsedMs: 0 });
+        return calculateMbps(totals.bytes, totals.elapsedMs);
+    }
+
+    function friendlyError(error) {
+        if (error.name === 'AbortError') return '측정이 취소되었습니다.';
+        if (window.location.protocol === 'https:' && API_BASE.startsWith('http:')) {
+            return 'HTTPS 페이지에서는 HTTP 측정 서버를 호출할 수 없습니다. API 서버에도 HTTPS를 적용해 주세요.';
+        }
+        if (error instanceof TypeError) {
+            return '측정 서버에 연결하지 못했습니다. 서버 실행 상태, 방화벽과 API_ALLOWED_ORIGINS의 웹사이트 Origin을 확인해 주세요.';
+        }
+        return error.message || '알 수 없는 측정 오류가 발생했습니다.';
+    }
+
+    function resetResults() {
+        elements.ping.textContent = '--';
+        elements.download.textContent = '--';
+        elements.upload.textContent = '--';
+        setProgress(0);
+    }
+
+    async function runSpeedTest() {
+        if (running) {
+            activeController.abort();
+            return;
+        }
+        if (!/^https?:\/\//i.test(API_BASE)) {
+            setMessage('측정 서버 주소가 올바르지 않습니다.', 'error');
+            return;
+        }
+        if (window.location.protocol === 'https:' && API_BASE.startsWith('http:')) {
+            setMessage('HTTPS 페이지에서는 HTTP 측정 서버가 Mixed Content로 차단됩니다.', 'error');
+            return;
+        }
+
+        running = true;
+        activeController = new AbortController();
+        const signal = activeController.signal;
+        const profile = profiles[elements.profile.value] || profiles.normal;
+        elements.profile.disabled = true;
+        elements.start.textContent = '측정 취소';
+        resetResults();
+
+        try {
+            setMessage('측정 서버 연결을 확인하고 있습니다.');
+            await checkHealth(signal);
+            setProgress(5);
+
+            setMessage('Ping을 7회 측정하고 있습니다.');
+            const ping = await measurePing(signal);
+            elements.ping.textContent = ping.toFixed(1);
+
+            setMessage('다운로드 워밍업을 진행하고 있습니다.');
+            await downloadSample(profile.warmupMb, signal, ratio => setProgress(20 + ratio * 5));
+
+            const downloadSamples = [];
+            for (let index = 0; index < profile.attempts; index += 1) {
+                setMessage(`다운로드 속도를 측정하고 있습니다. (${index + 1}/${profile.attempts})`);
+                const rangeStart = 25 + (index / profile.attempts) * 40;
+                const rangeSize = 40 / profile.attempts;
+                const sample = await downloadSample(
+                    profile.downloadMb,
+                    signal,
+                    ratio => setProgress(rangeStart + ratio * rangeSize)
+                );
+                downloadSamples.push(sample);
+                elements.download.textContent = weightedMbps(downloadSamples).toFixed(1);
+                if (index < profile.attempts - 1) await delay(250, signal);
+            }
+
+            const uploadSamples = [];
+            for (let index = 0; index < profile.attempts; index += 1) {
+                setMessage(`업로드 속도를 측정하고 있습니다. (${index + 1}/${profile.attempts})`);
+                const sample = await uploadSample(profile.uploadMb, signal);
+                uploadSamples.push(sample);
+                elements.upload.textContent = weightedMbps(uploadSamples).toFixed(1);
+                setProgress(65 + ((index + 1) / profile.attempts) * 35);
+                if (index < profile.attempts - 1) await delay(250, signal);
+            }
+
+            setProgress(100);
+            setMessage('측정이 완료되었습니다.', 'success');
+        } catch (error) {
+            const cancelled = signal.aborted;
+            setMessage(friendlyError(error), cancelled ? '' : 'error');
+            console.error('Speed test failed:', error);
         } finally {
-            el.portBtn.disabled = false;
-            setTimeout(() => el.portProgress.style.display = 'none', 2000);
+            running = false;
+            activeController = null;
+            elements.profile.disabled = false;
+            elements.start.textContent = '다시 측정';
         }
     }
 
-    // ===============================================
-    //               이벤트 리스너 연결
-    // ===============================================
-    if (el.startTestBtn) el.startTestBtn.addEventListener('click', runSpeedtest);
-    if (el.whoisBtn) el.whoisBtn.addEventListener('click', runWhois);
-    if (el.whoisInput) el.whoisInput.addEventListener('keypress', e => e.key === 'Enter' && runWhois());
-    if (el.portBtn) el.portBtn.addEventListener('click', runPortScan);
+    async function handleDnsLookup(event) {
+        event.preventDefault();
+        const tool = networkTools.dns;
+        try {
+            const domain = normalizeDomain(tool.input.value);
+            setToolBusy(tool, true, '조회 중', '조회');
+            showToolMessage(tool.result, '조회 중...');
+            const params = new URLSearchParams({ domain, types: 'NS,A,AAAA,MX,TXT,CAA' });
+            const data = await apiRequest(`/domain/dns?${params.toString()}`);
+            renderDnsResult(tool.result, data);
+        } catch (error) {
+            showToolMessage(tool.result, error.message || '조회하지 못했습니다.', 'error');
+        } finally {
+            setToolBusy(tool, false, '조회 중', '조회');
+        }
+    }
 
+    async function handleSubdomainLookup(event) {
+        event.preventDefault();
+        const tool = networkTools.subdomain;
+        try {
+            const domain = normalizeDomain(tool.input.value);
+            setToolBusy(tool, true, '검색 중', '검색');
+            showToolMessage(tool.result, '검색 중...');
+            const params = new URLSearchParams({ domain, limit: '100' });
+            const data = await apiRequest(`/domain/subdomains?${params.toString()}`);
+            renderSubdomainResult(tool.result, data);
+        } catch (error) {
+            showToolMessage(tool.result, error.message || '검색하지 못했습니다.', 'error');
+        } finally {
+            setToolBusy(tool, false, '검색 중', '검색');
+        }
+    }
+
+    async function handlePortScan(event) {
+        event.preventDefault();
+        const tool = networkTools.port;
+        try {
+            const target = normalizeTarget(tool.target.value);
+            const ports = normalizePorts(tool.ports.value);
+            setToolBusy(tool, true, '스캔 중', '스캔');
+            showToolMessage(tool.result, '스캔 중...');
+            const data = await apiRequest('/network/port-scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ target, ports, timeout: 1 })
+            });
+            renderPortResult(tool.result, data);
+        } catch (error) {
+            showToolMessage(tool.result, error.message || '스캔하지 못했습니다.', 'error');
+        } finally {
+            setToolBusy(tool, false, '스캔 중', '스캔');
+        }
+    }
+
+    elements.start.addEventListener('click', runSpeedTest);
+    networkTools.dns.form.addEventListener('submit', handleDnsLookup);
+    networkTools.port.form.addEventListener('submit', handlePortScan);
+    networkTools.subdomain.form.addEventListener('submit', handleSubdomainLookup);
 })();

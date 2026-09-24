@@ -3,14 +3,67 @@
  * 모든 테마에서 일관된 크기 유지
  */
 
+/* ===== 메인 페이지 세로 리듬 ===== */
+body.home-page {
+  --home-header-height: 60px;
+  --home-footer-height: 60px;
+  --home-space-half: calc(var(--home-header-height) * 0.5);
+  --home-space-full: var(--home-header-height);
+  --home-space-one-and-half: calc(var(--home-header-height) * 1.5);
+}
+
+/* 헤더 높이(60px)를 기준으로 메인페이지의 세로 리듬을 맞춘다. */
+body.home-page main > .container {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+body.home-page .intro-section {
+  margin-top: var(--home-space-half);
+  margin-bottom: 0;
+}
+
+body.home-page .blog-section {
+  margin-top: var(--home-space-full);
+  margin-bottom: var(--home-space-one-and-half);
+}
+
+body.home-page .section-title {
+  margin-top: 0;
+  margin-bottom: var(--home-space-half);
+}
+
+body.home-page .posts-grid-center {
+  margin-bottom: var(--home-space-half);
+}
+
+body.home-page .view-all-container {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* 내부 요소의 가로 위치는 유지하고 세로 높이를 1 : 1로 맞춘다. */
+html body.home-page .top-header {
+  height: var(--home-header-height);
+}
+
+html body.home-page footer {
+  display: flex;
+  align-items: center;
+  height: var(--home-footer-height);
+  min-height: var(--home-footer-height);
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 /* ===== 1. 블로그 그리드 레이아웃 ===== */
 .posts-grid,
 .posts-grid-center {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--spacing-6);
+  gap: var(--spacing-10); /* 카드 사이 여백 증가 */
   width: 100%;
-  max-width: 1200px; /* 엄격한 폭 제한 */
+  max-width: var(--content-max-width);
   margin: 0 auto var(--spacing-12);
   padding: 0;
   box-sizing: border-box;
@@ -82,8 +135,9 @@ html.dark-theme .slide-container {
 /* ===== 6. 통합 인트로(히어로) 섹션 ===== */
 .intro-section {
   width: 100%;
+  max-width: var(--content-max-width); /* 부모에 max-width를 주고 */
   margin: var(--spacing-12) auto;
-  padding: 0 var(--spacing-4);
+  padding: 0; /* 화면 가장 바깥선까지 상자가 꽉 차도록 패딩 제거 */
   box-sizing: border-box;
 }
 
@@ -99,7 +153,7 @@ html.dark-theme .slide-container {
   border: 1px solid var(--border-color);
   position: relative;
   overflow: hidden;
-  max-width: 1200px; /* 엄격한 폭 제한 */
+  width: 100%;
   margin: 0 auto;
 }
 
@@ -160,27 +214,14 @@ html.dark-theme .slide-container {
   gap: var(--spacing-4);
 }
 
-.intro-link.primary {
-  background-color: var(--github-accent);
-  color: white;
-  padding: 0.6rem 1.5rem;
-  font-weight: 600;
-  border-radius: 8px;
-  transition: all 0.3s;
-}
-
-.intro-link.primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(9, 105, 218, 0.3);
-}
-
 /* ===== 3. 포스트 카드 스타일 ===== */
 .post-card {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 12px;
   box-shadow: var(--shadow-sm);
-  transition: all 0.3s ease;
+  /* 카드 전체를 합성 레이어로 올리지 않도록 시각 속성만 전환한다. */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
   height: 100%; 
   display: flex;
   flex-direction: column; 
@@ -189,10 +230,31 @@ html.dark-theme .slide-container {
   min-height: 440px;
 }
 
+.post-card-link-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.post-card-tags {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.post-card-tag-more {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--button-height-sm);
+  color: var(--text-tertiary);
+  font-size: var(--button-font-size-sm);
+}
+
 .post-card:hover {
   border-color: var(--github-accent);
   box-shadow: var(--shadow-md);
-  transform: translateY(-4px);
 }
 
 .post-card-header {
@@ -224,6 +286,7 @@ html.dark-theme .slide-container {
 }
 
 .post-card-preview-image {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -238,9 +301,7 @@ html.dark-theme .slide-container {
 }
 
 .post-card-footer {
-  padding: 1rem 1.5rem;
-  border-top: 1px solid var(--border-color);
-  background-color: rgba(0,0,0,0.02);
+  padding: 0.8rem 1.5rem;
 }
 
 /* ===== 4. 모든 포스트 보기 버튼 액션 ===== */
@@ -253,44 +314,15 @@ html.dark-theme .slide-container {
 }
 
 .btn-view-all {
-  display: inline-flex;
-  align-items: center;
   gap: var(--spacing-3);
-  padding: 1.1rem 3.5rem;
-  background-color: var(--github-accent);
-  color: white !important;
-  border: none;
-  border-radius: 12px;
-  font-size: 1.2rem;
-  font-weight: 700;
-  text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--shadow-md);
 }
 
 .btn-view-all i {
   transition: transform 0.3s ease;
 }
 
-.btn-view-all:hover {
-  background-color: #0860C9;
-  color: white !important;
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  text-decoration: none;
-}
-
 .btn-view-all:hover i {
   transform: translateX(6px);
-}
-
-html.dark-theme .btn-view-all {
-  background-color: var(--github-accent);
-  color: white !important;
-}
-
-html.dark-theme .btn-view-all:hover {
-  background-color: #388bfd;
 }
 
 /* ===== 7. 모바일 반응형 레이아웃 오버라이드 ===== */

@@ -5,106 +5,207 @@
 
 /* ===== 버튼 컴포넌트 ===== */
 .btn {
+  --_button-height: var(--button-height-regular);
+  --_button-padding-x: var(--button-padding-regular);
+  --_button-font-size: var(--button-font-size-regular);
+  --_button-bg: var(--button-normal-bg);
+  --_button-color: var(--button-normal-color);
+  --_button-border: var(--button-normal-border);
+  --_button-hover-bg: var(--button-normal-hover-bg);
+  --_button-hover-color: var(--button-normal-hover-color);
+  --_button-hover-border: var(--button-normal-hover-border);
+
+  appearance: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 5px 16px;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 20px;
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
+  gap: var(--button-gap);
+  min-height: var(--_button-height);
+  padding: 0 var(--_button-padding-x);
+  font-family: var(--button-font-family);
+  font-size: var(--_button-font-size);
+  font-weight: var(--button-font-weight);
+  line-height: 1;
+  color: var(--_button-color);
+  background-color: var(--_button-bg);
+  border: 1px solid var(--_button-border);
+  border-radius: var(--button-radius);
   cursor: pointer;
-  transition: all var(--transition-fast);
-  font-family: var(--font-sans);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--button-transition),
+              border-color var(--button-transition),
+              color var(--button-transition),
+              box-shadow var(--button-transition),
+              transform var(--button-transition);
 }
 
-.btn:hover {
-  background-color: #f3f4f6;
+.btn:hover:not(:disabled):not([aria-disabled="true"]) {
+  color: var(--_button-hover-color);
+  background-color: var(--_button-hover-bg);
+  border-color: var(--_button-hover-border);
   text-decoration: none;
-  border-color: var(--neutral-300);
+}
+
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--button-focus-ring);
+}
+
+.btn:active:not(:disabled):not([aria-disabled="true"]) {
+  transform: translateY(1px);
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: var(--button-disabled-opacity);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* 스타일: 기본값은 normal */
+.btn-normal,
+.btn-secondary {
+  --_button-bg: var(--button-normal-bg);
+  --_button-color: var(--button-normal-color);
+  --_button-border: var(--button-normal-border);
+  --_button-hover-bg: var(--button-normal-hover-bg);
+  --_button-hover-color: var(--button-normal-hover-color);
+  --_button-hover-border: var(--button-normal-hover-border);
+}
+
+.btn-invisible {
+  --_button-bg: var(--button-invisible-bg);
+  --_button-color: var(--button-invisible-color);
+  --_button-border: var(--button-invisible-border);
+  --_button-hover-bg: var(--button-invisible-hover-bg);
+  --_button-hover-color: var(--button-invisible-hover-color);
+  --_button-hover-border: var(--button-invisible-hover-border);
 }
 
 .btn-primary {
-  background-color: var(--github-accent);
-  color: white;
-  border-color: transparent;
+  --_button-bg: var(--button-primary-bg);
+  --_button-color: var(--button-primary-color);
+  --_button-border: var(--button-primary-border);
+  --_button-hover-bg: var(--button-primary-hover-bg);
+  --_button-hover-color: var(--button-primary-hover-color);
+  --_button-hover-border: var(--button-primary-hover-border);
 }
 
-.btn-primary:hover {
-  background-color: #0860C9;
-  color: white;
-  text-decoration: none;
-}
-
-/* ===== 현대적인 메인 스타일 버튼 (통일된 디자인) ===== */
-.btn-modern {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-2);
-  padding: 0.8rem 2.5rem;
-  background-color: var(--github-accent);
-  color: white !important;
-  border: none;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: 700;
-  text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--shadow-md);
-  cursor: pointer;
-  font-family: var(--font-sans);
-}
-
-.btn-modern i {
-  transition: transform 0.3s ease;
-}
-
-.btn-modern:hover {
-  background-color: #0860C9;
-  color: white !important;
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  text-decoration: none;
-}
-
-.btn-modern:hover i.fa-arrow-right {
-  transform: translateX(4px);
-}
-
-.btn-modern:hover i.fa-chevron-down {
-  transform: translateY(4px);
-}
-
-.btn-modern:hover i.fa-list {
-  transform: scale(1.1);
-}
-
-html.dark-theme .btn-modern {
-  background-color: var(--github-accent);
-  color: white !important;
-}
-
-html.dark-theme .btn-modern:hover {
-  background-color: #388bfd;
-}
-
-.btn-secondary {
-  background-color: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-.btn-secondary:hover {
-  background-color: var(--neutral-200);
-  color: var(--text-primary);
-}
-
+/* 크기: 기본값은 regular */
 .btn-sm {
-  padding: 3px 12px;
-  font-size: var(--font-size-sm);
+  --_button-height: var(--button-height-sm);
+  --_button-padding-x: var(--button-padding-sm);
+  --_button-font-size: var(--button-font-size-sm);
+}
+
+.btn-regular,
+.btn-md {
+  --_button-height: var(--button-height-regular);
+  --_button-padding-x: var(--button-padding-regular);
+  --_button-font-size: var(--button-font-size-regular);
+}
+
+.btn-lg {
+  --_button-height: var(--button-height-lg);
+  --_button-padding-x: var(--button-padding-lg);
+  --_button-font-size: var(--button-font-size-lg);
+}
+
+/* 태그: normal 스타일을 기반으로 한 small + pill 변형 */
+.btn-tag {
+  --_button-height: var(--button-height-sm);
+  --_button-padding-x: var(--button-padding-sm);
+  --_button-font-size: var(--button-font-size-sm);
+  border-radius: var(--button-tag-radius);
+  font-weight: 500;
+}
+
+.btn-tag.active,
+.btn-tag[aria-current="page"] {
+  --_button-bg: var(--button-tag-active-bg);
+  --_button-color: var(--button-tag-active-color);
+  --_button-border: var(--button-tag-active-border);
+  --_button-hover-bg: var(--button-tag-active-bg);
+  --_button-hover-color: var(--button-tag-active-color);
+  --_button-hover-border: var(--button-tag-active-border);
+}
+
+.btn-tag:not(a):not(button) {
+  cursor: default;
+}
+
+.btn-tag-label,
+.btn-tag-count {
+  line-height: 1;
+}
+
+.btn-tag-count {
+  font-size: 0.75em;
+  opacity: 0.65;
+}
+
+.btn > i,
+.btn > svg {
+  flex: 0 0 auto;
+}
+
+/* ===== 입력 컴포넌트: normal + regular 버튼 기준 ===== */
+.input-control,
+.form-select {
+  appearance: none;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--input-height);
+  padding: 0 var(--input-padding-x);
+  font-family: var(--input-font-family);
+  font-size: var(--input-font-size);
+  font-weight: 400;
+  line-height: 1;
+  color: var(--input-color);
+  background-color: var(--input-background);
+  border: 1px solid var(--input-border);
+  border-radius: var(--input-radius);
+  outline: none;
+  transition: background-color var(--button-transition),
+              border-color var(--button-transition),
+              box-shadow var(--button-transition);
+}
+
+.input-control:hover:not(:disabled),
+.form-select:hover:not(:disabled) {
+  border-color: var(--input-hover-border);
+}
+
+.input-control:focus,
+.input-control:focus-visible,
+.form-select:focus,
+.form-select:focus-visible {
+  border-color: var(--input-focus-border);
+  box-shadow: var(--input-focus-ring);
+}
+
+.input-control::placeholder {
+  color: var(--input-placeholder-color);
+  opacity: 1;
+}
+
+.input-control:disabled,
+.form-select:disabled {
+  opacity: var(--button-disabled-opacity);
+  cursor: not-allowed;
+}
+
+textarea.input-control {
+  min-height: 120px;
+  padding-top: var(--spacing-3);
+  padding-bottom: var(--spacing-3);
+  line-height: 1.5;
+  resize: vertical;
 }
 
 /* ===== 카드 컴포넌트 ===== */
@@ -289,24 +390,11 @@ html.dark-theme .related-post-card .tag-item {
 }
 
 .form-select {
-  width: 100%;
-  padding: 5px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-  font-family: var(--font-sans);
-  appearance: none;
+  padding-right: calc(var(--input-padding-x) + var(--spacing-4));
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='currentColor' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 12px;
-}
-
-.form-select:focus {
-  outline: none;
-  border-color: var(--github-accent);
-  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.3);
 }
 
 .checkbox-group {
@@ -340,11 +428,6 @@ html.dark-theme .related-post-card .tag-item {
 .button-group .btn {
   flex: 1;
   min-width: 80px;
-  padding: 5px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
 }
 
 .button-group .btn:hover {
@@ -352,8 +435,6 @@ html.dark-theme .related-post-card .tag-item {
 }
 
 .button-group .btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
   transform: none;
 }
 
@@ -462,7 +543,6 @@ html.theme-8bit textarea {
 }
 
 html.theme-8bit .card:hover,
-html.theme-8bit .post-card:hover,
 html.theme-8bit .simulation-card:hover,
 html.theme-8bit input:focus,
 html.theme-8bit select:focus,
@@ -473,6 +553,11 @@ html.theme-8bit textarea:focus {
   transition: all 0.2s ease-in-out;
 }
 
+html.theme-8bit .post-card:hover {
+  transform: none;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+}
+
 /* ===== 반응형 조정 ===== */
 @media (max-width: 768px) {
   .simulation-controls {
@@ -481,11 +566,6 @@ html.theme-8bit textarea:focus {
 
   .button-group {
     flex-direction: column;
-  }
-
-  .form-select {
-    font-size: 16px;
-    padding: 10px;
   }
 
   .checkbox-group input[type="checkbox"] {

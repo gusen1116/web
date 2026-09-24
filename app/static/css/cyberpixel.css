@@ -77,9 +77,18 @@ html.theme-cyberpixel textarea {
 }
 /* 카드 호버 효과 */
 html.theme-cyberpixel .card:hover,
-html.theme-cyberpixel .post-card:hover,
 html.theme-cyberpixel .simulation-card:hover {
   transform: translate(-0.125rem, -0.125rem);
+  box-shadow: 0.375rem 0.375rem 0px rgba(0, 0, 0, 0.4);
+}
+
+html.theme-cyberpixel .post-card,
+html.theme-cyberpixel .post-card:hover {
+  transform: none;
+  will-change: auto;
+}
+
+html.theme-cyberpixel .post-card:hover {
   box-shadow: 0.375rem 0.375rem 0px rgba(0, 0, 0, 0.4);
 }
 html.theme-cyberpixel .card:not(:hover),
@@ -111,27 +120,26 @@ html.theme-cyberpixel span {
   color: var(--text-primary);
 }
 /* 링크 스타일 */
-html.theme-cyberpixel a {
+html.theme-cyberpixel a:not(.btn) {
   color: var(--text-accent);
   text-decoration: none;
   text-shadow: 0 0 0.25rem var(--text-accent);
   transition: all 0.2s ease;
   border-bottom: 0.125rem dotted var(--text-accent);
 }
-html.theme-cyberpixel a:hover {
+html.theme-cyberpixel a:not(.btn):hover {
   color: var(--bg-primary);
   background-color: var(--text-accent);
   text-shadow: 0 0 0.375rem var(--text-accent);
   border-bottom-style: solid;
 }
 /* 버튼 스타일 */
-html.theme-cyberpixel .btn,
-html.theme-cyberpixel button,
+html.theme-cyberpixel button:not(.btn),
 html.theme-cyberpixel input[type="button"],
 html.theme-cyberpixel input[type="submit"],
-html.theme-cyberpixel .toggle-button,
-html.theme-cyberpixel .error-btn,
-html.theme-cyberpixel .filter-btn {
+html.theme-cyberpixel .toggle-button:not(.btn),
+html.theme-cyberpixel .error-btn:not(.btn),
+html.theme-cyberpixel .filter-btn:not(.btn) {
   font-family: var(--font-pixel);
   background-color: var(--bg-secondary);
   color: var(--text-accent);
@@ -146,6 +154,16 @@ html.theme-cyberpixel .filter-btn {
   box-shadow: inset -0.125rem -0.125rem 0px 0px #000000,
               inset 0.125rem 0.125rem 0px 0px rgba(255, 255, 255, 0.2);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast), text-shadow 0.2s ease;
+}
+
+html.theme-cyberpixel .btn:not(.btn-tag) {
+  font-family: var(--font-pixel);
+  border-radius: 0 !important;
+  text-transform: uppercase;
+  text-shadow: 0.0625rem 0.0625rem 0px #000;
+  image-rendering: pixelated;
+  box-shadow: inset -0.125rem -0.125rem 0px 0px #000000,
+              inset 0.125rem 0.125rem 0px 0px rgba(255, 255, 255, 0.2);
 }
 html.theme-cyberpixel .btn:hover,
 html.theme-cyberpixel button:hover {
@@ -170,7 +188,7 @@ html.theme-cyberpixel ::-webkit-scrollbar-thumb {
 }
 /* 태그/날짜 뱃지 */
 html.theme-cyberpixel .tag,
-html.theme-cyberpixel .post-card-tag,
+html.theme-cyberpixel .post-card-tag:not(.btn-tag),
 html.theme-cyberpixel .post-card-date {
   background-color: var(--text-accent) !important;
   color: var(--bg-primary) !important;
@@ -180,7 +198,7 @@ html.theme-cyberpixel .post-card-date {
   font-size: 0.85rem !important;
 }
 html.theme-cyberpixel .tag:hover,
-html.theme-cyberpixel .post-card-tag:hover,
+html.theme-cyberpixel .post-card-tag:not(.btn-tag):hover,
 html.theme-cyberpixel .post-card-date:hover {
   background-color: var(--accent-secondary) !important;
   border-color: var(--accent-secondary) !important;

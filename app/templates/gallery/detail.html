@@ -1,6 +1,8 @@
 {% extends "gallery/base-gallery.html" %}
 
 {% block title %}{{ photo.title }}{% endblock %}
+{% block body_class %}gallery-detail-page{% endblock %}
+{% block gallery_vendor_scripts %}{% endblock %}
 
 {% block extra_meta %}
 <meta property="og:type" content="article">
@@ -11,103 +13,94 @@
 {% endblock %}
 
 {% block content %}
-<div class="detail-page-wrapper">
-  <section class="detail-page-container">
-    <div class="glbx-view">
-      <div class="glbx-image-wrap">
-        <img id="glbx-img" src="{{ photo.url }}" alt="{{ photo.title }}" draggable="false">
-        
-        {# 이미지 위 네비게이션 화살표 (데스크탑용) #}
-        <div class="photo-nav-overlay">
-          {% if prev_photo %}
-          <a href="{{ url_for('gallery.detail', filename=prev_photo.id) }}" class="nav-arrow prev" title="이전 사진">
-            <i class="fa-solid fa-chevron-left"></i>
-          </a>
-          {% endif %}
-          {% if next_photo %}
-          <a href="{{ url_for('gallery.detail', filename=next_photo.id) }}" class="nav-arrow next" title="다음 사진">
-            <i class="fa-solid fa-chevron-right"></i>
-          </a>
-          {% endif %}
-        </div>
-      </div>
-      <aside class="glbx-panel" aria-live="polite">
-        <h1 id="glbx-title">{{ photo.title }}</h1>
-        <div id="glbx-meta" class="glbx-meta">
-          {# 카메라 모델 #}
-          {% if photo.exif_low.model %}
-          <div class="glbx-meta-item">
-            <span class="label"><i class="fa-solid fa-camera"></i> 카메라 모델</span>
-            <span class="value">{{ photo.exif_low.model }}</span>
-          </div>
-          {% endif %}
+<main class="photo-viewer photo-viewer--page" data-photo-viewer>
+  <header class="photo-viewer__topbar">
+    <a href="{{ url_for('gallery.index') }}" class="btn btn-invisible btn-sm photo-viewer__back">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      <span>갤러리</span>
+    </a>
 
-          {# 조리개 #}
-          {% if photo.exif_low.fnumber %}
-          <div class="glbx-meta-item">
-            <span class="label"><i class="fa-regular fa-circle"></i> 조리개</span>
-            <span class="value">{{ photo.exif_low.fnumber }}</span>
-          </div>
-          {% endif %}
+    {% if photo_index %}
+    <span class="photo-viewer__counter" aria-label="전체 {{ photo_total }}장 중 {{ photo_index }}번째 사진">
+      {{ photo_index }} <span aria-hidden="true">/</span> {{ photo_total }}
+    </span>
+    {% endif %}
 
-          {# 셔터 스피드 #}
-          {% if photo.exif_low.exposuretime %}
-          <div class="glbx-meta-item">
-            <span class="label"><i class="fa-solid fa-stopwatch"></i> 셔터 스피드</span>
-            <span class="value">{{ photo.exif_low.exposuretime }}</span>
-          </div>
-          {% endif %}
-
-          {# ISO #}
-          {% if photo.exif_low.isospeedratings %}
-          <div class="glbx-meta-item">
-            <span class="label"><i class="fa-solid fa-sliders"></i> ISO</span>
-            <span class="value">{{ photo.exif_low.isospeedratings }}</span>
-          </div>
-          {% endif %}
-
-          {# 초점 거리 #}
-          {% if photo.exif_low.focallength %}
-          <div class="glbx-meta-item">
-            <span class="label"><i class="fa-solid fa-arrows-left-right"></i> 초점 거리</span>
-            <span class="value">{{ photo.exif_low.focallength }}</span>
-          </div>
-          {% endif %}
-
-          {# GPS #}
-          {% if photo.gps %}
-          <div class="glbx-meta-item" data-lat="{{ photo.gps.lat }}" data-lon="{{ photo.gps.lon }}">
-            <span class="label"><i class="fa-solid fa-location-dot"></i> 위치 정보</span>
-            <span class="value">{{ photo.gps.address if photo.gps.address else (photo.gps.lat|round(4)|string + ", " + photo.gps.lon|round(4)|string) }}</span>
-          </div>
-          {% endif %}
-        </div>
-
-        <div class="detail-actions">
-          <div class="photo-navigation">
-            {% if prev_photo %}
-            <a href="{{ url_for('gallery.detail', filename=prev_photo.id) }}" class="nav-btn">
-              <i class="fa-solid fa-arrow-left"></i> 이전
-            </a>
-            {% else %}
-            <span class="nav-btn disabled"><i class="fa-solid fa-arrow-left"></i> 이전</span>
-            {% endif %}
-            
-            {% if next_photo %}
-            <a href="{{ url_for('gallery.detail', filename=next_photo.id) }}" class="nav-btn">
-              다음 <i class="fa-solid fa-arrow-right"></i>
-            </a>
-            {% else %}
-            <span class="nav-btn disabled">다음 <i class="fa-solid fa-arrow-right"></i></span>
-            {% endif %}
-          </div>
-          
-          <a href="{{ url_for('gallery.index') }}" class="back-btn">
-            <i class="fa-solid fa-grid-2"></i> 목록으로 돌아가기
-          </a>
-        </div>
-      </aside>
+    <div class="photo-viewer__tools">
+      <button type="button" class="btn btn-invisible btn-sm photo-viewer__info-toggle" data-action="toggle-info" aria-expanded="false">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        <span>정보</span>
+      </button>
+      <button type="button" class="btn btn-invisible btn-sm" data-action="fullscreen" aria-label="전체 화면으로 보기">
+        <i class="fa-solid fa-expand" aria-hidden="true"></i>
+        <span class="photo-viewer__tool-label">전체 화면</span>
+      </button>
     </div>
-  </section>
-</div>
+  </header>
+
+  <div class="photo-viewer__layout">
+    <section class="photo-viewer__stage" aria-label="사진 영역">
+      {% if prev_photo %}
+      <a href="{{ url_for('gallery.detail', filename=prev_photo.id) }}"
+         class="btn btn-invisible btn-sm photo-viewer__nav photo-viewer__nav--prev"
+         data-direction="previous" aria-label="이전 사진">
+        <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+      </a>
+      {% endif %}
+
+      <img class="photo-viewer__image" src="{{ photo.url }}" alt="{{ photo.title }}" draggable="false">
+
+      {% if next_photo %}
+      <a href="{{ url_for('gallery.detail', filename=next_photo.id) }}"
+         class="btn btn-invisible btn-sm photo-viewer__nav photo-viewer__nav--next"
+         data-direction="next" aria-label="다음 사진">
+        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+      </a>
+      {% endif %}
+    </section>
+
+    <aside class="photo-viewer__panel" aria-label="사진 정보">
+      <div class="photo-viewer__panel-header">
+        <p class="photo-viewer__eyebrow">PHOTO INFORMATION</p>
+        <button type="button" class="btn btn-invisible btn-sm photo-viewer__panel-close" data-action="toggle-info" aria-label="사진 정보 닫기">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <h1 class="photo-viewer__title">{{ photo.title }}</h1>
+
+      <dl class="photo-viewer__meta">
+        {% if photo.exif_low.model %}
+        <div class="photo-viewer__meta-item photo-viewer__meta-item--wide">
+          <dt>카메라</dt><dd>{{ photo.exif_low.model }}</dd>
+        </div>
+        {% endif %}
+        {% if photo.year %}
+        <div class="photo-viewer__meta-item">
+          <dt>촬영 연도</dt><dd>{{ photo.year }}</dd>
+        </div>
+        {% endif %}
+        {% if photo.exif_low.fnumber %}
+        <div class="photo-viewer__meta-item">
+          <dt>조리개</dt><dd>{{ photo.exif_low.fnumber }}</dd>
+        </div>
+        {% endif %}
+        {% if photo.exif_low.exposuretime %}
+        <div class="photo-viewer__meta-item">
+          <dt>셔터</dt><dd>{{ photo.exif_low.exposuretime }}</dd>
+        </div>
+        {% endif %}
+        {% if photo.exif_low.isospeedratings %}
+        <div class="photo-viewer__meta-item">
+          <dt>ISO</dt><dd>{{ photo.exif_low.isospeedratings }}</dd>
+        </div>
+        {% endif %}
+        {% if photo.exif_low.focallength %}
+        <div class="photo-viewer__meta-item">
+          <dt>초점 거리</dt><dd>{{ photo.exif_low.focallength }}</dd>
+        </div>
+        {% endif %}
+      </dl>
+    </aside>
+  </div>
+</main>
 {% endblock %}

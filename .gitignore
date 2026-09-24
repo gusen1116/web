@@ -135,6 +135,10 @@ app/static/gallery_thumbnails/
 *metadata_cache.json
 *address_cache.json
 
+# GPS 정리 전 원본이 머무는 비공개 업로드 폴더
+private_uploads/*
+!private_uploads/.gitkeep
+
 # Debug & Test Scripts
 debug_gallery.py
 test_logs.py

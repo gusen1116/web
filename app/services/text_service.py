@@ -27,6 +27,28 @@ except ImportError:
     MARKDOWN_ENABLED = False
 
 try:
+    from pygments.formatters import HtmlFormatter
+
+    class LanguageAwareHtmlFormatter(HtmlFormatter):
+        """Keep the detected language on Pygments' ``pre`` element."""
+
+        def __init__(self, lang_str: str = 'language-text', **options):
+            self.lang_str = lang_str if re.match(r'^language-[a-zA-Z0-9_+.-]+$', lang_str) else 'language-text'
+            super().__init__(**options)
+
+        def _wrap_pre(self, inner):
+            for token_type, html in super()._wrap_pre(inner):
+                if html.startswith('<pre'):
+                    html = html.replace('<pre', f'<pre class="{self.lang_str}"', 1)
+                yield token_type, html
+
+    PYGMENTS_ENABLED = True
+except ImportError:
+    HtmlFormatter = None  # type: ignore
+    LanguageAwareHtmlFormatter = None  # type: ignore
+    PYGMENTS_ENABLED = False
+
+try:
     import bleach
     from bleach.css_sanitizer import CSSSanitizer
     BLEACH_AVAILABLE = True
@@ -51,12 +73,23 @@ class URLLinkifyParser(HTMLParser):
         self.result = []
         self.in_tag = None
         self.tag_stack = []
+
+    @staticmethod
+    def _serialize_attrs(attrs) -> str:
+        serialized = []
+        for key, value in attrs:
+            safe_key = str(escape(key))
+            if value is None:
+                serialized.append(safe_key)
+            else:
+                serialized.append(f'{safe_key}="{escape(value)}"')
+        return ' '.join(serialized)
     
     def handle_starttag(self, tag, attrs):
         self.tag_stack.append(tag)
         self.in_tag = tag
         
-        attrs_str = ' '.join([f'{k}="{v}"' for k, v in attrs])
+        attrs_str = self._serialize_attrs(attrs)
         if attrs_str:
             self.result.append(f'<{tag} {attrs_str}>')
         else:
@@ -69,17 +102,17 @@ class URLLinkifyParser(HTMLParser):
         self.result.append(f'</{tag}>')
         
     def handle_startendtag(self, tag, attrs):
-        attrs_str = ' '.join([f'{k}="{v}"' for k, v in attrs])
+        attrs_str = self._serialize_attrs(attrs)
         if attrs_str:
             self.result.append(f'<{tag} {attrs_str}>')
         else:
             self.result.append(f'<{tag}>')
     
     def handle_data(self, data):
-        if self.in_tag in ['a', 'script', 'style', 'code', 'pre']:
-            self.result.append(data)
+        if any(tag in {'a', 'script', 'style', 'code', 'pre'} for tag in self.tag_stack):
+            self.result.append(str(escape(data)))
         else:
-            self.result.append(_linkify_text_urls(data))
+            self.result.append(_linkify_text_urls(data, escape_text=True))
 
 @dataclass
 class TextPost:
@@ -601,15 +634,21 @@ def _create_video_tag_secure(src: str, title: Optional[str], base_url: str) -> s
     safe_title = escape(title.strip()) if title and title.strip() else "비디오"
     safe_base_url = escape(base_url.rstrip('/'))
     ext = secure_src.split(".")[-1].lower()
-    video_type = f"video/{ext}"
-    if ext == "ogv": video_type = "video/ogg"
+    video_types = {
+        'mp4': 'video/mp4',
+        'webm': 'video/webm',
+        'ogg': 'video/ogg',
+        'mov': 'video/quicktime',
+    }
+    video_type = video_types[ext]
     return f'''
-<div class="video-container">
-    <video controls preload="metadata" title="{safe_title}" class="text-post-video">
+<figure class="media-embed video-embed">
+    <video controls preload="metadata" title="{safe_title}" class="text-post-video" playsinline>
         <source src="{safe_base_url}/{safe_src}" type="{video_type}">
         브라우저가 비디오 재생을 지원하지 않습니다. <a href="{safe_base_url}/{safe_src}" download>비디오 다운로드</a>
     </video>
-</div>
+    <figcaption>{safe_title}</figcaption>
+</figure>
 '''
 
 def _create_audio_tag_secure(src: str, title: Optional[str], base_url: str) -> str:
@@ -624,15 +663,22 @@ def _create_audio_tag_secure(src: str, title: Optional[str], base_url: str) -> s
     safe_title = escape(title.strip()) if title and title.strip() else "오디오"
     safe_base_url = escape(base_url.rstrip('/'))
     ext = secure_src.split(".")[-1].lower()
-    audio_type = f"audio/{ext}"
-    if ext == "oga": audio_type = "audio/ogg"
+    audio_types = {
+        'mp3': 'audio/mpeg',
+        'wav': 'audio/wav',
+        'ogg': 'audio/ogg',
+        'flac': 'audio/flac',
+        'm4a': 'audio/mp4',
+    }
+    audio_type = audio_types[ext]
     return f'''
-<div class="audio-container">
+<figure class="media-embed audio-embed">
     <audio controls preload="metadata" title="{safe_title}" class="text-post-audio">
         <source src="{safe_base_url}/{safe_src}" type="{audio_type}">
         브라우저가 오디오 재생을 지원하지 않습니다. <a href="{safe_base_url}/{safe_src}" download>오디오 다운로드</a>
     </audio>
-</div>
+    <figcaption>{safe_title}</figcaption>
+</figure>
 '''
 
 def _create_quote_block(quote_text: str, author: Optional[str]) -> str:
@@ -656,17 +702,33 @@ def _create_code_block(code_text: str, language: Optional[str]) -> str:
         safe_language = escape(language.strip().lower())
     return f'<pre><code class="language-{safe_language}">{safe_code}</code></pre>'
 
-def _linkify_text_urls(text: str) -> str:
+def _linkify_text_urls(text: str, escape_text: bool = False) -> str:
     if not isinstance(text, str): return text
     url_pattern = re.compile(r'\b(https?://[^\s<>]+)')
+
     def url_replacer(match):
-        url = match.group(1).rstrip('.,;:!?)]')
-        if len(url) > 1000 or not _is_safe_url(url): return escape(match.group(0))
+        matched_url = match.group(1)
+        url = matched_url.rstrip('.,;:!?)]')
+        trailing = matched_url[len(url):]
+        if len(url) > 1000 or not _is_safe_url(url):
+            return str(escape(matched_url)) if escape_text else matched_url
         safe_url = escape(url)
         display_text = url[:57] + "..." if len(url) > 60 else url
-        return (f'<a href="{safe_url}" target="_blank" rel="noopener noreferrer nofollow" '
-                f'class="auto-link post-link" title="{escape(url)}">{escape(display_text)}</a>')
-    return url_pattern.sub(url_replacer, text)
+        anchor = (f'<a href="{safe_url}" target="_blank" rel="noopener noreferrer nofollow" '
+                  f'class="auto-link post-link" title="{escape(url)}">{escape(display_text)}</a>')
+        return anchor + (str(escape(trailing)) if escape_text else trailing)
+
+    if not escape_text:
+        return url_pattern.sub(url_replacer, text)
+
+    parts = []
+    cursor = 0
+    for match in url_pattern.finditer(text):
+        parts.append(str(escape(text[cursor:match.start()])))
+        parts.append(url_replacer(match))
+        cursor = match.end()
+    parts.append(str(escape(text[cursor:])))
+    return ''.join(parts)
 
 def _auto_linkify_urls_safe(html_content: str) -> str:
     if not HTML_PARSER_ENABLED: return _auto_linkify_urls(html_content)
@@ -696,10 +758,18 @@ def _is_safe_url(url: str) -> bool:
 def _process_markdown(content: str) -> str:
     try:
         extensions = current_app.config.get('MARKDOWN_EXTENSIONS', ['extra', 'nl2br', 'sane_lists', 'codehilite', 'toc'])
+        codehilite_config = {
+            'css_class': 'highlight',
+            'linenums': False,
+            'guess_lang': False,
+            'use_pygments': True,
+        }
+        if PYGMENTS_ENABLED:
+            codehilite_config['pygments_formatter'] = LanguageAwareHtmlFormatter
         md = markdown.Markdown(
             extensions=extensions,
             extension_configs={
-                'codehilite': {'css_class': 'highlight', 'linenums': False, 'guess_lang': False, 'use_pygments': True},
+                'codehilite': codehilite_config,
                 'toc': {'permalink': False}
             }
         )

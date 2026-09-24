@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "components/tag_button.html" import tag_button %}
 
 {% block title %}{{ post.title }}{% endblock %}
 
@@ -8,7 +9,7 @@
 {% block og_description %}{{ post.description or post.subtitle or (post.content|striptags)[:160] }}{% endblock %}
 {% block og_image %}
     {% if post.thumbnail %}
-        {{ url_for('static', filename='images/posts/' + post.thumbnail.split('|')[0]|trim) }}
+        {{ url_for('static', filename='images/posts/' + post.thumbnail.split('|')[0]|trim, _external=True) }}
     {% else %}
         {{ super() }}
     {% endif %}
@@ -96,18 +97,6 @@
 
 /* 태그 스타일 */
 .post-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; width: 100%; margin-top: 0.5rem; }
-.post-tag {
-    display: inline-flex; align-items: center; background-color: var(--primary-50);
-    color: var(--primary-600); font-size: 0.8rem; font-weight: 500;
-    padding: 0.25rem 0.6rem; border-radius: 15px; transition: all 0.2s ease;
-    text-decoration: none; border: 1px solid var(--primary-200);
-}
-.post-tag i { margin-right: 0.3em; font-size: 0.8em; opacity: 0.7; }
-.post-tag:hover {
-    background-color: var(--primary-100); border-color: var(--primary-400);
-    color: var(--primary-700); transform: translateY(-1px);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
 
 /* 시리즈 박스 스타일 */
 .series-box {
@@ -186,8 +175,6 @@
 html.dark-theme .post-date:hover,
 html.dark-theme .post-author:hover,
 html.dark-theme .post-word-count:hover { background-color: var(--neutral-700); border-color: var(--neutral-500); }
-html.dark-theme .post-tag { background-color: rgba(88, 166, 255, 0.1); color: #79c0ff; border-color: rgba(88, 166, 255, 0.25); }
-html.dark-theme .post-tag:hover { background-color: rgba(88, 166, 255, 0.2); border-color: rgba(88, 166, 255, 0.5); box-shadow: 0 1px 3px rgba(88,166,255,0.1); }
 
 html.dark-theme .series-box { background-color: var(--neutral-800); border-left-color: #58a6ff; border-color: var(--neutral-700); }
 html.dark-theme .series-title i { color: #58a6ff; }
@@ -256,21 +243,10 @@ html.dark-theme .changelog-box { background-color: var(--neutral-800); border-le
 html.dark-theme .changelog-box h4 i { color: var(--neutral-400); }
 html.dark-theme .changelog-list li::before { color: var(--neutral-500); }
 
-/* 블로그 홈으로 돌아가기 버튼 */
+/* 블로그 홈으로 돌아가기 버튼 영역 */
 .post-actions {
     width: 55rem; max-width: 100%; margin: 3.5rem auto 1.5rem; text-align: center;
 }
-.btn-link.back-to-blog {
-    padding: 0.5rem 1rem; font-size: 0.9rem; background-color: var(--bg-tertiary);
-    border: 1px solid var(--border-color); color: var(--text-primary); box-shadow: none;
-    border-radius: 4px;
-}
-.btn-link.back-to-blog:hover {
-    background-color: var(--neutral-200); border-color: var(--neutral-400);
-    transform: none; box-shadow: none;
-}
-html.dark-theme .btn-link.back-to-blog { background-color: var(--neutral-700); border-color: var(--neutral-600); color: var(--text-primary); }
-html.dark-theme .btn-link.back-to-blog:hover { background-color: var(--neutral-600); border-color: var(--neutral-500); }
 
 
 /* 모바일 최적화 */
@@ -279,7 +255,6 @@ html.dark-theme .btn-link.back-to-blog:hover { background-color: var(--neutral-6
     .post-subtitle, .post-description-header { margin-bottom: 0.5rem; line-height: 1.6; }
     .post-meta-container { margin-top: 0.25rem; gap: 0.6rem; padding: 0.6rem 0; }
     .post-date, .post-author, .post-word-count { font-size: 0.8rem; padding: 0.25rem 0.6rem; }
-    .post-tag { font-size: 0.75rem; padding: 0.2rem 0.5rem; }
 
     .series-box, .changelog-box, .related-posts-section, .post-nav-simple, .post-actions {
         width: calc(100% - 2rem); padding-left: 0; padding-right: 0;
@@ -299,7 +274,6 @@ html.dark-theme .btn-link.back-to-blog:hover { background-color: var(--neutral-6
     .related-post-meta { font-size: 0.7rem; }
     .related-post-preview { font-size: 0.75rem; line-height: 1.3; }
 
-    .btn-link.back-to-blog { font-size: 0.85rem; padding: 0.6rem 0.8rem; border-radius: 4px; }
 }
 
 @media (max-width: 480px) {
@@ -307,10 +281,8 @@ html.dark-theme .btn-link.back-to-blog:hover { background-color: var(--neutral-6
     .post-subtitle, .post-description-header { line-height: 1.55; margin-bottom: 0.4rem; }
     .post-meta-container { gap: 0.4rem; margin-top: 0.1rem; padding: 0.5rem 0; }
     .post-date, .post-author, .post-word-count { font-size: 0.7rem; padding: 0.2rem 0.4rem; }
-    .post-tag { font-size: 0.65rem; padding: 0.15rem 0.35rem; }
     .post-nav-title { font-size: 0.85rem; }
     .post-nav-label { font-size: 0.65rem; }
-    .btn-link.back-to-blog { font-size: 0.8rem; }
 }
 
 </style>
@@ -332,9 +304,7 @@ html.dark-theme .btn-link.back-to-blog:hover { background-color: var(--neutral-6
             {% if post.tags %}
             <div class="post-tags">
                 {% for tag_item in post.tags %}
-                <a href="{{ url_for('posts.filter_by_tag', tag=tag_item) }}" class="post-tag">
-                    <i class="fas fa-hashtag"></i>{{ tag_item }}
-                </a>
+                {{ tag_button(tag_item) }}
                 {% endfor %}
             </div>
             {% endif %}
@@ -436,7 +406,7 @@ html.dark-theme .btn-link.back-to-blog:hover { background-color: var(--neutral-6
 </nav>
 
 <div class="post-actions">
-    <a href="{{ url_for('posts.index') }}" class="btn-link back-to-blog">
+    <a href="{{ url_for('posts.index') }}" class="btn btn-invisible btn-regular back-to-blog">
         <i class="fas fa-list"></i>블로그 홈으로 돌아가기
     </a>
 </div>
@@ -445,5 +415,4 @@ html.dark-theme .btn-link.back-to-blog:hover { background-color: var(--neutral-6
 {% block scripts %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
-<script src="{{ static_url('js/mixtype.js') }}"></script>
 {% endblock %}

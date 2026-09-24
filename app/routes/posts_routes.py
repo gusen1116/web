@@ -14,6 +14,7 @@ from flask import Blueprint, render_template, send_from_directory, current_app, 
 import os
 import re
 from werkzeug.utils import secure_filename
+from werkzeug.exceptions import HTTPException
 from markupsafe import escape
 from app.services.text_service import (
     get_all_text_posts, get_text_post, get_tags_count,
@@ -81,12 +82,13 @@ def index():
                 {"name": escape(tag), "count": count}
                 for tag, count in sorted(tags_count.items(), key=lambda x: x[1], reverse=True)[:20]
             ]
-        recent_posts = posts[:5] if posts and len(posts) > 5 else posts or []
+        posts_per_page = current_app.config.get('POSTS_PER_PAGE', 6)
+        initial_posts = posts[:posts_per_page]
         return render_template(
             'posts/index.html',
-            posts=posts or [],
+            posts=initial_posts,
             tags=tags or [],
-            recent_posts=recent_posts or []
+            has_more=len(posts) > posts_per_page
         )
     except Exception as e:
         current_app.logger.error(f'포스트 목록 로드 오류: {str(e)}', exc_info=True)
@@ -94,9 +96,33 @@ def index():
             'posts/index.html',
             posts=[],
             tags=[],
-            recent_posts=[],
+            has_more=False,
             error_message=f"포스트를 로드하는 중 오류가 발생했습니다: {str(e)}"
         )
+
+@posts_bp.get('/load-more')
+def load_more():
+    """Return the next date-sorted batch of post cards."""
+    page = request.args.get('page', default=2, type=int)
+    if page is None or page < 2:
+        return jsonify({'error': '잘못된 페이지입니다.'}), 400
+
+    try:
+        posts_dir = current_app.config.get('POSTS_DIR')
+        posts = get_all_text_posts(posts_dir)
+        posts_per_page = current_app.config.get('POSTS_PER_PAGE', 6)
+        start = (page - 1) * posts_per_page
+        end = start + posts_per_page
+        post_batch = posts[start:end]
+
+        return jsonify({
+            'html': render_template('posts/_post_cards.html', posts=post_batch),
+            'has_more': end < len(posts),
+            'next_page': page + 1
+        })
+    except Exception as e:
+        current_app.logger.error(f'추가 포스트 로드 오류: {str(e)}', exc_info=True)
+        return jsonify({'error': '포스트를 추가로 불러오지 못했습니다.'}), 500
 
 @posts_bp.route('/tags')
 def tags_overview():
@@ -172,6 +198,8 @@ def view_by_slug(slug: str):
             next_post=next_post,
             series_posts=series_posts
         )
+    except HTTPException:
+        raise
     except Exception as e:
         current_app.logger.error(f'포스트 로드 오류: {str(e)}')
         abort(500)
@@ -281,6 +309,8 @@ def view_series(series_name: str):
             tags=tags,
             recent_posts=recent_posts
         )
+    except HTTPException:
+        raise
     except Exception as e:
         current_app.logger.error(f'시리즈 로드 오류: {str(e)}')
         abort(500)

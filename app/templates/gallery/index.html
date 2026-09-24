@@ -12,7 +12,7 @@
       <div class="filter-group">
         <label for="yearFilter" class="filter-label"><i class="fa-solid fa-calendar-days"></i> 연도별 필터</label>
         <div class="select-wrapper">
-          <select id="yearFilter" class="gallery-select" aria-label="연도 선택">
+          <select id="yearFilter" class="input-control gallery-select" aria-label="연도 선택">
             <option value="all">전체 사진</option>
             {% for y in years %}
               <option value="{{ y }}">{{ y }}년</option>
@@ -26,6 +26,8 @@
 </section>
 
 <section class="masonry" id="masonry">
+  <div class="masonry-sizer" aria-hidden="true"></div>
+  <div class="masonry-gutter" aria-hidden="true"></div>
   {% for photo in photos %}
     <a class="photo-card"
        href="{{ url_for('gallery.detail', filename=photo.id) }}"
@@ -34,16 +36,14 @@
        data-title="{{ photo.title|e }}"
        data-year="{{ photo.year }}"
        data-tags="{{ (photo.tags|join(',')) if photo.tags else '' }}"
-       data-exif='{{ photo.exif_low|tojson }}'
-       {% if photo.gps %}
-         data-lat="{{ photo.gps.lat }}" 
-         data-lon="{{ photo.gps.lon }}"
-         data-address="{{ photo.gps.address|e if photo.gps.address else '' }}"
-       {% endif %}>
+       data-exif='{{ photo.exif_low|tojson }}'>
       <figure class="card-figure">
-        <img src="{{ photo.thumbnail_url or photo.url }}" alt="{{ photo.title }}" loading="lazy">
+        <img src="{{ photo.thumbnail_url or photo.url }}"
+             alt="{{ photo.title }}"
+             loading="{{ 'eager' if loop.index <= 8 else 'lazy' }}"
+             {% if loop.first %}fetchpriority="high"{% endif %}>
         <figcaption class="card-caption">
-          <span class="title">{{ photo.title }}</span>
+          <span class="title"></span>
           <span class="meta">
             {% if photo.tags %}{{ photo.tags|join(', ') }}{% endif %}
           </span>
@@ -55,23 +55,51 @@
   {% endfor %}
 </section>
 
-<!-- Lightbox (Detail Page와 구조 동일화) -->
-<div id="glightbox" class="glightbox" hidden aria-hidden="true" role="dialog" aria-label="사진 보기">
-  <div class="glbx-overlay" data-action="close"></div>
-  <div class="glbx-frame">
-    <button class="glbx-close" aria-label="닫기" data-action="close">✕</button>
+<div id="glightbox" class="glightbox photo-viewer photo-viewer--modal" data-photo-viewer hidden aria-hidden="true" role="dialog" aria-modal="true" aria-label="사진 보기" tabindex="-1">
+  <header class="photo-viewer__topbar">
+    <button type="button" class="btn btn-invisible btn-sm photo-viewer__back" data-action="close">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      <span>갤러리</span>
+    </button>
 
-    <div class="glbx-view">
-      <div class="glbx-image-wrap">
-        <img id="glbx-img" alt="" draggable="false" />
-      </div>
-      <aside class="glbx-panel" aria-live="polite">
-        <h1 id="glbx-title"></h1>
-        <div id="glbx-meta" class="glbx-meta">
-          <!-- JS에 의해 동적으로 채워짐 -->
-        </div>
-      </aside>
+    <span id="glbx-counter" class="photo-viewer__counter" aria-live="polite"></span>
+
+    <div class="photo-viewer__tools">
+      <button type="button" class="btn btn-invisible btn-sm photo-viewer__info-toggle" data-action="toggle-info" aria-expanded="false">
+        <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+        <span>정보</span>
+      </button>
+      <button type="button" class="btn btn-invisible btn-sm" data-action="fullscreen" aria-label="전체 화면으로 보기">
+        <i class="fa-solid fa-expand" aria-hidden="true"></i>
+        <span class="photo-viewer__tool-label">전체 화면</span>
+      </button>
+      <button type="button" class="btn btn-invisible btn-sm photo-viewer__close" data-action="close" aria-label="사진 보기 닫기">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
     </div>
+  </header>
+
+  <div class="photo-viewer__layout">
+    <section class="photo-viewer__stage" aria-label="사진 영역">
+      <button type="button" class="btn btn-invisible btn-sm photo-viewer__nav photo-viewer__nav--prev" data-action="previous" aria-label="이전 사진">
+        <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+      </button>
+      <img id="glbx-img" class="photo-viewer__image" alt="" draggable="false">
+      <button type="button" class="btn btn-invisible btn-sm photo-viewer__nav photo-viewer__nav--next" data-action="next" aria-label="다음 사진">
+        <i class="fa-solid fa-chevron-right" aria-hidden="true"></i>
+      </button>
+    </section>
+
+    <aside class="photo-viewer__panel" aria-label="사진 정보" aria-live="polite">
+      <div class="photo-viewer__panel-header">
+        <p class="photo-viewer__eyebrow">PHOTO INFORMATION</p>
+        <button type="button" class="btn btn-invisible btn-sm photo-viewer__panel-close" data-action="toggle-info" aria-label="사진 정보 닫기">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <h1 id="glbx-title" class="photo-viewer__title"></h1>
+      <dl id="glbx-meta" class="photo-viewer__meta"></dl>
+    </aside>
   </div>
 </div>
 {% endblock %}

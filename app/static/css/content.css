@@ -50,7 +50,7 @@
 
 .post-content > h3 {
   margin-top: 2.2rem;
-  margin-bottom: 1.3rem;
+  margin-bottom: 1.0rem;
   font-weight: 700;
 }
 
@@ -66,6 +66,188 @@
   margin-bottom: 1.3rem;
   font-weight: 600;
 }
+
+/* ===== 0.2 코드 문단 ===== */
+.post-content > .highlight {
+  width: 55rem;
+  max-width: 100%;
+  margin: 1.5rem auto;
+}
+
+.post-content pre {
+  position: relative;
+  width: 55rem;
+  max-width: 100%;
+  margin: 1.5rem auto;
+  padding: 3.2rem 1.25rem 1.25rem;
+  overflow-x: auto;
+  color: #e6edf3;
+  background-color: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(1, 4, 9, 0.18);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  tab-size: 4;
+  white-space: pre;
+  word-break: normal;
+  word-wrap: normal;
+  -webkit-overflow-scrolling: touch;
+}
+
+.post-content > .highlight > pre {
+  width: 100%;
+  margin: 0;
+}
+
+.post-content pre.code-block::before {
+  content: attr(data-language);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  min-height: 2.25rem;
+  padding: 0.55rem 4.5rem 0.5rem 1rem;
+  color: #8b949e;
+  background-color: #161b22;
+  border-bottom: 1px solid #30363d;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.post-content pre code {
+  display: block;
+  min-width: max-content;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  white-space: inherit;
+}
+
+.post-content p > code,
+.post-content li > code,
+.post-content td > code,
+.post-content blockquote > code {
+  padding: 0.16em 0.42em;
+  color: #cf222e;
+  background-color: rgba(175, 184, 193, 0.2);
+  border: 1px solid rgba(175, 184, 193, 0.35);
+  border-radius: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  overflow-wrap: anywhere;
+}
+
+html.dark-theme .post-content p > code,
+html.dark-theme .post-content li > code,
+html.dark-theme .post-content td > code,
+html.dark-theme .post-content blockquote > code {
+  color: #ff7b72;
+  background-color: rgba(110, 118, 129, 0.22);
+  border-color: rgba(139, 148, 158, 0.3);
+}
+
+.code-copy-button {
+  position: absolute;
+  z-index: 2;
+  top: 0.38rem;
+  right: 0.5rem;
+  min-height: 1.5rem;
+  padding: 0.2rem 0.55rem;
+  color: #b1bac4;
+  background-color: #21262d;
+  border: 1px solid #3d444d;
+  border-radius: 5px;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.code-copy-button:hover,
+.code-copy-button:focus-visible {
+  color: #ffffff;
+  background-color: #30363d;
+  border-color: #6e7681;
+  outline: none;
+}
+
+.code-copy-button.copied {
+  color: #7ee787;
+  border-color: rgba(63, 185, 80, 0.6);
+}
+
+/* Pygments의 언어별 토큰 색상 */
+.highlight .hll { background-color: #3b434b; }
+.highlight .c,
+.highlight .ch,
+.highlight .cm,
+.highlight .cp,
+.highlight .cpf,
+.highlight .c1,
+.highlight .cs { color: #8b949e; font-style: italic; }
+.highlight .err { color: #f85149; }
+.highlight .k,
+.highlight .kc,
+.highlight .kd,
+.highlight .kn,
+.highlight .kp,
+.highlight .kr,
+.highlight .kt,
+.highlight .o,
+.highlight .ow { color: #ff7b72; }
+.highlight .na,
+.highlight .nb,
+.highlight .bp { color: #ffa657; }
+.highlight .nc,
+.highlight .nf,
+.highlight .fm { color: #d2a8ff; }
+.highlight .nd,
+.highlight .ne,
+.highlight .nl,
+.highlight .nt { color: #7ee787; }
+.highlight .nv,
+.highlight .vc,
+.highlight .vg,
+.highlight .vi,
+.highlight .vm { color: #ffa657; }
+.highlight .m,
+.highlight .mb,
+.highlight .mf,
+.highlight .mh,
+.highlight .mi,
+.highlight .mo,
+.highlight .il { color: #79c0ff; }
+.highlight .s,
+.highlight .sa,
+.highlight .sb,
+.highlight .sc,
+.highlight .dl,
+.highlight .sd,
+.highlight .s2,
+.highlight .se,
+.highlight .sh,
+.highlight .si,
+.highlight .sx,
+.highlight .sr,
+.highlight .s1,
+.highlight .ss { color: #a5d6ff; }
+.highlight .gd { color: #ffdcd7; background-color: #67060c; }
+.highlight .gi { color: #aff5b4; background-color: #033a16; }
+.highlight .ge { font-style: italic; }
+.highlight .gs { font-weight: 700; }
 
 /* ===== 1. 강조 박스 ===== */
 .highlight-box {
@@ -162,7 +344,10 @@
   figure.post-image {
     width: 55rem;
     max-width: 100%;
-    margin: 1.2rem auto;
+    margin-top: 1.2rem;
+    margin-bottom: 1.5rem;
+    margin-left: auto;
+    margin-right: auto;
     text-align: center;
   }
   
@@ -171,13 +356,16 @@
     height: auto;
     border-radius: 6px;
     border: 1px solid #d0d7de;
+    display: block;
+    margin: 0 auto;
   }
   
   figure.post-image figcaption {
-    margin-top: 0.5rem;
+    margin-top: 2px;
     color: #57606a;
     font-style: italic;
     font-size: 0.9rem;
+    line-height: 1.2;
   }
   
   figure.post-image.align-left {
@@ -250,44 +438,65 @@
     opacity: 1;
   }
   
-  .video-embed, .audio-embed {
+  .media-embed,
+  .video-container,
+  .audio-container {
     width: 55rem;
     max-width: 100%;
-    margin: 2rem auto;
-    border-radius: 6px;
+    margin: 1.5rem auto;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
     overflow: hidden;
+    box-shadow: var(--shadow-sm);
   }
   
-  .video-embed video, .audio-embed audio {
+  .video-embed video,
+  .video-container video,
+  .audio-embed audio,
+  .audio-container audio {
     display: block;
     width: 100%;
-    border-radius: 6px;
   }
-  .video-embed { background-color: #000; }
-  .audio-embed { 
-    padding: 1rem; 
-    background-color: #f6f8fa; 
-    border: 1px solid #d0d7de; 
+
+  .video-embed,
+  .video-container {
+    background-color: #000;
   }
-  
-  .video-embed figcaption, .audio-caption {
-    margin-top: 0.5rem;
-    color: #57606a;
-    font-style: italic;
+
+  .audio-embed,
+  .audio-container {
+    padding: 1rem;
+  }
+
+  .audio-embed audio,
+  .audio-container audio {
+    min-height: 54px;
+  }
+
+  .media-embed figcaption {
+    padding: 0.7rem 1rem;
+    color: var(--text-tertiary);
+    background-color: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
     font-size: 0.9rem;
     text-align: center;
+  }
+
+  .audio-embed figcaption {
+    margin: 0.8rem -1rem -1rem;
   }
   
   /* ===== 5. 소셜 미디어 임베드 ===== */
   .social-embed {
-    width: 100%;
-    max-width: 880px;
-    margin: 2rem auto;
-    border-radius: 6px;
+    width: 55rem;
+    max-width: 100%;
+    margin: 1.5rem auto;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 10px 30px rgba(1, 4, 9, 0.14);
     border: 1px solid var(--border-color);
-    background-color: #ffffff;
+    background-color: var(--bg-secondary);
   }
   
   html.dark-theme .social-embed {
@@ -309,10 +518,10 @@
   .youtube-embed, .twitch-embed {
     position: relative;
     width: 100%;
-    max-width: 880px;
-    margin: 2rem auto;
+    max-width: 55rem;
+    margin: 1.5rem auto;
     overflow: hidden;
-    border-radius: 6px;
+    border-radius: 12px;
     height: 0;
     padding-bottom: 56.25%; /* 16:9 비율 폴백 */
   }
@@ -657,8 +866,8 @@
   }
   
   /* 태그 링크 스타일 */
-  .post-tag,
-  .post-card-tag {
+  .post-tag:not(.btn-tag),
+  .post-card-tag:not(.btn-tag) {
     font-family: var(--font-sans); 
     font-weight: 700 !important; 
     text-decoration: none !important;
@@ -746,8 +955,8 @@
     border-color: var(--neutral-500) !important;
   }
   
-  html.dark-theme .post-tag,
-  html.dark-theme .post-card-tag {
+  html.dark-theme .post-tag:not(.btn-tag),
+  html.dark-theme .post-card-tag:not(.btn-tag) {
     font-family: var(--font-sans); 
     font-weight: 700;
   }
@@ -764,6 +973,16 @@
   }
   
   @media screen and (max-width: 768px) {
+    .post-content pre {
+      padding: 3rem 1rem 1rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+    }
+
+    .post-content pre.code-block::before {
+      padding-left: 0.8rem;
+    }
+
     .pullquote.align-left,
     .pullquote.align-right {
       float: none;
@@ -793,7 +1012,7 @@
       font-family: var(--font-cabin); 
     }
     
-    .post-tag, .post-card-tag { 
+    .post-tag:not(.btn-tag), .post-card-tag:not(.btn-tag) {
       font-weight: 700; 
       font-family: var(--font-sans); 
     }

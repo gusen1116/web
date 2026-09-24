@@ -12,7 +12,7 @@ the original code have been fixed:
 * Comments and type annotations have been added for clarity.
 """
 
-from flask import Blueprint, render_template, current_app, jsonify, request, Response, url_for
+from flask import Blueprint, render_template, current_app, jsonify, request, Response, url_for, redirect
 from typing import List, Dict, Any
 from datetime import datetime
 from app.services.text_service import TextPost, get_all_text_posts, get_tags_count
@@ -53,12 +53,12 @@ def about():
         return render_template('about.html')
     except Exception as e:
         current_app.logger.error(f'소개 페이지 로드 에러: {e}')
-        return render_template('404.html'), 500
+        return render_template('500.html'), 500
 
 @main_bp.route('/network')
 def network():
-    """Render the network tools hub page."""
-    return render_template('network.html')
+    """Redirect the legacy network page to the integrated diagnostics page."""
+    return redirect(url_for('speedtest.speedtest_page'), code=302)
 
 @main_bp.route('/api/status')
 def api_status():
@@ -165,7 +165,8 @@ def _get_popular_tags(limit: int = 10) -> List[Dict[str, Any]]:
 @main_bp.route('/robots.txt')
 def robots_txt() -> Response:
     """Serve a simple robots.txt."""
-    robots_content = """
+    sitemap_url = url_for('main.sitemap_xml', _external=True)
+    robots_content = f"""
 User-agent: *
 Allow: /
 Allow: /posts/
@@ -176,7 +177,7 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /logs/
 
-Sitemap: /sitemap.xml
+Sitemap: {sitemap_url}
 """
     return Response(robots_content.strip(), mimetype='text/plain')
 

@@ -13,10 +13,11 @@ class Mixtype {
     this.keyAttr = `${this.attributePrefix}`;
     this.styleAttr = `${this.attributePrefix}s`;
     this.ignoreTags = options.ignoreTags || [
-      'HEAD', 'META', 'LINK', 'SCRIPT', 'STYLE', 'INPUT', 'TEXTAREA', 'PRE', 'CODE', 'XML', 'SVG'
+      'HEAD', 'META', 'LINK', 'SCRIPT', 'STYLE', 'INPUT', 'TEXTAREA', 'SELECT', 'OPTION', 'PRE', 'CODE', 'XML', 'SVG'
     ];
     this.ignoreAttributes = options.ignoreAttributes || ['nomixtype'];
     this.ignoreClasses = options.ignoreClasses || ['material-symbols-outlined'];
+    this.observer = null;
   }
 
   update(options = {}) {
@@ -72,7 +73,7 @@ class Mixtype {
     const span = document.createElement('span');
     span.setAttribute(this.keyAttr, this.key);
     span.setAttribute(this.styleAttr, type);
-    span.innerText = content;
+    span.textContent = content;
     node.parentNode.insertBefore(span, node);
   }
 
@@ -80,11 +81,14 @@ class Mixtype {
     element.setAttribute(this.keyAttr, this.key);
     element.querySelector(`style[${this.keyAttr}="${this.key}"]`)?.remove();
     element.appendChild(this.getStyleTag());
+    this.applyToTextNodes(element);
+  }
+
+  applyToTextNodes(element) {
     const textNodes = this.getTextNodes(element);
     for (const node of textNodes) {
       let value = node.nodeValue;
-      value = value.replace(/\r|\n/g, '');
-      if (!value.replace(/ /g, '')) {
+      if (!value.trim()) {
         continue;
       }
       let bufferType = '';
@@ -103,6 +107,73 @@ class Mixtype {
       this.replaceNode(node, bufferType, buffer);
       node.parentNode.removeChild(node);
     }
+  }
+
+  isInsideIgnoredElement(element, root) {
+    let current = element;
+
+    while (current) {
+      if (
+        this.ignoreTags.includes(current.nodeName) ||
+        this.ignoreAttributes.some((attribute) => current.hasAttribute(attribute)) ||
+        this.ignoreClasses.some((className) => current.classList.contains(className)) ||
+        (current !== root && current.hasAttribute(this.keyAttr))
+      ) {
+        return true;
+      }
+
+      if (current === root) {
+        break;
+      }
+      current = current.parentElement;
+    }
+
+    return false;
+  }
+
+  observe(element) {
+    if (!('MutationObserver' in window)) {
+      return;
+    }
+
+    this.observer?.disconnect();
+    this.observer = new MutationObserver((mutations) => {
+      const roots = new Set();
+
+      for (const mutation of mutations) {
+        if (mutation.type === 'characterData') {
+          if (mutation.target.parentElement) {
+            roots.add(mutation.target.parentElement);
+          }
+          continue;
+        }
+
+        for (const node of mutation.addedNodes) {
+          if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
+            roots.add(node.parentElement);
+          } else if (node.nodeType === Node.ELEMENT_NODE) {
+            roots.add(node);
+          }
+        }
+      }
+
+      if (!roots.size) {
+        return;
+      }
+
+      this.observer.disconnect();
+      try {
+        for (const root of roots) {
+          if (root.isConnected && !this.isInsideIgnoredElement(root, element)) {
+            this.applyToTextNodes(root);
+          }
+        }
+      } finally {
+        this.observer.observe(element, { childList: true, characterData: true, subtree: true });
+      }
+    });
+
+    this.observer.observe(element, { childList: true, characterData: true, subtree: true });
   }
 
   getStyleTag() {
@@ -204,7 +275,7 @@ const mixtype = new Mixtype({
   ]
 });
 
-const postContent = document.querySelector('.post-content');
-if (postContent) {
-  mixtype.apply(postContent);
+if (document.body) {
+  mixtype.apply(document.body);
+  mixtype.observe(document.body);
 }

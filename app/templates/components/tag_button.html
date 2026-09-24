@@ -1,0 +1,9 @@
+{% macro tag_button(name, count=None, active=false) -%}
+<a href="{{ url_for('posts.filter_by_tag', tag=name) }}"
+   class="btn btn-tag{% if active %} active{% endif %}"
+   data-tag="{{ name }}"{% if active %}
+   aria-current="page"{% endif %}>
+  <span class="btn-tag-label">#{{ name }}</span>
+  {% if count is not none %}<span class="btn-tag-count">{{ count }}</span>{% endif %}
+</a>
+{%- endmacro %}

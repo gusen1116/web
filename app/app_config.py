@@ -68,7 +68,7 @@ class Config:
         "font-src": ["'self'", "https:", "data:"],
         "img-src": ["'self'", "https:", "data:", "blob:"],
         "frame-src": ["'self'", "https:", "data:"],
-        "connect-src": ["'self'", "https:", "data:"],
+        "connect-src": ["'self'", "https:", "data:", "https://api.wagusen.com"],
         "base-uri": ["'self'"],
         "form-action": ["'self'"],
         "frame-ancestors": ["'self'"],
@@ -79,6 +79,8 @@ class Config:
     # 파일 및 콘텐츠 설정
     POSTS_DIR = os.environ.get('POSTS_DIR', str(app_dir / 'content' / 'posts'))
     GALLERY_PHOTOS_DIR = os.environ.get('GALLERY_PHOTOS_DIR', str(app_dir.parent / 'app' / 'static' / 'gallery_photos'))
+    BLOG_IMAGES_DIR = os.environ.get('BLOG_IMAGES_DIR', str(app_dir.parent / 'app' / 'static' / 'images' / 'posts'))
+    MEDIA_INCOMING_DIR = os.environ.get('MEDIA_INCOMING_DIR', str(app_dir.parent / 'private_uploads'))
     ALLOWED_TEXT_EXTENSIONS = {'txt', 'md'}
     MAX_FILE_READ_SIZE = 10 * 1024 * 1024  # 10MB
     
@@ -88,6 +90,7 @@ class Config:
     MAX_TAGS_PER_POST = 15
     MAX_PREVIEW_LENGTH = 300
     MAX_POSTS_TOTAL = 2000
+    POSTS_PER_PAGE = 6
     
     # 캐시 설정
     CACHE_TIMEOUT = 600  # 10분
@@ -102,19 +105,22 @@ class Config:
     ALLOWED_HTML_TAGS = [
         'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'p', 'br', 'hr', 'a', 'strong', 'em', 'u', 's', 'sub', 'sup',
-        'code', 'pre', 'blockquote', 'img',
+        'code', 'pre', 'blockquote', 'img', 'video', 'audio', 'source',
         'ul', 'ol', 'li', 'span', 'div',
         'figure', 'figcaption', 'iframe', 'table',
         'thead', 'tbody', 'tr', 'th', 'td'
     ]
     
     ALLOWED_HTML_ATTRIBUTES = {
-        'a': ['href', 'title', 'target', 'rel', 'class'],
+        'a': ['href', 'title', 'target', 'rel', 'class', 'download'],
         'img': ['src', 'alt', 'title', 'width', 'height', 'class', 'loading', 'decoding', 'style'],
         'div': ['class', 'id', 'data-theme'],
         'span': ['class', 'style'],
         'code': ['class'],
         'pre': ['class'],
+        'video': ['controls', 'preload', 'title', 'class', 'playsinline'],
+        'audio': ['controls', 'preload', 'title', 'class'],
+        'source': ['src', 'type'],
         'iframe': ['src', 'width', 'height', 'frameborder', 
                  'allowfullscreen', 'allow', 'sandbox', 'loading', 'title'],
         'blockquote': ['class', 'cite'],
@@ -193,6 +199,8 @@ class DevelopmentConfig(Config):
     TALISMAN_FORCE_HTTPS = False
 
     CSP = Config.CSP.copy()
+    # 내부 IP의 HTTP 개발 서버에서도 정적 파일을 HTTP로 요청하도록 합니다.
+    CSP.pop('upgrade-insecure-requests', None)
     CSP['connect-src'].extend(["http://0.0.0.0:4000", "http://test.wagusen.com"])
 
 class TestingConfig(Config):

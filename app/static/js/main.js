@@ -94,7 +94,7 @@
         }
 
         optimizeAnimations() {
-            document.querySelectorAll('[class*="transition"], [class*="hover"], .card, .btn, .post-card').forEach(element => {
+            document.querySelectorAll('[class*="transition"], [class*="hover"], .card, .btn').forEach(element => {
                 const startAnimation = () => { element.style.willChange = 'transform, opacity'; };
                 const endAnimation = () => { element.style.willChange = 'auto'; };
                 element.addEventListener('mouseenter', startAnimation, { passive: true });
@@ -128,6 +128,60 @@
                 document.fonts.ready.then(() => {
                     document.body.classList.add('fonts-loaded');
                 });
+            }
+        }
+    }
+
+    class CodeBlockEnhancer {
+        constructor() {
+            document.querySelectorAll('.post-content pre').forEach(pre => this.enhance(pre));
+        }
+
+        enhance(pre) {
+            const code = pre.querySelector('code');
+            if (!code || pre.classList.contains('code-block')) return;
+
+            const languageClass = [...code.classList, ...pre.classList]
+                .find(className => className.startsWith('language-'));
+            const language = languageClass ? languageClass.slice('language-'.length) : 'code';
+
+            pre.classList.add('code-block');
+            pre.dataset.language = language;
+
+            const copyButton = document.createElement('button');
+            copyButton.type = 'button';
+            copyButton.className = 'code-copy-button';
+            copyButton.textContent = '복사';
+            copyButton.setAttribute('aria-label', '코드 복사');
+            copyButton.addEventListener('click', () => this.copy(code.textContent, copyButton));
+            pre.appendChild(copyButton);
+        }
+
+        async copy(code, button) {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    await navigator.clipboard.writeText(code);
+                } else {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = code;
+                    textArea.setAttribute('readonly', '');
+                    textArea.style.position = 'fixed';
+                    textArea.style.opacity = '0';
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    const copied = document.execCommand('copy');
+                    textArea.remove();
+                    if (!copied) throw new Error('copy command failed');
+                }
+                button.textContent = '복사됨';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = '복사';
+                    button.classList.remove('copied');
+                }, 1600);
+            } catch (error) {
+                button.textContent = '복사 실패';
+                setTimeout(() => { button.textContent = '복사'; }, 1600);
             }
         }
     }
@@ -297,6 +351,7 @@
         new ThemeController('wagusen_theme_v2');
         new ImageOptimizer();
         new PerformanceOptimizer();
+        new CodeBlockEnhancer();
         const mobileNav = new MobileNavigation();
         mobileNav.init();
     });

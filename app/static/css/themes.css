@@ -97,8 +97,7 @@ html.theme-8bit footer,
 html.theme-8bit input,
 html.theme-8bit select,
 html.theme-8bit textarea,
-html.theme-8bit .btn,
-html.theme-8bit button {
+html.theme-8bit button:not(.btn) {
   border-radius: 0 !important;
   border-width: 2px;
   border-style: solid;
@@ -107,16 +106,27 @@ html.theme-8bit button {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
+html.theme-8bit .btn:not(.btn-tag) {
+  border-radius: 0 !important;
+  border-width: 2px;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.4);
+  font-family: var(--font-pixel);
+}
+
 html.theme-8bit .card:hover,
-html.theme-8bit .post-card:hover,
 html.theme-8bit .simulation-card:hover {
   transform: translate(-2px, -2px);
   box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
 }
 
+/* 썸네일이 함께 재래스터링되지 않도록 포스트 카드는 위치를 고정한다. */
+html.theme-8bit .post-card:hover {
+  transform: none;
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.4);
+}
+
 /* 버튼 및 인터랙션 */
-html.theme-8bit .btn,
-html.theme-8bit button {
+html.theme-8bit button:not(.btn) {
   font-family: var(--font-pixel);
   background-color: var(--bg-secondary);
   color: var(--text-accent);
@@ -136,13 +146,13 @@ html.theme-8bit button:active {
 }
 
 /* 링크 */
-html.theme-8bit a {
+html.theme-8bit a:not(.btn) {
     color: var(--text-accent);
     text-decoration: none;
     text-shadow: 0 0 4px var(--text-accent);
     border-bottom: 2px dotted var(--text-accent);
 }
-html.theme-8bit a:hover {
+html.theme-8bit a:not(.btn):hover {
     color: var(--bg-primary);
     background-color: var(--text-accent);
     text-shadow: 0 0 6px var(--text-accent);
@@ -185,7 +195,7 @@ html.theme-8bit .footer-links .footer-icon-mail { background-image: url('/static
 
 /* 태그 및 뱃지 */
 html.theme-8bit .tag,
-html.theme-8bit .post-card-tag,
+html.theme-8bit .post-card-tag:not(.btn-tag),
 html.theme-8bit .post-card-date {
     background-color: var(--accent-secondary) !important;
     color: var(--bg-primary) !important;

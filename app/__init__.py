@@ -2,10 +2,11 @@
 import os
 import sys
 import logging
+from copy import deepcopy
 from logging.handlers import RotatingFileHandler
 import secrets
 
-from flask import Flask, g, request, render_template, url_for
+from flask import Flask, abort, g, request, render_template, url_for
 from flask_compress import Compress
 from flask_talisman import Talisman
 from flask_wtf.csrf import CSRFProtect
@@ -65,13 +66,48 @@ def create_app(config_name: str | None = None) -> Flask:
         filters='jsmin',
         output='gen/packed.js'
     )
-    assets.register('all_js', js_bundle)
+    if 'all_js' not in assets:
+        assets.register('all_js', js_bundle)
 
 
     # --- Generate CSP nonce on each request ---
     @app.before_request
     def generate_csp_nonce() -> None:
         g.csp_nonce = secrets.token_urlsafe(16)
+
+    @app.before_request
+    def remove_gps_before_public_image_response() -> None:
+        """Fail closed if a public photo cannot be verified GPS-free."""
+
+        relative_path = None
+        view_args = request.view_args or {}
+        if request.endpoint == 'posts.serve_image':
+            relative_path = os.path.join('images', 'posts', view_args.get('filename', ''))
+        elif request.endpoint == 'static':
+            static_filename = view_args.get('filename', '')
+            if static_filename.startswith(('images/posts/', 'gallery_photos/')):
+                relative_path = static_filename
+
+        if not relative_path:
+            return
+
+        static_root = os.path.realpath(app.static_folder)
+        image_path = os.path.realpath(os.path.join(static_root, relative_path))
+        try:
+            if os.path.commonpath((static_root, image_path)) != static_root:
+                abort(404)
+        except ValueError:
+            abort(404)
+        if not os.path.isfile(image_path):
+            return
+
+        from app.services.image_privacy_service import ImagePrivacyError, ensure_image_gps_private
+
+        try:
+            ensure_image_gps_private(image_path)
+        except ImagePrivacyError as exc:
+            app.logger.error("GPS 비공개 처리 실패로 이미지 제공 차단: %s", exc)
+            abort(503, description="이미지 개인정보 보호 처리를 완료하지 못했습니다.")
 
     # --- Ensure CSRF token is available as a cookie for JS ---
     @app.after_request
@@ -81,8 +117,15 @@ def create_app(config_name: str | None = None) -> Flask:
             generate_csrf()
         return response
 
+    @app.after_request
+    def add_search_indexing_header(response):
+        """Explicitly allow indexing for successful public HTML pages."""
+        if response.status_code == 200 and response.mimetype == 'text/html':
+            response.headers['X-Robots-Tag'] = 'index, follow'
+        return response
+
     # --- Configure Content Security Policy ---
-    csp_config = app.config.get('CSP', {})
+    csp_config = deepcopy(app.config.get('CSP', {}))
 
     talisman.init_app(
         app,
@@ -111,6 +154,9 @@ def create_app(config_name: str | None = None) -> Flask:
     app.register_blueprint(whois_bp)
     app.register_blueprint(utils_bp)
     app.register_blueprint(simulation_bp)
+
+    from app.cli.media import register_media_commands
+    register_media_commands(app)
 
     # --- Register error handlers ---
     app.register_error_handler(404, page_not_found)

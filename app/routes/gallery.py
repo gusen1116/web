@@ -1,9 +1,8 @@
 from __future__ import annotations
-from flask import Blueprint, render_template, abort, redirect, url_for, jsonify, make_response
+from flask import Blueprint, render_template, abort, redirect, url_for, make_response
 from typing import Dict, List
-from urllib.parse import unquote
 
-from app.services.gallery_service import get_all_photos, get_photo_by_id
+from app.services.gallery_service import get_all_photos, get_photo_by_id, is_safe_photo_filename
 
 # 블루프린트 이름 고정 (register_blueprints에서 gallery_bp를 import)
 gallery_bp = Blueprint("gallery", __name__, url_prefix="/gallery")
@@ -38,7 +37,11 @@ def index():
 
 @gallery_bp.route("/photo/<path:filename>")
 def detail(filename: str):
-    raw = unquote(filename)
+    # Werkzeug already URL-decodes route values.  Decoding again would turn a
+    # double-encoded traversal payload into a path separator.
+    raw = filename
+    if not is_safe_photo_filename(raw):
+        abort(404)
     photo: Dict | None = get_photo_by_id(raw)
 
     if not photo:
@@ -70,20 +73,7 @@ def detail(filename: str):
     response = make_response(render_template("gallery/detail.html",
                            photo=photo,
                            prev_photo=prev_photo,
-                           next_photo=next_photo))
+                           next_photo=next_photo,
+                           photo_index=(idx + 1) if idx is not None else None,
+                           photo_total=len(all_sorted)))
     return response
-
-@gallery_bp.route("/api/photo/<path:filename>/address")
-def get_photo_address(filename: str):
-    """특정 사진의 최신 주소 정보를 반환 (없으면 조회 시도)"""
-    raw = unquote(filename)
-    photo = get_photo_by_id(raw)
-    if not photo or not photo.get('gps'):
-        return jsonify({'error': 'GPS 정보가 없습니다'}), 404
-    
-    return jsonify({
-        'id': photo['id'],
-        'address': photo['gps'].get('address'),
-        'lat': photo['gps'].get('lat'),
-        'lon': photo['gps'].get('lon')
-    })

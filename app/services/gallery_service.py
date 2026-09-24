@@ -1,13 +1,13 @@
 # app/services/gallery_service.py
 import os
 import json
-import requests
-import time
 import threading
 from pathlib import Path
 from PIL import Image, ImageOps, ImageFilter
 from PIL.ExifTags import TAGS
 from flask import current_app, url_for
+
+ALLOWED_PHOTO_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'}
 
 # HEIC/HEIF 지원
 try:
@@ -27,45 +27,30 @@ def _get_cache_dir():
         # Fallback: 현재 디렉토리
         return Path('.')
 
-def _get_gps_cache_path(): return str(_get_cache_dir() / 'gps_address_cache.json')
 def _get_photo_cache_path(): return str(_get_cache_dir() / 'photo_metadata_cache.json')
 
-_address_cache = {}
 _photo_cache = {}
-_last_api_call = 0
-_warmer_thread = None
-_warmer_lock = threading.Lock()
+_cache_lock = threading.Lock()
 
 def _load_caches():
-    global _address_cache, _photo_cache
-    gps_path = _get_gps_cache_path()
+    global _photo_cache
     photo_path = _get_photo_cache_path()
 
-    if not _address_cache:
-        try:
-            if os.path.exists(gps_path):
-                with open(gps_path, 'r', encoding='utf-8') as f:
-                    _address_cache = json.load(f)
-                current_app.logger.info(f"[Gallery] GPS 캐시 로드 완료: {len(_address_cache)} 항목")
-        except Exception as e:
-            current_app.logger.error(f"[Gallery] GPS 캐시 로드 실패: {e}")
-    
     if not _photo_cache:
         try:
             if os.path.exists(photo_path):
                 with open(photo_path, 'r', encoding='utf-8') as f:
                     _photo_cache = json.load(f)
+                removed_private_data = False
+                for cached_photo in _photo_cache.values():
+                    if isinstance(cached_photo, dict) and 'gps' in cached_photo:
+                        cached_photo.pop('gps', None)
+                        removed_private_data = True
+                if removed_private_data:
+                    _save_photo_cache()
                 current_app.logger.info(f"[Gallery] 메타데이터 캐시 로드 완료: {len(_photo_cache)} 항목")
         except Exception as e:
             current_app.logger.error(f"[Gallery] 메타데이터 캐시 로드 실패: {e}")
-
-def _save_gps_cache():
-    path = _get_gps_cache_path()
-    try:
-        with open(path, 'w', encoding='utf-8') as f:
-            json.dump(_address_cache, f, ensure_ascii=False, indent=2)
-    except Exception as e:
-        current_app.logger.error(f"[Gallery] GPS 캐시 저장 실패: {e}")
 
 def _save_photo_cache():
     path = _get_photo_cache_path()
@@ -77,53 +62,49 @@ def _save_photo_cache():
     except Exception as e:
         current_app.logger.error(f"[Gallery] 메타데이터 캐시 저장 실패: {e}")
 
-def _background_address_warmer(app_context):
-    """백그라운드에서 누락된 주소 정보를 채움 (Nominatim API 정책 준수)"""
-    global _last_api_call
-    with app_context:
-        _load_caches()
-        targets = []
-        for key, data in _photo_cache.items():
-            gps = data.get('gps')
-            if gps and gps.get('lat') and not gps.get('address'):
-                targets.append((key, gps['lat'], gps['lon']))
-        
-        if not targets:
-            current_app.logger.info("[Gallery] 백그라운드 워머: 업데이트할 주소가 없습니다.")
-            return
-
-        current_app.logger.info(f"[Gallery] 백그라운드 워머 시작: {len(targets)}개의 주소 조회 예정")
-        for key, lat, lon in targets:
-            addr = _get_address(lat, lon, allow_network=True)
-            if addr:
-                with _warmer_lock:
-                    if key in _photo_cache:
-                        _photo_cache[key]['gps']['address'] = addr
-                _save_photo_cache()
-                current_app.logger.info(f"[Gallery] 백그라운드 주소 획득: {key} -> {addr}")
-            time.sleep(1.2) # 1.1초 이상 대기 필수
-        current_app.logger.info("[Gallery] 백그라운드 워머 종료")
-
-def _start_warmer():
-    global _warmer_thread
-    if _warmer_thread and _warmer_thread.is_alive(): return
-    from flask import current_app
-    current_app.logger.info("[Gallery] 백그라운드 워머 스레드 가동...")
-    _warmer_thread = threading.Thread(
-        target=_background_address_warmer, 
-        args=(current_app.app_context(),),
-        daemon=True
+def is_safe_photo_filename(filename: str) -> bool:
+    """Return whether *filename* identifies one top-level gallery image."""
+    if not isinstance(filename, str) or not filename or '\x00' in filename:
+        return False
+    if '/' in filename or '\\' in filename or filename in {'.', '..'}:
+        return False
+    path = Path(filename)
+    return (
+        not path.is_absolute()
+        and path.name == filename
+        and path.suffix.lower() in ALLOWED_PHOTO_EXTENSIONS
     )
-    _warmer_thread.start()
+
+def _resolve_photo_path(filename: str, photos_dir: str | os.PathLike | None) -> Path | None:
+    """Resolve a gallery image without permitting traversal or escaping symlinks."""
+    if not photos_dir or not is_safe_photo_filename(filename):
+        return None
+    try:
+        gallery_root = Path(photos_dir).resolve()
+        candidate = (gallery_root / filename).resolve()
+        candidate.relative_to(gallery_root)
+    except (OSError, RuntimeError, ValueError):
+        return None
+    return candidate if candidate.is_file() else None
 
 def _get_thumbnail_filename(filename: str) -> str:
+    if not is_safe_photo_filename(filename):
+        raise ValueError('Unsafe gallery filename')
     base, _ = os.path.splitext(filename)
     return f"{base}.jpg"
 
 def _get_thumbnail_path(filename: str) -> str:
-    thumb_dir = os.path.join(current_app.static_folder, 'gallery_thumbnails')
-    os.makedirs(thumb_dir, exist_ok=True)
-    return os.path.join(thumb_dir, _get_thumbnail_filename(filename))
+    static_root = Path(current_app.static_folder).resolve()
+    thumb_dir = static_root / 'gallery_thumbnails'
+    thumb_dir.mkdir(parents=True, exist_ok=True)
+    resolved_thumb_dir = thumb_dir.resolve()
+    thumb_path = (resolved_thumb_dir / _get_thumbnail_filename(filename)).resolve()
+    try:
+        resolved_thumb_dir.relative_to(static_root)
+        thumb_path.relative_to(resolved_thumb_dir)
+    except ValueError as exc:
+        raise ValueError('Thumbnail path escaped its configured directory') from exc
+    return str(thumb_path)
 
 def _create_thumbnail(image_path: str, thumb_path: str) -> bool:
     """고화질 최적화 썸네일 생성"""
@@ -151,67 +132,6 @@ def _create_thumbnail(image_path: str, thumb_path: str) -> bool:
         current_app.logger.warning(f"[Gallery] 썸네일 생성 실패 ({image_path}): {e}")
         return False
 
-def _gps_to_deg(value, ref):
-    try:
-        def _rv(x):
-            if hasattr(x, 'numerator') and hasattr(x, 'denominator'):
-                return float(x.numerator) / float(x.denominator) if x.denominator != 0 else 0.0
-            return float(x)
-        d, m, s = _rv(value[0]), _rv(value[1]), _rv(value[2])
-        deg = d + (m / 60.0) + (s / 3600.0)
-        return -deg if ref in ('S', 'W') else deg
-    except Exception: return None
-
-def _get_address(lat, lon, allow_network=False):
-    global _last_api_call
-    _load_caches()
-    key = f"{lat:.4f},{lon:.4f}"
-    if key in _address_cache:
-        return _address_cache[key]
-    
-    if not allow_network: return None
-    
-    now = time.time()
-    if now - _last_api_call < 1.1: return None
-
-    try:
-        _last_api_call = now
-        headers = {'User-Agent': 'GusenGallery/3.0 (contact: admin@wagusen.com)'}
-        url = f"https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat={lat}&lon={lon}&zoom=12&accept-language=ko"
-        response = requests.get(url, headers=headers, timeout=5)
-        if response.status_code == 200:
-            data = response.json()
-            addr = data.get('address', {})
-            place = addr.get('city') or addr.get('town') or addr.get('village') or addr.get('county') or addr.get('province') or addr.get('state') or addr.get('country')
-            if place:
-                _address_cache[key] = place
-                _save_gps_cache()
-                return place
-    except Exception as e:
-        current_app.logger.error(f"[Gallery] 주소 API 호출 실패: {e}")
-    return None
-
-def _extract_gps(exif: dict, allow_network=False) -> dict | None:
-    gps = exif.get('GPSInfo') or {}
-    if not isinstance(gps, dict): return None
-
-    lat = gps.get(2) or gps.get('GPSLatitude')
-    lat_ref = gps.get(1) or gps.get('GPSLatitudeRef')
-    lon = gps.get(4) or gps.get('GPSLongitude')
-    lon_ref = gps.get(3) or gps.get('GPSLongitudeRef')
-
-    if not (lat and lon and lat_ref and lon_ref): return None
-
-    lat_deg = _gps_to_deg(lat, str(lat_ref))
-    lon_deg = _gps_to_deg(lon, str(lon_ref))
-    if lat_deg is None or lon_deg is None: return None
-        
-    address = _get_address(lat_deg, lon_deg, allow_network=allow_network)
-    return {
-        'lat': lat_deg, 'lon': lon_deg, 'address': address,
-        'map_url': f"https://www.openstreetmap.org/?mlat={lat_deg}&mlon={lon_deg}#map=15/{lat_deg}/{lon_deg}"
-    }
-
 def _get_exif_data(image_path: str) -> dict:
     try:
         with Image.open(image_path) as image:
@@ -228,9 +148,6 @@ def _get_exif_data(image_path: str) -> dict:
                 for tag_id, value in exif_sub.items():
                     tag = TAGS.get(tag_id, tag_id)
                     exif_data[tag] = value
-
-            gps_sub = exif_raw.get_ifd(0x8825)
-            if gps_sub: exif_data['GPSInfo'] = dict(gps_sub)
 
             return exif_data
     except Exception as e:
@@ -275,9 +192,12 @@ def _format_exif_value(key: str, value) -> str | None:
         return res if res.lower() not in ('none', 'undefined', '') else None
     except Exception: return None
 
-def process_photo_file(filename: str, photos_dir: str, allow_network=False) -> dict | None:
-    file_path = os.path.join(photos_dir, filename)
-    if not os.path.exists(file_path): return None
+def process_photo_file(filename: str, photos_dir: str) -> dict | None:
+    resolved_file_path = _resolve_photo_path(filename, photos_dir)
+    if resolved_file_path is None:
+        current_app.logger.warning(f"[Gallery] 안전하지 않거나 존재하지 않는 사진 경로 거부: {filename!r}")
+        return None
+    file_path = str(resolved_file_path)
 
     _load_caches()
     mtime = int(os.path.getmtime(file_path))
@@ -285,15 +205,7 @@ def process_photo_file(filename: str, photos_dir: str, allow_network=False) -> d
     
     if cache_key in _photo_cache:
         data = _photo_cache[cache_key].copy()
-        if data.get('gps') and not data['gps'].get('address') and allow_network:
-            addr = _get_address(data['gps']['lat'], data['gps']['lon'], allow_network=True)
-            if addr:
-                current_app.logger.info(f"[Gallery] 실시간 주소 획득: {filename} -> {addr}")
-                data['gps']['address'] = addr
-                with _warmer_lock:
-                    if cache_key in _photo_cache:
-                        _photo_cache[cache_key]['gps']['address'] = addr
-                _save_photo_cache()
+        data.pop('gps', None)
         return data
 
     current_app.logger.info(f"[Gallery] 캐시 미스 또는 정보 없음 - 재처리: {filename}")
@@ -325,8 +237,6 @@ def process_photo_file(filename: str, photos_dir: str, allow_network=False) -> d
         val = _format_exif_value(exif_key, exif_data.get(exif_key))
         if val: exif_low[target_key] = val
 
-    gps_point = _extract_gps(exif_data, allow_network=allow_network)
-    
     photo_data = {
         'id': filename,
         'url': url_for('static', filename=f'gallery_photos/{filename}'),
@@ -334,12 +244,11 @@ def process_photo_file(filename: str, photos_dir: str, allow_network=False) -> d
         'title': os.path.splitext(filename)[0].replace('_', ' ').replace('-', ' ').title(),
         'year': year_tag,
         'tags': [year_tag],
-        'exif_low': exif_low,
-        'gps': gps_point
+        'exif_low': exif_low
     }
     
     current_app.logger.debug(f"[Gallery] {filename} 파싱 결과: EXIF 키 {list(exif_low.keys())}")
-    with _warmer_lock:
+    with _cache_lock:
         _photo_cache[cache_key] = photo_data
     _save_photo_cache()
     
@@ -352,27 +261,19 @@ def get_all_photos() -> list[dict]:
         return []
     
     photo_list = []
-    allowed_ext = {'.jpg', '.jpeg', '.png', '.webp', '.heic', '.heif'}
-    
     filenames = sorted([f for f in os.listdir(photos_dir) 
-                        if os.path.splitext(f)[1].lower() in allowed_ext], reverse=True)
+                        if os.path.splitext(f)[1].lower() in ALLOWED_PHOTO_EXTENSIONS], reverse=True)
     
     current_app.logger.info(f"[Gallery] 사진 목록 로드 시작 (파일수: {len(filenames)})")
     
-    needs_warming = False
     for filename in filenames:
-        photo_data = process_photo_file(filename, photos_dir, allow_network=False)
+        photo_data = process_photo_file(filename, photos_dir)
         if photo_data:
             photo_list.append(photo_data)
-            if photo_data.get('gps') and not photo_data['gps'].get('address'):
-                needs_warming = True
-        
-    if needs_warming:
-        _start_warmer()
         
     return photo_list
 
 def get_photo_by_id(filename: str) -> dict | None:
     photos_dir = current_app.config.get('GALLERY_PHOTOS_DIR')
     current_app.logger.info(f"[Gallery] 개별 사진 상세 요청: {filename}")
-    return process_photo_file(filename, photos_dir, allow_network=True)
+    return process_photo_file(filename, photos_dir)

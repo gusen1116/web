@@ -1,210 +1,347 @@
 {% extends "base.html" %}
 
-{% block title %}네트워크 진단 도구 - 와구센{% endblock %}
+{% block title %}네트워크 도구 - 와구센{% endblock %}
+{% block description %}네트워크 속도를 측정하고 도메인, 포트, 서브도메인 조회 도구를 확인합니다.{% endblock %}
 
 {% block head %}
-<meta name="csrf-token" content="{{ csrf_token() }}">
 <style>
-    .diagnostic-container {
-        max-width: 900px;
-        margin: 2rem auto;
-        font-family: var(--font-sans);
-    }
+  .network-page {
+    width: 100%;
+    max-width: var(--content-max-width);
+    margin: 0 auto var(--spacing-16);
+  }
 
-    .section-title {
-        font-family: var(--font-pixel, var(--font-sans));
-        color: var(--text-accent);
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        width: 100%;
-    }
+  .network-section {
+    margin-bottom: var(--spacing-12);
+  }
 
-    /* 모든 텍스트 요소 폰트 통일 */
-    .diagnostic-container h1, 
-    .diagnostic-container p, 
-    .diagnostic-container span, 
-    .diagnostic-container li,
-    .diagnostic-container input,
-    .diagnostic-container button {
-        font-family: var(--font-sans);
-    }
+  .network-section-title {
+    margin: 0 0 var(--spacing-6);
+    font-size: 1.9rem;
+    font-weight: 700;
+  }
 
-    .section-title, .action-btn {
-        font-family: var(--font-pixel, var(--font-sans)) !important;
-    }
+  .speed-test-panel {
+    padding: var(--spacing-8);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+  }
 
-    /* 공통 버튼 스타일 */
-    .action-btn {
-        padding: 0.75rem 1.5rem;
-        border: none;
-        cursor: pointer;
-        font-family: var(--font-pixel, var(--font-sans));
-        font-size: 0.9rem;
-        transition: all 0.2s;
-    }
+  .speed-results {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--spacing-6);
+  }
 
-    /* Speedtest Styles */
-    .results-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-top: 1.5rem;
-    }
+  .speed-result {
+    min-width: 0;
+    padding: var(--spacing-6);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    text-align: center;
+  }
 
-    .result-card {
-        background-color: var(--bg-primary);
-        border: 1px solid var(--border-color);
-        padding: 1.5rem;
-        text-align: center;
-    }
+  .speed-result-label {
+    display: block;
+    color: var(--text-tertiary);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
 
-    .result-value {
-        font-size: 2rem;
-        font-weight: bold;
-        color: var(--text-primary);
-        display: block;
-    }
+  .speed-result-reading {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.35rem;
+    margin-top: 0.45rem;
+  }
 
-    .result-unit {
-        font-size: 0.8rem;
-        color: var(--text-tertiary);
-    }
+  .speed-result-value {
+    color: var(--text-accent);
+    font-size: clamp(1.7rem, 5vw, 2.5rem);
+    font-variant-numeric: tabular-nums;
+    font-weight: 800;
+    line-height: 1;
+  }
 
-    /* WHOIS & Port Scan Inputs */
-    .input-group {
-        display: flex;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
+  .speed-result-unit {
+    color: var(--text-tertiary);
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
 
-    .input-control {
-        flex: 1;
-        padding: 0.75rem;
-        background-color: var(--bg-primary);
-        border: 1px solid var(--border-color);
-        color: var(--text-primary);
-        font-family: var(--font-sans);
-    }
+  .speed-progress {
+    height: 8px;
+    margin-top: var(--spacing-6);
+    overflow: hidden;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-full);
+  }
 
-    /* Results Areas */
-    .scroll-box {
-        background-color: #000;
-        color: #00ff00;
-        font-family: var(--font-mono);
-        padding: 1rem;
-        height: 250px;
-        overflow-y: auto;
-        border: 1px solid var(--border-color);
-        font-size: 0.85rem;
-        margin-top: 1rem;
-    }
+  .speed-progress-bar {
+    width: 0;
+    height: 100%;
+    background: var(--github-accent);
+    border-radius: inherit;
+    transition: width 180ms ease;
+  }
 
-    .info-list {
-        list-style: none;
-        padding: 0;
-    }
+  .speed-message {
+    margin: var(--spacing-4) 0 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    text-align: center;
+  }
 
-    .info-list li {
-        display: flex;
-        border-bottom: 1px solid var(--border-color);
-        padding: 0.5rem 0;
-    }
+  .speed-message:empty { display: none; }
+  .speed-message.error { color: var(--danger); }
+  .speed-message.success { color: var(--success); }
 
-    .info-label {
-        width: 150px;
-        color: var(--text-tertiary);
-        font-weight: bold;
-    }
+  .speed-controls {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-6);
+  }
 
-    .progress-container {
-        height: 10px;
-        background-color: var(--bg-primary);
-        margin-top: 1rem;
-        display: none;
-    }
+  .speed-profile-field {
+    display: grid;
+    gap: 0.3rem;
+  }
 
-    .progress-bar {
-        height: 100%;
-        background-color: var(--text-accent);
-        width: 0%;
+  .speed-profile-field label {
+    color: var(--text-tertiary);
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+
+  .speed-profile-field .form-select { width: 13rem; }
+
+  .network-tools-panel {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .network-tool-row {
+    display: grid;
+    grid-template-columns: minmax(12rem, 0.7fr) minmax(0, 2fr);
+    align-items: center;
+    gap: var(--spacing-6);
+    padding: var(--spacing-6);
+  }
+
+  .network-tool-row + .network-tool-row {
+    border-top: 1px solid var(--border-color);
+  }
+
+  .network-tool-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .network-tool-form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--spacing-3);
+    min-width: 0;
+  }
+
+  .network-tool-form.port-form {
+    grid-template-columns: minmax(0, 1fr) minmax(8rem, 0.55fr) auto;
+  }
+
+  .network-tool-form .btn {
+    min-width: 5rem;
+  }
+
+  .network-tool-content {
+    min-width: 0;
+  }
+
+  .network-tool-result {
+    max-height: 22rem;
+    margin-top: var(--spacing-4);
+    padding: var(--spacing-4);
+    overflow: auto;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    font-size: 0.9rem;
+  }
+
+  .network-tool-result[hidden] { display: none; }
+
+  .network-tool-result.error {
+    color: var(--danger);
+    border-color: var(--danger);
+  }
+
+  .result-group + .result-group { margin-top: var(--spacing-4); }
+
+  .result-group-title,
+  .result-summary {
+    display: block;
+    margin-bottom: var(--spacing-2);
+    font-weight: 700;
+  }
+
+  .result-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .result-list li {
+    padding: var(--spacing-2) 0;
+    border-top: 1px solid var(--border-subtle);
+    overflow-wrap: anywhere;
+  }
+
+  .port-result-grid {
+    display: grid;
+    grid-template-columns: minmax(3rem, 0.6fr) minmax(4rem, 1fr) minmax(4rem, 0.8fr) minmax(4.5rem, 1fr);
+  }
+
+  .port-result-grid > span {
+    min-width: 0;
+    padding: var(--spacing-2);
+    border-bottom: 1px solid var(--border-subtle);
+    overflow-wrap: anywhere;
+  }
+
+  .port-result-grid .result-table-heading {
+    color: var(--text-tertiary);
+    font-weight: 700;
+  }
+
+  .port-status-open { color: var(--success); }
+  .port-status-closed { color: var(--text-tertiary); }
+
+  @media (max-width: 768px) {
+    .network-section { margin-bottom: var(--spacing-8); }
+    .network-section-title { font-size: 1.4rem; }
+    .speed-test-panel { padding: var(--spacing-5); }
+    .speed-results { grid-template-columns: 1fr; }
+    .speed-results { gap: var(--spacing-4); }
+    .speed-result { padding: var(--spacing-5); }
+    .speed-controls { align-items: stretch; flex-direction: column; }
+    .speed-profile-field .form-select,
+    .speed-controls .btn { width: 100%; }
+    .network-tool-row {
+      grid-template-columns: 1fr;
+      gap: var(--spacing-4);
+      padding: var(--spacing-5);
     }
+    .network-tool-form,
+    .network-tool-form.port-form { grid-template-columns: 1fr; }
+    .network-tool-form .btn { width: 100%; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="diagnostic-container">
-    <div class="scanner-header" style="text-align: center; margin-bottom: 3rem;">
-        <h1 class="animate-on-scroll">NETWORK DIAGNOSTICS</h1>
-        <p class="animate-on-scroll">속도 측정, 도메인 조회 및 포트 스캔을 한 페이지에서 수행합니다.</p>
+<div class="network-page" id="speedTestApp" data-measurement-api="https://api.wagusen.com/api/v1">
+  <div class="blog-header">
+    <h1>네트워크</h1>
+  </div>
+
+  <section class="network-section" aria-labelledby="speedTestTitle">
+    <h2 class="network-section-title" id="speedTestTitle">속도 측정</h2>
+    <div class="speed-test-panel">
+      <div class="speed-results" aria-label="속도 측정 결과">
+        <div class="speed-result">
+          <span class="speed-result-label">PING</span>
+          <span class="speed-result-reading">
+            <span class="speed-result-value" id="pingResult">--</span>
+            <span class="speed-result-unit">ms</span>
+          </span>
+        </div>
+        <div class="speed-result">
+          <span class="speed-result-label">DOWNLOAD</span>
+          <span class="speed-result-reading">
+            <span class="speed-result-value" id="downloadResult">--</span>
+            <span class="speed-result-unit">Mbps</span>
+          </span>
+        </div>
+        <div class="speed-result">
+          <span class="speed-result-label">UPLOAD</span>
+          <span class="speed-result-reading">
+            <span class="speed-result-value" id="uploadResult">--</span>
+            <span class="speed-result-unit">Mbps</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="speed-progress" role="progressbar" aria-label="측정 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+        <div class="speed-progress-bar" id="speedProgressBar"></div>
+      </div>
+      <p class="speed-message" id="speedMessage" role="status" aria-live="polite"></p>
+
+      <div class="speed-controls">
+        <div class="speed-profile-field">
+          <label for="speedProfile">측정 데이터 크기</label>
+          <select class="form-select" id="speedProfile">
+            <option value="small">small</option>
+            <option value="normal" selected>normal</option>
+            <option value="large">large</option>
+          </select>
+        </div>
+        <button type="button" class="btn btn-primary" id="startSpeedTest">측정 시작</button>
+      </div>
     </div>
+  </section>
 
-    <!-- Speedtest Section -->
-    <section class="diagnostic-section animate-on-scroll">
-        <h2 class="section-title"><i class="fas fa-tachometer-alt"></i> SPEED TEST</h2>
-        <div style="text-align: center;">
-            <button id="startTestBtn" class="action-btn btn-primary" style="background-color: var(--github-accent); color: white;">테스트 시작</button>
+  <section class="network-section" aria-labelledby="networkToolsTitle">
+    <h2 class="network-section-title" id="networkToolsTitle">네트워크 조회</h2>
+    <div class="network-tools-panel">
+      <section class="network-tool-row" aria-labelledby="nameserverToolTitle">
+        <h3 class="network-tool-title" id="nameserverToolTitle">도메인 네임서버 조회</h3>
+        <div class="network-tool-content">
+          <form class="network-tool-form" id="dnsLookupForm">
+            <input class="input-control" id="dnsDomain" type="text" aria-label="도메인" placeholder="도메인" autocomplete="url" required>
+            <button class="btn btn-primary" id="dnsLookupButton" type="submit">조회</button>
+          </form>
+          <div class="network-tool-result" id="dnsLookupResult" role="status" aria-live="polite" hidden></div>
         </div>
-        
-        <div id="speedResults" style="display: none;">
-            <div class="results-grid">
-                <div class="result-card">
-                    <span class="result-unit">PING</span>
-                    <span id="pingResult" class="result-value">-</span>
-                    <span class="result-unit">ms</span>
-                </div>
-                <div class="result-card">
-                    <span class="result-unit">DOWNLOAD</span>
-                    <span id="downloadResult" class="result-value">-</span>
-                    <span class="result-unit">Mbps</span>
-                </div>
-                <div class="result-card">
-                    <span class="result-unit">UPLOAD</span>
-                    <span id="uploadResult" class="result-value">-</span>
-                    <span class="result-unit">Mbps</span>
-                </div>
-            </div>
-            <div id="speedProgressContainer" class="progress-container">
-                <div id="speedProgressBar" class="progress-bar"></div>
-            </div>
-        </div>
-    </section>
+      </section>
 
-    <!-- WHOIS Section -->
-    <section class="diagnostic-section animate-on-scroll">
-        <h2 class="section-title"><i class="fas fa-id-card"></i> WHOIS LOOKUP</h2>
-        <div class="input-group">
-            <input type="text" id="whoisInput" class="input-control" placeholder="도메인 입력 (예: naver.com)">
-            <button id="whoisBtn" class="action-btn" style="background-color: var(--success); color: white;">조회</button>
+      <section class="network-tool-row" aria-labelledby="portScanToolTitle">
+        <h3 class="network-tool-title" id="portScanToolTitle">포트 스캔</h3>
+        <div class="network-tool-content">
+          <form class="network-tool-form port-form" id="portScanForm">
+            <input class="input-control" id="portScanTarget" type="text" aria-label="호스트" placeholder="호스트" autocomplete="url" required>
+            <input class="input-control" id="portScanPorts" type="text" aria-label="포트" placeholder="포트">
+            <button class="btn btn-primary" id="portScanButton" type="submit">스캔</button>
+          </form>
+          <div class="network-tool-result" id="portScanResult" role="status" aria-live="polite" hidden></div>
         </div>
-        <div id="whoisResult" style="display: none; margin-top: 1rem;">
-            <ul id="whoisList" class="info-list"></ul>
-            <div id="whoisRaw" class="scroll-box" style="display: none; height: 150px; margin-top: 1rem;"></div>
-        </div>
-    </section>
+      </section>
 
-    <!-- Port Scan Section -->
-    <section class="diagnostic-section animate-on-scroll">
-        <h2 class="section-title"><i class="fas fa-search-location"></i> PORT SCANNER</h2>
-        <div class="input-group">
-            <input type="text" id="portHost" class="input-control" placeholder="호스트 입력 (예: google.com)">
-            <input type="text" id="portList" class="input-control" style="flex: 0.5;" value="[21,22,80,443,8080]">
-            <button id="portBtn" class="action-btn" style="background-color: var(--warning); color: white;">스캔</button>
+      <section class="network-tool-row" aria-labelledby="subdomainToolTitle">
+        <h3 class="network-tool-title" id="subdomainToolTitle">서브도메인 검색</h3>
+        <div class="network-tool-content">
+          <form class="network-tool-form" id="subdomainLookupForm">
+            <input class="input-control" id="subdomainDomain" type="text" aria-label="도메인" placeholder="도메인" autocomplete="url" required>
+            <button class="btn btn-primary" id="subdomainLookupButton" type="submit">검색</button>
+          </form>
+          <div class="network-tool-result" id="subdomainLookupResult" role="status" aria-live="polite" hidden></div>
         </div>
-        <div id="portProgressContainer" class="progress-container">
-            <div id="portProgressBar" class="progress-bar"></div>
-        </div>
-        <div id="portTerminal" class="scroll-box" style="display: none;"></div>
-    </section>
+      </section>
+    </div>
+  </section>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/speedtest.js') }}"></script>
-<script>
-    // 기존 speedtest.js가 이 페이지의 통합된 ID들을 처리할 수 있도록 보완하거나
-    // speedtest.js의 로직을 이 페이지에 맞게 일부 수정해야 할 수 있습니다.
-    // 현재는 통합 UI 구조에 맞춰 speedtest.js가 동작하도록 되어 있는지 확인이 필요합니다.
-</script>
+<script nonce="{{ csp_nonce() }}" src="{{ static_url('js/speedtest.js') }}"></script>
 {% endblock %}

@@ -7,8 +7,9 @@ now declares the domain name as a route parameter instead of relying on
 trailing whitespace. Additional comments explain the CSRF validation logic.
 """
 
-from flask import Blueprint, render_template, request, Response, stream_with_context, jsonify, current_app
+from flask import Blueprint, request, Response, stream_with_context, jsonify, current_app, redirect, url_for
 import socket
+import ipaddress
 import concurrent.futures
 import json
 from flask_wtf.csrf import validate_csrf
@@ -23,6 +24,51 @@ def is_valid_host(host: str) -> bool:
         return True
     except (socket.gaierror, ValueError):
         return False
+
+def resolve_public_scan_target(host: str) -> str:
+    """Resolve *host* once and return a globally routable IPv4 address.
+
+    Every returned address is checked so a hostname with mixed public/private
+    DNS records cannot be used to reach an internal service.  Callers must pass
+    the returned numeric address to ``scan_port`` to avoid a second DNS lookup.
+    """
+    if not isinstance(host, str) or not host.strip() or len(host) > 253:
+        raise ValueError('유효하지 않거나 비어있는 호스트 이름/IP 주소입니다.')
+
+    try:
+        address_info = socket.getaddrinfo(
+            host.strip(),
+            None,
+            family=socket.AF_INET,
+            type=socket.SOCK_STREAM,
+        )
+    except (socket.gaierror, UnicodeError, ValueError, OSError) as exc:
+        raise ValueError(f"호스트 이름 '{host}'을(를) 확인할 수 없습니다.") from exc
+
+    addresses = {item[4][0] for item in address_info if item[4]}
+    if not addresses:
+        raise ValueError(f"호스트 이름 '{host}'을(를) 확인할 수 없습니다.")
+
+    parsed_addresses = []
+    for address in addresses:
+        try:
+            parsed = ipaddress.ip_address(address)
+        except ValueError as exc:
+            raise ValueError('호스트가 유효한 공개 IP 주소로 확인되지 않았습니다.') from exc
+        if (
+            parsed.version != 4
+            or not parsed.is_global
+            or parsed.is_private
+            or parsed.is_loopback
+            or parsed.is_link_local
+            or parsed.is_multicast
+            or parsed.is_reserved
+            or parsed.is_unspecified
+        ):
+            raise ValueError('사설, 로컬 또는 비공개 IP 주소는 스캔할 수 없습니다.')
+        parsed_addresses.append(parsed)
+
+    return str(min(parsed_addresses, key=lambda address: int(address)))
 
 def scan_port(host: str, port: int) -> dict:
     """Scan a single port and return its status."""
@@ -40,8 +86,8 @@ def scan_port(host: str, port: int) -> dict:
 
 @utils_bp.route('/portscanner', methods=['GET'])
 def port_scanner_page():
-    """Render the port scanner page."""
-    return render_template('port_scanner.html')
+    """Redirect the legacy page to the integrated diagnostics page."""
+    return redirect(url_for('speedtest.speedtest_page'), code=302)
 
 @utils_bp.route('/start_portscan', methods=['POST'])
 def start_portscan():
@@ -79,14 +125,14 @@ def start_portscan():
             ports_to_scan = json.loads(ports_json_str)
         except (json.JSONDecodeError, ValueError) as e:
             return Response(json.dumps({'error': f'유효하지 않은 포트 형식입니다: {e}'}), status=400, mimetype='application/json')
-    if not host or not is_valid_host(host):
+    if not host:
         return Response(json.dumps({'error': '유효하지 않거나 비어있는 호스트 이름/IP 주소입니다.'}), status=400, mimetype='application/json')
     if not isinstance(ports_to_scan, list) or not all(isinstance(p, int) for p in ports_to_scan):
         return Response(json.dumps({'error': '포트 목록은 정수형 배열이어야 합니다.'}), status=400, mimetype='application/json')
     try:
-        target_ip = socket.gethostbyname(host)
-    except socket.gaierror:
-        return Response(json.dumps({'error': f"호스트 이름 '{host}'을(를) 확인할 수 없습니다."}), status=400, mimetype='application/json')
+        target_ip = resolve_public_scan_target(host)
+    except ValueError as exc:
+        return Response(json.dumps({'error': str(exc)}), status=400, mimetype='application/json')
     if len(ports_to_scan) > 2000:
         return Response(json.dumps({'error': '한 번에 스캔할 수 있는 최대 포트 수는 2000개입니다.'}), status=400, mimetype='application/json')
     def generate_results():
@@ -149,8 +195,6 @@ def api_port_scan():
     ports_str = request.args.get('ports', '')
     if not host:
         return jsonify({'error': '호스트를 지정해주세요.'}), 400
-    if not is_valid_host(host):
-        return jsonify({'error': '유효하지 않은 호스트입니다.'}), 400
     ports_to_scan: list[int] = []
     try:
         for port_part in ports_str.split(','):
@@ -172,9 +216,9 @@ def api_port_scan():
     if not ports_to_scan:
         return jsonify({'error': '스캔할 포트를 지정해주세요.'}), 400
     try:
-        target_ip = socket.gethostbyname(host)
-    except socket.gaierror:
-        return jsonify({'error': f"호스트 '{host}'를 확인할 수 없습니다."}), 400
+        target_ip = resolve_public_scan_target(host)
+    except ValueError as exc:
+        return jsonify({'error': str(exc)}), 400
     results = {'host': host, 'ip': target_ip, 'open': [], 'closed': [], 'errors': []}
     for port in ports_to_scan[:100]:
         result = scan_port(target_ip, port)
